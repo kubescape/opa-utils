@@ -8,7 +8,7 @@ import (
 	"github.com/armosec/armopa/storage"
 	"github.com/armosec/armopa/storage/inmem"
 	"github.com/armosec/armopa/util"
-	"github.com/armosec/capacketsgo/k8sinterface"
+	k8sinterface "github.com/armosec/k8s-interface/k8sinterface"
 	"k8s.io/client-go/rest"
 )
 
