@@ -177,10 +177,3 @@ type PolicyIdentifier struct {
 	Kind NotificationPolicyKind `json:"kind"`
 	Name string                 `json:"name"`
 }
-
-type IReportStatus interface {
-	GetStatus() string
-	Passed() bool
-	Warning() bool
-	Failed() bool
-}

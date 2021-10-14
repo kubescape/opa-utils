@@ -10,6 +10,46 @@ import (
 	"k8s.io/apimachinery/pkg/labels"
 )
 
+// SetFrameworkExceptions add exceptions to framework report
+func SetFrameworkExceptions(frameworkReport *reporthandling.FrameworkReport, exceptionsPolicies []armotypes.PostureExceptionPolicy, clusterName string) {
+	for c := range frameworkReport.ControlReports {
+		SetControlExceptions(&frameworkReport.ControlReports[c], exceptionsPolicies, clusterName, frameworkReport.Name)
+	}
+}
+
+// SetControlExceptions add exceptions to control report
+func SetControlExceptions(controlReport *reporthandling.ControlReport, exceptionsPolicies []armotypes.PostureExceptionPolicy, clusterName, frameworkName string) {
+	for r := range controlReport.RuleReports {
+		SetRuleExceptions(&controlReport.RuleReports[r], exceptionsPolicies, clusterName, frameworkName, controlReport.Name)
+	}
+}
+
+// SetRuleExceptions add exceptions to rule report
+func SetRuleExceptions(ruleReport *reporthandling.RuleReport, exceptionsPolicies []armotypes.PostureExceptionPolicy, clusterName, frameworkName, controlName string) {
+
+	// adding exceptions to the rules
+	ruleExceptions := ListRuleExceptions(exceptionsPolicies, frameworkName, controlName, ruleReport.Name)
+	SetRuleResponsExceptions(ruleReport.RuleResponses, ruleExceptions, clusterName)
+}
+
+// SetRuleExceptions add exceptions to rule respons structure
+func SetRuleResponsExceptions(results []reporthandling.RuleResponse, ruleExceptions []armotypes.PostureExceptionPolicy, clusterName string) {
+	if len(ruleExceptions) == 0 {
+		return
+	}
+	for i := range results {
+		workloads := alertObjectToWorkloads(&results[i].AlertObject)
+		if len(workloads) == 0 {
+			continue
+		}
+		for w := range workloads {
+			if exception := getException(ruleExceptions, workloads[w], clusterName); exception != nil {
+				results[i].Exception = exception
+			}
+		}
+		results[i].RuleStatus = results[i].GetStatus()
+	}
+}
 func ListRuleExceptions(exceptionPolicies []armotypes.PostureExceptionPolicy, frameworkName, controlName, ruleName string) []armotypes.PostureExceptionPolicy {
 	ruleExceptions := []armotypes.PostureExceptionPolicy{}
 	for i := range exceptionPolicies {
@@ -41,24 +81,6 @@ func ruleHasExceptions(exceptionPolicy *armotypes.PostureExceptionPolicy, framew
 
 	return false
 
-}
-
-func AddExceptionsToRuleResponses(results []reporthandling.RuleResponse, ruleExceptions []armotypes.PostureExceptionPolicy, clusterName string) {
-	if len(ruleExceptions) == 0 {
-		return
-	}
-	for i := range results {
-		workloads := alertObjectToWorkloads(&results[i].AlertObject)
-		if len(workloads) == 0 {
-			continue
-		}
-		for w := range workloads {
-			if exception := getException(ruleExceptions, workloads[w], clusterName); exception != nil {
-				results[i].Exception = exception
-			}
-		}
-		results[i].RuleStatus = results[i].GetStatus()
-	}
 }
 
 func alertObjectToWorkloads(obj *reporthandling.AlertObject) []k8sinterface.IWorkload {

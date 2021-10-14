@@ -3,7 +3,7 @@ module github.com/armosec/opa-utils
 go 1.17
 
 require (
-	github.com/armosec/armoapi-go v0.0.2
+	github.com/armosec/armoapi-go v0.0.7
 	github.com/armosec/k8s-interface v0.0.2
 	github.com/francoispqt/gojay v1.2.13
 	github.com/open-policy-agent/opa v0.33.1

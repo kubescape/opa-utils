@@ -90,7 +90,22 @@ func (frameworkReport *FrameworkReport) Failed() bool {
 	}
 	return false
 }
+func (frameworkReport *FrameworkReport) SetDefaultScore() {
+	frameworkReport.Score = float32(percentage(frameworkReport.GetNumberOfResources(), frameworkReport.GetNumberOfFailedResources()))
+}
 
+/*
+
+func SetDefaultScore()
+// set score
+for c, controlReport := range opap.PostureReport.FrameworkReports[f].ControlReports {
+	// sumFailed += controlReport.GetNumberOfFailedResources()
+	// sumTotal += controlReport.GetNumberOfResources()
+	opap.PostureReport.FrameworkReports[f].ControlReports[c].Score = float32(percentage(controlReport.GetNumberOfResources(), controlReport.GetNumberOfFailedResources()))
+}
+opap.PostureReport.FrameworkReports[f].Score = float32(percentage(frameworkReport.GetNumberOfResources(), frameworkReport.GetNumberOfFailedResources()))
+
+*/
 // ==============================================================================================
 // ========================== ControlReport =====================================================
 // ==============================================================================================
@@ -180,6 +195,10 @@ func (controlReport *ControlReport) RemoveData(keepFields, keepMetadataFields []
 	for i := range controlReport.RuleReports {
 		controlReport.RuleReports[i].RemoveData(keepFields, keepMetadataFields)
 	}
+}
+
+func (controlReport *ControlReport) SetDefaultScore() {
+	controlReport.Score = float32(percentage(controlReport.GetNumberOfResources(), controlReport.GetNumberOfFailedResources()))
 }
 
 // ==============================================================================================

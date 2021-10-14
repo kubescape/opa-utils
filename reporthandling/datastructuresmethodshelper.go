@@ -34,3 +34,13 @@ func StringInSlice(strSlice []string, str string) bool {
 func RemoveResponse(slice []RuleResponse, index int) []RuleResponse {
 	return append(slice[:index], slice[index+1:]...)
 }
+
+func percentage(big, small int) int {
+	if big == 0 {
+		if small == 0 {
+			return 100
+		}
+		return 0
+	}
+	return int(float64(float64(big-small)/float64(big)) * 100)
+}

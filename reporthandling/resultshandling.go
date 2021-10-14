@@ -8,6 +8,15 @@ import (
 	"github.com/open-policy-agent/opa/rego"
 )
 
+// SetDefaultScore sets the framework,control default score
+func SetDefaultScore(frameworkReport *FrameworkReport) {
+	for c := range frameworkReport.ControlReports {
+		frameworkReport.ControlReports[c].SetDefaultScore()
+	}
+	frameworkReport.SetDefaultScore()
+}
+
+// SetDefaultScore sets the framework,control,rule resource counter
 func SetUniqueResourcesCounter(frameworkReport *FrameworkReport) {
 	uniqueAllFramework := []map[string]interface{}{}
 	uniqueWarningFramework := []map[string]interface{}{}
