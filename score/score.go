@@ -9,8 +9,8 @@ import (
 	appsv1 "k8s.io/api/apps/v1"
 
 	// corev1 "k8s.io/api/core/v1"
-	"github.com/armosec/armoapi-go/opapolicy"
 	k8sinterface "github.com/armosec/k8s-interface/k8sinterface"
+	"github.com/armosec/opa-utils/reporthandling"
 )
 
 type ControlScoreWeights struct {
@@ -27,7 +27,7 @@ type ScoreUtil struct {
 
 var postureScore *ScoreUtil
 
-func (su *ScoreUtil) Calculate(frameworksReports []opapolicy.FrameworkReport) error {
+func (su *ScoreUtil) Calculate(frameworksReports []reporthandling.FrameworkReport) error {
 	for i := range frameworksReports {
 		su.CalculateFrameworkScore(&frameworksReports[i])
 	}
@@ -35,7 +35,7 @@ func (su *ScoreUtil) Calculate(frameworksReports []opapolicy.FrameworkReport) er
 	return nil
 }
 
-func (su *ScoreUtil) CalculateFrameworkScore(framework *opapolicy.FrameworkReport) error {
+func (su *ScoreUtil) CalculateFrameworkScore(framework *reporthandling.FrameworkReport) error {
 	for i := range framework.ControlReports {
 		framework.WCSScore += su.ControlScore(&framework.ControlReports[i], framework.Name)
 		framework.Score += framework.ControlReports[i].Score
@@ -111,7 +111,7 @@ func (su *ScoreUtil) externalResourceConverter(rscs map[string]interface{}) []ma
 /*
 ControlScore:
 @input:
-ctrlReport - opapolicy.ControlReport object, must contain down the line the Input resources and the output resources
+ctrlReport - reporthandling.ControlReport object, must contain down the line the Input resources and the output resources
 frameworkName - calculate this control according to a given framework weights
 
 ctrl.score = baseScore * SUM_resource (resourceWeight*min(#replicas*replicaweight,1)(nodes if daemonset)
@@ -119,13 +119,12 @@ ctrl.score = baseScore * SUM_resource (resourceWeight*min(#replicas*replicaweigh
 returns control score ***for the input resources***
 
 */
-func (su *ScoreUtil) ControlScore(ctrlReport *opapolicy.ControlReport, frameworkName string) float32 {
+func (su *ScoreUtil) ControlScore(ctrlReport *reporthandling.ControlReport, frameworkName string) float32 {
 
 	aggregatedInputs := make([]map[string]interface{}, 0)
 	aggregatedResponses := make([]map[string]interface{}, 0)
 	for _, ruleReport := range ctrlReport.RuleReports {
-		status, _, _ := ruleReport.GetRuleStatus()
-		if status != "warning" {
+		if !ruleReport.Warning() {
 			for _, ruleResponse := range ruleReport.RuleResponses {
 				aggregatedResponses = append(aggregatedResponses, ruleResponse.AlertObject.K8SApiObjects...)
 				aggregatedResponses = append(aggregatedResponses, su.externalResourceConverter(ruleResponse.AlertObject.ExternalObjects)...)

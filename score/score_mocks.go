@@ -5,8 +5,8 @@ import (
 	"os"
 	"strings"
 
-	"github.com/armosec/armoapi-go/opapolicy"
 	k8sinterface "github.com/armosec/k8s-interface/k8sinterface"
+	"github.com/armosec/opa-utils/reporthandling"
 )
 
 func loadResourcesMock() []map[string]interface{} {
@@ -48,8 +48,8 @@ func getResouceByType(desiredType string) map[string]interface{} {
 	return nil
 }
 
-func loadFrameworkMock() *opapolicy.FrameworkReport {
-	report := &opapolicy.FrameworkReport{}
+func loadFrameworkMock() *reporthandling.FrameworkReport {
+	report := &reporthandling.FrameworkReport{}
 
 	dat, err := os.ReadFile("frameworkmock.json")
 
@@ -62,8 +62,8 @@ func loadFrameworkMock() *opapolicy.FrameworkReport {
 
 	return report
 }
-func getMITREFrameworkResultMock() []opapolicy.FrameworkReport {
-	l := make([]opapolicy.FrameworkReport, 0)
+func getMITREFrameworkResultMock() []reporthandling.FrameworkReport {
+	l := make([]reporthandling.FrameworkReport, 0)
 	report := loadFrameworkMock()
 	resources := loadResourcesMock()
 	if report != nil && resources != nil {

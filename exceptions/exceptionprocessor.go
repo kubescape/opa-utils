@@ -4,10 +4,9 @@ import (
 	"regexp"
 
 	"github.com/armosec/k8s-interface/k8sinterface"
-	"github.com/armosec/kubescape/cautils"
+	"github.com/armosec/opa-utils/reporthandling"
 
 	"github.com/armosec/armoapi-go/armotypes"
-	"github.com/armosec/armoapi-go/opapolicy"
 	"k8s.io/apimachinery/pkg/labels"
 )
 
@@ -44,7 +43,7 @@ func ruleHasExceptions(exceptionPolicy *armotypes.PostureExceptionPolicy, framew
 
 }
 
-func AddExceptionsToRuleResponses(results []opapolicy.RuleResponse, ruleExceptions []armotypes.PostureExceptionPolicy) {
+func AddExceptionsToRuleResponses(results []reporthandling.RuleResponse, ruleExceptions []armotypes.PostureExceptionPolicy, clusterName string) {
 	if len(ruleExceptions) == 0 {
 		return
 	}
@@ -54,15 +53,15 @@ func AddExceptionsToRuleResponses(results []opapolicy.RuleResponse, ruleExceptio
 			continue
 		}
 		for w := range workloads {
-			if exception := getException(ruleExceptions, workloads[w]); exception != nil {
+			if exception := getException(ruleExceptions, workloads[w], clusterName); exception != nil {
 				results[i].Exception = exception
 			}
 		}
-		results[i].RuleStatus = results[i].GetSingleResultStatus()
+		results[i].RuleStatus = results[i].GetStatus()
 	}
 }
 
-func alertObjectToWorkloads(obj *opapolicy.AlertObject) []k8sinterface.IWorkload {
+func alertObjectToWorkloads(obj *reporthandling.AlertObject) []k8sinterface.IWorkload {
 	resource := []k8sinterface.IWorkload{}
 
 	for i := range obj.K8SApiObjects {
@@ -79,10 +78,10 @@ func alertObjectToWorkloads(obj *opapolicy.AlertObject) []k8sinterface.IWorkload
 
 	return resource
 }
-func getException(ruleExceptions []armotypes.PostureExceptionPolicy, workload k8sinterface.IWorkload) *armotypes.PostureExceptionPolicy {
+func getException(ruleExceptions []armotypes.PostureExceptionPolicy, workload k8sinterface.IWorkload, clusterName string) *armotypes.PostureExceptionPolicy {
 	for e := range ruleExceptions {
 		for _, resource := range ruleExceptions[e].Resources {
-			if hasException(&resource, workload) {
+			if hasException(clusterName, &resource, workload) {
 				return &ruleExceptions[e] // TODO - return disable exception out of all exceptions
 			}
 		}
@@ -91,14 +90,14 @@ func getException(ruleExceptions []armotypes.PostureExceptionPolicy, workload k8
 }
 
 // compareMetadata - compare namespace and kind
-func hasException(designator *armotypes.PortalDesignator, workload k8sinterface.IWorkload) bool {
+func hasException(clusterName string, designator *armotypes.PortalDesignator, workload k8sinterface.IWorkload) bool {
 	cluster, namespace, kind, name, labels := designator.DigestPortalDesignator()
 
 	if cluster == "" && namespace == "" && kind == "" && name == "" && len(labels) == 0 {
 		return false // if designators are empty
 	}
 
-	if cluster != "" && cautils.ClusterName != "" && !regexCompare(cluster, cautils.ClusterName) { // TODO - where do we receive cluster name from?
+	if cluster != "" && clusterName != "" && !regexCompare(cluster, clusterName) { // TODO - where do we receive cluster name from?
 		return false // cluster name does not match
 	}
 
