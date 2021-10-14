@@ -40,7 +40,7 @@ func SetUniqueResourcesCounter(frameworkReport *FrameworkReport) {
 			// Append
 			uniqueAllControls = append(uniqueAllControls, uniqueAll...)
 			uniqueWarningControls = append(uniqueWarningControls, uniqueWarning...)
-			uniqueFailedControls = append(uniqueAllControls, uniqueFailed...)
+			uniqueFailedControls = append(uniqueFailedControls, uniqueFailed...)
 		}
 		uniqueAllControls = GetUniqueResources(uniqueAllControls)
 		uniqueWarningControls = GetUniqueResources(uniqueWarningControls)
