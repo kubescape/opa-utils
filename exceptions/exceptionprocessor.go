@@ -4,6 +4,7 @@ import (
 	"regexp"
 
 	"github.com/armosec/k8s-interface/k8sinterface"
+	"github.com/armosec/k8s-interface/workloadinterface"
 	"github.com/armosec/opa-utils/reporthandling"
 
 	"github.com/armosec/armoapi-go/armotypes"
@@ -87,7 +88,7 @@ func alertObjectToWorkloads(obj *reporthandling.AlertObject) []k8sinterface.IWor
 	resource := []k8sinterface.IWorkload{}
 
 	for i := range obj.K8SApiObjects {
-		r := k8sinterface.NewWorkloadObj(obj.K8SApiObjects[i])
+		r := workloadinterface.NewWorkloadObj(obj.K8SApiObjects[i])
 		if r == nil {
 			continue
 		}

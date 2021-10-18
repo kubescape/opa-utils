@@ -31,7 +31,7 @@ func TestControlsResults(t *testing.T) {
 
 	SetUniqueResourcesCounter(framework)
 	assert.Equal(t, 24, framework.GetNumberOfFailedResources(), "framework.GetNumberOfFailedResources")
-	assert.Equal(t, 37, framework.GetNumberOfWarningResources(), "framework.GetNumberOfWarningResources")
+	assert.Equal(t, 31, framework.GetNumberOfWarningResources(), "framework.GetNumberOfWarningResources")
 
 	for _, control := range framework.ControlReports {
 		switch control.ControlID {

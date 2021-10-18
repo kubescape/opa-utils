@@ -5,7 +5,8 @@ import (
 	"os"
 	"strings"
 
-	k8sinterface "github.com/armosec/k8s-interface/k8sinterface"
+	"github.com/armosec/k8s-interface/workloadinterface"
+
 	"github.com/armosec/opa-utils/reporthandling"
 )
 
@@ -30,7 +31,7 @@ func getResouceByType(desiredType string) map[string]interface{} {
 		return nil
 	}
 	for _, v := range rsrcs {
-		wl := k8sinterface.NewWorkloadObj(v)
+		wl := workloadinterface.NewWorkloadObj(v)
 		if wl != nil {
 			if strings.ToLower(wl.GetKind()) == desiredType {
 				return v

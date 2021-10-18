@@ -6,6 +6,7 @@ import (
 	"os"
 	"strings"
 
+	"github.com/armosec/k8s-interface/workloadinterface"
 	appsv1 "k8s.io/api/apps/v1"
 
 	// corev1 "k8s.io/api/core/v1"
@@ -63,7 +64,7 @@ func (su *ScoreUtil) resourceRules(resources []map[string]interface{}) float32 {
 
 	for _, v := range resources {
 		var score float32 = 0
-		wl := k8sinterface.NewWorkloadObj(v)
+		wl := workloadinterface.NewWorkloadObj(v)
 		kind := ""
 		if wl != nil {
 			kind = strings.ToLower(wl.GetKind())

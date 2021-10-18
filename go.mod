@@ -4,7 +4,7 @@ go 1.17
 
 require (
 	github.com/armosec/armoapi-go v0.0.7
-	github.com/armosec/k8s-interface v0.0.2
+	github.com/armosec/k8s-interface v0.0.5
 	github.com/francoispqt/gojay v1.2.13
 	github.com/open-policy-agent/opa v0.33.1
 	github.com/stretchr/testify v1.7.0
@@ -24,7 +24,6 @@ require (
 	github.com/OneOfOne/xxhash v1.2.8 // indirect
 	github.com/armosec/utils-go v0.0.3 // indirect
 	github.com/armosec/utils-k8s-go v0.0.1 // indirect
-	github.com/aws/aws-sdk-go v1.41.1 // indirect
 	github.com/coreos/go-oidc v2.2.1+incompatible // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/docker/docker v20.10.9+incompatible // indirect
@@ -42,7 +41,6 @@ require (
 	github.com/google/gofuzz v1.1.0 // indirect
 	github.com/googleapis/gnostic v0.5.5 // indirect
 	github.com/imdario/mergo v0.3.12 // indirect
-	github.com/jmespath/go-jmespath v0.4.0 // indirect
 	github.com/json-iterator/go v1.1.11 // indirect
 	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect
 	github.com/modern-go/reflect2 v1.0.1 // indirect
@@ -57,9 +55,6 @@ require (
 	github.com/xeipuuv/gojsonpointer v0.0.0-20190905194746-02993c407bfb // indirect
 	github.com/xeipuuv/gojsonreference v0.0.0-20180127040603-bd5ef7bd5415 // indirect
 	github.com/yashtewari/glob-intersection v0.0.0-20180916065949-5c77d914dd0b // indirect
-	go.uber.org/atomic v1.7.0 // indirect
-	go.uber.org/multierr v1.6.0 // indirect
-	go.uber.org/zap v1.19.1 // indirect
 	golang.org/x/crypto v0.0.0-20210220033148-5ea612d1eb83 // indirect
 	golang.org/x/net v0.0.0-20210825183410-e898025ed96a // indirect
 	golang.org/x/oauth2 v0.0.0-20211005180243-6b3c2da341f1 // indirect

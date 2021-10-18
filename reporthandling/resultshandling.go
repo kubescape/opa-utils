@@ -4,7 +4,8 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/armosec/k8s-interface/k8sinterface"
+	"github.com/armosec/k8s-interface/workloadinterface"
+
 	"github.com/open-policy-agent/opa/rego"
 )
 
@@ -29,8 +30,9 @@ func SetUniqueResourcesCounter(frameworkReport *FrameworkReport) {
 
 			// Get
 			uniqueAll := GetUniqueResources(frameworkReport.ControlReports[c].RuleReports[r].GetAllResources())
-			uniqueWarning := GetUniqueResources(frameworkReport.ControlReports[c].RuleReports[r].GetWarnignResources())
 			uniqueFailed := GetUniqueResources(frameworkReport.ControlReports[c].RuleReports[r].GetFailedResources())
+			uniqueWarning := GetUniqueResources(frameworkReport.ControlReports[c].RuleReports[r].GetWarnignResources())
+			uniqueWarning = TrimUniqueResources(uniqueWarning, uniqueFailed)
 
 			// Set
 			frameworkReport.ControlReports[c].RuleReports[r].SetNumberOfResources(len(uniqueAll))
@@ -43,8 +45,9 @@ func SetUniqueResourcesCounter(frameworkReport *FrameworkReport) {
 			uniqueFailedControls = append(uniqueFailedControls, uniqueFailed...)
 		}
 		uniqueAllControls = GetUniqueResources(uniqueAllControls)
-		uniqueWarningControls = GetUniqueResources(uniqueWarningControls)
 		uniqueFailedControls = GetUniqueResources(uniqueFailedControls)
+		uniqueWarningControls = GetUniqueResources(uniqueWarningControls)
+		uniqueWarningControls = TrimUniqueResources(uniqueWarningControls, uniqueFailedControls)
 
 		// Set
 		frameworkReport.ControlReports[c].SetNumberOfResources(len(uniqueAllControls))
@@ -61,6 +64,7 @@ func SetUniqueResourcesCounter(frameworkReport *FrameworkReport) {
 	uniqueAllFramework = GetUniqueResources(uniqueAllFramework)
 	uniqueWarningFramework = GetUniqueResources(uniqueWarningFramework)
 	uniqueFailedFramework = GetUniqueResources(uniqueFailedFramework)
+	uniqueWarningFramework = TrimUniqueResources(uniqueWarningFramework, uniqueFailedFramework)
 
 	// Set
 	frameworkReport.SetNumberOfResources(len(uniqueAllFramework))
@@ -68,13 +72,14 @@ func SetUniqueResourcesCounter(frameworkReport *FrameworkReport) {
 	frameworkReport.SetNumberOfFailedResources(len(uniqueFailedFramework))
 }
 
+// GetUniqueResources the list of resources can contain duplications, this function removes the resource duplication based on workloadinterface.GetID
 func GetUniqueResources(k8sResources []map[string]interface{}) []map[string]interface{} {
 	uniqueRuleResponses := map[string]bool{}
 
 	lenK8sResources := len(k8sResources)
 	for i := 0; i < lenK8sResources; i++ {
-		workload := k8sinterface.NewWorkloadObj(k8sResources[i])
-		resourceID := fmt.Sprintf("%s/%s/%s/%s", workload.GetApiVersion(), workload.GetNamespace(), workload.GetKind(), workload.GetName())
+		workload := workloadinterface.NewWorkloadObj(k8sResources[i])
+		resourceID := workload.GetID()
 		if found := uniqueRuleResponses[resourceID]; found {
 			// resource found -> remove from slice
 			k8sResources = removeFromSlice(k8sResources, i)
@@ -85,6 +90,32 @@ func GetUniqueResources(k8sResources []map[string]interface{}) []map[string]inte
 		}
 	}
 	return k8sResources
+}
+
+// TrimUniqueResources trim the list, this wil trim in case the same resource appears in the warning list and in the failed list
+func TrimUniqueResources(origin, trimFrom []map[string]interface{}) []map[string]interface{} {
+	if len(origin) == 0 || len(trimFrom) == 0 { // if there is nothing to trim
+		return origin
+	}
+	uniqueResources := map[string]bool{}
+
+	for i := range trimFrom {
+		workload := workloadinterface.NewWorkloadObj(trimFrom[i])
+		workload.GetVersion()
+		uniqueResources[workload.GetID()] = true
+	}
+
+	lenOrigin := len(origin)
+	for i := 0; i < lenOrigin; i++ {
+		workload := workloadinterface.NewWorkloadObj(origin[i])
+		if found := uniqueResources[workload.GetID()]; found {
+			// resource found -> remove from slice
+			origin = removeFromSlice(origin, i)
+			lenOrigin -= 1
+			i -= 1
+		}
+	}
+	return origin
 }
 
 func removeFromSlice(k8sResources []map[string]interface{}, i int) []map[string]interface{} {
