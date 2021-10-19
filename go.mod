@@ -8,9 +8,16 @@ require (
 	github.com/francoispqt/gojay v1.2.13
 	github.com/open-policy-agent/opa v0.33.1
 	github.com/stretchr/testify v1.7.0
+	go.uber.org/zap v1.19.1
 	k8s.io/api v0.22.2
 	k8s.io/apimachinery v0.22.2
 	k8s.io/client-go v0.22.2
+)
+
+require (
+	go.uber.org/atomic v1.7.0 // indirect
+	go.uber.org/multierr v1.6.0 // indirect
+	gonum.org/v1/gonum v0.9.1 // indirect
 )
 
 require (
@@ -31,6 +38,7 @@ require (
 	github.com/docker/go-units v0.4.0 // indirect
 	github.com/form3tech-oss/jwt-go v3.2.3+incompatible // indirect
 	github.com/ghodss/yaml v1.0.0 // indirect
+	github.com/go-gota/gota v0.12.0
 	github.com/go-logr/logr v0.4.0 // indirect
 	github.com/gobwas/glob v0.2.3 // indirect
 	github.com/gofrs/uuid v4.0.0+incompatible // indirect
