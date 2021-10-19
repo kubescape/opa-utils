@@ -5,7 +5,7 @@ import (
 	"sync"
 
 	// "github.com/armosec/capacketsgo/opapolicy"
-	opapolicy "opa-utils/reporthandling"
+	opapolicy "github.com/armosec/opa-utils/reporthandling"
 
 	"github.com/go-gota/gota/dataframe"
 )
