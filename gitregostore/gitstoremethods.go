@@ -42,7 +42,7 @@ func (gs *GitRegoStore) GetOPAPolicyByName(ruleName string) (*opapolicy.PolicyRu
 	gs.rulesLock.RLock()
 	defer gs.rulesLock.RUnlock()
 	for _, rule := range gs.Rules {
-		if rule.Name == ruleName {
+		if strings.EqualFold(rule.Name, ruleName) {
 			return &rule, nil
 		}
 	}
@@ -226,7 +226,7 @@ func (gs *GitRegoStore) GetOPAFrameworkByName(frameworkName string) (*opapolicy.
 	gs.frameworksLock.RLock()
 	defer gs.frameworksLock.RUnlock()
 	for _, fw := range gs.Frameworks {
-		if fw.Name == frameworkName {
+		if strings.EqualFold(fw.Name, frameworkName) {
 			err := gs.fillControlsAndControlIDsInFramework(&fw)
 			if err != nil {
 				return nil, err
