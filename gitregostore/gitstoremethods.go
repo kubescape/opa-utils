@@ -87,6 +87,22 @@ func (gs *GitRegoStore) GetOPAControlByName(controlName string) (*opapolicy.Cont
 	return nil, fmt.Errorf("control '%s' not found", controlName)
 }
 
+// GetOPAControlByID returns specific control by the ID
+func (gs *GitRegoStore) GetOPAControlByID(controlID string) (*opapolicy.Control, error) {
+	gs.controlsLock.RLock()
+	defer gs.controlsLock.RUnlock()
+	for _, control := range gs.Controls {
+		if control.ControlID == controlID {
+			err := gs.fillRulesAndRulesIDsInControl(&control)
+			if err != nil {
+				return nil, err
+			}
+			return &control, nil
+		}
+	}
+	return nil, fmt.Errorf("control '%s' not found", controlID)
+}
+
 // GetOPAControls returns all the controls of given customer
 func (gs *GitRegoStore) GetOPAControls() ([]opapolicy.Control, error) {
 	gs.controlsLock.RLock()
@@ -111,6 +127,17 @@ func (gs *GitRegoStore) GetOPAControlsNamesList() ([]string, error) {
 		controlsNameList = append(controlsNameList, control.Name)
 	}
 	return controlsNameList, nil
+}
+
+func (gs *GitRegoStore) GetOPAControlsIDsList() ([]string, error) {
+	fmt.Printf("in GetOPAControlsNamesList")
+	gs.controlsLock.RLock()
+	defer gs.controlsLock.RUnlock()
+	var controlsIDList []string
+	for _, control := range gs.Controls {
+		controlsIDList = append(controlsIDList, control.ControlID)
+	}
+	return controlsIDList, nil
 }
 
 // GetOPAControl returns specific  policy

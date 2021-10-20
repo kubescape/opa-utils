@@ -5,6 +5,14 @@ import (
 	"testing"
 )
 
+func TestInitDefaultGitRegoStore(t *testing.T) {
+
+	gs := InitDefaultGitRegoStore()
+	if gs.Rules == nil {
+		t.Errorf("failed to decode")
+	}
+}
+
 func TestInitGitRegoStoreFromRelease(t *testing.T) {
 	baseUrl := "https://api.github.com/repos"
 	owner := "armosec"
@@ -83,6 +91,15 @@ func TestGetPoliciesMethods(t *testing.T) {
 	control, err := gs.GetOPAControlByName(controlsNames[0])
 	if err != nil || control == nil {
 		t.Errorf("failed to get control by name: '%s', %s", controlsNames[0], err.Error())
+	}
+	controlsIDs, err := gs.GetOPAControlsIDsList()
+	if err != nil || len(controlsIDs) == 0 {
+		t.Errorf("failed to get controls ids list %s", err.Error())
+	}
+
+	control, err = gs.GetOPAControlByID(controlsIDs[0])
+	if err != nil || control == nil {
+		t.Errorf("failed to get control by ID: '%s', %s", controlsNames[0], err.Error())
 	}
 	// Frameworks
 	frameworks, err := gs.GetOPAFrameworks()

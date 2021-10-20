@@ -48,3 +48,7 @@ func InitGitRegoStore(baseUrl string, owner string, repository string, path stri
 	gs.setObjects()
 	return gs
 }
+
+func InitDefaultGitRegoStore() *GitRegoStore {
+	return InitGitRegoStore("https://api.github.com/repos", "armosec", "regolibrary", "releases", "latest", "master", 1)
+}
