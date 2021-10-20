@@ -67,11 +67,7 @@ func TestGetPoliciesMethods(t *testing.T) {
 	if err != nil || len(policiesNames) == 0 {
 		t.Errorf("failed to get policies names list %s", err.Error())
 	}
-	policy, err := gs.GetOPAPolicy(policies[0].GUID)
-	if err != nil || policy == nil {
-		t.Errorf("failed to get policy by guid: '%s', %s", policies[0].GUID, err.Error())
-	}
-	policy, err = gs.GetOPAPolicyByName(policiesNames[0])
+	policy, err := gs.GetOPAPolicyByName(policiesNames[0])
 	if err != nil || policy == nil {
 		t.Errorf("failed to get policy by name: '%s', %s", policiesNames[0], err.Error())
 	}
@@ -84,10 +80,7 @@ func TestGetPoliciesMethods(t *testing.T) {
 	if err != nil || len(controlsNames) == 0 {
 		t.Errorf("failed to get controls names list %s", err.Error())
 	}
-	// control, err := gs.GetOPAControl(controls[0].GUID)
-	// if err != nil || control == nil {
-	// 	t.Errorf("failed to get control by guid: '%s', %s", controls[0].GUID, err.Error())
-	// }
+
 	control, err := gs.GetOPAControlByName(controlsNames[0])
 	if err != nil || control == nil {
 		t.Errorf("failed to get control by name: '%s', %s", controlsNames[0], err.Error())
@@ -110,10 +103,7 @@ func TestGetPoliciesMethods(t *testing.T) {
 	if err != nil || len(frameworksNames) == 0 {
 		t.Errorf("failed to get frameworks names list %s", err.Error())
 	}
-	// framework, err := gs.GetOPAFramework(frameworks[0].GUID)
-	// if err != nil || framework == nil {
-	// 	t.Errorf("failed to get framework by guid: '%s', %s", frameworks[0].GUID, err.Error())
-	// }
+
 	framework, err := gs.GetOPAFrameworkByName(frameworksNames[0])
 	if err != nil || framework == nil {
 		t.Errorf("failed to get framework by name: '%s', %s", frameworksNames[0], err.Error())
