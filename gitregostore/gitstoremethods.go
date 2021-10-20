@@ -2,6 +2,7 @@ package gitregostore
 
 import (
 	"fmt"
+	"strings"
 
 	// "github.com/armosec/capacketsgo/opapolicy"
 	opapolicy "github.com/armosec/opa-utils/reporthandling"
@@ -76,7 +77,7 @@ func (gs *GitRegoStore) GetOPAControlByName(controlName string) (*opapolicy.Cont
 	gs.controlsLock.RLock()
 	defer gs.controlsLock.RUnlock()
 	for _, control := range gs.Controls {
-		if control.Name == controlName {
+		if strings.EqualFold(control.Name, controlName) {
 			err := gs.fillRulesAndRulesIDsInControl(&control)
 			if err != nil {
 				return nil, err
@@ -92,7 +93,7 @@ func (gs *GitRegoStore) GetOPAControlByID(controlID string) (*opapolicy.Control,
 	gs.controlsLock.RLock()
 	defer gs.controlsLock.RUnlock()
 	for _, control := range gs.Controls {
-		if control.ControlID == controlID {
+		if strings.EqualFold(control.ControlID, controlID) {
 			err := gs.fillRulesAndRulesIDsInControl(&control)
 			if err != nil {
 				return nil, err
