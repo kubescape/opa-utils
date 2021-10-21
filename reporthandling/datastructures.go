@@ -127,6 +127,7 @@ type Control struct {
 	Description          string       `json:"description"`
 	Remediation          string       `json:"remediation"`
 	Rules                []PolicyRule `json:"rules"`
+	FrameworkNames       []string     `json:"frameworkNames,omitempty"`
 	// for new list of  rules in POST/UPADTE requests
 	RulesIDs *[]string `json:"rulesIDs,omitempty"`
 }
