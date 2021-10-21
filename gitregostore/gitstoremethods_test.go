@@ -103,9 +103,25 @@ func TestGetPoliciesMethods(t *testing.T) {
 	if err != nil || len(frameworksNames) == 0 {
 		t.Errorf("failed to get frameworks names list %s", err.Error())
 	}
-
 	framework, err := gs.GetOPAFrameworkByName(frameworksNames[0])
 	if err != nil || framework == nil {
 		t.Errorf("failed to get framework by name: '%s', %s", frameworksNames[0], err.Error())
 	}
+	frameworksNames = gs.GetOpaFrameworkListByControlName("Exec into container")
+	if len(frameworksNames) != 2 || !contains(frameworksNames, "NSA") || !contains(frameworksNames, "MITRE") {
+		t.Errorf("error in GetOpaFrameworkListByControlName, got wrong list for control 'Exec into container'")
+	}
+	frameworksNames = gs.GetOpaFrameworkListByControlID("C-0058")
+	if len(frameworksNames) != 2 || !contains(frameworksNames, "NSA") || !contains(frameworksNames, "MITRE") {
+		t.Errorf("error in GetOpaFrameworkListByControlID, got wrong list for control 'C-0058'")
+	}
+}
+
+func contains(list []string, str string) bool {
+	for _, a := range list {
+		if a == str {
+			return true
+		}
+	}
+	return false
 }

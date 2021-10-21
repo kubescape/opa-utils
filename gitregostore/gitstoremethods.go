@@ -152,6 +152,32 @@ func (gs *GitRegoStore) fillControlsAndControlIDsInFramework(fw *opapolicy.Frame
 	return nil
 }
 
+// GetOpaFrameworkListByControlName return a list of fw names this control is in
+func (gs *GitRegoStore) GetOpaFrameworkListByControlName(controlName string) []string {
+	var frameworksNameList []string
+	fil := gs.FrameworkControlRelations.Filter(
+		dataframe.F{Colname: "ControlName", Comparator: series.Eq, Comparando: controlName},
+	)
+	for row := 0; row < fil.Nrow(); row++ {
+		fwName := fil.Elem(row, 0)
+		frameworksNameList = append(frameworksNameList, fwName.String())
+	}
+	return frameworksNameList
+}
+
+// GetOpaFrameworkListByControlID return a list of fw names this control is in
+func (gs *GitRegoStore) GetOpaFrameworkListByControlID(controlID string) []string {
+	var frameworksNameList []string
+	fil := gs.FrameworkControlRelations.Filter(
+		dataframe.F{Colname: "ControlID", Comparator: series.Eq, Comparando: controlID},
+	)
+	for row := 0; row < fil.Nrow(); row++ {
+		fwName := fil.Elem(row, 0)
+		frameworksNameList = append(frameworksNameList, fwName.String())
+	}
+	return frameworksNameList
+}
+
 // GetOPAFrameworks returns all the frameworks of given customer
 func (gs *GitRegoStore) GetOPAFrameworks() ([]opapolicy.Framework, error) {
 	gs.frameworksLock.RLock()
