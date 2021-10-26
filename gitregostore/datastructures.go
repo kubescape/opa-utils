@@ -1,7 +1,9 @@
 package gitregostore
 
 import (
+	"fmt"
 	"net/http"
+	"runtime/debug"
 	"sync"
 
 	// "github.com/armosec/capacketsgo/opapolicy"
@@ -51,6 +53,11 @@ func newGitRegoStore(baseUrl string, owner string, repository string, path strin
 
 // if frequency < 0 will pull only once
 func InitGitRegoStore(baseUrl string, owner string, repository string, path string, tag string, branch string, frequency int) *GitRegoStore {
+	defer func() {
+		if r := recover(); r != nil {
+			fmt.Println("InitGitRegoStore failed: stacktrace from panic: \n" + string(debug.Stack()))
+		}
+	}()
 	gs := newGitRegoStore(baseUrl, owner, repository, path, tag, branch, frequency)
 	gs.setURL()
 	gs.setObjects()
