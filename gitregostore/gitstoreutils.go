@@ -7,6 +7,7 @@ import (
 	"log"
 	"net/http"
 	"strings"
+	"sync"
 	"time"
 
 	// "github.com/armosec/capacketsgo/opapolicy"
@@ -43,32 +44,42 @@ func (gs *GitRegoStore) setURL() {
 
 func (gs *GitRegoStore) setObjects() {
 	if strings.Contains(gs.URL, "releases") {
-		gs.setObjectsFromReleaseOnce()
-		go gs.setObjectsFromReleaseLoop()
+		gs.setObjectsFromReleaseLoop()
 	} else {
-		gs.setObjectsFromRepoOnce()
-		go gs.setObjectsFromRepoLoop()
+		gs.setObjectsFromRepoLoop()
 	}
 }
 
 // ========================== set Objects From Repo =====================================
 
 func (gs *GitRegoStore) setObjectsFromRepoLoop() {
-	for {
-		gs.setObjectsFromRepoOnce()
-		time.Sleep(time.Duration(gs.FrequencyPullFromGitMinutes) * time.Minute)
-	}
+	var wg sync.WaitGroup
+	wg.Add(1)
+
+	go func() {
+		defer wg.Done()
+		for {
+			if err := gs.setObjectsFromRepoOnce(); err != nil {
+				fmt.Println(err)
+			}
+			if !gs.Watch {
+				return
+			}
+			time.Sleep(time.Duration(gs.FrequencyPullFromGitMinutes) * time.Minute)
+		}
+	}()
+	wg.Wait()
 }
 
-func (gs *GitRegoStore) setObjectsFromRepoOnce() {
+func (gs *GitRegoStore) setObjectsFromRepoOnce() error {
 	body, err := HttpGetter(gs.httpClient, gs.URL)
 	if err != nil {
-		log.Print(err.Error())
+		return err
 	}
 	var trees Tree
 	err = json.Unmarshal([]byte(body), &trees)
 	if err != nil {
-		log.Print(fmt.Errorf("failed to unmarshal response body from '%s', reason: %s", gs.URL, err.Error()))
+		return fmt.Errorf("failed to unmarshal response body from '%s', reason: %s", gs.URL, err.Error())
 	}
 
 	// use only json files from relevant dirs
@@ -77,101 +88,124 @@ func (gs *GitRegoStore) setObjectsFromRepoOnce() {
 		if strings.HasPrefix(path.PATH, "rules") && strings.HasSuffix(path.PATH, ".json") {
 			respStr, err := HttpGetter(gs.httpClient, rawDataPath)
 			if err != nil {
-				log.Print(err.Error())
+				return err
 			}
-			gs.setRulesWithRawRego(respStr, rawDataPath)
+			if err := gs.setRulesWithRawRego(respStr, rawDataPath); err != nil {
+				return err
+			}
 		} else if strings.HasPrefix(path.PATH, "controls") && strings.HasSuffix(path.PATH, ".json") {
 			respStr, err := HttpGetter(gs.httpClient, rawDataPath)
 			if err != nil {
-				log.Print(err.Error())
+				return err
 			}
 			gs.setControl(respStr)
 		} else if strings.HasPrefix(path.PATH, "frameworks") && strings.HasSuffix(path.PATH, ".json") {
 			respStr, err := HttpGetter(gs.httpClient, rawDataPath)
 			if err != nil {
-				log.Print(err.Error())
+				return err
 			}
 			gs.setFramework(respStr)
 		} else if strings.HasSuffix(path.PATH, "ControlID_RuleName.csv") {
 			respStr, err := HttpGetter(gs.httpClient, rawDataPath)
 			if err != nil {
-				log.Print(err.Error())
+				return err
 			}
 			gs.setControlRuleRelationsFileName(respStr)
 		} else if strings.HasSuffix(path.PATH, "FWName_CID_CName.csv") {
 			respStr, err := HttpGetter(gs.httpClient, rawDataPath)
 			if err != nil {
-				log.Print(err.Error())
+				return err
 			}
 			gs.setFrameworkControlRelationsFileName(respStr)
 		}
-		// gs.setRelationObjectsFromJsons()
 	}
+	return nil
 }
 
-func (gs *GitRegoStore) setFramework(respStr string) {
+func (gs *GitRegoStore) setFramework(respStr string) error {
 	framework := &opapolicy.Framework{}
 	if err := JSONDecoder(respStr).Decode(framework); err != nil {
-		log.Print(err.Error())
+		return err
 	}
 	gs.frameworksLock.Lock()
+	defer gs.frameworksLock.Unlock()
 	gs.Frameworks = append(gs.Frameworks, *framework)
-	gs.frameworksLock.Unlock()
+	return nil
 }
 
-func (gs *GitRegoStore) setControl(respStr string) {
+func (gs *GitRegoStore) setControl(respStr string) error {
 	control := &opapolicy.Control{}
 	if err := JSONDecoder(respStr).Decode(control); err != nil {
-		log.Print(err.Error())
+		return err
 	}
 	gs.controlsLock.Lock()
+	defer gs.controlsLock.Unlock()
 	gs.Controls = append(gs.Controls, *control)
-	gs.controlsLock.Unlock()
+
+	return nil
 }
 
-func (gs *GitRegoStore) setRulesWithRawRego(respStr string, path string) {
+func (gs *GitRegoStore) setRulesWithRawRego(respStr string, path string) error {
 	rule := &opapolicy.PolicyRule{}
 	if err := JSONDecoder(respStr).Decode(rule); err != nil {
-		log.Print(err.Error())
+		return err
 	}
 	rawRegoPath := path[:strings.LastIndex(path, "/")] + "/raw.rego"
 	respString, err := HttpGetter(gs.httpClient, rawRegoPath)
 	if err != nil {
-		log.Print(err.Error())
+		return err
 	}
 	rule.Rule = respString
+
 	gs.rulesLock.Lock()
+	defer gs.rulesLock.Unlock()
 	gs.Rules = append(gs.Rules, *rule)
-	gs.rulesLock.Unlock()
+
+	return nil
 }
 
 // ======================== set Objects From Release =============================================
 
 func (gs *GitRegoStore) setObjectsFromReleaseLoop() {
-	for {
-		gs.setObjectsFromReleaseOnce()
-		time.Sleep(time.Duration(gs.FrequencyPullFromGitMinutes) * time.Minute)
-	}
+	var wg sync.WaitGroup
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		for {
+			if err := gs.setObjectsFromReleaseOnce(); err != nil {
+				fmt.Println(err)
+			}
+			if !gs.Watch {
+				return
+			}
+			time.Sleep(time.Duration(gs.FrequencyPullFromGitMinutes) * time.Minute)
+		}
+	}()
+	wg.Wait()
 }
 
-func (gs *GitRegoStore) setObjectsFromReleaseOnce() {
+func (gs *GitRegoStore) setObjectsFromReleaseOnce() error {
+
+	// TODO - support mock respons
 	resp, err := http.Get(gs.URL)
 	if err != nil {
-		log.Printf("failed to get latest releases from '%s', reason: %s", gs.URL, err.Error())
+		return fmt.Errorf("failed to get latest releases from '%s', reason: %s", gs.URL, err.Error())
 	}
 	defer resp.Body.Close()
 	if resp.StatusCode < 200 || 301 < resp.StatusCode {
-		log.Printf("failed to download file, status code: %s", resp.Status)
+		return fmt.Errorf("failed to download file, status code: %s", resp.Status)
 	}
 	body, err := io.ReadAll(resp.Body)
 	if err != nil {
-		log.Printf("failed to read response body from '%s', reason: %s", gs.URL, err.Error())
+		return fmt.Errorf("failed to read response body from '%s', reason: %s", gs.URL, err.Error())
 	}
 	var data map[string]interface{}
 	err = json.Unmarshal(body, &data)
 	if err != nil {
-		log.Printf("failed to unmarshal response body from '%s', reason: %s", gs.URL, err.Error())
+		return fmt.Errorf("failed to unmarshal response body from '%s', reason: %s", gs.URL, err.Error())
 	}
+
+	// TODO - move to parse response dedicated functions
 	if tagName, ok := data["tag_name"]; ok {
 		if gs.CurGitVersion != tagName.(string) {
 			gs.CurGitVersion = tagName.(string)
@@ -182,7 +216,7 @@ func (gs *GitRegoStore) setObjectsFromReleaseOnce() {
 							if url, ok := asset["browser_download_url"].(string); ok {
 								respStr, err := HttpGetter(gs.httpClient, url)
 								if err != nil {
-									log.Print(err.Error())
+									return err
 								}
 								switch name {
 								case frameworksJsonFileName:
@@ -203,6 +237,7 @@ func (gs *GitRegoStore) setObjectsFromReleaseOnce() {
 			}
 		}
 	}
+	return nil
 }
 
 func (gs *GitRegoStore) setFrameworks(respStr string) {
@@ -211,8 +246,8 @@ func (gs *GitRegoStore) setFrameworks(respStr string) {
 		log.Print(err.Error())
 	}
 	gs.frameworksLock.Lock()
+	defer gs.frameworksLock.Unlock()
 	gs.Frameworks = *frameworks
-	gs.frameworksLock.Unlock()
 }
 
 func (gs *GitRegoStore) setControls(respStr string) {
@@ -221,8 +256,8 @@ func (gs *GitRegoStore) setControls(respStr string) {
 		log.Print(err.Error())
 	}
 	gs.controlsLock.Lock()
+	defer gs.controlsLock.Unlock()
 	gs.Controls = *controls
-	gs.controlsLock.Unlock()
 }
 
 func (gs *GitRegoStore) setRules(respStr string) {
@@ -231,8 +266,8 @@ func (gs *GitRegoStore) setRules(respStr string) {
 		log.Print(err.Error())
 	}
 	gs.rulesLock.Lock()
+	defer gs.rulesLock.Unlock()
 	gs.Rules = *rules
-	gs.rulesLock.Unlock()
 }
 
 func (gs *GitRegoStore) setFrameworkControlRelationsFileName(respStr string) {

@@ -7,7 +7,7 @@ import (
 
 func TestInitDefaultGitRegoStore(t *testing.T) {
 
-	gs := InitDefaultGitRegoStore()
+	gs := InitDefaultGitRegoStore(-1)
 	if gs.Rules == nil {
 		t.Errorf("failed to decode")
 	}

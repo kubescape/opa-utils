@@ -29,9 +29,14 @@ type GitRegoStore struct {
 	Branch                      string
 	FrequencyPullFromGitMinutes int
 	CurGitVersion               string
+	Watch                       bool
 }
 
 func newGitRegoStore(baseUrl string, owner string, repository string, path string, tag string, branch string, frequency int) *GitRegoStore {
+	watch := false
+	if frequency > 0 {
+		watch = true
+	}
 	return &GitRegoStore{httpClient: &http.Client{},
 		BaseUrl:                     baseUrl,
 		Owner:                       owner,
@@ -39,9 +44,12 @@ func newGitRegoStore(baseUrl string, owner string, repository string, path strin
 		Path:                        path,
 		Tag:                         tag,
 		Branch:                      branch,
-		FrequencyPullFromGitMinutes: frequency}
+		FrequencyPullFromGitMinutes: frequency,
+		Watch:                       watch,
+	}
 }
 
+// if frequency < 0 will pull only once
 func InitGitRegoStore(baseUrl string, owner string, repository string, path string, tag string, branch string, frequency int) *GitRegoStore {
 	gs := newGitRegoStore(baseUrl, owner, repository, path, tag, branch, frequency)
 	gs.setURL()
@@ -49,6 +57,6 @@ func InitGitRegoStore(baseUrl string, owner string, repository string, path stri
 	return gs
 }
 
-func InitDefaultGitRegoStore() *GitRegoStore {
-	return InitGitRegoStore("https://api.github.com/repos", "armosec", "regolibrary", "releases", "latest", "master", 1)
+func InitDefaultGitRegoStore(frequency int) *GitRegoStore {
+	return InitGitRegoStore("https://api.github.com/repos", "armosec", "regolibrary", "releases", "latest", "master", frequency)
 }

@@ -15,10 +15,6 @@ import (
 	"k8s.io/client-go/rest"
 )
 
-var (
-	RegoDependenciesPath = "/resources/rego/dependencies"
-)
-
 type RegoDependenciesData struct {
 	ClusterName          string              `json:"clusterName"`
 	PostureControlInputs map[string][]string `json:"postureControlInputs"`
