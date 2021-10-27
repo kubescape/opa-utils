@@ -57,11 +57,11 @@ func (gs *GitRegoStore) setObjectsFromRepoLoop() {
 	wg.Add(1)
 
 	go func() {
-		defer wg.Done()
 		for {
 			if err := gs.setObjectsFromRepoOnce(); err != nil {
 				fmt.Println(err)
 			}
+			wg.Done()
 			if !gs.Watch {
 				return
 			}
@@ -170,11 +170,11 @@ func (gs *GitRegoStore) setObjectsFromReleaseLoop() {
 	var wg sync.WaitGroup
 	wg.Add(1)
 	go func() {
-		defer wg.Done()
 		for {
 			if err := gs.setObjectsFromReleaseOnce(); err != nil {
 				fmt.Println(err)
 			}
+			wg.Done()
 			if !gs.Watch {
 				return
 			}
