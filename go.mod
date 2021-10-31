@@ -4,7 +4,7 @@ go 1.17
 
 require (
 	github.com/armosec/armoapi-go v0.0.7
-	github.com/armosec/k8s-interface v0.0.5
+	github.com/armosec/k8s-interface v0.0.8
 	github.com/francoispqt/gojay v1.2.13
 	github.com/open-policy-agent/opa v0.33.1
 	github.com/stretchr/testify v1.7.0
@@ -29,6 +29,7 @@ require (
 	github.com/Azure/go-autorest/logger v0.2.1 // indirect
 	github.com/Azure/go-autorest/tracing v0.6.0 // indirect
 	github.com/OneOfOne/xxhash v1.2.8 // indirect
+	github.com/armosec/rbac-utils v0.0.1
 	github.com/armosec/utils-go v0.0.3 // indirect
 	github.com/armosec/utils-k8s-go v0.0.1 // indirect
 	github.com/coreos/go-oidc v2.2.1+incompatible // indirect
@@ -41,7 +42,7 @@ require (
 	github.com/go-gota/gota v0.12.0
 	github.com/go-logr/logr v0.4.0 // indirect
 	github.com/gobwas/glob v0.2.3 // indirect
-	github.com/gofrs/uuid v4.0.0+incompatible // indirect
+	github.com/gofrs/uuid v4.1.0+incompatible // indirect
 	github.com/gogo/protobuf v1.3.2 // indirect
 	github.com/golang/glog v1.0.0 // indirect
 	github.com/golang/protobuf v1.5.2 // indirect
