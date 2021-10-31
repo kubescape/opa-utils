@@ -1,6 +1,7 @@
 package exceptions
 
 import (
+	"fmt"
 	"regexp"
 
 	"github.com/armosec/k8s-interface/k8sinterface"
@@ -120,7 +121,7 @@ func hasException(clusterName string, designator *armotypes.PortalDesignator, wo
 		return false // if designators are empty
 	}
 
-	if cluster != "" && clusterName != "" && !regexCompare(cluster, clusterName) { // TODO - where do we receive cluster name from?
+	if cluster != "" && !compareCluster(cluster, clusterName) { // TODO - where do we receive cluster name from?
 		return false // cluster name does not match
 	}
 
@@ -164,7 +165,14 @@ func compareLabels(workload k8sinterface.IWorkload, attributes map[string]string
 	return designators.Matches(workloadLabels)
 }
 
+func compareCluster(designatorCluster, clusterName string) bool {
+	return designatorCluster != "" && regexCompare(designatorCluster, clusterName)
+}
+
 func regexCompare(reg, name string) bool {
-	r, _ := regexp.MatchString(reg, name)
+	r, _ := regexp.MatchString(fmt.Sprintf("^%s$", reg), name)
+	// if err != nil {
+	// 	return false
+	// }
 	return r
 }
