@@ -111,7 +111,8 @@ type RuleDependency struct {
 type PolicyRule struct {
 	armotypes.PortalBase `json:",inline"`
 	CreationTime         string             `json:"creationTime"`
-	Rule                 string             `json:"rule"` // multiline string!
+	Rule                 string             `json:"rule"`               // multiline string!
+	ResourceEnumerator   string             `json:"resourceEnumerator"` // multiline string!
 	RuleLanguage         RuleLanguages      `json:"ruleLanguage"`
 	Match                []RuleMatchObjects `json:"match"`
 	RuleDependencies     []RuleDependency   `json:"ruleDependencies"`
