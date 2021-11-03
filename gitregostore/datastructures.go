@@ -65,5 +65,5 @@ func InitGitRegoStore(baseUrl string, owner string, repository string, path stri
 }
 
 func InitDefaultGitRegoStore(frequency int) *GitRegoStore {
-	return InitGitRegoStore("https://api.github.com/repos", "armosec", "regolibrary", "releases", "latest", "master", frequency)
+	return InitGitRegoStore("https://github.com", "armosec", "regolibrary", "releases", "latest/download", "", frequency)
 }
