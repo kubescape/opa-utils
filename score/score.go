@@ -7,6 +7,7 @@ import (
 	"strings"
 
 	"github.com/armosec/k8s-interface/workloadinterface"
+	"go.uber.org/zap"
 	appsv1 "k8s.io/api/apps/v1"
 
 	// corev1 "k8s.io/api/core/v1"
@@ -20,10 +21,10 @@ type ControlScoreWeights struct {
 }
 
 type ScoreUtil struct {
-	ResourceTypeScores map[string]float32
-	FrameworksScore    map[string]map[string]ControlScoreWeights
-	K8SApoObj          *k8sinterface.KubernetesApi
-	configPath         string
+	// ResourceTypeScores map[string]float32
+	// FrameworksScore    map[string]map[string]ControlScoreWeights
+	K8SApoObj  *k8sinterface.KubernetesApi
+	configPath string
 }
 
 var postureScore *ScoreUtil
@@ -38,17 +39,19 @@ func (su *ScoreUtil) Calculate(frameworksReports []reporthandling.FrameworkRepor
 
 func (su *ScoreUtil) CalculateFrameworkScore(framework *reporthandling.FrameworkReport) error {
 	for i := range framework.ControlReports {
-		framework.WCSScore += su.ControlScore(&framework.ControlReports[i], framework.Name)
-		framework.Score += framework.ControlReports[i].Score
+		wcsCtrl, unormalizedScore := su.ControlScore(&framework.ControlReports[i], framework.Name)
+		framework.WCSScore += wcsCtrl
+
+		framework.Score += unormalizedScore
 		framework.ARMOImprovement += framework.ControlReports[i].ARMOImprovement
 	}
-	if framework.WCSScore > 0 {
-		framework.Score = (framework.Score * 100) / framework.WCSScore
-		framework.ARMOImprovement = (framework.ARMOImprovement * 100) / framework.WCSScore
+	if framework.WCSScore == 0 {
+		framework.Score = 0
+		return fmt.Errorf("unable to calculate score for framework %s due to bad wcs score", framework.Name)
 	}
-
-	return fmt.Errorf("unable to calculate score for framework %s due to bad wcs score", framework.Name)
-
+	framework.Score = (framework.Score * 100) / framework.WCSScore
+	framework.ARMOImprovement = (framework.ARMOImprovement * 100) / framework.WCSScore
+	return nil
 }
 
 /*
@@ -59,46 +62,32 @@ workloads: if replicas:
 		     regular
 
 */
-func (su *ScoreUtil) resourceRules(resources []map[string]interface{}) float32 {
-	var weight float32 = 0
+func (su *ScoreUtil) GetScore(v map[string]interface{}) float32 {
 
-	for _, v := range resources {
-		var score float32 = 0
-		wl := workloadinterface.NewWorkloadObj(v)
-		kind := ""
-		if wl != nil {
-			kind = strings.ToLower(wl.GetKind())
-			replicas := wl.GetReplicas()
-			score = su.ResourceTypeScores[kind]
-			if replicas > 1 {
-				score *= su.ResourceTypeScores["replicaset"] * float32(replicas)
-			}
-
-		} else {
-			epsilon := float32(0.00001)
-			keys := make([]string, 0, len(v))
-			for k := range v {
-				keys = append(keys, k)
-			}
-			kind = keys[0]
-			score = su.ResourceTypeScores[kind]
-			if score == 0.0 || (score > -1*epsilon && score < epsilon) {
-				score = 1
-			}
+	var score float32 = 1
+	wl := workloadinterface.NewWorkloadObj(v)
+	kind := ""
+	if wl != nil {
+		kind = strings.ToLower(wl.GetKind())
+		replicas := wl.GetReplicas()
+		if replicas > 1 {
+			score *= float32(replicas)
 		}
 
-		if kind == "daemonset" {
-			b, err := json.Marshal(v)
-			if err == nil {
-				dmnset := appsv1.DaemonSet{}
-				json.Unmarshal(b, &dmnset)
-				score *= float32(dmnset.Status.DesiredNumberScheduled)
-			}
-		}
-		weight += score
+	} else {
+		//TODO: external object
 	}
 
-	return weight
+	if kind == "daemonset" {
+		b, err := json.Marshal(v)
+		if err == nil {
+			dmnset := appsv1.DaemonSet{}
+			json.Unmarshal(b, &dmnset)
+			score *= float32(dmnset.Status.DesiredNumberScheduled)
+		}
+	}
+
+	return score
 }
 
 func (su *ScoreUtil) externalResourceConverter(rscs map[string]interface{}) []map[string]interface{} {
@@ -117,38 +106,28 @@ frameworkName - calculate this control according to a given framework weights
 
 ctrl.score = baseScore * SUM_resource (resourceWeight*min(#replicas*replicaweight,1)(nodes if daemonset)
 
-returns control score ***for the input resources***
+returns wcsscore,ctrlscore(unnormalized)
 
 */
-func (su *ScoreUtil) ControlScore(ctrlReport *reporthandling.ControlReport, frameworkName string) float32 {
-
-	aggregatedInputs := make([]map[string]interface{}, 0)
-	aggregatedResponses := make([]map[string]interface{}, 0)
-	for _, ruleReport := range ctrlReport.RuleReports {
-		if !ruleReport.Warning() {
-			for _, ruleResponse := range ruleReport.RuleResponses {
-				aggregatedResponses = append(aggregatedResponses, ruleResponse.AlertObject.K8SApiObjects...)
-				aggregatedResponses = append(aggregatedResponses, su.externalResourceConverter(ruleResponse.AlertObject.ExternalObjects)...)
-			}
-		}
-
-		aggregatedInputs = append(aggregatedInputs, ruleReport.ListInputResources...)
-
+func (su *ScoreUtil) ControlScore(ctrlReport *reporthandling.ControlReport, frameworkName string) (float32, float32) {
+	all, failed, _ := reporthandling.GetResourcesPerControl(ctrlReport)
+	for i := range failed {
+		ctrlReport.Score += ctrlReport.BaseScore * su.GetScore(failed[i])
 	}
-	improvementRatio := float32(1)
-	if ctrls, isOk := su.FrameworksScore[frameworkName]; isOk {
-		if scoreobj, isOk2 := ctrls[ctrlReport.Name]; isOk2 {
-			ctrlReport.BaseScore = scoreobj.BaseScore
-			improvementRatio -= scoreobj.RuntimeImprovementMultiplier
-		}
+	var wcsScore float32 = 0
+	for i := range all {
+		wcsScore += ctrlReport.BaseScore * su.GetScore(all[i])
+	}
+
+	unormalizedScore := ctrlReport.Score
+	ctrlReport.ARMOImprovement = unormalizedScore * ctrlReport.ARMOImprovement
+	if wcsScore > 0 {
+		ctrlReport.Score /= wcsScore
 	} else {
-		ctrlReport.BaseScore = 1.0
+		ctrlReport.Score = 0
+		zap.L().Error("worst case scenario was 0, meaning no resources input were given - score is not available(will appear as 0)")
 	}
-
-	ctrlReport.Score = ctrlReport.BaseScore * su.resourceRules(aggregatedResponses)
-	ctrlReport.ARMOImprovement = ctrlReport.Score * improvementRatio
-
-	return ctrlReport.BaseScore * su.resourceRules(aggregatedInputs)
+	return ctrlReport.BaseScore * wcsScore, unormalizedScore
 
 }
 
@@ -190,9 +169,7 @@ func NewScore(k8sapiobj *k8sinterface.KubernetesApi, configPath string) *ScoreUt
 	if postureScore == nil {
 
 		postureScore = &ScoreUtil{
-			ResourceTypeScores: getPostureResourceScores(configPath),
-			FrameworksScore:    getPostureFrameworksScores(configPath),
-			configPath:         configPath,
+			configPath: configPath,
 		}
 
 	}

@@ -23,31 +23,7 @@ func SetUniqueResourcesCounter(frameworkReport *FrameworkReport) {
 	uniqueWarningFramework := []map[string]interface{}{}
 	uniqueFailedFramework := []map[string]interface{}{}
 	for c := range frameworkReport.ControlReports {
-		uniqueAllControls := []map[string]interface{}{}
-		uniqueWarningControls := []map[string]interface{}{}
-		uniqueFailedControls := []map[string]interface{}{}
-		for r := range frameworkReport.ControlReports[c].RuleReports {
-
-			// Get
-			uniqueAll := GetUniqueResources(frameworkReport.ControlReports[c].RuleReports[r].GetAllResources())
-			uniqueFailed := GetUniqueResources(frameworkReport.ControlReports[c].RuleReports[r].GetFailedResources())
-			uniqueWarning := GetUniqueResources(frameworkReport.ControlReports[c].RuleReports[r].GetWarnignResources())
-			uniqueWarning = TrimUniqueResources(uniqueWarning, uniqueFailed)
-
-			// Set
-			frameworkReport.ControlReports[c].RuleReports[r].SetNumberOfResources(len(uniqueAll))
-			frameworkReport.ControlReports[c].RuleReports[r].SetNumberOfWarningResources(len(uniqueWarning))
-			frameworkReport.ControlReports[c].RuleReports[r].SetNumberOfFailedResources(len(uniqueFailed))
-
-			// Append
-			uniqueAllControls = append(uniqueAllControls, uniqueAll...)
-			uniqueWarningControls = append(uniqueWarningControls, uniqueWarning...)
-			uniqueFailedControls = append(uniqueFailedControls, uniqueFailed...)
-		}
-		uniqueAllControls = GetUniqueResources(uniqueAllControls)
-		uniqueFailedControls = GetUniqueResources(uniqueFailedControls)
-		uniqueWarningControls = GetUniqueResources(uniqueWarningControls)
-		uniqueWarningControls = TrimUniqueResources(uniqueWarningControls, uniqueFailedControls)
+		uniqueAllControls, uniqueWarningControls, uniqueFailedControls := GetResourcesPerControl(&frameworkReport.ControlReports[c])
 
 		// Set
 		frameworkReport.ControlReports[c].SetNumberOfResources(len(uniqueAllControls))
@@ -70,6 +46,33 @@ func SetUniqueResourcesCounter(frameworkReport *FrameworkReport) {
 	frameworkReport.SetNumberOfResources(len(uniqueAllFramework))
 	frameworkReport.SetNumberOfWarningResources(len(uniqueWarningFramework))
 	frameworkReport.SetNumberOfFailedResources(len(uniqueFailedFramework))
+}
+
+//
+func GetResourcesPerControl(ctrlReport *ControlReport) ([]map[string]interface{}, []map[string]interface{}, []map[string]interface{}) {
+	uniqueAllResources := []map[string]interface{}{}
+	uniqueWarningResources := []map[string]interface{}{}
+	uniqueFailedResources := []map[string]interface{}{}
+	for r := range ctrlReport.RuleReports {
+
+		uniqueAll := GetUniqueResources(ctrlReport.RuleReports[r].GetAllResources())
+		uniqueFailed := GetUniqueResources(ctrlReport.RuleReports[r].GetFailedResources())
+		uniqueWarning := GetUniqueResources(ctrlReport.RuleReports[r].GetWarnignResources())
+		uniqueWarning = TrimUniqueResources(uniqueWarning, uniqueFailed)
+
+		ctrlReport.RuleReports[r].SetNumberOfResources(len(uniqueAll))
+		ctrlReport.RuleReports[r].SetNumberOfWarningResources(len(uniqueWarning))
+		ctrlReport.RuleReports[r].SetNumberOfFailedResources(len(uniqueFailed))
+
+		uniqueAllResources = append(uniqueAllResources, uniqueAll...)
+		uniqueWarningResources = append(uniqueWarningResources, uniqueWarning...)
+		uniqueFailedResources = append(uniqueFailedResources, uniqueFailed...)
+	}
+	uniqueAllResources = GetUniqueResources(uniqueAllResources)
+	uniqueFailedResources = GetUniqueResources(uniqueFailedResources)
+	uniqueWarningResources = GetUniqueResources(uniqueWarningResources)
+	uniqueWarningResources = TrimUniqueResources(uniqueWarningResources, uniqueFailedResources)
+	return uniqueAllResources, uniqueWarningResources, uniqueFailedResources
 }
 
 // GetUniqueResources the list of resources can contain duplications, this function removes the resource duplication based on workloadinterface.GetID

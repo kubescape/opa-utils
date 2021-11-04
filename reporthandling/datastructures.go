@@ -132,7 +132,9 @@ type Control struct {
 	Rules                []PolicyRule `json:"rules"`
 	FrameworkNames       []string     `json:"frameworkNames,omitempty"`
 	// for new list of  rules in POST/UPADTE requests
-	RulesIDs *[]string `json:"rulesIDs,omitempty"`
+	RulesIDs              *[]string `json:"rulesIDs,omitempty"`
+	BaseScore             float32   `json:"baseScore,omitempty"`
+	ARMOImprovementFactor float32   `json:"ARMOImprovementFactor,omitempty"`
 }
 
 type UpdatedControl struct {
@@ -149,7 +151,6 @@ type Framework struct {
 	// for new list of  controls in POST/UPADTE requests
 	ControlsIDs *[]string `json:"controlsIDs,omitempty"`
 }
-
 type UpdatedFramework struct {
 	Framework `json:",inline"`
 	Controls  []interface{} `json:"controls"`
