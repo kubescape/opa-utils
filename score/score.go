@@ -3,7 +3,6 @@ package score
 import (
 	"encoding/json"
 	"fmt"
-	"os"
 	"strings"
 
 	"github.com/armosec/k8s-interface/workloadinterface"
@@ -90,14 +89,6 @@ func (su *ScoreUtil) GetScore(v map[string]interface{}) float32 {
 	return score
 }
 
-func (su *ScoreUtil) externalResourceConverter(rscs map[string]interface{}) []map[string]interface{} {
-	resources := make([]map[string]interface{}, 0)
-	for atype, v := range rscs {
-		resources = append(resources, map[string]interface{}{atype: v})
-	}
-	return resources
-}
-
 /*
 ControlScore:
 @input:
@@ -128,40 +119,6 @@ func (su *ScoreUtil) ControlScore(ctrlReport *reporthandling.ControlReport, fram
 		zap.L().Error("worst case scenario was 0, meaning no resources input were given - score is not available(will appear as 0)")
 	}
 	return ctrlReport.BaseScore * wcsScore, unormalizedScore
-
-}
-
-func getPostureFrameworksScores(weightPath string) map[string]map[string]ControlScoreWeights {
-	if len(weightPath) != 0 {
-		weightPath = weightPath + "/"
-	}
-	frameworksScoreMap := make(map[string]map[string]ControlScoreWeights)
-	dat, err := os.ReadFile(weightPath + "frameworkdict.json")
-	if err != nil {
-		return nil
-	}
-	if err := json.Unmarshal(dat, &frameworksScoreMap); err != nil {
-		return nil
-	}
-
-	return frameworksScoreMap
-
-}
-
-func getPostureResourceScores(weightPath string) map[string]float32 {
-	if len(weightPath) != 0 {
-		weightPath = weightPath + "/"
-	}
-	resourceScoreMap := make(map[string]float32)
-	dat, err := os.ReadFile(weightPath + "resourcesdict.json")
-	if err != nil {
-		return nil
-	}
-	if err := json.Unmarshal(dat, &resourceScoreMap); err != nil {
-		return nil
-	}
-
-	return resourceScoreMap
 
 }
 
