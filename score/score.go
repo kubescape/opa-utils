@@ -122,12 +122,10 @@ func (su *ScoreUtil) ControlScore(ctrlReport *reporthandling.ControlReport, fram
 
 }
 
-func NewScore(k8sapiobj *k8sinterface.KubernetesApi, configPath string) *ScoreUtil {
+func NewScore() *ScoreUtil {
 	if postureScore == nil {
 
-		postureScore = &ScoreUtil{
-			configPath: configPath,
-		}
+		postureScore = &ScoreUtil{}
 
 	}
 
