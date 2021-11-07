@@ -121,7 +121,7 @@ func (su *ScoreUtil) ControlScore(ctrlReport *reporthandling.ControlReport, fram
 	}
 
 	wcsScore *= ctrlReport.BaseScore
-
+	//
 	unormalizedScore := ctrlReport.Score
 	ctrlReport.ARMOImprovement = unormalizedScore * ctrlReport.ARMOImprovement
 	if wcsScore > 0 {
