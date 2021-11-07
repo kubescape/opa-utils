@@ -92,7 +92,7 @@ type PostureReport struct {
 	JobID                string                `json:"jobID"`
 	ReportGenerationTime time.Time             `json:"generationTime"`
 	FrameworkReports     []FrameworkReport     `json:"frameworks"`
-	RBACObjects          rbacutils.RbacObjects `json:"rbacObjects"`
+	RBACObjects          rbacutils.RbacObjects `json:"rbacObjects"` // all rbac objects in cluster - roles, clusterroles, rolebindings, clusterrolebindings
 }
 
 // RuleMatchObjects defines which objects this rule applied on
