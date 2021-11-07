@@ -130,7 +130,7 @@ func (su *ScoreUtil) ControlScore(ctrlReport *reporthandling.ControlReport, fram
 		//ctrlReport.Score = 0
 		zap.L().Error("worst case scenario was 0, meaning no resources input were given - score is not available(will appear as > 1)")
 	}
-	return ctrlReport.BaseScore * wcsScore, unormalizedScore
+	return wcsScore, unormalizedScore
 
 }
 
