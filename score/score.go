@@ -82,7 +82,11 @@ func (su *ScoreUtil) GetScore(v map[string]interface{}) float32 {
 		if err == nil {
 			dmnset := appsv1.DaemonSet{}
 			json.Unmarshal(b, &dmnset)
-			score *= float32(dmnset.Status.DesiredNumberScheduled)
+
+			if dmnset.Status.DesiredNumberScheduled > 0 {
+				score *= float32(dmnset.Status.DesiredNumberScheduled)
+
+			}
 		}
 	}
 
@@ -115,7 +119,7 @@ func (su *ScoreUtil) ControlScore(ctrlReport *reporthandling.ControlReport, fram
 	if wcsScore > 0 {
 		ctrlReport.Score /= wcsScore
 	} else {
-		ctrlReport.Score = 0
+		// ctrlReport.Score = 0
 		zap.L().Error("worst case scenario was 0, meaning no resources input were given - score is not available(will appear as 0)")
 	}
 	return ctrlReport.BaseScore * wcsScore, unormalizedScore
