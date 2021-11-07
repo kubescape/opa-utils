@@ -14,6 +14,10 @@ import (
 	"github.com/armosec/opa-utils/reporthandling"
 )
 
+const (
+	replicaFactor = 1.1
+)
+
 type ControlScoreWeights struct {
 	BaseScore                    float32 `json:"baseScore"`
 	RuntimeImprovementMultiplier float32 `json:"improvementRatio"`
@@ -70,7 +74,7 @@ func (su *ScoreUtil) GetScore(v map[string]interface{}) float32 {
 		kind = strings.ToLower(wl.GetKind())
 		replicas := wl.GetReplicas()
 		if replicas > 1 {
-			score *= float32(replicas)
+			score *= float32(replicas) * replicaFactor
 		}
 
 	} else {
@@ -107,20 +111,24 @@ returns wcsscore,ctrlscore(unnormalized)
 func (su *ScoreUtil) ControlScore(ctrlReport *reporthandling.ControlReport, frameworkName string) (float32, float32) {
 	all, failed, _ := reporthandling.GetResourcesPerControl(ctrlReport)
 	for i := range failed {
-		ctrlReport.Score += ctrlReport.BaseScore * su.GetScore(failed[i])
+		ctrlReport.Score += su.GetScore(failed[i])
 	}
+	ctrlReport.Score *= ctrlReport.BaseScore
+
 	var wcsScore float32 = 0
 	for i := range all {
-		wcsScore += ctrlReport.BaseScore * su.GetScore(all[i])
+		wcsScore += su.GetScore(all[i])
 	}
+
+	wcsScore *= ctrlReport.BaseScore
 
 	unormalizedScore := ctrlReport.Score
 	ctrlReport.ARMOImprovement = unormalizedScore * ctrlReport.ARMOImprovement
 	if wcsScore > 0 {
-		ctrlReport.Score /= wcsScore
+		ctrlReport.Score /= wcsScore // used to know severity (ctrl POV)
 	} else {
-		// ctrlReport.Score = 0
-		zap.L().Error("worst case scenario was 0, meaning no resources input were given - score is not available(will appear as 0)")
+		//ctrlReport.Score = 0
+		zap.L().Error("worst case scenario was 0, meaning no resources input were given - score is not available(will appear as > 1)")
 	}
 	return ctrlReport.BaseScore * wcsScore, unormalizedScore
 

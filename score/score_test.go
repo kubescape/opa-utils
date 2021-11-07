@@ -2,39 +2,43 @@ package score
 
 import (
 	"testing"
+
+	"github.com/armosec/k8s-interface/workloadinterface"
 )
 
+func TestReplicaScore(t *testing.T) {
+	deployment := getResouceByType("deployment")
+	if wl := workloadinterface.NewWorkloadObj(deployment); wl == nil || wl.GetReplicas() != 3 {
+		t.Errorf("invalid wl was put into the test, should have 3 replicas %v", deployment)
+	}
+
+	s := ScoreUtil{}
+	score := s.GetScore(deployment)
+	if score > 3.3001 || score < 3.3000001 {
+		t.Errorf("invalid score: %v should be 3.3~(numerical errrors considered) ", score)
+	}
+}
+
+func TestDaemonScore(t *testing.T) {
+	ds := getResouceByType("daemonset")
+	s := ScoreUtil{}
+	score := s.GetScore(ds)
+	if score != 13 {
+		t.Errorf("invalid score: %v should be 13 ", score)
+	}
+}
+
+func TestInactiveDaemonScore(t *testing.T) {
+	ds := getResouceByType("daemonset")
+	tmp := ds["status"].(map[string]interface{})
+	tmp["desiredNumberScheduled"] = 0
+	ds["status"] = tmp
+	s := ScoreUtil{}
+	score := s.GetScore(ds)
+	if score != 1 {
+		t.Errorf("invalid score: %v should be 1 ", score)
+	}
+}
+
 func TestFrameworkMock(t *testing.T) {
-}
-
-func TestDaemonsetRule(t *testing.T) {
-	// desiredType := "daemonset"
-	// r := getResouceByType(desiredType)
-	// if r == nil {
-	// 	t.Errorf("no %v was found in the mock, should be 1", desiredType)
-	// }
-	// su := NewScore(nil, "")
-
-	// resources := []map[string]interface{}{r}
-	// weights := su.resourceRules(resources)
-	// expecting := 13 * su.ResourceTypeScores[desiredType]
-	// if weights != expecting {
-	// 	t.Errorf("no %v unexpected weights were calculated expecting: %v got %v", desiredType, expecting, weights)
-	// }
-}
-
-func TestMultipleReplicasRule(t *testing.T) {
-	// desiredType := "deployment"
-	// r := getResouceByType(desiredType)
-	// if r == nil {
-	// 	t.Errorf("no %v was found in the mock, should be 1", desiredType)
-	// }
-	// su := NewScore(nil, "")
-
-	// resources := []map[string]interface{}{r}
-	// weights := su.resourceRules(resources)
-	// expecting := 3 * su.ResourceTypeScores[desiredType] * su.ResourceTypeScores["replicaset"]
-	// if weights != expecting {
-	// 	t.Errorf("no %v unexpected weights were calculated expecting: %v got %v", desiredType, expecting, weights)
-	// }
 }
