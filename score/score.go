@@ -68,16 +68,28 @@ workloads: if replicas:
 func (su *ScoreUtil) GetScore(v map[string]interface{}) float32 {
 
 	var score float32 = 1
+	ignoredKinds := []string{
+		"role", "rolebinding", "clusterrole", "clusterrolebinding",
+	}
 	wl := workloadinterface.NewWorkloadObj(v)
 	kind := ""
+
 	if wl != nil {
 		kind = strings.ToLower(wl.GetKind())
 		replicas := wl.GetReplicas()
 		if replicas > 1 {
 			score *= float32(replicas) * replicaFactor
 		}
+		//temporarily we ignore role,rolebinding,clusterrole,clusterrolebinding
+		for i := range ignoredKinds {
+			if ignoredKinds[i] == kind {
+				return 0
+			}
+		}
 
 	} else {
+
+		return 0
 		//TODO: external object
 	}
 
@@ -109,7 +121,7 @@ returns wcsscore,ctrlscore(unnormalized)
 
 */
 func (su *ScoreUtil) ControlScore(ctrlReport *reporthandling.ControlReport, frameworkName string) (float32, float32) {
-	all, failed, _ := reporthandling.GetResourcesPerControl(ctrlReport)
+	all, _, failed := reporthandling.GetResourcesPerControl(ctrlReport)
 	for i := range failed {
 		ctrlReport.Score += su.GetScore(failed[i])
 	}
@@ -121,7 +133,7 @@ func (su *ScoreUtil) ControlScore(ctrlReport *reporthandling.ControlReport, fram
 	}
 
 	wcsScore *= ctrlReport.BaseScore
-	//
+	//x
 	unormalizedScore := ctrlReport.Score
 	ctrlReport.ARMOImprovement = unormalizedScore * ctrlReport.ARMOImprovement
 	if wcsScore > 0 {

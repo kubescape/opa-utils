@@ -48,7 +48,7 @@ func SetUniqueResourcesCounter(frameworkReport *FrameworkReport) {
 	frameworkReport.SetNumberOfFailedResources(len(uniqueFailedFramework))
 }
 
-//
+// GetResourcesPerControl - return unique lists of resources: all,warning,failed
 func GetResourcesPerControl(ctrlReport *ControlReport) ([]map[string]interface{}, []map[string]interface{}, []map[string]interface{}) {
 	uniqueAllResources := []map[string]interface{}{}
 	uniqueWarningResources := []map[string]interface{}{}
