@@ -27,26 +27,30 @@ func TestInitGitRegoStoreFromRelease(t *testing.T) {
 	// fmt.Println(gs.URL)
 }
 
-func TestInitGitRegoStoreFromRepo(t *testing.T) {
-	// baseUrl := "https://api.github.com/repos"
-	// owner := "armosec"
-	// repository := "regolibrary"
-	// path := "git/trees"
-	// tag := ""
-	// branch := "dev"
-	// frequency := 15
-	// gs := InitGitRegoStore(baseUrl, owner, repository, path, tag, branch, frequency)
-	// if gs.Controls == nil {
-	// 	t.Errorf("failed to decode controls")
-	// }
-	// if gs.Frameworks == nil {
-	// 	t.Errorf("failed to decode frameworks")
-	// }
-	// if gs.Rules == nil {
-	// 	t.Errorf("failed to decode rules")
-	// }
-	// fmt.Println(gs.URL)
-}
+// func TestInitGitRegoStoreFromRepo(t *testing.T) {
+// 	baseUrl := "https://api.github.com/repos"
+// 	owner := "armosec"
+// 	repository := "regolibrary"
+// 	path := "git/trees"
+// 	tag := ""
+// 	branch := "dev"
+// 	frequency := 1
+// 	gs := InitGitRegoStore(baseUrl, owner, repository, path, tag, branch, frequency)
+// 	if gs.Controls == nil {
+// 		t.Errorf("failed to decode controls")
+// 	}
+// 	if gs.Frameworks == nil {
+// 		t.Errorf("failed to decode frameworks")
+// 	}
+// 	if gs.Rules == nil {
+// 		t.Errorf("failed to decode rules")
+// 	}
+// 	fmt.Println(gs.URL)
+// 	time.Sleep(time.Duration(frequency) * time.Minute)
+// 	if len(gs.Frameworks) > 4 {
+// 		t.Errorf("failed to decode controls")
+// 	}
+// }
 
 func TestGetPoliciesMethods(t *testing.T) {
 	gs := InitDefaultGitRegoStore(-1)

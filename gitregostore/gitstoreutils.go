@@ -71,11 +71,15 @@ func (gs *GitRegoStore) setObjectsFromRepoLoop() {
 	wg.Add(1)
 
 	go func() {
+		f := true
 		for {
 			if err := gs.setObjectsFromRepoOnce(); err != nil {
 				fmt.Println(err)
 			}
-			wg.Done()
+			if f {
+				wg.Done() // first update to done
+				f = false
+			}
 			if !gs.Watch {
 				return
 			}
@@ -95,6 +99,15 @@ func (gs *GitRegoStore) setObjectsFromRepoOnce() error {
 	if err != nil {
 		return fmt.Errorf("failed to unmarshal response body from '%s', reason: %s", gs.URL, err.Error())
 	}
+	gs.frameworksLock.Lock()
+	gs.controlsLock.Lock()
+	gs.rulesLock.Lock()
+	defer gs.frameworksLock.Unlock()
+	defer gs.controlsLock.Unlock()
+	defer gs.rulesLock.Unlock()
+	gs.Frameworks = []opapolicy.Framework{}
+	gs.Controls = []opapolicy.Control{}
+	gs.Rules = []opapolicy.PolicyRule{}
 
 	// use only json files from relevant dirs
 	for _, path := range trees.TREE {
@@ -157,8 +170,6 @@ func (gs *GitRegoStore) setFramework(respStr string) error {
 	if err := JSONDecoder(respStr).Decode(framework); err != nil {
 		return err
 	}
-	gs.frameworksLock.Lock()
-	defer gs.frameworksLock.Unlock()
 	gs.Frameworks = append(gs.Frameworks, *framework)
 	return nil
 }
@@ -168,10 +179,7 @@ func (gs *GitRegoStore) setControl(respStr string) error {
 	if err := JSONDecoder(respStr).Decode(control); err != nil {
 		return err
 	}
-	gs.controlsLock.Lock()
-	defer gs.controlsLock.Unlock()
 	gs.Controls = append(gs.Controls, *control)
-
 	return nil
 }
 
@@ -186,11 +194,7 @@ func (gs *GitRegoStore) setRulesWithRawRego(respStr string, path string) error {
 		return err
 	}
 	rule.Rule = respString
-
-	gs.rulesLock.Lock()
-	defer gs.rulesLock.Unlock()
 	gs.Rules = append(gs.Rules, *rule)
-
 	return nil
 }
 
@@ -200,11 +204,15 @@ func (gs *GitRegoStore) setObjectsFromReleaseLoop() {
 	var wg sync.WaitGroup
 	wg.Add(1)
 	go func() {
+		f := true
 		for {
 			if err := gs.setObjectsFromReleaseOnce(); err != nil {
 				fmt.Println(err)
 			}
-			wg.Done()
+			if f {
+				wg.Done() // first update to done
+				f = false
+			}
 			if !gs.Watch {
 				return
 			}
