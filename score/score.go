@@ -3,6 +3,7 @@ package score
 import (
 	"encoding/json"
 	"fmt"
+	"os"
 	"strings"
 
 	"github.com/armosec/k8s-interface/workloadinterface"
@@ -66,13 +67,15 @@ workloads: if replicas:
 
 */
 func (su *ScoreUtil) GetScore(v map[string]interface{}) float32 {
-
+	shouldIgnore := os.Getenv("IGNORE_ENABLED")
 	var score float32 = 1
 	ignoredKinds := []string{
 		"role", "rolebinding", "clusterrole", "clusterrolebinding",
 	}
 	wl := workloadinterface.NewWorkloadObj(v)
 	kind := ""
+
+	shouldIgnore = strings.ToLower(shouldIgnore)
 
 	if wl != nil {
 		kind = strings.ToLower(wl.GetKind())
@@ -82,7 +85,7 @@ func (su *ScoreUtil) GetScore(v map[string]interface{}) float32 {
 		}
 		//temporarily we ignore role,rolebinding,clusterrole,clusterrolebinding
 		for i := range ignoredKinds {
-			if ignoredKinds[i] == kind {
+			if shouldIgnore == "true" && ignoredKinds[i] == kind {
 				return 0
 			}
 		}
