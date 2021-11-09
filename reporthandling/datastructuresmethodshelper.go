@@ -38,10 +38,9 @@ func RemoveResponse(slice []RuleResponse, index int) []RuleResponse {
 func percentage(big, small int) int {
 	if big == 0 {
 		if small == 0 {
-			return 0
+			return 100
 		}
-		return 100
+		return 0
 	}
-
-	return int((float64(small) * 100) / float64(big))
+	return int(float64(float64(big-small)/float64(big)) * 100)
 }
