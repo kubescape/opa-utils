@@ -116,6 +116,7 @@ type PolicyRule struct {
 	RuleLanguage         RuleLanguages      `json:"ruleLanguage"`
 	Match                []RuleMatchObjects `json:"match"`
 	RuleDependencies     []RuleDependency   `json:"ruleDependencies"`
+	ConfigInputs         []string           `json:"configInputs"` // list of inputs from postureControlInputs in customerConfig for this rule
 	Description          string             `json:"description"`
 	Remediation          string             `json:"remediation"`
 	RuleQuery            string             `json:"ruleQuery"` // default "armo_builtins" - DEPRECATED
