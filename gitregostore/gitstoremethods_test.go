@@ -2,6 +2,8 @@ package gitregostore
 
 import (
 	"testing"
+
+	"github.com/stretchr/testify/assert"
 )
 
 func TestInitDefaultGitRegoStore(t *testing.T) {
@@ -112,11 +114,10 @@ func TestGetPoliciesMethods(t *testing.T) {
 	}
 }
 
-func contains(list []string, str string) bool {
-	for _, a := range list {
-		if a == str {
-			return true
-		}
-	}
-	return false
+func TestIsControlID(t *testing.T) {
+	assert.True(t, isControlID("c-0001"))
+	assert.True(t, isControlID("C-0001"))
+	assert.False(t, isControlID("c-00012"))
+	assert.False(t, isControlID("t-0001"))
+	assert.False(t, isControlID("my name"))
 }

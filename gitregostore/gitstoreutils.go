@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"regexp"
 	"strings"
 	"sync"
 	"time"
@@ -395,4 +396,11 @@ func HTTPRespToString(resp *http.Response) (string, error) {
 		zap.String("URL", resp.Request.URL.String()), zap.Int("contentLength", int(resp.ContentLength)))
 
 	return respStr, err
+}
+
+func isControlID(c string) bool {
+	if m, err := regexp.MatchString(`^[c|C][\-][0-9]{4}$`, c); err == nil {
+		return m
+	}
+	return false
 }
