@@ -145,7 +145,7 @@ func (gs *GitRegoStore) fillControlsAndControlIDsInFramework(fw *opapolicy.Frame
 		// add rule to control.rules
 		controlsList = append(controlsList, *control)
 		// add ruleId ro control.ruleIds
-		controlsIDList = append(controlsIDList, control.GUID)
+		controlsIDList = append(controlsIDList, control.ControlID)
 	}
 	fw.Controls = controlsList
 	fw.ControlsIDs = &controlsIDList
