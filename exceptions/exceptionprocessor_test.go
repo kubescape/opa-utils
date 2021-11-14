@@ -38,11 +38,11 @@ func PostureExceptionPolicyAlertOnlyMock() *armotypes.PostureExceptionPolicy {
 
 func TestListRuleExceptions(t *testing.T) {
 	exceptionPolicies := []armotypes.PostureExceptionPolicy{*PostureExceptionPolicyAlertOnlyMock()}
-	res1 := ListRuleExceptions(exceptionPolicies, "MITRE", "", "")
+	res1 := ListRuleExceptions(exceptionPolicies, "MITRE", "", "", "")
 	if len(res1) != 1 {
 		t.Errorf("expecting 1 exception")
 	}
-	res2 := ListRuleExceptions(exceptionPolicies, "", "hostPath mount", "")
+	res2 := ListRuleExceptions(exceptionPolicies, "", "hostPath mount", "", "")
 	if len(res2) != 0 {
 		t.Errorf("expecting 0 exception")
 	}
