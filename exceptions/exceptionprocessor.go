@@ -67,19 +67,19 @@ func ListRuleExceptions(exceptionPolicies []armotypes.PostureExceptionPolicy, fr
 
 func ruleHasExceptions(exceptionPolicy *armotypes.PostureExceptionPolicy, frameworkName, controlName, controlID, ruleName string) bool {
 	for _, posturePolicy := range exceptionPolicy.PosturePolicies {
-		if posturePolicy.FrameworkName == "" && posturePolicy.ControlName == "" && posturePolicy.RuleName == "" {
+		if posturePolicy.FrameworkName == "" && posturePolicy.ControlName == "" && posturePolicy.ControlID == "" && posturePolicy.RuleName == "" {
 			continue // empty policy -> ignore
 		}
-		if posturePolicy.FrameworkName != "" && strings.EqualFold(posturePolicy.FrameworkName, frameworkName) {
+		if posturePolicy.FrameworkName != "" && !strings.EqualFold(posturePolicy.FrameworkName, frameworkName) {
 			continue // policy does not match
 		}
-		if posturePolicy.ControlName != "" && strings.EqualFold(posturePolicy.ControlName, controlName) {
+		if posturePolicy.ControlName != "" && !strings.EqualFold(posturePolicy.ControlName, controlName) {
 			continue // policy does not match
 		}
-		if posturePolicy.ControlID != "" && strings.EqualFold(posturePolicy.ControlID, controlID) {
+		if posturePolicy.ControlID != "" && !strings.EqualFold(posturePolicy.ControlID, controlID) {
 			continue // policy does not match
 		}
-		if posturePolicy.RuleName != "" && strings.EqualFold(posturePolicy.RuleName, ruleName) {
+		if posturePolicy.RuleName != "" && !strings.EqualFold(posturePolicy.RuleName, ruleName) {
 			continue // policy does not match
 		}
 		return true // policies match

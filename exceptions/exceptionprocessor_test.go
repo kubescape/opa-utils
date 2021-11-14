@@ -39,13 +39,12 @@ func PostureExceptionPolicyAlertOnlyMock() *armotypes.PostureExceptionPolicy {
 func TestListRuleExceptions(t *testing.T) {
 	exceptionPolicies := []armotypes.PostureExceptionPolicy{*PostureExceptionPolicyAlertOnlyMock()}
 	res1 := ListRuleExceptions(exceptionPolicies, "MITRE", "", "", "")
+	assert.Equal(t, len(res1), 1)
 	if len(res1) != 1 {
 		t.Errorf("expecting 1 exception")
 	}
 	res2 := ListRuleExceptions(exceptionPolicies, "", "hostPath mount", "", "")
-	if len(res2) != 0 {
-		t.Errorf("expecting 0 exception")
-	}
+	assert.Equal(t, len(res2), 0)
 }
 
 func TestRegexCompare(t *testing.T) {
