@@ -4,7 +4,7 @@ go 1.17
 
 require (
 	github.com/armosec/armoapi-go v0.0.23
-	github.com/armosec/k8s-interface v0.0.8
+	github.com/armosec/k8s-interface v0.0.12
 	github.com/francoispqt/gojay v1.2.13
 	github.com/open-policy-agent/opa v0.33.1
 	github.com/stretchr/testify v1.7.0

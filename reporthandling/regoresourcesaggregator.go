@@ -1,0 +1,69 @@
+package reporthandling
+
+import (
+	"strings"
+
+	"github.com/armosec/k8s-interface/workloadinterface"
+)
+
+var aggregatorAttribute = "resourcesAggregator"
+
+func RegoResourcesAggregator(rule *PolicyRule, k8sObjects []map[string]interface{}) []map[string]interface{} {
+	if aggregateBy, ok := rule.Attributes[aggregatorAttribute]; ok {
+		switch aggregateBy {
+		case "subject-role-rolebinding":
+			return AggregateResourcesBySubjects(k8sObjects)
+		default:
+			return k8sObjects
+		}
+	}
+	return k8sObjects
+}
+
+func AggregateResourcesBySubjects(k8sObjects []map[string]interface{}) []map[string]interface{} {
+	var aggregatedK8sObjects []map[string]interface{}
+	for _, firstk8sObject := range k8sObjects {
+		bindingWorkload := workloadinterface.NewWorkloadObj(firstk8sObject)
+		if strings.HasSuffix(bindingWorkload.GetKind(), "Binding") { // types.Role
+			for _, secondK8sObject := range k8sObjects {
+				roleWorkload := workloadinterface.NewWorkloadObj(secondK8sObject)
+				if strings.HasSuffix(roleWorkload.GetKind(), "Role") {
+					bindingWorkloadObj := bindingWorkload.GetObject()
+					if kind, ok := workloadinterface.InspectMap(bindingWorkloadObj, "roleRef", "kind"); ok {
+						if name, ok := workloadinterface.InspectMap(bindingWorkloadObj, "roleRef", "name"); ok {
+							if kind.(string) == roleWorkload.GetKind() && name.(string) == roleWorkload.GetName() {
+								if subjects, ok := workloadinterface.InspectMap(bindingWorkloadObj, "subjects"); ok {
+									if data, ok := subjects.([]interface{}); ok {
+										for _, subject := range data {
+											subjectAllFields := setSubjectFields(subject.(map[string]interface{}))
+											relatedObjects := []workloadinterface.IMetadata{bindingWorkload, roleWorkload}
+											newObj := workloadinterface.NewRegoResponseVectorObject(subjectAllFields, relatedObjects)
+											aggregatedK8sObjects = append(aggregatedK8sObjects, newObj.GetObject())
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+	return aggregatedK8sObjects
+}
+
+func setSubjectFields(subject map[string]interface{}) map[string]interface{} {
+	if _, ok := workloadinterface.InspectMap(subject, "name"); !ok {
+		subject["name"] = ""
+	}
+	if _, ok := workloadinterface.InspectMap(subject, "namespace"); !ok {
+		subject["namespace"] = ""
+	}
+	if _, ok := workloadinterface.InspectMap(subject, "kind"); !ok {
+		subject["kind"] = ""
+	}
+	if _, ok := workloadinterface.InspectMap(subject, "apiVersion"); !ok {
+		subject["apiVersion"] = ""
+	}
+	return subject
+}
