@@ -13,6 +13,8 @@ func RegoResourcesAggregator(rule *PolicyRule, k8sObjects []map[string]interface
 		switch aggregateBy {
 		case "subject-role-rolebinding":
 			return AggregateResourcesBySubjects(k8sObjects)
+		case "apiserver-pod":
+			return AggregateResourcesByAPIServerPod(k8sObjects)
 		default:
 			return k8sObjects
 		}
@@ -52,7 +54,32 @@ func AggregateResourcesBySubjects(k8sObjects []map[string]interface{}) []map[str
 	return aggregatedK8sObjects
 }
 
+// Create custom object of apiserver pod. Has required fields + cmdline
+func AggregateResourcesByAPIServerPod(k8sObjects []map[string]interface{}) []map[string]interface{} {
+	apiServerPod := map[string]interface{}{}
+	for _, obj := range k8sObjects {
+		workload := workloadinterface.NewWorkloadObj(obj)
+		if workload.GetKind() == "Pod" && workload.GetNamespace() == "kube-system" {
+			if strings.Contains(workload.GetName(), "apiserver") || strings.Contains(workload.GetName(), "api-server") {
+				apiServerPod["namespace"] = workload.GetNamespace()
+				apiServerPod["name"] = workload.GetName()
+				apiServerPod["kind"] = workload.GetKind()
+				apiServerPod["apiVersion"] = workload.GetApiVersion()
+				containers, err := workload.GetContainers()
+				if err != nil {
+					return nil
+				}
+				// apiServer has only one container
+				apiServerPod["cmdline"] = containers[0].Command
+				return []map[string]interface{}{apiServerPod}
+			}
+		}
+	}
+	return nil
+}
+
 func setSubjectFields(subject map[string]interface{}) map[string]interface{} {
+
 	if _, ok := workloadinterface.InspectMap(subject, "name"); !ok {
 		subject["name"] = ""
 	}
