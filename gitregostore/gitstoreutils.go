@@ -228,7 +228,7 @@ func (gs *GitRegoStore) setObjectsFromReleaseOnce() error {
 	for kind, storeSetterMappingFunc := range storeSetterMapping {
 		respStr, err := HttpGetter(gs.httpClient, fmt.Sprintf("%s/%s", gs.URL, kind))
 		if err != nil {
-			return err
+			return fmt.Errorf("error getting: %s from: '%s' ,error: %s", kind, gs.URL, err)
 		}
 		if err = storeSetterMappingFunc(gs, respStr); err != nil {
 			return err
