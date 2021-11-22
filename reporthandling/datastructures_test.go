@@ -3,6 +3,8 @@ package reporthandling
 import (
 	"encoding/json"
 	"testing"
+
+	"github.com/armosec/k8s-interface/workloadinterface"
 )
 
 func TestMockPolicyNotificationA(t *testing.T) {
@@ -17,6 +19,59 @@ func TestMockPolicyNotificationA(t *testing.T) {
 
 }
 
+func TestPostureReportWithK8SResource(t *testing.T) {
+	expectedID := "apps/v1/default/Deployment/demoservice-server"
+	report := MockPostureReportA()
+	report.Resources = append(report.Resources, Resource{
+		ResourceID: "test-id",
+		Object:     workloadinterface.NewWorkloadMock(nil).GetObject(),
+	})
+
+	// t.Errorf(report.Resources[0].Object.GetID())
+
+	a, e := json.Marshal(report)
+	if e != nil {
+		t.Errorf("failed to marshal the report: %v", e.Error())
+	}
+
+	report2 := PostureReport{}
+	json.Unmarshal(a, &report2)
+
+	id := report2.Resources[0].GetID()
+
+	if id != expectedID {
+		t.Errorf("unexpected id from custom object, given id: %s expected: %s", id, expectedID)
+	}
+}
+
+func TestPostureReportWithExternalResource(t *testing.T) {
+	expectedID := "//Subject/MySubject"
+	report := MockPostureReportA()
+	report.Resources = append(report.Resources, Resource{
+		ResourceID: "test-id",
+		Object: map[string]interface{}{
+			"namespace":      "",
+			"name":           "MySubject",
+			"kind":           "Subject",
+			"failedCreteria": "RBAC",
+		},
+	})
+
+	// t.Errorf(report.Resources[0].Object.GetID())
+
+	a, e := json.Marshal(report)
+	if e != nil {
+		t.Errorf("failed to marshal the report: %v", e.Error())
+	}
+
+	report2 := PostureReport{}
+	json.Unmarshal(a, &report2)
+
+	id := report2.Resources[0].GetID()
+	if id != expectedID {
+		t.Errorf("unexpected id from custom object, given id: %s expected: %s", id, expectedID)
+	}
+}
 func TestMockFrameworkA(t *testing.T) {
 	policy := MockFrameworkA()
 	bp, err := json.Marshal(policy)

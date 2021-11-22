@@ -3,6 +3,8 @@ package reporthandling
 import (
 	"time"
 
+	ik8s "github.com/armosec/k8s-interface/workloadinterface"
+
 	"github.com/armosec/armoapi-go/armotypes"
 	rbacutils "github.com/armosec/rbac-utils/rbacutils"
 	"k8s.io/apimachinery/pkg/version"
@@ -93,6 +95,13 @@ type PostureReport struct {
 	ReportGenerationTime time.Time             `json:"generationTime"`
 	FrameworkReports     []FrameworkReport     `json:"frameworks"`
 	RBACObjects          rbacutils.RbacObjects `json:"rbacObjects"` // all rbac objects in cluster - roles, clusterroles, rolebindings, clusterrolebindings
+	Resources            []Resource            `json:"resource,omitempty"`
+}
+
+type Resource struct {
+	ResourceID string         `json:"resourceID"`
+	Object     interface{}    `json:"object"`
+	IMetadata  ik8s.IMetadata `json:"-"`
 }
 
 // RuleMatchObjects defines which objects this rule applied on
