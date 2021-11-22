@@ -16,7 +16,10 @@ import (
 // GetID() string // Get K8S workload ID -> <api-group>/<api-version>/<kind>/<name>
 // //isK8sObject()
 func (r *Resource) SetNamespace(s string) {
-
+	mw := r.middleware()
+	if mw != nil {
+		mw.SetNamespace(s)
+	}
 }
 
 func (r *Resource) middleware() ik8s.IMetadata {
