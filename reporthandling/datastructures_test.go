@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	"github.com/armosec/k8s-interface/workloadinterface"
+	"github.com/stretchr/testify/assert"
 )
 
 func TestMockPolicyNotificationA(t *testing.T) {
@@ -51,8 +52,10 @@ func TestPostureReportWithExternalResource(t *testing.T) {
 		ResourceID: "test-id",
 		Object: map[string]interface{}{
 			"namespace":      "",
+			"group":          "",
 			"name":           "MySubject",
 			"kind":           "Subject",
+			"relatedObjects": nil,
 			"failedCreteria": "RBAC",
 		},
 	})
@@ -67,10 +70,7 @@ func TestPostureReportWithExternalResource(t *testing.T) {
 	report2 := PostureReport{}
 	json.Unmarshal(a, &report2)
 
-	id := report2.Resources[0].GetID()
-	if id != expectedID {
-		t.Errorf("unexpected id from custom object, given id: %s expected: %s", id, expectedID)
-	}
+	assert.Equal(t, expectedID, report2.Resources[0].GetID())
 }
 func TestMockFrameworkA(t *testing.T) {
 	policy := MockFrameworkA()

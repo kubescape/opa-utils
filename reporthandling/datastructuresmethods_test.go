@@ -30,7 +30,7 @@ func TestControlsResults(t *testing.T) {
 	assert.Equal(t, len(framework.ControlReports), 21)
 
 	SetUniqueResourcesCounter(framework)
-	assert.Equal(t, 24, framework.GetNumberOfFailedResources(), "framework.GetNumberOfFailedResources")
+	assert.Equal(t, 28, framework.GetNumberOfFailedResources(), "framework.GetNumberOfFailedResources")
 	assert.Equal(t, 31, framework.GetNumberOfWarningResources(), "framework.GetNumberOfWarningResources")
 
 	for _, control := range framework.ControlReports {
@@ -82,7 +82,7 @@ func TestControlsResults(t *testing.T) {
 			assert.False(t, control.Warning(), "C-0034: Warning")
 			assert.True(t, control.Failed(), "C-0034: Failed")
 		case "C-0035":
-			assert.Equal(t, 6, control.GetNumberOfFailedResources(), "C-0035: GetNumberOfFailedResources")
+			assert.Equal(t, 4, control.GetNumberOfFailedResources(), "C-0035: GetNumberOfFailedResources")
 			assert.Equal(t, 0, control.GetNumberOfWarningResources(), "C-0035: GetNumberOfWarningResources")
 			assert.False(t, control.Passed(), "C-0035: Passed")
 			assert.False(t, control.Warning(), "C-0035: Warning")

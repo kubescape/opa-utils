@@ -81,7 +81,12 @@ func GetUniqueResources(k8sResources []map[string]interface{}) []map[string]inte
 
 	lenK8sResources := len(k8sResources)
 	for i := 0; i < lenK8sResources; i++ {
-		workload := workloadinterface.NewWorkloadObj(k8sResources[i])
+		workload := workloadinterface.NewObject(k8sResources[i])
+		if workload == nil { // remove none supported types
+			k8sResources = removeFromSlice(k8sResources, i)
+			lenK8sResources -= 1
+			i -= 1
+		}
 		resourceID := workload.GetID()
 		if found := uniqueRuleResponses[resourceID]; found {
 			// resource found -> remove from slice
@@ -103,14 +108,13 @@ func TrimUniqueResources(origin, trimFrom []map[string]interface{}) []map[string
 	uniqueResources := map[string]bool{}
 
 	for i := range trimFrom {
-		workload := workloadinterface.NewWorkloadObj(trimFrom[i])
-		workload.GetVersion()
+		workload := workloadinterface.NewObject(trimFrom[i])
 		uniqueResources[workload.GetID()] = true
 	}
 
 	lenOrigin := len(origin)
 	for i := 0; i < lenOrigin; i++ {
-		workload := workloadinterface.NewWorkloadObj(origin[i])
+		workload := workloadinterface.NewObject(origin[i])
 		if found := uniqueResources[workload.GetID()]; found {
 			// resource found -> remove from slice
 			origin = removeFromSlice(origin, i)

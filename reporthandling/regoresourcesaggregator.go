@@ -38,8 +38,8 @@ func AggregateResourcesBySubjects(k8sObjects []map[string]interface{}) []map[str
 									if data, ok := subjects.([]interface{}); ok {
 										for _, subject := range data {
 											subjectAllFields := setSubjectFields(subject.(map[string]interface{}))
-											relatedObjects := []workloadinterface.IMetadata{bindingWorkload, roleWorkload}
-											newObj := workloadinterface.NewRegoResponseVectorObject(subjectAllFields, relatedObjects)
+											subjectAllFields[workloadinterface.RelatedObjectsKey] = []map[string]interface{}{bindingWorkload.GetObject(), roleWorkload.GetObject()}
+											newObj := workloadinterface.NewRegoResponseVectorObject(subjectAllFields)
 											aggregatedK8sObjects = append(aggregatedK8sObjects, newObj.GetObject())
 										}
 									}
@@ -66,7 +66,7 @@ func AggregateResourcesByAPIServerPod(k8sObjects []map[string]interface{}) []map
 				apiServerPod["kind"] = workload.GetKind()
 				apiServerPod["apiVersion"] = workload.GetApiVersion()
 				containers, err := workload.GetContainers()
-				if err != nil {
+				if err != nil || len(containers) == 0 {
 					return nil
 				}
 				// apiServer has only one container

@@ -279,6 +279,9 @@ func (ruleReport *RuleReport) GetFailedResources() []map[string]interface{} {
 	for _, ruleResponse := range ruleReport.RuleResponses {
 		if ruleResponse.Failed() {
 			failedResources = append(failedResources, ruleResponse.AlertObject.K8SApiObjects...)
+			if ruleResponse.AlertObject.ExternalObjects != nil {
+				failedResources = append(failedResources, ruleResponse.AlertObject.ExternalObjects)
+			}
 		}
 	}
 	return failedResources
@@ -290,6 +293,9 @@ func (ruleReport *RuleReport) GetWarnignResources() []map[string]interface{} {
 	for _, ruleResponse := range ruleReport.RuleResponses {
 		if ruleResponse.Warning() {
 			failedResources = append(failedResources, ruleResponse.AlertObject.K8SApiObjects...)
+			if ruleResponse.AlertObject.ExternalObjects != nil {
+				failedResources = append(failedResources, ruleResponse.AlertObject.ExternalObjects)
+			}
 		}
 	}
 	return failedResources
@@ -325,7 +331,6 @@ func (ruleResponse *RuleResponse) GetStatus() string {
 	return StatusFailed
 }
 func (ruleResponse *RuleResponse) RemoveData(keepFields, keepMetadataFields []string) {
-	ruleResponse.AlertObject.ExternalObjects = nil
 
 	for i := range ruleResponse.AlertObject.K8SApiObjects {
 		deleteFromMap(ruleResponse.AlertObject.K8SApiObjects[i], keepFields)

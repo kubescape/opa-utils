@@ -1,8 +1,7 @@
 package reporthandling
 
 import (
-	"encoding/json"
-
+	"github.com/armosec/k8s-interface/workloadinterface"
 	ik8s "github.com/armosec/k8s-interface/workloadinterface"
 )
 
@@ -15,34 +14,21 @@ import (
 // GetObject() map[string]interface{}
 // GetID() string // Get K8S workload ID -> <api-group>/<api-version>/<kind>/<name>
 // //isK8sObject()
-func (r *Resource) SetNamespace(s string) {
-	mw := r.middleware()
-	if mw != nil {
-		mw.SetNamespace(s)
-	}
-}
 
 func (r *Resource) middleware() ik8s.IMetadata {
 	if r.IMetadata != nil {
 		return r.IMetadata
 	}
-	b, err := json.Marshal(r.Object)
-	if err != nil {
-		return nil
+
+	r.IMetadata = workloadinterface.NewObject(r.Object.(map[string]interface{}))
+	return r.IMetadata
+}
+
+func (r *Resource) SetNamespace(s string) {
+	mw := r.middleware()
+	if mw != nil {
+		mw.SetNamespace(s)
 	}
-
-	if vc, err := ik8s.NewRegoResponseVectorObjectFromBytes(b, nil); err == nil && vc.GetID() != "" && vc.GetName() != "" {
-		r.IMetadata = vc
-		return vc
-	}
-
-	if wl, err := ik8s.NewWorkload(b); err == nil && wl.GetID() != "" && wl.GetName() != "" {
-		r.IMetadata = wl
-		return r.IMetadata
-	}
-
-	return nil
-
 }
 
 func (r *Resource) SetName(s string) {
@@ -59,7 +45,7 @@ func (r *Resource) SetKind(s string) {
 	}
 }
 
-func (r *Resource) SetWorkload(m map[string]interface{}) { // deprectaed
+func (r *Resource) SetWorkload(m map[string]interface{}) { // deprecated
 	mw := r.middleware()
 	if mw != nil {
 		mw.SetWorkload(m)

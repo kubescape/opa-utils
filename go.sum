@@ -87,8 +87,8 @@ github.com/armosec/armoapi-go v0.0.2/go.mod h1:vIK17yoKbJRQyZXWWLe3AqfqCRITxW8qm
 github.com/armosec/armoapi-go v0.0.23 h1:jqoLIWM5CR7DCD9fpFgN0ePqtHvOCoZv/XzCwsUluJU=
 github.com/armosec/armoapi-go v0.0.23/go.mod h1:iaVVGyc23QGGzAdv4n+szGQg3Rbpixn9yQTU3qWRpaw=
 github.com/armosec/k8s-interface v0.0.8/go.mod h1:xxS+V5QT3gVQTwZyAMMDrYLWGrfKOpiJ7Jfhfa0w9sM=
-github.com/armosec/k8s-interface v0.0.12 h1:SzFqu9dG+Pak+empVkYu+weznWTNSWlxcIqTaGFIgFo=
-github.com/armosec/k8s-interface v0.0.12/go.mod h1:xxS+V5QT3gVQTwZyAMMDrYLWGrfKOpiJ7Jfhfa0w9sM=
+github.com/armosec/k8s-interface v0.0.15 h1:A/EkOzOGFUGs5p55HLN0lbsgBqmEQVvHU+uieLBTyEg=
+github.com/armosec/k8s-interface v0.0.15/go.mod h1:Oy8JDHZ5/LEZDA+s734twVdsfAZydZ1GkNuhiPcgL5g=
 github.com/armosec/rbac-utils v0.0.1 h1:N2MI98F/0zbDjmRZ29CNElU1AXkFLk5csd/qAHOBdXY=
 github.com/armosec/rbac-utils v0.0.1/go.mod h1:pQ8CBiij8kSKV7aeZm9FMvtZN28VgA7LZcYyTWimq40=
 github.com/armosec/utils-go v0.0.2/go.mod h1:itWmRLzRdsnwjpEOomL0mBWGnVNNIxSjDAdyc+b0iUo=

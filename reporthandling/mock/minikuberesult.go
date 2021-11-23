@@ -7082,7 +7082,7 @@ var NSAScanV10119 = `
             "name": "Cluster-admin binding",
             "ruleReports": [
                 {
-                    "name": "rule-list-all-cluster-admins",
+                    "name": "rule-list-all-cluster-admins-v1",
                     "remediation": "",
                     "ruleStatus": {
                         "status": "success",
@@ -7090,254 +7090,482 @@ var NSAScanV10119 = `
                     },
                     "ruleResponses": [
                         {
-                            "alertMessage": "The following ServiceAccount: argocd-application-controller have high privileges, such as cluster-admin",
-                            "ruleStatus": "failed",
+                            "alertMessage": "Subject: ServiceAccount-ca-controller-service-account have high privileges, such as cluster-admin",
+                            "ruleStatus": "",
                             "packagename": "armo_builtins",
-                            "alertScore": 9,
+                            "alertScore": 3,
                             "alertObject": {
-                                "k8sApiObjects": [
-                                    {
-                                        "apiVersion": "rbac.authorization.k8s.io/v1",
-                                        "kind": "ClusterRole",
-                                        "metadata": {
-                                            "annotations": {
-                                                "kubectl.kubernetes.io/last-applied-configuration": "{\"apiVersion\":\"rbac.authorization.k8s.io/v1\",\"kind\":\"ClusterRole\",\"metadata\":{\"annotations\":{},\"labels\":{\"app.kubernetes.io/component\":\"application-controller\",\"app.kubernetes.io/name\":\"argocd-application-controller\",\"app.kubernetes.io/part-of\":\"argocd\"},\"name\":\"argocd-application-controller\"},\"rules\":[{\"apiGroups\":[\"*\"],\"resources\":[\"*\"],\"verbs\":[\"*\"]},{\"nonResourceURLs\":[\"*\"],\"verbs\":[\"*\"]}]}\n"
-                                            },
-                                            "creationTimestamp": "2021-08-22T11:50:37Z",
-                                            "labels": {
-                                                "app.kubernetes.io/component": "application-controller",
-                                                "app.kubernetes.io/name": "argocd-application-controller",
-                                                "app.kubernetes.io/part-of": "argocd"
-                                            },
-                                            "name": "argocd-application-controller",
-                                            "resourceVersion": "1427392",
-                                            "selfLink": "/apis/rbac.authorization.k8s.io/v1/clusterroles/argocd-application-controller",
-                                            "uid": "947b1d1e-8fae-4f64-8264-452275d0d2a3"
-                                        },
-                                        "rules": [
-                                            {
-                                                "apiGroups": [
-                                                    "*"
-                                                ],
-                                                "resources": [
-                                                    "*"
-                                                ],
-                                                "verbs": [
-                                                    "*"
-                                                ]
-                                            },
-                                            {
-                                                "nonResourceURLs": [
-                                                    "*"
-                                                ],
-                                                "verbs": [
-                                                    "*"
-                                                ]
-                                            }
-                                        ]
-                                    },
-                                    {
-                                        "apiVersion": "rbac.authorization.k8s.io/v1",
-                                        "kind": "ClusterRoleBinding",
-                                        "metadata": {
-                                            "annotations": {
-                                                "kubectl.kubernetes.io/last-applied-configuration": "{\"apiVersion\":\"rbac.authorization.k8s.io/v1\",\"kind\":\"ClusterRoleBinding\",\"metadata\":{\"annotations\":{},\"labels\":{\"app.kubernetes.io/component\":\"application-controller\",\"app.kubernetes.io/name\":\"argocd-application-controller\",\"app.kubernetes.io/part-of\":\"argocd\"},\"name\":\"argocd-application-controller\"},\"roleRef\":{\"apiGroup\":\"rbac.authorization.k8s.io\",\"kind\":\"ClusterRole\",\"name\":\"argocd-application-controller\"},\"subjects\":[{\"kind\":\"ServiceAccount\",\"name\":\"argocd-application-controller\",\"namespace\":\"argocd\"}]}\n"
-                                            },
-                                            "creationTimestamp": "2021-08-22T11:50:37Z",
-                                            "labels": {
-                                                "app.kubernetes.io/component": "application-controller",
-                                                "app.kubernetes.io/name": "argocd-application-controller",
-                                                "app.kubernetes.io/part-of": "argocd"
-                                            },
-                                            "name": "argocd-application-controller",
-                                            "resourceVersion": "1427398",
-                                            "selfLink": "/apis/rbac.authorization.k8s.io/v1/clusterrolebindings/argocd-application-controller",
-                                            "uid": "12055d3d-8f87-4051-bd24-334ba3c409b9"
-                                        },
-                                        "roleRef": {
-                                            "apiGroup": "rbac.authorization.k8s.io",
-                                            "kind": "ClusterRole",
-                                            "name": "argocd-application-controller"
-                                        },
-                                        "subjects": [
-                                            {
-                                                "kind": "ServiceAccount",
-                                                "name": "argocd-application-controller",
-                                                "namespace": "argocd"
-                                            }
-                                        ]
-                                    }
-                                ],
                                 "externalObjects": {
-                                    "subject": [
+                                    "apiVersion": "",
+                                    "kind": "ServiceAccount",
+                                    "name": "ca-controller-service-account",
+                                    "namespace": "cyberarmor-system",
+                                    "relatedObjects": [
                                         {
-                                            "kind": "ServiceAccount",
-                                            "name": "argocd-application-controller",
-                                            "namespace": "argocd"
-                                        }
-                                    ]
-                                }
-                            }
-                        },
-                        {
-                            "alertMessage": "The following Group: system:masters have high privileges, such as cluster-admin",
-                            "ruleStatus": "failed",
-                            "packagename": "armo_builtins",
-                            "alertScore": 9,
-                            "alertObject": {
-                                "k8sApiObjects": [
-                                    {
-                                        "apiVersion": "rbac.authorization.k8s.io/v1",
-                                        "kind": "ClusterRole",
-                                        "metadata": {
-                                            "annotations": {
-                                                "rbac.authorization.kubernetes.io/autoupdate": "true"
-                                            },
-                                            "creationTimestamp": "2021-06-20T09:07:04Z",
-                                            "labels": {
-                                                "kubernetes.io/bootstrapping": "rbac-defaults"
-                                            },
-                                            "name": "cluster-admin",
-                                            "resourceVersion": "43",
-                                            "selfLink": "/apis/rbac.authorization.k8s.io/v1/clusterroles/cluster-admin",
-                                            "uid": "612c8a97-ef32-4995-8b1d-ebf60e74d514"
-                                        },
-                                        "rules": [
-                                            {
-                                                "apiGroups": [
-                                                    "*"
+                                            "apiVersion": "rbac.authorization.k8s.io/v1",
+                                            "kind": "ClusterRoleBinding",
+                                            "metadata": {
+                                                "annotations": {
+                                                    "kubectl.kubernetes.io/last-applied-configuration": "{\"apiVersion\":\"rbac.authorization.k8s.io/v1\",\"kind\":\"ClusterRoleBinding\",\"metadata\":{\"annotations\":{},\"labels\":{\"app\":\"ca-controller-role-binding\",\"tier\":\"cyberarmor-system-control-plane\"},\"name\":\"ca-controller-role-binding\"},\"roleRef\":{\"apiGroup\":\"rbac.authorization.k8s.io\",\"kind\":\"ClusterRole\",\"name\":\"ca-controller-roles\"},\"subjects\":[{\"kind\":\"ServiceAccount\",\"name\":\"ca-controller-service-account\",\"namespace\":\"cyberarmor-system\"}]}\n"
+                                                },
+                                                "creationTimestamp": "2021-11-22T11:39:04Z",
+                                                "labels": {
+                                                    "app": "ca-controller-role-binding",
+                                                    "tier": "cyberarmor-system-control-plane"
+                                                },
+                                                "managedFields": [
+                                                    {
+                                                        "apiVersion": "rbac.authorization.k8s.io/v1",
+                                                        "fieldsType": "FieldsV1",
+                                                        "fieldsV1": {
+                                                            "f:metadata": {
+                                                                "f:annotations": {
+                                                                    ".": {},
+                                                                    "f:kubectl.kubernetes.io/last-applied-configuration": {}
+                                                                },
+                                                                "f:labels": {
+                                                                    ".": {},
+                                                                    "f:app": {},
+                                                                    "f:tier": {}
+                                                                }
+                                                            },
+                                                            "f:roleRef": {},
+                                                            "f:subjects": {}
+                                                        },
+                                                        "manager": "kubectl-client-side-apply",
+                                                        "operation": "Update",
+                                                        "time": "2021-11-22T11:39:04Z"
+                                                    }
                                                 ],
-                                                "resources": [
-                                                    "*"
-                                                ],
-                                                "verbs": [
-                                                    "*"
-                                                ]
+                                                "name": "ca-controller-role-binding",
+                                                "resourceVersion": "55174",
+                                                "uid": "970ed0ad-e6df-4295-87f2-3ba2fd84cd15"
                                             },
-                                            {
-                                                "nonResourceURLs": [
-                                                    "*"
-                                                ],
-                                                "verbs": [
-                                                    "*"
-                                                ]
-                                            }
-                                        ]
-                                    },
-                                    {
-                                        "apiVersion": "rbac.authorization.k8s.io/v1",
-                                        "kind": "ClusterRoleBinding",
-                                        "metadata": {
-                                            "annotations": {
-                                                "rbac.authorization.kubernetes.io/autoupdate": "true"
-                                            },
-                                            "creationTimestamp": "2021-06-20T09:07:04Z",
-                                            "labels": {
-                                                "kubernetes.io/bootstrapping": "rbac-defaults"
-                                            },
-                                            "name": "cluster-admin",
-                                            "resourceVersion": "96",
-                                            "selfLink": "/apis/rbac.authorization.k8s.io/v1/clusterrolebindings/cluster-admin",
-                                            "uid": "a594dc87-99a0-4154-9844-d7b5f6e1919c"
-                                        },
-                                        "roleRef": {
-                                            "apiGroup": "rbac.authorization.k8s.io",
-                                            "kind": "ClusterRole",
-                                            "name": "cluster-admin"
-                                        },
-                                        "subjects": [
-                                            {
+                                            "roleRef": {
                                                 "apiGroup": "rbac.authorization.k8s.io",
-                                                "kind": "Group",
-                                                "name": "system:masters"
-                                            }
-                                        ]
-                                    }
-                                ],
-                                "externalObjects": {
-                                    "subject": [
+                                                "kind": "ClusterRole",
+                                                "name": "ca-controller-roles"
+                                            },
+                                            "subjects": [
+                                                {
+                                                    "apiVersion": "",
+                                                    "kind": "ServiceAccount",
+                                                    "name": "ca-controller-service-account",
+                                                    "namespace": "cyberarmor-system"
+                                                }
+                                            ]
+                                        },
                                         {
-                                            "apiGroup": "rbac.authorization.k8s.io",
-                                            "kind": "Group",
-                                            "name": "system:masters"
+                                            "apiVersion": "rbac.authorization.k8s.io/v1",
+                                            "kind": "ClusterRole",
+                                            "metadata": {
+                                                "annotations": {
+                                                    "kubectl.kubernetes.io/last-applied-configuration": "{\"apiVersion\":\"rbac.authorization.k8s.io/v1\",\"kind\":\"ClusterRole\",\"metadata\":{\"annotations\":{},\"labels\":{\"app\":\"ca-controller-roles\",\"tier\":\"cyberarmor-system-control-plane\"},\"name\":\"ca-controller-roles\"},\"rules\":[{\"apiGroups\":[\"*\"],\"resources\":[\"*\"],\"verbs\":[\"*\"]}]}\n"
+                                                },
+                                                "creationTimestamp": "2021-11-22T11:39:04Z",
+                                                "labels": {
+                                                    "app": "ca-controller-roles",
+                                                    "tier": "cyberarmor-system-control-plane"
+                                                },
+                                                "managedFields": [
+                                                    {
+                                                        "apiVersion": "rbac.authorization.k8s.io/v1",
+                                                        "fieldsType": "FieldsV1",
+                                                        "fieldsV1": {
+                                                            "f:metadata": {
+                                                                "f:annotations": {
+                                                                    ".": {},
+                                                                    "f:kubectl.kubernetes.io/last-applied-configuration": {}
+                                                                },
+                                                                "f:labels": {
+                                                                    ".": {},
+                                                                    "f:app": {},
+                                                                    "f:tier": {}
+                                                                }
+                                                            },
+                                                            "f:rules": {}
+                                                        },
+                                                        "manager": "kubectl-client-side-apply",
+                                                        "operation": "Update",
+                                                        "time": "2021-11-22T11:39:04Z"
+                                                    }
+                                                ],
+                                                "name": "ca-controller-roles",
+                                                "resourceVersion": "55173",
+                                                "uid": "adc39aa5-fb40-45c6-9fa3-f94dad74652e"
+                                            },
+                                            "rules": [
+                                                {
+                                                    "apiGroups": [
+                                                        "*"
+                                                    ],
+                                                    "resources": [
+                                                        "*"
+                                                    ],
+                                                    "verbs": [
+                                                        "*"
+                                                    ]
+                                                }
+                                            ]
                                         }
                                     ]
                                 }
                             }
                         },
                         {
-                            "alertMessage": "The following ServiceAccount: nginx-ingress have high privileges, such as cluster-admin",
-                            "ruleStatus": "failed",
+                            "alertMessage": "Subject: Group-system:masters have high privileges, such as cluster-admin",
+                            "ruleStatus": "",
                             "packagename": "armo_builtins",
-                            "alertScore": 9,
+                            "alertScore": 3,
                             "alertObject": {
-                                "k8sApiObjects": [
-                                    {
-                                        "apiVersion": "rbac.authorization.k8s.io/v1",
-                                        "kind": "ClusterRole",
-                                        "metadata": {
-                                            "annotations": {
-                                                "kubectl.kubernetes.io/last-applied-configuration": "{\"apiVersion\":\"rbac.authorization.k8s.io/v1\",\"kind\":\"ClusterRole\",\"metadata\":{\"annotations\":{},\"labels\":{\"app\":\"nginx-ingress-roles\"},\"name\":\"nginx-ingress-roles\"},\"rules\":[{\"apiGroups\":[\"*\"],\"resources\":[\"*\"],\"verbs\":[\"*\"]}]}\n"
-                                            },
-                                            "creationTimestamp": "2021-08-18T14:58:32Z",
-                                            "labels": {
-                                                "app": "nginx-ingress-roles"
-                                            },
-                                            "name": "nginx-ingress-roles",
-                                            "resourceVersion": "1355206",
-                                            "selfLink": "/apis/rbac.authorization.k8s.io/v1/clusterroles/nginx-ingress-roles",
-                                            "uid": "e262c786-9138-4db2-86be-1f6bd50f93bd"
-                                        },
-                                        "rules": [
-                                            {
-                                                "apiGroups": [
-                                                    "*"
-                                                ],
-                                                "resources": [
-                                                    "*"
-                                                ],
-                                                "verbs": [
-                                                    "*"
-                                                ]
-                                            }
-                                        ]
-                                    },
-                                    {
-                                        "apiVersion": "rbac.authorization.k8s.io/v1",
-                                        "kind": "ClusterRoleBinding",
-                                        "metadata": {
-                                            "annotations": {
-                                                "kubectl.kubernetes.io/last-applied-configuration": "{\"apiVersion\":\"rbac.authorization.k8s.io/v1\",\"kind\":\"ClusterRoleBinding\",\"metadata\":{\"annotations\":{},\"labels\":{\"app\":\"nginx-ingress-roles-binding\"},\"name\":\"nginx-ingress-roles-binding\"},\"roleRef\":{\"apiGroup\":\"rbac.authorization.k8s.io\",\"kind\":\"ClusterRole\",\"name\":\"nginx-ingress-roles\"},\"subjects\":[{\"kind\":\"ServiceAccount\",\"name\":\"nginx-ingress\",\"namespace\":\"nginx-ingress\"}]}\n"
-                                            },
-                                            "creationTimestamp": "2021-08-18T14:58:57Z",
-                                            "labels": {
-                                                "app": "nginx-ingress-roles-binding"
-                                            },
-                                            "name": "nginx-ingress-roles-binding",
-                                            "resourceVersion": "1355223",
-                                            "selfLink": "/apis/rbac.authorization.k8s.io/v1/clusterrolebindings/nginx-ingress-roles-binding",
-                                            "uid": "38821ce8-ea8f-4081-ba6c-5769a2382447"
-                                        },
-                                        "roleRef": {
-                                            "apiGroup": "rbac.authorization.k8s.io",
-                                            "kind": "ClusterRole",
-                                            "name": "nginx-ingress-roles"
-                                        },
-                                        "subjects": [
-                                            {
-                                                "kind": "ServiceAccount",
-                                                "name": "nginx-ingress",
-                                                "namespace": "nginx-ingress"
-                                            }
-                                        ]
-                                    }
-                                ],
                                 "externalObjects": {
-                                    "subject": [
+                                    "apiGroup": "rbac.authorization.k8s.io",
+                                    "apiVersion": "",
+                                    "kind": "Group",
+                                    "name": "system:masters",
+                                    "namespace": "",
+                                    "relatedObjects": [
                                         {
-                                            "kind": "ServiceAccount",
-                                            "name": "nginx-ingress",
-                                            "namespace": "nginx-ingress"
+                                            "apiVersion": "rbac.authorization.k8s.io/v1",
+                                            "kind": "ClusterRoleBinding",
+                                            "metadata": {
+                                                "annotations": {
+                                                    "rbac.authorization.kubernetes.io/autoupdate": "true"
+                                                },
+                                                "creationTimestamp": "2021-11-18T08:32:47Z",
+                                                "labels": {
+                                                    "kubernetes.io/bootstrapping": "rbac-defaults"
+                                                },
+                                                "managedFields": [
+                                                    {
+                                                        "apiVersion": "rbac.authorization.k8s.io/v1",
+                                                        "fieldsType": "FieldsV1",
+                                                        "fieldsV1": {
+                                                            "f:metadata": {
+                                                                "f:annotations": {
+                                                                    ".": {},
+                                                                    "f:rbac.authorization.kubernetes.io/autoupdate": {}
+                                                                },
+                                                                "f:labels": {
+                                                                    ".": {},
+                                                                    "f:kubernetes.io/bootstrapping": {}
+                                                                }
+                                                            },
+                                                            "f:roleRef": {},
+                                                            "f:subjects": {}
+                                                        },
+                                                        "manager": "kube-apiserver",
+                                                        "operation": "Update",
+                                                        "time": "2021-11-18T08:32:47Z"
+                                                    }
+                                                ],
+                                                "name": "cluster-admin",
+                                                "resourceVersion": "148",
+                                                "uid": "9b11b39f-96e1-41f4-ae95-83a3658a7ad2"
+                                            },
+                                            "roleRef": {
+                                                "apiGroup": "rbac.authorization.k8s.io",
+                                                "kind": "ClusterRole",
+                                                "name": "cluster-admin"
+                                            },
+                                            "subjects": [
+                                                {
+                                                    "apiGroup": "rbac.authorization.k8s.io",
+                                                    "apiVersion": "",
+                                                    "kind": "Group",
+                                                    "name": "system:masters",
+                                                    "namespace": ""
+                                                }
+                                            ]
+                                        },
+                                        {
+                                            "apiVersion": "rbac.authorization.k8s.io/v1",
+                                            "kind": "ClusterRole",
+                                            "metadata": {
+                                                "annotations": {
+                                                    "rbac.authorization.kubernetes.io/autoupdate": "true"
+                                                },
+                                                "creationTimestamp": "2021-11-18T08:32:46Z",
+                                                "labels": {
+                                                    "kubernetes.io/bootstrapping": "rbac-defaults"
+                                                },
+                                                "managedFields": [
+                                                    {
+                                                        "apiVersion": "rbac.authorization.k8s.io/v1",
+                                                        "fieldsType": "FieldsV1",
+                                                        "fieldsV1": {
+                                                            "f:metadata": {
+                                                                "f:annotations": {
+                                                                    ".": {},
+                                                                    "f:rbac.authorization.kubernetes.io/autoupdate": {}
+                                                                },
+                                                                "f:labels": {
+                                                                    ".": {},
+                                                                    "f:kubernetes.io/bootstrapping": {}
+                                                                }
+                                                            },
+                                                            "f:rules": {}
+                                                        },
+                                                        "manager": "kube-apiserver",
+                                                        "operation": "Update",
+                                                        "time": "2021-11-18T08:32:46Z"
+                                                    }
+                                                ],
+                                                "name": "cluster-admin",
+                                                "resourceVersion": "85",
+                                                "uid": "4f931b89-a284-4c37-b4b6-7427c7eaf7da"
+                                            },
+                                            "rules": [
+                                                {
+                                                    "apiGroups": [
+                                                        "*"
+                                                    ],
+                                                    "resources": [
+                                                        "*"
+                                                    ],
+                                                    "verbs": [
+                                                        "*"
+                                                    ]
+                                                },
+                                                {
+                                                    "nonResourceURLs": [
+                                                        "*"
+                                                    ],
+                                                    "verbs": [
+                                                        "*"
+                                                    ]
+                                                }
+                                            ]
+                                        }
+                                    ]
+                                }
+                            }
+                        },
+                        {
+                            "alertMessage": "Subject: ServiceAccount-default have high privileges, such as cluster-admin",
+                            "ruleStatus": "",
+                            "packagename": "armo_builtins",
+                            "alertScore": 3,
+                            "alertObject": {
+                                "externalObjects": {
+                                    "apiVersion": "",
+                                    "kind": "ServiceAccount",
+                                    "name": "default",
+                                    "namespace": "kube-system",
+                                    "relatedObjects": [
+                                        {
+                                            "apiVersion": "rbac.authorization.k8s.io/v1",
+                                            "kind": "ClusterRoleBinding",
+                                            "metadata": {
+                                                "creationTimestamp": "2021-11-18T08:32:50Z",
+                                                "managedFields": [
+                                                    {
+                                                        "apiVersion": "rbac.authorization.k8s.io/v1",
+                                                        "fieldsType": "FieldsV1",
+                                                        "fieldsV1": {
+                                                            "f:roleRef": {},
+                                                            "f:subjects": {}
+                                                        },
+                                                        "manager": "kubectl-create",
+                                                        "operation": "Update",
+                                                        "time": "2021-11-18T08:32:50Z"
+                                                    }
+                                                ],
+                                                "name": "minikube-rbac",
+                                                "resourceVersion": "288",
+                                                "uid": "c248ca17-dc52-4140-befc-ed2b17ccc081"
+                                            },
+                                            "roleRef": {
+                                                "apiGroup": "rbac.authorization.k8s.io",
+                                                "kind": "ClusterRole",
+                                                "name": "cluster-admin"
+                                            },
+                                            "subjects": [
+                                                {
+                                                    "apiVersion": "",
+                                                    "kind": "ServiceAccount",
+                                                    "name": "default",
+                                                    "namespace": "kube-system"
+                                                }
+                                            ]
+                                        },
+                                        {
+                                            "apiVersion": "rbac.authorization.k8s.io/v1",
+                                            "kind": "ClusterRole",
+                                            "metadata": {
+                                                "annotations": {
+                                                    "rbac.authorization.kubernetes.io/autoupdate": "true"
+                                                },
+                                                "creationTimestamp": "2021-11-18T08:32:46Z",
+                                                "labels": {
+                                                    "kubernetes.io/bootstrapping": "rbac-defaults"
+                                                },
+                                                "managedFields": [
+                                                    {
+                                                        "apiVersion": "rbac.authorization.k8s.io/v1",
+                                                        "fieldsType": "FieldsV1",
+                                                        "fieldsV1": {
+                                                            "f:metadata": {
+                                                                "f:annotations": {
+                                                                    ".": {},
+                                                                    "f:rbac.authorization.kubernetes.io/autoupdate": {}
+                                                                },
+                                                                "f:labels": {
+                                                                    ".": {},
+                                                                    "f:kubernetes.io/bootstrapping": {}
+                                                                }
+                                                            },
+                                                            "f:rules": {}
+                                                        },
+                                                        "manager": "kube-apiserver",
+                                                        "operation": "Update",
+                                                        "time": "2021-11-18T08:32:46Z"
+                                                    }
+                                                ],
+                                                "name": "cluster-admin",
+                                                "resourceVersion": "85",
+                                                "uid": "4f931b89-a284-4c37-b4b6-7427c7eaf7da"
+                                            },
+                                            "rules": [
+                                                {
+                                                    "apiGroups": [
+                                                        "*"
+                                                    ],
+                                                    "resources": [
+                                                        "*"
+                                                    ],
+                                                    "verbs": [
+                                                        "*"
+                                                    ]
+                                                },
+                                                {
+                                                    "nonResourceURLs": [
+                                                        "*"
+                                                    ],
+                                                    "verbs": [
+                                                        "*"
+                                                    ]
+                                                }
+                                            ]
+                                        }
+                                    ]
+                                }
+                            }
+                        },
+                        {
+                            "alertMessage": "Subject: ServiceAccount-nginx-ingress have high privileges, such as cluster-admin",
+                            "ruleStatus": "",
+                            "packagename": "armo_builtins",
+                            "alertScore": 3,
+                            "alertObject": {
+                                "externalObjects": {
+                                    "apiVersion": "",
+                                    "kind": "ServiceAccount",
+                                    "name": "nginx-ingress",
+                                    "namespace": "nginx-ingress",
+                                    "relatedObjects": [
+                                        {
+                                            "apiVersion": "rbac.authorization.k8s.io/v1",
+                                            "kind": "ClusterRoleBinding",
+                                            "metadata": {
+                                                "annotations": {
+                                                    "kubectl.kubernetes.io/last-applied-configuration": "{\"apiVersion\":\"rbac.authorization.k8s.io/v1\",\"kind\":\"ClusterRoleBinding\",\"metadata\":{\"annotations\":{},\"labels\":{\"app\":\"nginx-ingress-roles-binding\"},\"name\":\"nginx-ingress-roles-binding\"},\"roleRef\":{\"apiGroup\":\"rbac.authorization.k8s.io\",\"kind\":\"ClusterRole\",\"name\":\"nginx-ingress-roles\"},\"subjects\":[{\"kind\":\"ServiceAccount\",\"name\":\"nginx-ingress\",\"namespace\":\"nginx-ingress\"}]}\n"
+                                                },
+                                                "creationTimestamp": "2021-11-22T11:59:03Z",
+                                                "labels": {
+                                                    "app": "nginx-ingress-roles-binding"
+                                                },
+                                                "managedFields": [
+                                                    {
+                                                        "apiVersion": "rbac.authorization.k8s.io/v1",
+                                                        "fieldsType": "FieldsV1",
+                                                        "fieldsV1": {
+                                                            "f:metadata": {
+                                                                "f:annotations": {
+                                                                    ".": {},
+                                                                    "f:kubectl.kubernetes.io/last-applied-configuration": {}
+                                                                },
+                                                                "f:labels": {
+                                                                    ".": {},
+                                                                    "f:app": {}
+                                                                }
+                                                            },
+                                                            "f:roleRef": {},
+                                                            "f:subjects": {}
+                                                        },
+                                                        "manager": "kubectl-client-side-apply",
+                                                        "operation": "Update",
+                                                        "time": "2021-11-22T11:59:03Z"
+                                                    }
+                                                ],
+                                                "name": "nginx-ingress-roles-binding",
+                                                "resourceVersion": "56426",
+                                                "uid": "a5a2dd95-2554-48c8-b446-c0f7d9259986"
+                                            },
+                                            "roleRef": {
+                                                "apiGroup": "rbac.authorization.k8s.io",
+                                                "kind": "ClusterRole",
+                                                "name": "nginx-ingress-roles"
+                                            },
+                                            "subjects": [
+                                                {
+                                                    "apiVersion": "",
+                                                    "kind": "ServiceAccount",
+                                                    "name": "nginx-ingress",
+                                                    "namespace": "nginx-ingress"
+                                                }
+                                            ]
+                                        },
+                                        {
+                                            "apiVersion": "rbac.authorization.k8s.io/v1",
+                                            "kind": "ClusterRole",
+                                            "metadata": {
+                                                "annotations": {
+                                                    "kubectl.kubernetes.io/last-applied-configuration": "{\"apiVersion\":\"rbac.authorization.k8s.io/v1\",\"kind\":\"ClusterRole\",\"metadata\":{\"annotations\":{},\"labels\":{\"app\":\"nginx-ingress-roles\"},\"name\":\"nginx-ingress-roles\"},\"rules\":[{\"apiGroups\":[\"*\"],\"resources\":[\"*\"],\"verbs\":[\"*\"]}]}\n"
+                                                },
+                                                "creationTimestamp": "2021-11-22T11:59:03Z",
+                                                "labels": {
+                                                    "app": "nginx-ingress-roles"
+                                                },
+                                                "managedFields": [
+                                                    {
+                                                        "apiVersion": "rbac.authorization.k8s.io/v1",
+                                                        "fieldsType": "FieldsV1",
+                                                        "fieldsV1": {
+                                                            "f:metadata": {
+                                                                "f:annotations": {
+                                                                    ".": {},
+                                                                    "f:kubectl.kubernetes.io/last-applied-configuration": {}
+                                                                },
+                                                                "f:labels": {
+                                                                    ".": {},
+                                                                    "f:app": {}
+                                                                }
+                                                            },
+                                                            "f:rules": {}
+                                                        },
+                                                        "manager": "kubectl-client-side-apply",
+                                                        "operation": "Update",
+                                                        "time": "2021-11-22T11:59:03Z"
+                                                    }
+                                                ],
+                                                "name": "nginx-ingress-roles",
+                                                "resourceVersion": "56423",
+                                                "uid": "a827137c-e7dd-47c2-9770-d5821fb604bf"
+                                            },
+                                            "rules": [
+                                                {
+                                                    "apiGroups": [
+                                                        "*"
+                                                    ],
+                                                    "resources": [
+                                                        "*"
+                                                    ],
+                                                    "verbs": [
+                                                        "*"
+                                                    ]
+                                                }
+                                            ]
                                         }
                                     ]
                                 }
@@ -7448,16 +7676,7 @@ var NSAScanV10119 = `
                                             }
                                         ]
                                     }
-                                ],
-                                "externalObjects": {
-                                    "subject": [
-                                        {
-                                            "kind": "ServiceAccount",
-                                            "name": "argocd-application-controller",
-                                            "namespace": "argocd"
-                                        }
-                                    ]
-                                }
+                                ]
                             }
                         },
                         {
@@ -7534,16 +7753,7 @@ var NSAScanV10119 = `
                                             }
                                         ]
                                     }
-                                ],
-                                "externalObjects": {
-                                    "subject": [
-                                        {
-                                            "apiGroup": "rbac.authorization.k8s.io",
-                                            "kind": "Group",
-                                            "name": "system:masters"
-                                        }
-                                    ]
-                                }
+                                ]
                             }
                         },
                         {
@@ -7612,16 +7822,7 @@ var NSAScanV10119 = `
                                             }
                                         ]
                                     }
-                                ],
-                                "externalObjects": {
-                                    "subject": [
-                                        {
-                                            "kind": "ServiceAccount",
-                                            "name": "nginx-ingress",
-                                            "namespace": "nginx-ingress"
-                                        }
-                                    ]
-                                }
+                                ]
                             }
                         }
                     ]

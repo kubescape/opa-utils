@@ -5,7 +5,6 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/armosec/k8s-interface/k8sinterface"
 	"github.com/armosec/k8s-interface/workloadinterface"
 	"github.com/armosec/opa-utils/reporthandling"
 
@@ -89,24 +88,31 @@ func ruleHasExceptions(exceptionPolicy *armotypes.PostureExceptionPolicy, framew
 
 }
 
-func alertObjectToWorkloads(obj *reporthandling.AlertObject) []k8sinterface.IWorkload {
-	resource := []k8sinterface.IWorkload{}
+func alertObjectToWorkloads(obj *reporthandling.AlertObject) []workloadinterface.IMetadata {
+	resource := []workloadinterface.IMetadata{}
 
 	for i := range obj.K8SApiObjects {
-		r := workloadinterface.NewWorkloadObj(obj.K8SApiObjects[i])
+		r := workloadinterface.NewObject(obj.K8SApiObjects[i])
 		if r == nil {
 			continue
 		}
 		resource = append(resource, r)
 		ns := r.GetNamespace()
 		if ns != "" {
+			// TODO - handle empty namespace
+		}
+	}
 
+	if obj.ExternalObjects != nil {
+		if r := workloadinterface.NewObject(obj.ExternalObjects); r != nil {
+			// TODO - What about linked objects?
+			resource = append(resource, r)
 		}
 	}
 
 	return resource
 }
-func getException(ruleExceptions []armotypes.PostureExceptionPolicy, workload k8sinterface.IWorkload, clusterName string) *armotypes.PostureExceptionPolicy {
+func getException(ruleExceptions []armotypes.PostureExceptionPolicy, workload workloadinterface.IMetadata, clusterName string) *armotypes.PostureExceptionPolicy {
 	for e := range ruleExceptions {
 		for _, resource := range ruleExceptions[e].Resources {
 			if hasException(clusterName, &resource, workload) {
@@ -118,7 +124,7 @@ func getException(ruleExceptions []armotypes.PostureExceptionPolicy, workload k8
 }
 
 // compareMetadata - compare namespace and kind
-func hasException(clusterName string, designator *armotypes.PortalDesignator, workload k8sinterface.IWorkload) bool {
+func hasException(clusterName string, designator *armotypes.PortalDesignator, workload workloadinterface.IMetadata) bool {
 	cluster, namespace, kind, name, labels := designator.DigestPortalDesignator()
 
 	if cluster == "" && namespace == "" && kind == "" && name == "" && len(labels) == 0 {
@@ -147,26 +153,30 @@ func hasException(clusterName string, designator *armotypes.PortalDesignator, wo
 	return true // no mismatch found -> the workload has an exception
 }
 
-func compareNamespace(workload k8sinterface.IWorkload, namespace string) bool {
+func compareNamespace(workload workloadinterface.IMetadata, namespace string) bool {
 	if workload.GetKind() == "Namespace" {
 		return regexCompare(namespace, workload.GetName())
 	}
 	return regexCompare(namespace, workload.GetNamespace())
 }
 
-func compareKind(workload k8sinterface.IWorkload, kind string) bool {
+func compareKind(workload workloadinterface.IMetadata, kind string) bool {
 	return regexCompare(kind, workload.GetKind())
 }
 
-func compareName(workload k8sinterface.IWorkload, name string) bool {
+func compareName(workload workloadinterface.IMetadata, name string) bool {
 	return regexCompare(workload.GetName(), name)
 }
 
-func compareLabels(workload k8sinterface.IWorkload, attributes map[string]string) bool {
-	workloadLabels := labels.Set(workload.GetLabels())
-	designators := labels.Set(attributes).AsSelector()
+func compareLabels(workload workloadinterface.IMetadata, attributes map[string]string) bool {
+	w := workload.GetObject()
+	if workloadinterface.IsTypeWorkload(w) {
+		workloadLabels := labels.Set(workloadinterface.NewWorkloadObj(w).GetLabels())
+		designators := labels.Set(attributes).AsSelector()
 
-	return designators.Matches(workloadLabels)
+		return designators.Matches(workloadLabels)
+	}
+	return true // ignore labels
 }
 
 func compareCluster(designatorCluster, clusterName string) bool {
