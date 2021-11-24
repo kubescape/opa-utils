@@ -4,24 +4,32 @@ go 1.17
 
 require (
 	github.com/armosec/armoapi-go v0.0.23
-	github.com/armosec/k8s-interface v0.0.15
+	github.com/armosec/k8s-interface v0.0.17
+	github.com/aws/aws-sdk-go v1.41.11
 	github.com/francoispqt/gojay v1.2.13
 	github.com/open-policy-agent/opa v0.33.1
 	github.com/stretchr/testify v1.7.0
 	go.uber.org/zap v1.19.1
+	google.golang.org/genproto v0.0.0-20210602131652-f16073e35f0c
 	k8s.io/api v0.22.2
 	k8s.io/apimachinery v0.22.2
 	k8s.io/client-go v0.22.2
 )
 
 require (
+	github.com/golang/groupcache v0.0.0-20210331224755-41bb18bfe9da // indirect
+	github.com/googleapis/gax-go/v2 v2.0.5 // indirect
+	github.com/jmespath/go-jmespath v0.4.0 // indirect
+	go.opencensus.io v0.23.0 // indirect
 	go.uber.org/atomic v1.7.0 // indirect
 	go.uber.org/multierr v1.6.0 // indirect
 	gonum.org/v1/gonum v0.9.1 // indirect
+	google.golang.org/api v0.44.0 // indirect
+	google.golang.org/grpc v1.38.0 // indirect
 )
 
 require (
-	cloud.google.com/go v0.81.0 // indirect
+	cloud.google.com/go v0.81.0
 	github.com/Azure/go-autorest v14.2.0+incompatible // indirect
 	github.com/Azure/go-autorest/autorest v0.11.18 // indirect
 	github.com/Azure/go-autorest/autorest/adal v0.9.13 // indirect
