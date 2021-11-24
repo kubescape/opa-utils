@@ -1,6 +1,8 @@
 package reporthandling
 
 import (
+	"bytes"
+	"encoding/gob"
 	"strings"
 
 	"github.com/armosec/k8s-interface/workloadinterface"
@@ -8,7 +10,7 @@ import (
 
 var aggregatorAttribute = "resourcesAggregator"
 
-func RegoResourcesAggregator(rule *PolicyRule, k8sObjects []map[string]interface{}) []map[string]interface{} {
+func RegoResourcesAggregator(rule *PolicyRule, k8sObjects []map[string]interface{}) ([]map[string]interface{}, error) {
 	if aggregateBy, ok := rule.Attributes[aggregatorAttribute]; ok {
 		switch aggregateBy {
 		case "subject-role-rolebinding":
@@ -16,13 +18,13 @@ func RegoResourcesAggregator(rule *PolicyRule, k8sObjects []map[string]interface
 		case "apiserver-pod":
 			return AggregateResourcesByAPIServerPod(k8sObjects)
 		default:
-			return k8sObjects
+			return k8sObjects, nil
 		}
 	}
-	return k8sObjects
+	return k8sObjects, nil
 }
 
-func AggregateResourcesBySubjects(k8sObjects []map[string]interface{}) []map[string]interface{} {
+func AggregateResourcesBySubjects(k8sObjects []map[string]interface{}) ([]map[string]interface{}, error) {
 	var aggregatedK8sObjects []map[string]interface{}
 	for _, firstk8sObject := range k8sObjects {
 		bindingWorkload := workloadinterface.NewWorkloadObj(firstk8sObject)
@@ -37,7 +39,10 @@ func AggregateResourcesBySubjects(k8sObjects []map[string]interface{}) []map[str
 								if subjects, ok := workloadinterface.InspectMap(bindingWorkloadObj, "subjects"); ok {
 									if data, ok := subjects.([]interface{}); ok {
 										for _, subject := range data {
-											subjectAllFields := setSubjectFields(subject.(map[string]interface{}))
+											subjectAllFields, err := setSubjectFields(subject.(map[string]interface{}))
+											if err != nil {
+												return aggregatedK8sObjects, err
+											}
 											subjectAllFields[workloadinterface.RelatedObjectsKey] = []map[string]interface{}{bindingWorkload.GetObject(), roleWorkload.GetObject()}
 											newObj := workloadinterface.NewRegoResponseVectorObject(subjectAllFields)
 											aggregatedK8sObjects = append(aggregatedK8sObjects, newObj.GetObject())
@@ -51,11 +56,11 @@ func AggregateResourcesBySubjects(k8sObjects []map[string]interface{}) []map[str
 			}
 		}
 	}
-	return aggregatedK8sObjects
+	return aggregatedK8sObjects, nil
 }
 
 // Create custom object of apiserver pod. Has required fields + cmdline
-func AggregateResourcesByAPIServerPod(k8sObjects []map[string]interface{}) []map[string]interface{} {
+func AggregateResourcesByAPIServerPod(k8sObjects []map[string]interface{}) ([]map[string]interface{}, error) {
 	apiServerPod := map[string]interface{}{}
 	for _, obj := range k8sObjects {
 		workload := workloadinterface.NewWorkloadObj(obj)
@@ -67,30 +72,50 @@ func AggregateResourcesByAPIServerPod(k8sObjects []map[string]interface{}) []map
 				apiServerPod["apiVersion"] = workload.GetApiVersion()
 				containers, err := workload.GetContainers()
 				if err != nil || len(containers) == 0 {
-					return nil
+					return nil, err
 				}
 				// apiServer has only one container
 				apiServerPod["cmdline"] = containers[0].Command
-				return []map[string]interface{}{apiServerPod}
+				return []map[string]interface{}{apiServerPod}, nil
 			}
 		}
 	}
-	return nil
+	return nil, nil
 }
 
-func setSubjectFields(subject map[string]interface{}) map[string]interface{} {
+func setSubjectFields(subject map[string]interface{}) (map[string]interface{}, error) {
+	newSubject, err := DeepCopyMap(subject)
+	if err != nil {
+		return nil, err
+	}
+	if _, ok := workloadinterface.InspectMap(newSubject, "name"); !ok {
+		newSubject["name"] = ""
+	}
+	if _, ok := workloadinterface.InspectMap(newSubject, "namespace"); !ok {
+		newSubject["namespace"] = ""
+	}
+	if _, ok := workloadinterface.InspectMap(newSubject, "kind"); !ok {
+		newSubject["kind"] = ""
+	}
+	if _, ok := workloadinterface.InspectMap(newSubject, "apiVersion"); !ok {
+		newSubject["apiVersion"] = ""
+	}
+	return newSubject, nil
+}
 
-	if _, ok := workloadinterface.InspectMap(subject, "name"); !ok {
-		subject["name"] = ""
+// DeepCopyMap performs a deep copy of the given map m.
+func DeepCopyMap(m map[string]interface{}) (map[string]interface{}, error) {
+	var buf bytes.Buffer
+	enc := gob.NewEncoder(&buf)
+	dec := gob.NewDecoder(&buf)
+	err := enc.Encode(m)
+	if err != nil {
+		return nil, err
 	}
-	if _, ok := workloadinterface.InspectMap(subject, "namespace"); !ok {
-		subject["namespace"] = ""
+	var copy map[string]interface{}
+	err = dec.Decode(&copy)
+	if err != nil {
+		return nil, err
 	}
-	if _, ok := workloadinterface.InspectMap(subject, "kind"); !ok {
-		subject["kind"] = ""
-	}
-	if _, ok := workloadinterface.InspectMap(subject, "apiVersion"); !ok {
-		subject["apiVersion"] = ""
-	}
-	return subject
+	return copy, nil
 }

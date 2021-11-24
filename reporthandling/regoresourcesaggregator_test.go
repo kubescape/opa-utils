@@ -2,6 +2,7 @@ package reporthandling
 
 import (
 	"encoding/json"
+	"fmt"
 	"testing"
 )
 
@@ -20,7 +21,10 @@ func TestAggregateResourcesAPIServerPod(t *testing.T) {
 		t.Errorf("error unmarshaling %s", err)
 	}
 	inputList := []map[string]interface{}{pod}
-	outputList := AggregateResourcesByAPIServerPod(inputList)
+	outputList, err := AggregateResourcesByAPIServerPod(inputList)
+	if err != nil {
+		t.Errorf(err.Error())
+	}
 	if len(outputList) != 1 {
 		t.Errorf("error in AggregateResourcesAPIServerPod, len should be 1, got len = %d", len(outputList))
 	}
@@ -43,7 +47,10 @@ func TestAggregateResourcesBySubjects(t *testing.T) {
 	}
 	// r := make(map[string]interface{}, []byte(role))
 	inputList := []map[string]interface{}{r, rb}
-	outputList := AggregateResourcesBySubjects(inputList)
+	outputList, err := AggregateResourcesBySubjects(inputList)
+	if err != nil {
+		t.Errorf(err.Error())
+	}
 	if len(outputList) != 1 {
 		t.Errorf("error in AggregateResourcesBySubjects, len should be 1, got len = %d", len(outputList))
 	}
@@ -65,7 +72,16 @@ func TestAggregateResourcesBySubjects2(t *testing.T) {
 	}
 	// r := make(map[string]interface{}, []byte(role))
 	inputList := []map[string]interface{}{r, rb}
-	outputList := AggregateResourcesBySubjects(inputList)
+	outputList, err := AggregateResourcesBySubjects(inputList)
+	if err != nil {
+		t.Errorf(err.Error())
+	}
+	val, err := json.MarshalIndent(outputList, "", "    ")
+	if err != nil {
+		t.Errorf(err.Error())
+	}
+	a := string(val)
+	fmt.Println(a)
 	if len(outputList) != 2 {
 		t.Errorf("error in AggregateResourcesBySubjects, len should be 2, got len = %d", len(outputList))
 	}
