@@ -30,6 +30,7 @@ func TestControlsResults(t *testing.T) {
 	assert.Equal(t, len(framework.ControlReports), 21)
 
 	SetUniqueResourcesCounter(framework)
+
 	assert.Equal(t, 28, framework.GetNumberOfFailedResources(), "framework.GetNumberOfFailedResources")
 	assert.Equal(t, 31, framework.GetNumberOfWarningResources(), "framework.GetNumberOfWarningResources")
 
@@ -93,6 +94,21 @@ func TestControlsResults(t *testing.T) {
 			assert.True(t, control.Passed(), "C-0016: Passed")
 			assert.False(t, control.Warning(), "C-0016: Warning")
 			assert.False(t, control.Failed(), "C-0016: Failed")
+		}
+	}
+}
+
+func TestListResourcesIDs(t *testing.T) {
+	framework, err := FrameworkResultsMock(mock.NSAScanV10119)
+	assert.NoError(t, err, err)
+	assert.Equal(t, len(framework.ControlReports), 21)
+
+	for _, controlReport := range framework.ControlReports {
+		for _, ruleReport := range controlReport.RuleReports {
+			if ruleReport.Name == "immutable-container-filesystem" {
+				assert.Equal(t, 6, len(ruleReport.ListResourcesIDs().GetWarningResources()))
+				return
+			}
 		}
 	}
 }

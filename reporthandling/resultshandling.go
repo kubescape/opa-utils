@@ -19,60 +19,14 @@ func SetDefaultScore(frameworkReport *FrameworkReport) {
 
 // SetDefaultScore sets the framework,control,rule resource counter
 func SetUniqueResourcesCounter(frameworkReport *FrameworkReport) {
-	uniqueAllFramework := []string{}
-	uniqueWarningFramework := []string{}
-	uniqueFailedFramework := []string{}
+
 	for c := range frameworkReport.ControlReports {
-		uniqueAllControls, uniqueWarningControls, uniqueFailedControls := GetIDsPerControl(&frameworkReport.ControlReports[c])
-
-		// Set
-		frameworkReport.ControlReports[c].SetNumberOfResources(len(uniqueAllControls))
-		frameworkReport.ControlReports[c].SetNumberOfWarningResources(len(uniqueWarningControls))
-		frameworkReport.ControlReports[c].SetNumberOfFailedResources(len(uniqueFailedControls))
-
-		// Append
-		uniqueAllFramework = append(uniqueAllFramework, uniqueAllControls...)
-		uniqueWarningFramework = append(uniqueWarningFramework, uniqueWarningControls...)
-		uniqueFailedFramework = append(uniqueFailedFramework, uniqueFailedControls...)
+		for r := range frameworkReport.ControlReports[c].RuleReports {
+			frameworkReport.ControlReports[c].RuleReports[r].SetResourcesCounters()
+		}
+		frameworkReport.ControlReports[c].SetResourcesCounters()
 	}
-
-	// Get
-	uniqueAllFramework = GetUniqueResourcesIDs(uniqueAllFramework)
-	uniqueWarningFramework = GetUniqueResourcesIDs(uniqueWarningFramework)
-	uniqueFailedFramework = GetUniqueResourcesIDs(uniqueFailedFramework)
-	uniqueWarningFramework = TrimUniqueIDs(uniqueWarningFramework, uniqueFailedFramework)
-
-	// Set
-	frameworkReport.SetNumberOfResources(len(uniqueAllFramework))
-	frameworkReport.SetNumberOfWarningResources(len(uniqueWarningFramework))
-	frameworkReport.SetNumberOfFailedResources(len(uniqueFailedFramework))
-}
-
-// GetResourcesPerControl - return unique lists of resource IDs: all,warning,failed
-func GetIDsPerControl(ctrlReport *ControlReport) ([]string, []string, []string) {
-	uniqueAllResources := []string{}
-	uniqueWarningResources := []string{}
-	uniqueFailedResources := []string{}
-	for r := range ctrlReport.RuleReports {
-
-		uniqueAll := ctrlReport.RuleReports[r].GetAllResourcesIDs()
-		uniqueFailed := GetUniqueResourcesIDs(workloadinterface.ListMetaIDs(workloadinterface.ListMapToMeta(ctrlReport.RuleReports[r].GetFailedResources())))
-		uniqueWarning := GetUniqueResourcesIDs(workloadinterface.ListMetaIDs(workloadinterface.ListMapToMeta(ctrlReport.RuleReports[r].GetWarnignResources())))
-		uniqueWarning = TrimUniqueIDs(uniqueWarning, uniqueFailed)
-
-		ctrlReport.RuleReports[r].SetNumberOfResources(len(uniqueAll))
-		ctrlReport.RuleReports[r].SetNumberOfWarningResources(len(uniqueWarning))
-		ctrlReport.RuleReports[r].SetNumberOfFailedResources(len(uniqueFailed))
-
-		uniqueAllResources = append(uniqueAllResources, uniqueAll...)
-		uniqueWarningResources = append(uniqueWarningResources, uniqueWarning...)
-		uniqueFailedResources = append(uniqueFailedResources, uniqueFailed...)
-	}
-	uniqueAllResources = GetUniqueResourcesIDs(uniqueAllResources)
-	uniqueFailedResources = GetUniqueResourcesIDs(uniqueFailedResources)
-	uniqueWarningResources = GetUniqueResourcesIDs(uniqueWarningResources)
-	uniqueWarningResources = TrimUniqueIDs(uniqueWarningResources, uniqueFailedResources)
-	return uniqueAllResources, uniqueWarningResources, uniqueFailedResources
+	frameworkReport.SetResourcesCounters()
 }
 
 // GetUniqueResources the list of resources can contain duplications, this function removes the resource duplication based on workloadinterface.GetID
@@ -108,36 +62,11 @@ func GetUniqueResourcesIDs(k8sResourcesList []string) []string {
 
 	for i := range k8sResourcesList {
 		if found := uniqueRuleResponses[k8sResourcesList[i]]; !found {
-			k8sResourcesNewList = append(k8sResourcesNewList, k8sResourcesList[i])
 			uniqueRuleResponses[k8sResourcesList[i]] = true
+			k8sResourcesNewList = append(k8sResourcesNewList, k8sResourcesList[i])
 		}
 	}
 	return k8sResourcesNewList
-}
-
-// TrimUniqueResources trim the list, this wil trim in case the same resource appears in the warning list and in the failed list
-func TrimUniqueResources(origin, trimFrom []map[string]interface{}) []map[string]interface{} {
-	if len(origin) == 0 || len(trimFrom) == 0 { // if there is nothing to trim
-		return origin
-	}
-	uniqueResources := map[string]bool{}
-
-	for i := range trimFrom {
-		workload := workloadinterface.NewObject(trimFrom[i])
-		uniqueResources[workload.GetID()] = true
-	}
-
-	lenOrigin := len(origin)
-	for i := 0; i < lenOrigin; i++ {
-		workload := workloadinterface.NewObject(origin[i])
-		if found := uniqueResources[workload.GetID()]; found {
-			// resource found -> remove from slice
-			origin = removeFromSlice(origin, i)
-			lenOrigin -= 1
-			i -= 1
-		}
-	}
-	return origin
 }
 
 // TrimUniqueResources trim the list, this wil trim in case the same resource appears in the warning list and in the failed list

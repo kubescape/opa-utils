@@ -3,6 +3,8 @@ package reporthandling
 import (
 	"fmt"
 	"hash/fnv"
+
+	"github.com/armosec/k8s-interface/workloadinterface"
 )
 
 // ==============================================================================================
@@ -26,6 +28,12 @@ func (frameworkReport *FrameworkReport) RemoveData(keepFields, keepMetadataField
 	}
 }
 
+func (frameworkReport *FrameworkReport) SetResourcesCounters() {
+	resourcesIDs := frameworkReport.ListResourcesIDs()
+	frameworkReport.SetNumberOfResources(len(resourcesIDs.GetAllResources()))
+	frameworkReport.SetNumberOfWarningResources(len(resourcesIDs.GetWarningResources()))
+	frameworkReport.SetNumberOfFailedResources(len(resourcesIDs.GetFailedResources()))
+}
 func (frameworkReport *FrameworkReport) SetNumberOfResources(n int) {
 	frameworkReport.TotalResources = n
 }
@@ -57,6 +65,15 @@ func (frameworkReport *FrameworkReport) GetStatus() string {
 		return StatusWarning
 	}
 	return StatusFailed
+}
+
+// GetResourcesPerControl - return unique lists of resource IDs: all,warning,failed
+func (frameworkReport *FrameworkReport) ListResourcesIDs() *ResourcesIDs {
+	resourcesIDs := ResourcesIDs{}
+	for c := range frameworkReport.ControlReports {
+		resourcesIDs.append(frameworkReport.ControlReports[c].ListResourcesIDs())
+	}
+	return &resourcesIDs
 }
 func (frameworkReport *FrameworkReport) Passed() bool {
 	for _, r := range frameworkReport.ControlReports {
@@ -110,6 +127,12 @@ opap.PostureReport.FrameworkReports[f].Score = float32(percentage(frameworkRepor
 // ========================== ControlReport =====================================================
 // ==============================================================================================
 
+func (controlReport *ControlReport) SetResourcesCounters() {
+	resourcesIDs := controlReport.ListResourcesIDs()
+	controlReport.SetNumberOfResources(len(resourcesIDs.GetAllResources()))
+	controlReport.SetNumberOfWarningResources(len(resourcesIDs.GetWarningResources()))
+	controlReport.SetNumberOfFailedResources(len(resourcesIDs.GetFailedResources()))
+}
 func (controlReport *ControlReport) SetNumberOfResources(n int) {
 	controlReport.TotalResources = n
 }
@@ -131,6 +154,15 @@ func (controlReport *ControlReport) GetNumberOfResources() int {
 
 func (controlReport *ControlReport) GetNumberOfFailedResources() int {
 	return controlReport.FailedResources
+}
+
+// GetResourcesPerControl - return unique lists of resource IDs: all,warning,failed
+func (controlReport *ControlReport) ListResourcesIDs() *ResourcesIDs {
+	resourcesIDs := ResourcesIDs{}
+	for r := range controlReport.RuleReports {
+		resourcesIDs.append(controlReport.RuleReports[r].ListResourcesIDs())
+	}
+	return &resourcesIDs
 }
 
 func (controlReport *ControlReport) ListControlsInputKinds() []string {
@@ -241,6 +273,13 @@ func (ruleReport *RuleReport) Failed() bool {
 	return false
 }
 
+func (ruleReport *RuleReport) SetResourcesCounters() {
+	resourcesIDs := ruleReport.ListResourcesIDs()
+	ruleReport.SetNumberOfResources(len(resourcesIDs.GetAllResources()))
+	ruleReport.SetNumberOfWarningResources(len(resourcesIDs.GetWarningResources()))
+	ruleReport.SetNumberOfFailedResources(len(resourcesIDs.GetFailedResources()))
+}
+
 func (ruleReport *RuleReport) SetNumberOfResources(n int) {
 	ruleReport.TotalResources = n
 }
@@ -253,6 +292,13 @@ func (ruleReport *RuleReport) SetNumberOfFailedResources(n int) {
 	ruleReport.FailedResources = n
 }
 
+func (ruleReport *RuleReport) ListResourcesIDs() *ResourcesIDs {
+	resourcesIDs := ResourcesIDs{}
+	resourcesIDs.setAllResources(ruleReport.GetAllResourcesIDs())
+	resourcesIDs.setFailedResources(GetUniqueResourcesIDs(workloadinterface.ListMetaIDs(workloadinterface.ListMapToMeta(ruleReport.GetFailedResources()))))
+	resourcesIDs.setWarningResources(GetUniqueResourcesIDs(workloadinterface.ListMetaIDs(workloadinterface.ListMapToMeta(ruleReport.GetWarnignResources()))))
+	return &resourcesIDs
+}
 func (ruleReport *RuleReport) GetNumberOfWarningResources() int {
 	return ruleReport.WarningResources
 }

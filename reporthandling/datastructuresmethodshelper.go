@@ -5,6 +5,37 @@ import (
 	"encoding/json"
 )
 
+type ResourcesIDs struct {
+	allResources     []string
+	failedResources  []string
+	warningResources []string
+}
+
+func (r *ResourcesIDs) append(a *ResourcesIDs) {
+	r.setAllResources(append(r.allResources, a.allResources...))
+	r.setFailedResources(append(r.failedResources, a.failedResources...))
+	r.setWarningResources(append(r.warningResources, a.warningResources...))
+}
+func (r *ResourcesIDs) GetAllResources() []string {
+	return r.allResources
+}
+func (r *ResourcesIDs) GetFailedResources() []string {
+	return r.failedResources
+}
+func (r *ResourcesIDs) GetWarningResources() []string {
+	return r.warningResources
+}
+
+func (r *ResourcesIDs) setAllResources(a []string) {
+	r.allResources = GetUniqueResourcesIDs(a)
+}
+func (r *ResourcesIDs) setFailedResources(a []string) {
+	r.failedResources = GetUniqueResourcesIDs(a)
+}
+func (r *ResourcesIDs) setWarningResources(a []string) {
+	r.warningResources = TrimUniqueIDs(GetUniqueResourcesIDs(a), r.failedResources)
+}
+
 func (pn *PolicyNotification) ToJSONBytesBuffer() (*bytes.Buffer, error) {
 	res, err := json.Marshal(pn)
 	if err != nil {
