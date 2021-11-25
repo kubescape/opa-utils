@@ -86,6 +86,7 @@ func GetUniqueResources(k8sResources []map[string]interface{}) []map[string]inte
 			k8sResources = removeFromSlice(k8sResources, i)
 			lenK8sResources -= 1
 			i -= 1
+			continue
 		}
 		resourceID := workload.GetID()
 		if found := uniqueRuleResponses[resourceID]; found {
