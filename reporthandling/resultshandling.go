@@ -19,11 +19,11 @@ func SetDefaultScore(frameworkReport *FrameworkReport) {
 
 // SetDefaultScore sets the framework,control,rule resource counter
 func SetUniqueResourcesCounter(frameworkReport *FrameworkReport) {
-	uniqueAllFramework := []map[string]interface{}{}
-	uniqueWarningFramework := []map[string]interface{}{}
-	uniqueFailedFramework := []map[string]interface{}{}
+	uniqueAllFramework := []string{}
+	uniqueWarningFramework := []string{}
+	uniqueFailedFramework := []string{}
 	for c := range frameworkReport.ControlReports {
-		uniqueAllControls, uniqueWarningControls, uniqueFailedControls := GetResourcesPerControl(&frameworkReport.ControlReports[c])
+		uniqueAllControls, uniqueWarningControls, uniqueFailedControls := GetIDsPerControl(&frameworkReport.ControlReports[c])
 
 		// Set
 		frameworkReport.ControlReports[c].SetNumberOfResources(len(uniqueAllControls))
@@ -37,10 +37,10 @@ func SetUniqueResourcesCounter(frameworkReport *FrameworkReport) {
 	}
 
 	// Get
-	uniqueAllFramework = GetUniqueResources(uniqueAllFramework)
-	uniqueWarningFramework = GetUniqueResources(uniqueWarningFramework)
-	uniqueFailedFramework = GetUniqueResources(uniqueFailedFramework)
-	uniqueWarningFramework = TrimUniqueResources(uniqueWarningFramework, uniqueFailedFramework)
+	uniqueAllFramework = GetUniqueResourcesIDs(uniqueAllFramework)
+	uniqueWarningFramework = GetUniqueResourcesIDs(uniqueWarningFramework)
+	uniqueFailedFramework = GetUniqueResourcesIDs(uniqueFailedFramework)
+	uniqueWarningFramework = TrimUniqueIDs(uniqueWarningFramework, uniqueFailedFramework)
 
 	// Set
 	frameworkReport.SetNumberOfResources(len(uniqueAllFramework))
@@ -48,17 +48,17 @@ func SetUniqueResourcesCounter(frameworkReport *FrameworkReport) {
 	frameworkReport.SetNumberOfFailedResources(len(uniqueFailedFramework))
 }
 
-// GetResourcesPerControl - return unique lists of resources: all,warning,failed
-func GetResourcesPerControl(ctrlReport *ControlReport) ([]map[string]interface{}, []map[string]interface{}, []map[string]interface{}) {
-	uniqueAllResources := []map[string]interface{}{}
-	uniqueWarningResources := []map[string]interface{}{}
-	uniqueFailedResources := []map[string]interface{}{}
+// GetResourcesPerControl - return unique lists of resource IDs: all,warning,failed
+func GetIDsPerControl(ctrlReport *ControlReport) ([]string, []string, []string) {
+	uniqueAllResources := []string{}
+	uniqueWarningResources := []string{}
+	uniqueFailedResources := []string{}
 	for r := range ctrlReport.RuleReports {
 
-		uniqueAll := GetUniqueResources(ctrlReport.RuleReports[r].GetAllResources())
-		uniqueFailed := GetUniqueResources(ctrlReport.RuleReports[r].GetFailedResources())
-		uniqueWarning := GetUniqueResources(ctrlReport.RuleReports[r].GetWarnignResources())
-		uniqueWarning = TrimUniqueResources(uniqueWarning, uniqueFailed)
+		uniqueAll := ctrlReport.RuleReports[r].GetAllResourcesIDs()
+		uniqueFailed := GetUniqueResourcesIDs(workloadinterface.ListMetaIDs(workloadinterface.ListMapToMeta(ctrlReport.RuleReports[r].GetFailedResources())))
+		uniqueWarning := GetUniqueResourcesIDs(workloadinterface.ListMetaIDs(workloadinterface.ListMapToMeta(ctrlReport.RuleReports[r].GetWarnignResources())))
+		uniqueWarning = TrimUniqueIDs(uniqueWarning, uniqueFailed)
 
 		ctrlReport.RuleReports[r].SetNumberOfResources(len(uniqueAll))
 		ctrlReport.RuleReports[r].SetNumberOfWarningResources(len(uniqueWarning))
@@ -68,10 +68,10 @@ func GetResourcesPerControl(ctrlReport *ControlReport) ([]map[string]interface{}
 		uniqueWarningResources = append(uniqueWarningResources, uniqueWarning...)
 		uniqueFailedResources = append(uniqueFailedResources, uniqueFailed...)
 	}
-	uniqueAllResources = GetUniqueResources(uniqueAllResources)
-	uniqueFailedResources = GetUniqueResources(uniqueFailedResources)
-	uniqueWarningResources = GetUniqueResources(uniqueWarningResources)
-	uniqueWarningResources = TrimUniqueResources(uniqueWarningResources, uniqueFailedResources)
+	uniqueAllResources = GetUniqueResourcesIDs(uniqueAllResources)
+	uniqueFailedResources = GetUniqueResourcesIDs(uniqueFailedResources)
+	uniqueWarningResources = GetUniqueResourcesIDs(uniqueWarningResources)
+	uniqueWarningResources = TrimUniqueIDs(uniqueWarningResources, uniqueFailedResources)
 	return uniqueAllResources, uniqueWarningResources, uniqueFailedResources
 }
 
@@ -101,6 +101,20 @@ func GetUniqueResources(k8sResources []map[string]interface{}) []map[string]inte
 	return k8sResources
 }
 
+// GetUniqueResources the list of resources can contain duplications, this function removes the resource duplication based on workloadinterface.GetID
+func GetUniqueResourcesIDs(k8sResourcesList []string) []string {
+	uniqueRuleResponses := map[string]bool{}
+	k8sResourcesNewList := []string{}
+
+	for i := range k8sResourcesList {
+		if found := uniqueRuleResponses[k8sResourcesList[i]]; !found {
+			k8sResourcesNewList = append(k8sResourcesNewList, k8sResourcesList[i])
+			uniqueRuleResponses[k8sResourcesList[i]] = true
+		}
+	}
+	return k8sResourcesNewList
+}
+
 // TrimUniqueResources trim the list, this wil trim in case the same resource appears in the warning list and in the failed list
 func TrimUniqueResources(origin, trimFrom []map[string]interface{}) []map[string]interface{} {
 	if len(origin) == 0 || len(trimFrom) == 0 { // if there is nothing to trim
@@ -126,6 +140,26 @@ func TrimUniqueResources(origin, trimFrom []map[string]interface{}) []map[string
 	return origin
 }
 
+// TrimUniqueResources trim the list, this wil trim in case the same resource appears in the warning list and in the failed list
+func TrimUniqueIDs(origin, trimFrom []string) []string {
+	if len(origin) == 0 || len(trimFrom) == 0 { // if there is nothing to trim
+		return origin
+	}
+	uniqueResources := map[string]bool{}
+	listResources := []string{}
+
+	for i := range trimFrom {
+		uniqueResources[trimFrom[i]] = true
+	}
+
+	for i := range origin {
+		if found := uniqueResources[origin[i]]; !found {
+			listResources = append(listResources, origin[i])
+		}
+	}
+	return listResources
+}
+
 func removeFromSlice(k8sResources []map[string]interface{}, i int) []map[string]interface{} {
 	if i != len(k8sResources)-1 {
 		k8sResources[i] = k8sResources[len(k8sResources)-1]
@@ -133,6 +167,7 @@ func removeFromSlice(k8sResources []map[string]interface{}, i int) []map[string]
 
 	return k8sResources[:len(k8sResources)-1]
 }
+
 func ParseRegoResult(regoResult *rego.ResultSet) ([]RuleResponse, error) {
 	var errs error
 	ruleResponses := []RuleResponse{}
@@ -159,9 +194,3 @@ func ParseRegoResult(regoResult *rego.ResultSet) ([]RuleResponse, error) {
 	}
 	return ruleResponses, errs
 }
-
-// type uniqueResources struct {
-// 	allResources     []map[string]interface{}
-// 	failedResources  []map[string]interface{}
-// 	warningResources []map[string]interface{}
-// }

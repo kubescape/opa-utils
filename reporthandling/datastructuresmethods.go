@@ -270,9 +270,14 @@ func (ruleReport *RuleReport) RemoveData(keepFields, keepMetadataFields []string
 	}
 }
 
-func (ruleReport *RuleReport) GetAllResources() []map[string]interface{} {
-	return ruleReport.ListInputResources
+func (ruleReport *RuleReport) GetAllResourcesIDs() []string {
+	return ruleReport.ListInputKinds
 }
+
+// DO NOT USE!
+// func (ruleReport *RuleReport) GetAllResources() []map[string]interface{} {
+// 	return ruleReport.ListInputResources
+// }
 func (ruleReport *RuleReport) GetFailedResources() []map[string]interface{} {
 
 	failedResources := []map[string]interface{}{}

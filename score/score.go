@@ -7,7 +7,6 @@ import (
 	"strings"
 
 	"github.com/armosec/k8s-interface/workloadinterface"
-	"go.uber.org/zap"
 	appsv1 "k8s.io/api/apps/v1"
 
 	// corev1 "k8s.io/api/core/v1"
@@ -124,28 +123,29 @@ returns wcsscore,ctrlscore(unnormalized)
 
 */
 func (su *ScoreUtil) ControlScore(ctrlReport *reporthandling.ControlReport, frameworkName string) (float32, float32) {
-	all, _, failed := reporthandling.GetResourcesPerControl(ctrlReport)
-	for i := range failed {
-		ctrlReport.Score += su.GetScore(failed[i])
-	}
-	ctrlReport.Score *= ctrlReport.BaseScore
+	return 0, 0
+	// all, _, failed := reporthandling.GetResourcesPerControl(ctrlReport)
+	// for i := range failed {
+	// 	ctrlReport.Score += su.GetScore(failed[i])
+	// }
+	// ctrlReport.Score *= ctrlReport.BaseScore
 
-	var wcsScore float32 = 0
-	for i := range all {
-		wcsScore += su.GetScore(all[i])
-	}
+	// var wcsScore float32 = 0
+	// for i := range all {
+	// 	wcsScore += su.GetScore(all[i])
+	// }
 
-	wcsScore *= ctrlReport.BaseScore
-	//x
-	unormalizedScore := ctrlReport.Score
-	ctrlReport.ARMOImprovement = unormalizedScore * ctrlReport.ARMOImprovement
-	if wcsScore > 0 {
-		ctrlReport.Score /= wcsScore // used to know severity (ctrl POV)
-	} else {
-		//ctrlReport.Score = 0
-		zap.L().Error("worst case scenario was 0, meaning no resources input were given - score is not available(will appear as > 1)")
-	}
-	return wcsScore, unormalizedScore
+	// wcsScore *= ctrlReport.BaseScore
+	// //x
+	// unormalizedScore := ctrlReport.Score
+	// ctrlReport.ARMOImprovement = unormalizedScore * ctrlReport.ARMOImprovement
+	// if wcsScore > 0 {
+	// 	ctrlReport.Score /= wcsScore // used to know severity (ctrl POV)
+	// } else {
+	// 	//ctrlReport.Score = 0
+	// 	zap.L().Error("worst case scenario was 0, meaning no resources input were given - score is not available(will appear as > 1)")
+	// }
+	// return wcsScore, unormalizedScore
 
 }
 

@@ -10,7 +10,7 @@ import (
 
 var aggregatorAttribute = "resourcesAggregator"
 
-func RegoResourcesAggregator(rule *PolicyRule, k8sObjects []map[string]interface{}) ([]map[string]interface{}, error) {
+func RegoResourcesAggregator(rule *PolicyRule, k8sObjects []workloadinterface.IMetadata) ([]workloadinterface.IMetadata, error) {
 	if aggregateBy, ok := rule.Attributes[aggregatorAttribute]; ok {
 		switch aggregateBy {
 		case "subject-role-rolebinding":
@@ -24,13 +24,11 @@ func RegoResourcesAggregator(rule *PolicyRule, k8sObjects []map[string]interface
 	return k8sObjects, nil
 }
 
-func AggregateResourcesBySubjects(k8sObjects []map[string]interface{}) ([]map[string]interface{}, error) {
-	var aggregatedK8sObjects []map[string]interface{}
-	for _, firstk8sObject := range k8sObjects {
-		bindingWorkload := workloadinterface.NewWorkloadObj(firstk8sObject)
+func AggregateResourcesBySubjects(k8sObjects []workloadinterface.IMetadata) ([]workloadinterface.IMetadata, error) {
+	aggregatedK8sObjects := []workloadinterface.IMetadata{}
+	for _, bindingWorkload := range k8sObjects {
 		if strings.HasSuffix(bindingWorkload.GetKind(), "Binding") { // types.Role
-			for _, secondK8sObject := range k8sObjects {
-				roleWorkload := workloadinterface.NewWorkloadObj(secondK8sObject)
+			for _, roleWorkload := range k8sObjects {
 				if strings.HasSuffix(roleWorkload.GetKind(), "Role") {
 					bindingWorkloadObj := bindingWorkload.GetObject()
 					if kind, ok := workloadinterface.InspectMap(bindingWorkloadObj, "roleRef", "kind"); ok {
@@ -45,7 +43,7 @@ func AggregateResourcesBySubjects(k8sObjects []map[string]interface{}) ([]map[st
 											}
 											subjectAllFields[workloadinterface.RelatedObjectsKey] = []map[string]interface{}{bindingWorkload.GetObject(), roleWorkload.GetObject()}
 											newObj := workloadinterface.NewRegoResponseVectorObject(subjectAllFields)
-											aggregatedK8sObjects = append(aggregatedK8sObjects, newObj.GetObject())
+											aggregatedK8sObjects = append(aggregatedK8sObjects, newObj)
 										}
 									}
 								}
@@ -60,27 +58,39 @@ func AggregateResourcesBySubjects(k8sObjects []map[string]interface{}) ([]map[st
 }
 
 // Create custom object of apiserver pod. Has required fields + cmdline
-func AggregateResourcesByAPIServerPod(k8sObjects []map[string]interface{}) ([]map[string]interface{}, error) {
-	apiServerPod := map[string]interface{}{}
-	for _, obj := range k8sObjects {
-		workload := workloadinterface.NewWorkloadObj(obj)
-		if workload.GetKind() == "Pod" && workload.GetNamespace() == "kube-system" {
-			if strings.Contains(workload.GetName(), "apiserver") || strings.Contains(workload.GetName(), "api-server") {
-				apiServerPod["namespace"] = workload.GetNamespace()
-				apiServerPod["name"] = workload.GetName()
-				apiServerPod["kind"] = workload.GetKind()
-				apiServerPod["apiVersion"] = workload.GetApiVersion()
-				containers, err := workload.GetContainers()
-				if err != nil || len(containers) == 0 {
-					return nil, err
-				}
-				// apiServer has only one container
-				apiServerPod["cmdline"] = containers[0].Command
-				return []map[string]interface{}{apiServerPod}, nil
-			}
-		}
-	}
-	return nil, nil
+func AggregateResourcesByAPIServerPod(k8sObjects []workloadinterface.IMetadata) ([]workloadinterface.IMetadata, error) {
+	return k8sObjects, nil
+	// apiServerPod := []workloadinterface.IMetadata{}
+	// for _, obj := range k8sObjects {
+	// 	if !workloadinterface.IsTypeWorkload(obj.GetObject()) {
+	// 		continue
+	// 	}
+	// 	workload := workloadinterface.NewWorkloadObj(obj.GetObject())
+	// 	if workload.GetKind() == "Pod" && workload.GetNamespace() == "kube-system" {
+	// 		if strings.Contains(workload.GetName(), "apiserver") || strings.Contains(workload.GetName(), "api-server") {
+	//
+	/*
+
+		TODO
+		====
+		Create a new supported IMetadata object
+
+	*/
+	// 			apiServerPod["namespace"] = workload.GetNamespace()
+	// 			apiServerPod["name"] = workload.GetName()
+	// 			apiServerPod["kind"] = workload.GetKind()
+	// 			apiServerPod["apiVersion"] = workload.GetApiVersion()
+	// 			containers, err := workload.GetContainers()
+	// 			if err != nil || len(containers) == 0 {
+	// 				return nil, err
+	// 			}
+	// 			// apiServer has only one container
+	// 			apiServerPod["cmdline"] = containers[0].Command
+	// 			return []map[string]interface{}{apiServerPod}, nil
+	// 		}
+	// 	}
+	// }
+	// return nil, nil
 }
 
 func setSubjectFields(subject map[string]interface{}) (map[string]interface{}, error) {
