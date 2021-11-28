@@ -37,12 +37,13 @@ func AggregateResourcesBySubjects(k8sObjects []workloadinterface.IMetadata) ([]w
 								if subjects, ok := workloadinterface.InspectMap(bindingWorkloadObj, "subjects"); ok {
 									if data, ok := subjects.([]interface{}); ok {
 										for _, subject := range data {
-											subjectAllFields, err := setSubjectFields(subject.(map[string]interface{}))
+											// deep copy subject - don't change original subject in rolebinding
+											subjectCopy, err := DeepCopyMap(subject.(map[string]interface{}))
 											if err != nil {
 												return aggregatedK8sObjects, err
 											}
-											subjectAllFields[workloadinterface.RelatedObjectsKey] = []map[string]interface{}{bindingWorkload.GetObject(), roleWorkload.GetObject()}
-											newObj := workloadinterface.NewRegoResponseVectorObject(subjectAllFields)
+											subjectCopy[workloadinterface.RelatedObjectsKey] = []map[string]interface{}{bindingWorkload.GetObject(), roleWorkload.GetObject()}
+											newObj := workloadinterface.NewRegoResponseVectorObject(subjectCopy)
 											aggregatedK8sObjects = append(aggregatedK8sObjects, newObj)
 										}
 									}
@@ -91,26 +92,6 @@ func AggregateResourcesByAPIServerPod(k8sObjects []workloadinterface.IMetadata) 
 	// 	}
 	// }
 	// return nil, nil
-}
-
-func setSubjectFields(subject map[string]interface{}) (map[string]interface{}, error) {
-	newSubject, err := DeepCopyMap(subject)
-	if err != nil {
-		return nil, err
-	}
-	if _, ok := workloadinterface.InspectMap(newSubject, "name"); !ok {
-		newSubject["name"] = ""
-	}
-	if _, ok := workloadinterface.InspectMap(newSubject, "namespace"); !ok {
-		newSubject["namespace"] = ""
-	}
-	if _, ok := workloadinterface.InspectMap(newSubject, "kind"); !ok {
-		newSubject["kind"] = ""
-	}
-	if _, ok := workloadinterface.InspectMap(newSubject, "apiVersion"); !ok {
-		newSubject["apiVersion"] = ""
-	}
-	return newSubject, nil
 }
 
 // DeepCopyMap performs a deep copy of the given map m.
