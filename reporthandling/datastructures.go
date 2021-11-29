@@ -75,8 +75,8 @@ type RuleReport struct {
 	Remediation           string                   `json:"remediation"`
 	RuleStatus            RuleStatus               `json:"ruleStatus"` // did we run the rule or not (if there where compile errors, the value will be failed)
 	RuleResponses         []RuleResponse           `json:"ruleResponses"`
-	ListInputResources    []map[string]interface{} `json:"-"`
-	ListInputKinds        []string                 `json:"-"`
+	ListInputResources    []map[string]interface{} `json:"-"` // TODO - remove
+	ListInputKinds        []string                 `json:"listInputIDs"`
 	ResourceUniqueCounter `json:",inline"`
 }
 type RuleStatus struct {

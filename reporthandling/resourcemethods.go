@@ -2,7 +2,6 @@ package reporthandling
 
 import (
 	"github.com/armosec/k8s-interface/workloadinterface"
-	ik8s "github.com/armosec/k8s-interface/workloadinterface"
 )
 
 // // Get
@@ -15,7 +14,13 @@ import (
 // GetID() string // Get K8S workload ID -> <api-group>/<api-version>/<kind>/<name>
 // //isK8sObject()
 
-func (r *Resource) middleware() ik8s.IMetadata {
+func NewResource(obj map[string]interface{}) *Resource {
+	return &Resource{
+		Object: obj,
+	}
+}
+
+func (r *Resource) middleware() workloadinterface.IMetadata {
 	if r.IMetadata != nil {
 		return r.IMetadata
 	}

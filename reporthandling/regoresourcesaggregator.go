@@ -16,7 +16,10 @@ func RegoResourcesAggregator(rule *PolicyRule, k8sObjects []workloadinterface.IM
 		case "subject-role-rolebinding":
 			return AggregateResourcesBySubjects(k8sObjects)
 		case "apiserver-pod":
-			return AggregateResourcesByAPIServerPod(k8sObjects)
+			if obj := AggregateResourcesByAPIServerPod(k8sObjects); obj != nil {
+				return []workloadinterface.IMetadata{obj}, nil
+			}
+			return []workloadinterface.IMetadata{}, nil
 		default:
 			return k8sObjects, nil
 		}
@@ -59,39 +62,19 @@ func AggregateResourcesBySubjects(k8sObjects []workloadinterface.IMetadata) ([]w
 }
 
 // Create custom object of apiserver pod. Has required fields + cmdline
-func AggregateResourcesByAPIServerPod(k8sObjects []workloadinterface.IMetadata) ([]workloadinterface.IMetadata, error) {
-	return k8sObjects, nil
-	// apiServerPod := []workloadinterface.IMetadata{}
-	// for _, obj := range k8sObjects {
-	// 	if !workloadinterface.IsTypeWorkload(obj.GetObject()) {
-	// 		continue
-	// 	}
-	// 	workload := workloadinterface.NewWorkloadObj(obj.GetObject())
-	// 	if workload.GetKind() == "Pod" && workload.GetNamespace() == "kube-system" {
-	// 		if strings.Contains(workload.GetName(), "apiserver") || strings.Contains(workload.GetName(), "api-server") {
-	//
-	/*
-
-		TODO
-		====
-		Create a new supported IMetadata object
-
-	*/
-	// 			apiServerPod["namespace"] = workload.GetNamespace()
-	// 			apiServerPod["name"] = workload.GetName()
-	// 			apiServerPod["kind"] = workload.GetKind()
-	// 			apiServerPod["apiVersion"] = workload.GetApiVersion()
-	// 			containers, err := workload.GetContainers()
-	// 			if err != nil || len(containers) == 0 {
-	// 				return nil, err
-	// 			}
-	// 			// apiServer has only one container
-	// 			apiServerPod["cmdline"] = containers[0].Command
-	// 			return []map[string]interface{}{apiServerPod}, nil
-	// 		}
-	// 	}
-	// }
-	// return nil, nil
+func AggregateResourcesByAPIServerPod(k8sObjects []workloadinterface.IMetadata) workloadinterface.IMetadata {
+	for _, obj := range k8sObjects {
+		if !workloadinterface.IsTypeWorkload(obj.GetObject()) {
+			continue
+		}
+		workload := workloadinterface.NewWorkloadObj(obj.GetObject())
+		if workload.GetKind() == "Pod" && workload.GetNamespace() == "kube-system" {
+			if strings.Contains(workload.GetName(), "apiserver") || strings.Contains(workload.GetName(), "api-server") {
+				return workload
+			}
+		}
+	}
+	return nil
 }
 
 // DeepCopyMap performs a deep copy of the given map m.
