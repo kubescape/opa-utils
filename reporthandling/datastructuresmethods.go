@@ -294,9 +294,9 @@ func (ruleReport *RuleReport) SetNumberOfFailedResources(n int) {
 
 func (ruleReport *RuleReport) ListResourcesIDs() *ResourcesIDs {
 	resourcesIDs := ResourcesIDs{}
-	resourcesIDs.setAllResources(ruleReport.GetAllResourcesIDs())
 	resourcesIDs.setFailedResources(GetUniqueResourcesIDs(workloadinterface.ListMetaIDs(workloadinterface.ListMapToMeta(ruleReport.GetFailedResources()))))
-	resourcesIDs.setWarningResources(GetUniqueResourcesIDs(workloadinterface.ListMetaIDs(workloadinterface.ListMapToMeta(ruleReport.GetWarnignResources()))))
+	resourcesIDs.setWarningResources(GetUniqueResourcesIDs(workloadinterface.ListMetaIDs(workloadinterface.ListMapToMeta(ruleReport.GetWarnignResources())))) // needs to be initialized after failed
+	resourcesIDs.setPassedResources(resourcesIDs.GetAllResources())                                                                                           // needs to be initialized after warning
 	return &resourcesIDs
 }
 func (ruleReport *RuleReport) GetNumberOfWarningResources() int {
