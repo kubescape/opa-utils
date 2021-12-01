@@ -28,6 +28,7 @@ const (
 // RegoResponse the expected response of single run of rego policy
 type RuleResponse struct {
 	AlertMessage  string                            `json:"alertMessage"`
+	FailedPaths   []string                          `json:"failedPaths"`
 	RuleStatus    string                            `json:"ruleStatus"`
 	PackageName   string                            `json:"packagename"`
 	AlertScore    AlertScore                        `json:"alertScore"`
