@@ -72,12 +72,11 @@ type ControlReport struct {
 	ResourceUniqueCounter `json:",inline"`
 }
 type RuleReport struct {
-	Name                  string                   `json:"name"`
-	Remediation           string                   `json:"remediation"`
-	RuleStatus            RuleStatus               `json:"ruleStatus"` // did we run the rule or not (if there where compile errors, the value will be failed)
-	RuleResponses         []RuleResponse           `json:"ruleResponses"`
-	ListInputResources    []map[string]interface{} `json:"-"` // TODO - remove
-	ListInputKinds        []string                 `json:"listInputIDs"`
+	Name                  string         `json:"name"`
+	Remediation           string         `json:"remediation"`
+	RuleStatus            RuleStatus     `json:"ruleStatus"` // did we run the rule or not (if there where compile errors, the value will be failed)
+	RuleResponses         []RuleResponse `json:"ruleResponses"`
+	ListInputKinds        []string       `json:"listInputIDs"`
 	ResourceUniqueCounter `json:",inline"`
 }
 type RuleStatus struct {
@@ -121,6 +120,7 @@ type RuleDependency struct {
 type PolicyRule struct {
 	armotypes.PortalBase `json:",inline"`
 	CreationTime         string             `json:"creationTime"`
+	PreRun               []string           `json:"preRun,omitempty"`   // multiline string! - preRun rego before running the actual rego test
 	Rule                 string             `json:"rule"`               // multiline string!
 	ResourceEnumerator   string             `json:"resourceEnumerator"` // multiline string!
 	RuleLanguage         RuleLanguages      `json:"ruleLanguage"`

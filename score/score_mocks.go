@@ -63,16 +63,17 @@ func loadFrameworkMock() *reporthandling.FrameworkReport {
 
 	return report
 }
-func getMITREFrameworkResultMock() []reporthandling.FrameworkReport {
-	l := make([]reporthandling.FrameworkReport, 0)
-	report := loadFrameworkMock()
-	resources := loadResourcesMock()
-	if report != nil && resources != nil {
 
-		report.ControlReports[0].RuleReports[0].ListInputResources = resources
-		l = append(l, *report)
+// func getMITREFrameworkResultMock() []reporthandling.FrameworkReport {
+// 	l := make([]reporthandling.FrameworkReport, 0)
+// 	report := loadFrameworkMock()
+// 	resources := loadResourcesMock()
+// 	if report != nil && resources != nil {
 
-	}
+// 		report.ControlReports[0].RuleReports[0].GetNumberOfResources() = resources
+// 		l = append(l, *report)
 
-	return l
-}
+// 	}
+
+// 	return l
+// }
