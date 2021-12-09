@@ -51,6 +51,24 @@ func newGitRegoStore(baseUrl string, owner string, repository string, path strin
 	}
 }
 
+// NewGitRegoStore return gitregostore obj with basic fields, before pulling from git
+func NewGitRegoStore(baseUrl string, owner string, repository string, path string, tag string, branch string, frequency int) *GitRegoStore {
+	gs := newGitRegoStore(baseUrl, owner, repository, path, tag, branch, frequency)
+	gs.setURL()
+	return gs
+}
+
+// SetRegoObjects pulls opa obj from git and stores in gitregostore
+func (gs *GitRegoStore) SetRegoObjects() error {
+	err := gs.setObjects()
+	return err
+}
+
+func NewDefaultGitRegoStore(frequency int) *GitRegoStore {
+	return NewGitRegoStore("https://github.com", "armosec", "regolibrary", "releases", "latest/download", "", frequency)
+}
+
+// Deprecated
 // if frequency < 0 will pull only once
 func InitGitRegoStore(baseUrl string, owner string, repository string, path string, tag string, branch string, frequency int) *GitRegoStore {
 	defer func() {
@@ -64,6 +82,7 @@ func InitGitRegoStore(baseUrl string, owner string, repository string, path stri
 	return gs
 }
 
+// Deprecated
 func InitDefaultGitRegoStore(frequency int) *GitRegoStore {
 	return InitGitRegoStore("https://github.com", "armosec", "regolibrary", "releases", "latest/download", "", frequency)
 }

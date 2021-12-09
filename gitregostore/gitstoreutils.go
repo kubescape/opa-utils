@@ -53,12 +53,14 @@ func (gs *GitRegoStore) setURL() {
 	gs.URL = url
 }
 
-func (gs *GitRegoStore) setObjects() {
+func (gs *GitRegoStore) setObjects() error {
+	var err error
 	if isUrlRelease(gs.URL) {
-		gs.setObjectsFromReleaseLoop()
+		err = gs.setObjectsFromReleaseLoop()
 	} else {
-		gs.setObjectsFromRepoLoop()
+		err = gs.setObjectsFromRepoLoop()
 	}
+	return err
 }
 
 func isUrlRelease(u string) bool {
@@ -67,15 +69,16 @@ func isUrlRelease(u string) bool {
 
 // ========================== set Objects From Repo =====================================
 
-func (gs *GitRegoStore) setObjectsFromRepoLoop() {
+func (gs *GitRegoStore) setObjectsFromRepoLoop() error {
 	var wg sync.WaitGroup
 	wg.Add(1)
+	var e error
 
 	go func() {
 		f := true
 		for {
 			if err := gs.setObjectsFromRepoOnce(); err != nil {
-				fmt.Println(err)
+				e = err
 			}
 			if f {
 				wg.Done() // first update to done
@@ -88,6 +91,7 @@ func (gs *GitRegoStore) setObjectsFromRepoLoop() {
 		}
 	}()
 	wg.Wait()
+	return e
 }
 
 func (gs *GitRegoStore) setObjectsFromRepoOnce() error {
@@ -113,17 +117,6 @@ func (gs *GitRegoStore) setObjectsFromRepoOnce() error {
 	// use only json files from relevant dirs
 	for _, path := range trees.TREE {
 		rawDataPath := "https://raw.githubusercontent.com/" + gs.Owner + "/" + gs.Repository + "/" + gs.Branch + "/" + path.PATH
-
-		// for kind, storeSetterMappingFunc := range storeSetterMapping {
-		// 	respStr, err := HttpGetter(gs.httpClient, fmt.Sprintf("%s/%s", gs.URL, kind))
-		// 	if err != nil {
-		// 		return err
-		// 	}
-		// 	if err = storeSetterMappingFunc(gs, respStr); err != nil {
-		// 		return err
-		// 	}
-		// }
-		// // return nil
 
 		if strings.HasPrefix(path.PATH, rulesJsonFileName) && strings.HasSuffix(path.PATH, ".json") {
 			respStr, err := HttpGetter(gs.httpClient, rawDataPath)
@@ -201,14 +194,15 @@ func (gs *GitRegoStore) setRulesWithRawRego(respStr string, path string) error {
 
 // ======================== set Objects From Release =============================================
 
-func (gs *GitRegoStore) setObjectsFromReleaseLoop() {
+func (gs *GitRegoStore) setObjectsFromReleaseLoop() error {
 	var wg sync.WaitGroup
 	wg.Add(1)
+	var e error
 	go func() {
 		f := true
 		for {
 			if err := gs.setObjectsFromReleaseOnce(); err != nil {
-				fmt.Println(err)
+				e = err
 			}
 			if f {
 				wg.Done() // first update to done
@@ -221,6 +215,7 @@ func (gs *GitRegoStore) setObjectsFromReleaseLoop() {
 		}
 	}()
 	wg.Wait()
+	return e
 }
 
 func (gs *GitRegoStore) setObjectsFromReleaseOnce() error {
@@ -236,67 +231,6 @@ func (gs *GitRegoStore) setObjectsFromReleaseOnce() error {
 	}
 	return nil
 }
-
-// DEPRECATED
-//
-// func (gs *GitRegoStore) setObjectsFromReleaseOnce() error {
-
-// 	// TODO - support mock respons
-// 	resp, err := http.Get(gs.URL)
-// 	if err != nil {
-// 		return fmt.Errorf("failed to get latest releases from '%s', reason: %s", gs.URL, err.Error())
-// 	}
-// 	defer resp.Body.Close()
-// 	if resp.StatusCode < 200 || 301 < resp.StatusCode {
-// 		return fmt.Errorf("failed to download file, status code: %s", resp.Status)
-// 	}
-// 	body, err := io.ReadAll(resp.Body)
-// 	if err != nil {
-// 		return fmt.Errorf("failed to read response body from '%s', reason: %s", gs.URL, err.Error())
-// 	}
-// 	var data map[string]interface{}
-// 	err = json.Unmarshal(body, &data)
-// 	if err != nil {
-// 		return fmt.Errorf("failed to unmarshal response body from '%s', reason: %s", gs.URL, err.Error())
-// 	}
-
-// 	// TODO - move to parse response dedicated functions
-// 	if tagName, ok := data["tag_name"]; ok {
-// 		if gs.CurGitVersion != tagName.(string) {
-// 			gs.CurGitVersion = tagName.(string)
-// 			if assets, ok := data["assets"].([]interface{}); ok {
-// 				for i := range assets {
-// 					if asset, ok := assets[i].(map[string]interface{}); ok {
-// 						if name, ok := asset["name"].(string); ok {
-// 							if url, ok := asset["browser_download_url"].(string); ok {
-// 								respStr, err := HttpGetter(gs.httpClient, url)
-// 								if err != nil {
-// 									return err
-// 								}
-// 								switch name {
-// 								case frameworksJsonFileName:
-// 									err = gs.setFrameworks(respStr)
-// 								case controlsJsonFileName:
-// 									err = gs.setControls(respStr)
-// 								case rulesJsonFileName:
-// 									err = gs.setRules(respStr)
-// 								case frameworkControlRelationsFileName:
-// 									gs.setFrameworkControlRelationsFileName(respStr)
-// 								case ControlRuleRelationsFileName:
-// 									gs.setControlRuleRelationsFileName(respStr)
-// 								}
-// 								if err != nil {
-// 									return err
-// 								}
-// 							}
-// 						}
-// 					}
-// 				}
-// 			}
-// 		}
-// 	}
-// 	return nil
-// }
 
 func (gs *GitRegoStore) setFrameworks(respStr string) error {
 	frameworks := []opapolicy.Framework{}

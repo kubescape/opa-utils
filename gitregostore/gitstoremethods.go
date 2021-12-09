@@ -12,6 +12,9 @@ import (
 
 // GetOPAPolicies returns all the policies of given customer
 func (gs *GitRegoStore) GetOPAPolicies() ([]opapolicy.PolicyRule, error) {
+	if gs.Rules == nil {
+		return nil, fmt.Errorf("no rules found in GitRegoStore")
+	}
 	return gs.Rules, nil
 }
 
@@ -106,6 +109,9 @@ func (gs *GitRegoStore) GetOPAControls() ([]opapolicy.Control, error) {
 	gs.controlsLock.RLock()
 	defer gs.controlsLock.RUnlock()
 	var controlsList []opapolicy.Control
+	if gs.Controls == nil {
+		return nil, fmt.Errorf("no controls found in GitRegoStore")
+	}
 	for _, control := range gs.Controls {
 		err := gs.fillRulesAndRulesIDsInControl(&control)
 		if err != nil {
@@ -192,6 +198,9 @@ func (gs *GitRegoStore) GetOPAFrameworks() ([]opapolicy.Framework, error) {
 	gs.frameworksLock.RLock()
 	defer gs.frameworksLock.RUnlock()
 	var frameworksList []opapolicy.Framework
+	if gs.Frameworks == nil {
+		return nil, fmt.Errorf("no frameworks found in GitRegoStore")
+	}
 	for _, fw := range gs.Frameworks {
 		err := gs.fillControlsAndControlIDsInFramework(&fw)
 		if err != nil {
