@@ -120,7 +120,6 @@ type RuleDependency struct {
 type PolicyRule struct {
 	armotypes.PortalBase `json:",inline"`
 	CreationTime         string             `json:"creationTime"`
-	PreRun               []string           `json:"preRun,omitempty"`   // multiline string! - preRun rego before running the actual rego test
 	Rule                 string             `json:"rule"`               // multiline string!
 	ResourceEnumerator   string             `json:"resourceEnumerator"` // multiline string!
 	RuleLanguage         RuleLanguages      `json:"ruleLanguage"`
