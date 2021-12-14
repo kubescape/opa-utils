@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"github.com/armosec/k8s-interface/workloadinterface"
+	"github.com/armosec/opa-utils/objectsenvelopes"
 	"github.com/armosec/opa-utils/reporthandling"
 
 	"github.com/armosec/armoapi-go/armotypes"
@@ -92,7 +93,7 @@ func alertObjectToWorkloads(obj *reporthandling.AlertObject) []workloadinterface
 	resource := []workloadinterface.IMetadata{}
 
 	for i := range obj.K8SApiObjects {
-		r := reporthandling.NewObject(obj.K8SApiObjects[i])
+		r := objectsenvelopes.NewObject(obj.K8SApiObjects[i])
 		if r == nil {
 			continue
 		}
@@ -104,7 +105,7 @@ func alertObjectToWorkloads(obj *reporthandling.AlertObject) []workloadinterface
 	}
 
 	if obj.ExternalObjects != nil {
-		if r := reporthandling.NewObject(obj.ExternalObjects); r != nil {
+		if r := objectsenvelopes.NewObject(obj.ExternalObjects); r != nil {
 			// TODO - What about linked objects?
 			resource = append(resource, r)
 		}

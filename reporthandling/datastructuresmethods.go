@@ -5,6 +5,7 @@ import (
 	"hash/fnv"
 
 	"github.com/armosec/k8s-interface/workloadinterface"
+	"github.com/armosec/opa-utils/objectsenvelopes"
 )
 
 // ==============================================================================================
@@ -294,9 +295,9 @@ func (ruleReport *RuleReport) SetNumberOfFailedResources(n int) {
 
 func (ruleReport *RuleReport) ListResourcesIDs() *ResourcesIDs {
 	resourcesIDs := ResourcesIDs{}
-	resourcesIDs.setFailedResources(GetUniqueResourcesIDs(workloadinterface.ListMetaIDs(workloadinterface.ListMapToMeta(ruleReport.GetFailedResources()))))
-	resourcesIDs.setWarningResources(GetUniqueResourcesIDs(workloadinterface.ListMetaIDs(workloadinterface.ListMapToMeta(ruleReport.GetWarnignResources())))) // needs to be initialized after failed
-	resourcesIDs.setPassedResources(ruleReport.GetAllResourcesIDs())                                                                                          // needs to be initialized after warning
+	resourcesIDs.setFailedResources(GetUniqueResourcesIDs(workloadinterface.ListMetaIDs(objectsenvelopes.ListMapToMeta(ruleReport.GetFailedResources()))))
+	resourcesIDs.setWarningResources(GetUniqueResourcesIDs(workloadinterface.ListMetaIDs(objectsenvelopes.ListMapToMeta(ruleReport.GetWarnignResources())))) // needs to be initialized after failed
+	resourcesIDs.setPassedResources(ruleReport.GetAllResourcesIDs())                                                                                         // needs to be initialized after warning
 	return &resourcesIDs
 }
 func (ruleReport *RuleReport) GetNumberOfWarningResources() int {

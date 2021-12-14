@@ -5,6 +5,7 @@ import (
 	"testing"
 
 	"github.com/armosec/k8s-interface/workloadinterface"
+	"github.com/armosec/opa-utils/objectsenvelopes"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -20,90 +21,9 @@ var (
 	subjectGroup = `{"apiGroup":"rbac.authorization.k8s.io","kind":"Group","name":"system:masters","relatedObjects":[{"apiVersion":"rbac.authorization.k8s.io/v1","kind":"ClusterRoleBinding","metadata":{"annotations":{"rbac.authorization.kubernetes.io/autoupdate":"true"},"creationTimestamp":"2021-06-03T07:40:47Z","labels":{"kubernetes.io/bootstrapping":"rbac-defaults"},"managedFields":[{"apiVersion":"rbac.authorization.k8s.io/v1","fieldsType":"FieldsV1","fieldsV1":{"f:metadata":{"f:annotations":{".":{},"f:rbac.authorization.kubernetes.io/autoupdate":{}},"f:labels":{".":{},"f:kubernetes.io/bootstrapping":{}}},"f:roleRef":{"f:apiGroup":{},"f:kind":{},"f:name":{}},"f:subjects":{}},"manager":"kube-apiserver","operation":"Update","time":"2021-06-03T07:40:47Z"}],"name":"cluster-admin","resourceVersion":"146","uid":"b57afc19-4e60-49bf-8cd9-a7d9fa55b891"},"roleRef":{"apiGroup":"rbac.authorization.k8s.io","kind":"ClusterRole","name":"cluster-admin"},"subjects":[{"apiGroup":"rbac.authorization.k8s.io","kind":"Group","name":"system:masters"}]},{"apiVersion":"rbac.authorization.k8s.io/v1","kind":"ClusterRole","metadata":{"annotations":{"rbac.authorization.kubernetes.io/autoupdate":"true"},"creationTimestamp":"2021-06-03T07:40:47Z","labels":{"kubernetes.io/bootstrapping":"rbac-defaults"},"managedFields":[{"apiVersion":"rbac.authorization.k8s.io/v1","fieldsType":"FieldsV1","fieldsV1":{"f:metadata":{"f:annotations":{".":{},"f:rbac.authorization.kubernetes.io/autoupdate":{}},"f:labels":{".":{},"f:kubernetes.io/bootstrapping":{}}},"f:rules":{}},"manager":"kube-apiserver","operation":"Update","time":"2021-06-03T07:40:47Z"}],"name":"cluster-admin","resourceVersion":"86","uid":"87d19f4d-a392-4199-8184-7d2a8f6ed8e7"},"rules":[{"apiGroups":["*"],"resources":["*"],"verbs":["*"]},{"nonResourceURLs":["*"],"verbs":["*"]}]}]}`
 )
 
-func getMock(r string) map[string]interface{} {
-	relatedObject, err := workloadinterface.NewWorkload([]byte(r))
-	if err != nil {
-		panic(err)
-	}
-	return relatedObject.GetObject()
-}
-func assertObjectFields(t *testing.T, b workloadinterface.IMetadata) {
-	assert.Equal(t, "", b.GetApiVersion())
-	assert.Equal(t, "user@example.com", b.GetName())
-	assert.Equal(t, "User", b.GetKind())
-	assert.Equal(t, "default", b.GetNamespace())
-	assert.Equal(t, "/default/User/user@example.com/rbac.authorization.k8s.io/v1/default/Role/pod-reader/rbac.authorization.k8s.io/v1/default/RoleBinding/read-pods", b.GetID())
-}
-func TestNewRegoResponseVectorObject(t *testing.T) {
-	relatedObjects := []map[string]interface{}{}
-	relatedObject := getMock(role)
-	relatedObject2 := getMock(rolebinding)
-	relatedObjects = append(relatedObjects, relatedObject)
-	relatedObjects = append(relatedObjects, relatedObject2)
-	subject := map[string]interface{}{"name": "user@example.com", "kind": "User", "namespace": "default", "group": "rbac.authorization.k8s.io", RelatedObjectsKey: relatedObjects}
-	assert.True(t, IsTypeRegoResponseVector(subject))
-
-	obj := NewRegoResponseVectorObject(subject)
-	assert.Equal(t, 2, len(obj.GetRelatedObjects()))
-	assertObjectFields(t, obj)
-
-	respVector, err := NewRegoResponseVectorObjectFromBytes([]byte(obj.ToString()))
-	assert.NoError(t, err)
-	assertObjectFields(t, respVector)
-}
-
-func TestSetGetObject(t *testing.T) {
-	obj := `{"name":"Jane","namespace":"","kind":"User","apiVersion":""}`
-	relatedObjects := []map[string]interface{}{}
-	relatedObject := getMock(role)
-	relatedObject2 := getMock(rolebinding)
-	relatedObjects = append(relatedObjects, relatedObject)
-	relatedObjects = append(relatedObjects, relatedObject2)
-	m := make(map[string]interface{})
-	err := json.Unmarshal([]byte(obj), &m)
-	if err != nil {
-		t.Errorf("error unmarshaling, %s", err.Error())
-	}
-	respVector2 := NewRegoResponseVectorObject(nil)
-	if err != nil {
-		t.Errorf(err.Error())
-	}
-	respVector2.SetObject(m)
-	respVector2.SetRelatedObjects(relatedObjects)
-	if respVector2.GetID() == "" {
-		t.Errorf("error setting object")
-	}
-	object := respVector2.GetObject()
-	if len(object) == 0 {
-		t.Errorf("error getting object")
-	}
-	if len(object["relatedObjects"].([]map[string]interface{})) == 0 {
-		t.Errorf("error getting object")
-	}
-}
-
-func TestAggregateResourcesAPIServerPod(t *testing.T) {
-	// TODO - return test after the function is fixed
-	//
-	// pod := make(map[string]interface{})
-	// err := json.Unmarshal([]byte(apiServerPod), &pod)
-	// if err != nil {
-	// 	t.Errorf("error unmarshaling %s", err)
-	// }
-	// k8sObjects := NewObject(pod)
-	// inputList := []workloadinterface.IMetadata{k8sObjects}
-	// outputList, err := AggregateResourcesByAPIServerPod(inputList)
-	// if err != nil {
-	// 	t.Errorf(err.Error())
-	// }
-	// assert.NotEqual(t, 1, len(outputList))
-	// assert.True(t, isObjectFields(outputList))
-
-}
-
 func TestAggregateResourcesBySubjects(t *testing.T) {
-	r, _ := workloadinterface.NewRegoResponseVectorObjectFromBytes([]byte(role))
-	rb, _ := workloadinterface.NewRegoResponseVectorObjectFromBytes([]byte(rolebinding))
+	r, _ := objectsenvelopes.NewRegoResponseVectorObjectFromBytes([]byte(role))
+	rb, _ := objectsenvelopes.NewRegoResponseVectorObjectFromBytes([]byte(rolebinding))
 	inputList := []workloadinterface.IMetadata{r, rb}
 
 	outputList, err := AggregateResourcesBySubjects(inputList)
@@ -127,8 +47,8 @@ func TestAggregateResourcesBySubjects2(t *testing.T) {
 	if err != nil {
 		t.Errorf("error in unmarshal %s", err)
 	}
-	ro := NewObject(r)
-	rob := NewObject(rb)
+	ro := objectsenvelopes.NewObject(r)
+	rob := objectsenvelopes.NewObject(rb)
 	inputList := []workloadinterface.IMetadata{ro, rob}
 
 	outputList, err := AggregateResourcesBySubjects(inputList)
@@ -138,42 +58,6 @@ func TestAggregateResourcesBySubjects2(t *testing.T) {
 
 	assert.Equal(t, 1, len(outputList))
 	assert.True(t, isObjectFields(outputList))
-}
-
-func TestVectorObjGetters(t *testing.T) {
-	v, err := workloadinterface.NewRegoResponseVectorObjectFromBytes([]byte(subjectSA))
-	if err != nil {
-		t.Errorf(err.Error())
-	}
-	if name := v.GetName(); name != "ca-controller-service-account" {
-		t.Errorf("error in GetName, got: '%s', should be 'ca-controller-service-account'", name)
-	}
-	if kind := v.GetKind(); kind != "ServiceAccount" {
-		t.Errorf("error in GetKind, got: '%s', should be 'ServiceAccount'", kind)
-	}
-	if apiversion := v.GetApiVersion(); apiversion != "" {
-		t.Errorf("error in GetApiVersion, got: '%s', should be ''", apiversion)
-	}
-	if ns := v.GetNamespace(); ns != "cyberarmor-system" {
-		t.Errorf("error in GetNamespace, got: '%s', should be 'cyberarmor-system'", ns)
-	}
-
-	v2, err := workloadinterface.NewRegoResponseVectorObjectFromBytes([]byte(subjectGroup))
-	if err != nil {
-		t.Errorf(err.Error())
-	}
-	if name := v2.GetName(); name != "system:masters" {
-		t.Errorf("error in GetName, got: '%s', should be 'system:masters'", name)
-	}
-	if kind := v2.GetKind(); kind != "Group" {
-		t.Errorf("error in GetKind, got: '%s', should be 'Group'", kind)
-	}
-	if apiversion := v2.GetApiVersion(); apiversion != "rbac.authorization.k8s.io" {
-		t.Errorf("error in GetApiVersion, got: '%s', should be 'rbac.authorization.k8s.io'", apiversion)
-	}
-	if ns := v2.GetNamespace(); ns != "" {
-		t.Errorf("error in GetNamespace, got: '%s', should be ''", ns)
-	}
 }
 
 func isObjectFields(objs []workloadinterface.IMetadata) bool {

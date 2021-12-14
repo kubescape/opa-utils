@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"github.com/armosec/k8s-interface/workloadinterface"
+	"github.com/armosec/opa-utils/objectsenvelopes"
 )
 
 var aggregatorAttribute = "resourcesAggregator"
@@ -45,8 +46,8 @@ func AggregateResourcesBySubjects(k8sObjects []workloadinterface.IMetadata) ([]w
 											if err != nil {
 												return aggregatedK8sObjects, err
 											}
-											subjectCopy[workloadinterface.RelatedObjectsKey] = []map[string]interface{}{bindingWorkload.GetObject(), roleWorkload.GetObject()}
-											newObj := workloadinterface.NewRegoResponseVectorObject(subjectCopy)
+											subjectCopy[objectsenvelopes.RelatedObjectsKey] = []map[string]interface{}{bindingWorkload.GetObject(), roleWorkload.GetObject()}
+											newObj := objectsenvelopes.NewRegoResponseVectorObject(subjectCopy)
 											aggregatedK8sObjects = append(aggregatedK8sObjects, newObj)
 										}
 									}

@@ -1,4 +1,4 @@
-package reporthandling
+package objectsenvelopes
 
 import (
 	"github.com/armosec/k8s-interface/workloadinterface"
@@ -14,10 +14,11 @@ func NewObject(object map[string]interface{}) workloadinterface.IMetadata {
 		return workloadinterface.NewWorkloadObj(object)
 	case TypeRegoResponseVectorObject:
 		return NewRegoResponseVectorObject(object)
+		// case TypeHostSensor:
+		// 	return NewHostSensorDataEnvelope(object)
 		// case cloudsupport.TypeCloudProviderDescription:
 		// 	return cloudsupport.NewDescriptiveInfoFromCloudProvider(object)
 
-		// TODO - support sensors
 	}
 	return nil
 }
@@ -29,9 +30,13 @@ func GetObjectType(object map[string]interface{}) workloadinterface.ObjectType {
 	if IsTypeRegoResponseVector(object) {
 		return TypeRegoResponseVectorObject
 	}
+	if IsTypeTypeHostSensor(object) {
+		return TypeHostSensor
+	}
 	// if cloudsupport.IsTypeDescriptiveInfoFromCloudProvider(object) {
 	// 	return cloudsupport.TypeCloudProviderDescription
 	// }
+
 	// TODO - support sensors
 	return workloadinterface.TypeUnknown
 }

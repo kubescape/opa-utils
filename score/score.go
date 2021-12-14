@@ -12,6 +12,7 @@ import (
 
 	// corev1 "k8s.io/api/core/v1"
 	k8sinterface "github.com/armosec/k8s-interface/k8sinterface"
+	"github.com/armosec/opa-utils/objectsenvelopes"
 	"github.com/armosec/opa-utils/reporthandling"
 )
 
@@ -82,7 +83,7 @@ func (su *ScoreUtil) GetScore(v map[string]interface{}) float32 {
 
 	var score float32 = 1.0
 
-	if workloadinterface.IsTypeRegoResponseVector(v) || !workloadinterface.IsTypeWorkload(v) {
+	if objectsenvelopes.IsTypeRegoResponseVector(v) || !workloadinterface.IsTypeWorkload(v) {
 		return score
 	}
 

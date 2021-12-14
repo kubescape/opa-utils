@@ -2,6 +2,7 @@ package reporthandling
 
 import (
 	"github.com/armosec/k8s-interface/workloadinterface"
+	"github.com/armosec/opa-utils/objectsenvelopes"
 )
 
 // // Get
@@ -26,7 +27,7 @@ func (r *Resource) middleware() workloadinterface.IMetadata {
 	}
 
 	if m, ok := r.Object.(map[string]interface{}); ok {
-		r.IMetadata = NewObject(m)
+		r.IMetadata = objectsenvelopes.NewObject(m)
 	}
 	return r.IMetadata
 }
