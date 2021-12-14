@@ -15,9 +15,17 @@ require (
 )
 
 require (
+	github.com/aws/aws-sdk-go v1.41.11 // indirect
+	github.com/golang/groupcache v0.0.0-20210331224755-41bb18bfe9da // indirect
+	github.com/googleapis/gax-go/v2 v2.0.5 // indirect
+	github.com/jmespath/go-jmespath v0.4.0 // indirect
+	go.opencensus.io v0.23.0 // indirect
 	go.uber.org/atomic v1.7.0 // indirect
 	go.uber.org/multierr v1.6.0 // indirect
 	gonum.org/v1/gonum v0.9.1 // indirect
+	google.golang.org/api v0.44.0 // indirect
+	google.golang.org/genproto v0.0.0-20210602131652-f16073e35f0c // indirect
+	google.golang.org/grpc v1.38.0 // indirect
 )
 
 require (
