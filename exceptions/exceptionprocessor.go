@@ -92,7 +92,7 @@ func alertObjectToWorkloads(obj *reporthandling.AlertObject) []workloadinterface
 	resource := []workloadinterface.IMetadata{}
 
 	for i := range obj.K8SApiObjects {
-		r := workloadinterface.NewObject(obj.K8SApiObjects[i])
+		r := reporthandling.NewObject(obj.K8SApiObjects[i])
 		if r == nil {
 			continue
 		}
@@ -104,7 +104,7 @@ func alertObjectToWorkloads(obj *reporthandling.AlertObject) []workloadinterface
 	}
 
 	if obj.ExternalObjects != nil {
-		if r := workloadinterface.NewObject(obj.ExternalObjects); r != nil {
+		if r := reporthandling.NewObject(obj.ExternalObjects); r != nil {
 			// TODO - What about linked objects?
 			resource = append(resource, r)
 		}

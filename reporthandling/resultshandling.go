@@ -4,8 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/armosec/k8s-interface/workloadinterface"
-
 	"github.com/open-policy-agent/opa/rego"
 )
 
@@ -35,7 +33,7 @@ func GetUniqueResources(k8sResources []map[string]interface{}) []map[string]inte
 
 	lenK8sResources := len(k8sResources)
 	for i := 0; i < lenK8sResources; i++ {
-		workload := workloadinterface.NewObject(k8sResources[i])
+		workload := NewObject(k8sResources[i])
 		if workload == nil { // remove none supported types
 			k8sResources = removeFromSlice(k8sResources, i)
 			lenK8sResources -= 1

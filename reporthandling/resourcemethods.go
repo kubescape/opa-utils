@@ -25,7 +25,9 @@ func (r *Resource) middleware() workloadinterface.IMetadata {
 		return r.IMetadata
 	}
 
-	r.IMetadata = workloadinterface.NewObject(r.Object.(map[string]interface{}))
+	if m, ok := r.Object.(map[string]interface{}); ok {
+		r.IMetadata = NewObject(m)
+	}
 	return r.IMetadata
 }
 
