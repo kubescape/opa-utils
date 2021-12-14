@@ -27,16 +27,15 @@ const (
 
 // RegoResponse the expected response of single run of rego policy
 type RuleResponse struct {
-	AlertMessage  string                            `json:"alertMessage"`
-	FailedPaths   []string                          `json:"failedPaths"`
-	RuleStatus    string                            `json:"ruleStatus"`
-	PackageName   string                            `json:"packagename"`
-	AlertScore    AlertScore                        `json:"alertScore"`
-	AlertObject   AlertObject                       `json:"alertObject"`
-	Context       []string                          `json:"context,omitempty"`       // TODO - Remove
-	Rulename      string                            `json:"rulename,omitempty"`      // TODO - Remove
-	ExceptionName string                            `json:"exceptionName,omitempty"` // Not in use
-	Exception     *armotypes.PostureExceptionPolicy `json:"exception,omitempty"`
+	AlertMessage string                            `json:"alertMessage"`
+	FailedPaths  []string                          `json:"failedPaths"`
+	RuleStatus   string                            `json:"ruleStatus"`
+	PackageName  string                            `json:"packagename"`
+	AlertScore   AlertScore                        `json:"alertScore"`
+	AlertObject  AlertObject                       `json:"alertObject"`
+	Context      []string                          `json:"context,omitempty"`  // TODO - Remove
+	Rulename     string                            `json:"rulename,omitempty"` // TODO - Remove
+	Exception    *armotypes.PostureExceptionPolicy `json:"exception,omitempty"`
 }
 
 type AlertObject struct {
@@ -93,9 +92,42 @@ type PostureReport struct {
 	ReportID             string                `json:"reportID"`
 	JobID                string                `json:"jobID"`
 	ReportGenerationTime time.Time             `json:"generationTime"`
-	FrameworkReports     []FrameworkReport     `json:"frameworks"`
-	RBACObjects          rbacutils.RbacObjects `json:"rbacObjects"` // all rbac objects in cluster - roles, clusterroles, rolebindings, clusterrolebindings
+	FrameworkReports     []FrameworkReport     `json:"frameworks"`               // DEPRECATED
+	SummaryDetails       SummaryDetails        `json:"summaryDetails,omitempty"` // Developing
+	Results              []Result              `json:"results,omitempty"`        // Developing
+	RBACObjects          rbacutils.RbacObjects `json:"rbacObjects"`              // all rbac objects in cluster - roles, clusterroles, rolebindings, clusterrolebindings
 	Resources            []Resource            `json:"resource,omitempty"`
+}
+type SummaryDetails struct {
+	Frameworks []FrameworkSummary        `json:"frameworks"`
+	Controls   map[string]ControlSummary `json:"controls"`
+}
+type FrameworkSummary struct {
+	Score     float32 `json:"score"`
+	Framework string  `json:"framework"`
+}
+type ControlSummary struct {
+	Score            float32 `json:"score"`
+	PassedResources  int     `json:"passedResources"`
+	FailedResources  int     `json:"failedResources"`
+	WarningResources int     `json:"warningResources"`
+	SkippedResources int     `json:"skippedResources"`
+	Status           string  `json:"status"`
+}
+
+type ResourceAssociatedRule struct {
+	RuleName    string                            `json:"ruleName"`
+	FailedPaths []string                          `json:"failedPaths"`
+	Exception   *armotypes.PostureExceptionPolicy `json:"exception,omitempty"`
+}
+type ResourceAssociatedControl struct {
+	ControlID               string
+	ResourceAssociatedRules ResourceAssociatedRule
+}
+type Result struct {
+	ResourceID         string
+	Status             string // "failed/passed/warning  ?skipped?"
+	AssociatedControls []ResourceAssociatedControl
 }
 
 type Resource struct {
@@ -124,6 +156,7 @@ type PolicyRule struct {
 	ResourceEnumerator   string             `json:"resourceEnumerator"` // multiline string!
 	RuleLanguage         RuleLanguages      `json:"ruleLanguage"`
 	Match                []RuleMatchObjects `json:"match"`
+	DynamicMatch         []RuleMatchObjects `json:"dynamicMatch,omitempty"` // DEPRECATED - Added for ks version 136
 	RuleDependencies     []RuleDependency   `json:"ruleDependencies"`
 	ConfigInputs         []string           `json:"configInputs"` // list of inputs from postureControlInputs in customerConfig for this rule
 	Description          string             `json:"description"`
