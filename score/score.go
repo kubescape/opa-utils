@@ -65,7 +65,7 @@ func (su *ScoreUtil) CalculateFrameworkScore(framework *reporthandling.Framework
 	}
 	framework.Score = (framework.Score * 100) / framework.WCSScore
 	if su.isDebugMode {
-		fmt.Printf("framework %s score %v", framework.Name, framework.Score)
+		fmt.Printf("framework %s score %v\n", framework.Name, framework.Score)
 	}
 	framework.ARMOImprovement = (framework.ARMOImprovement * 100) / framework.WCSScore
 	return nil
