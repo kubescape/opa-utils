@@ -3,16 +3,17 @@ package score
 import (
 	"encoding/json"
 	"fmt"
+	"math"
 	"os"
 	"strings"
 
 	"github.com/armosec/k8s-interface/workloadinterface"
+	armoupautils "github.com/armosec/opa-utils/objectsenvelopes"
 	"go.uber.org/zap"
 	appsv1 "k8s.io/api/apps/v1"
 
 	// corev1 "k8s.io/api/core/v1"
 	k8sinterface "github.com/armosec/k8s-interface/k8sinterface"
-	"github.com/armosec/opa-utils/objectsenvelopes"
 	"github.com/armosec/opa-utils/reporthandling"
 )
 
@@ -49,9 +50,8 @@ func (su *ScoreUtil) CalculateFrameworkScore(framework *reporthandling.Framework
 	for i := range framework.ControlReports {
 		framework.ControlReports[i].Score = 0
 		wcsCtrl, unormalizedScore := su.ControlScore(&framework.ControlReports[i], framework.Name)
-
 		if su.isDebugMode {
-			zap.L().Debug("control", zap.String("%s", framework.ControlReports[i].Name), zap.String("%s", framework.ControlReports[i].ControlID), zap.Any("failed", unormalizedScore), zap.Any("wcs", wcsCtrl))
+			fmt.Printf("control %s(%s) failed %v wcs %v (baseScore: %v)\n", framework.ControlReports[i].Name, framework.ControlReports[i].ControlID, unormalizedScore, wcsCtrl, framework.ControlReports[i].BaseScore)
 
 		}
 		framework.WCSScore += wcsCtrl
@@ -61,11 +61,11 @@ func (su *ScoreUtil) CalculateFrameworkScore(framework *reporthandling.Framework
 	}
 	if framework.WCSScore == 0 {
 		framework.Score = 0
-		return fmt.Errorf("unable to calculate score for framework %s due to bad wcs score", framework.Name)
+		return fmt.Errorf("unable to calculate score for framework %s due to bad wcs score\n", framework.Name)
 	}
 	framework.Score = (framework.Score * 100) / framework.WCSScore
 	if su.isDebugMode {
-		zap.L().Debug("framework scan", zap.String("framework", framework.Name), zap.Any("score", framework.Score))
+		fmt.Printf("framework %s score %v", framework.Name, framework.Score)
 	}
 	framework.ARMOImprovement = (framework.ARMOImprovement * 100) / framework.WCSScore
 	return nil
@@ -80,14 +80,27 @@ workloads: if replicas:
 
 */
 func (su *ScoreUtil) GetScore(v map[string]interface{}) float32 {
-
 	var score float32 = 1.0
+	if workloadinterface.IsTypeWorkload(v) {
+		wl := workloadinterface.NewWorkloadObj(v)
+		score = su.processWorkload(wl, score, v)
+	} else if armoupautils.IsTypeRegoResponseVector(v) {
+		if vec := armoupautils.NewRegoResponseVectorObject(v); vec != nil {
+			related := vec.GetRelatedObjects()
+			for i := range related {
+				if workloadinterface.IsTypeWorkload(related[i].GetObject()) {
+					wl := workloadinterface.NewWorkloadObj(v)
+					score = float32(math.Max(float64(score), float64(su.processWorkload(wl, score, v))))
 
-	if objectsenvelopes.IsTypeRegoResponseVector(v) || !workloadinterface.IsTypeWorkload(v) {
-		return score
+				}
+			}
+		}
 	}
 
-	wl := workloadinterface.NewWorkloadObj(v)
+	return score
+}
+
+func (*ScoreUtil) processWorkload(wl *workloadinterface.Workload, score float32, v map[string]interface{}) float32 {
 	if wl != nil {
 		replicas := wl.GetReplicas()
 		if replicas > 1 {
@@ -123,7 +136,6 @@ returns wcsscore,ctrlscore(unnormalized)
 
 */
 func (su *ScoreUtil) ControlScore(ctrlReport *reporthandling.ControlReport, frameworkName string) (float32, float32) {
-	// return 0, 0
 
 	failedResourceIDS := ctrlReport.ListResourcesIDs().GetFailedResources()
 	allResourcesIDS := ctrlReport.ListResourcesIDs().GetAllResources()
@@ -142,7 +154,7 @@ func (su *ScoreUtil) ControlScore(ctrlReport *reporthandling.ControlReport, fram
 	unormalizedScore := ctrlReport.Score
 	ctrlReport.ARMOImprovement = unormalizedScore * ctrlReport.ARMOImprovement
 	if wcsScore > 0 {
-		ctrlReport.Score /= wcsScore // used to know severity (ctrl POV)
+		ctrlReport.Score = (ctrlReport.Score * 100) / wcsScore
 	} else {
 		//ctrlReport.Score = 0
 		zap.L().Error("worst case scenario was 0, meaning no resources input were given - score is not available(will appear as > 1)")
