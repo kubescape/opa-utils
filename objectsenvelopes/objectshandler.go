@@ -1,8 +1,9 @@
 package objectsenvelopes
 
 import (
-	"github.com/armosec/k8s-interface/cloudsupport"
+	cloudsupportv1 "github.com/armosec/k8s-interface/cloudsupport/v1"
 	"github.com/armosec/k8s-interface/workloadinterface"
+	"github.com/armosec/opa-utils/objectsenvelopes/hostsensor"
 )
 
 // Returns the currect object that supports the IMetadata interface
@@ -15,12 +16,10 @@ func NewObject(object map[string]interface{}) workloadinterface.IMetadata {
 		return workloadinterface.NewWorkloadObj(object)
 	case TypeRegoResponseVectorObject:
 		return NewRegoResponseVectorObject(object)
-	case cloudsupport.TypeCloudProviderDescription:
-		return cloudsupport.NewDescriptiveInfoFromCloudProvider(object)
-		// TODO -
-		// case TypeHostSensor:
-		// 	return NewHostSensorDataEnvelope(object)
-
+	case cloudsupportv1.TypeCloudProviderDescribe:
+		return cloudsupportv1.NewDescriptiveInfoFromCloudProvider(object)
+	case hostsensor.TypeHostSensor:
+		return hostsensor.NewHostSensorDataEnvelope(object)
 	}
 	return nil
 }
@@ -32,14 +31,12 @@ func GetObjectType(object map[string]interface{}) workloadinterface.ObjectType {
 	if IsTypeRegoResponseVector(object) {
 		return TypeRegoResponseVectorObject
 	}
-	if IsTypeTypeHostSensor(object) {
-		return TypeHostSensor
+	if hostsensor.IsTypeTypeHostSensor(object) {
+		return hostsensor.TypeHostSensor
 	}
-	if cloudsupport.IsTypeDescriptiveInfoFromCloudProvider(object) {
-		return cloudsupport.TypeCloudProviderDescription
+	if cloudsupportv1.IsTypeDescriptiveInfoFromCloudProvider(object) {
+		return cloudsupportv1.TypeCloudProviderDescribe
 	}
-
-	// TODO - support sensors
 	return workloadinterface.TypeUnknown
 }
 
