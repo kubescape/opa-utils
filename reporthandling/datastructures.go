@@ -148,20 +148,27 @@ type RuleDependency struct {
 	PackageName string `json:"packageName"` // package name
 }
 
+type ControlConfigInputs struct {
+	Path        string `json:"path"`
+	Name        string `json:"name"`
+	Description string `json:"description"`
+}
+
 // PolicyRule represents single rule, the fundamental executable block of policy
 type PolicyRule struct {
 	armotypes.PortalBase `json:",inline"`
-	CreationTime         string             `json:"creationTime"`
-	Rule                 string             `json:"rule"`               // multiline string!
-	ResourceEnumerator   string             `json:"resourceEnumerator"` // multiline string!
-	RuleLanguage         RuleLanguages      `json:"ruleLanguage"`
-	Match                []RuleMatchObjects `json:"match"`
-	DynamicMatch         []RuleMatchObjects `json:"dynamicMatch,omitempty"` // DEPRECATED - Added for ks version 136
-	RuleDependencies     []RuleDependency   `json:"ruleDependencies"`
-	ConfigInputs         []string           `json:"configInputs"` // list of inputs from postureControlInputs in customerConfig for this rule
-	Description          string             `json:"description"`
-	Remediation          string             `json:"remediation"`
-	RuleQuery            string             `json:"ruleQuery"` // default "armo_builtins" - DEPRECATED
+	CreationTime         string                `json:"creationTime"`
+	Rule                 string                `json:"rule"`               // multiline string!
+	ResourceEnumerator   string                `json:"resourceEnumerator"` // multiline string!
+	RuleLanguage         RuleLanguages         `json:"ruleLanguage"`
+	Match                []RuleMatchObjects    `json:"match"`
+	DynamicMatch         []RuleMatchObjects    `json:"dynamicMatch,omitempty"` // DEPRECATED - Added for ks version 136
+	RuleDependencies     []RuleDependency      `json:"ruleDependencies"`
+	ConfigInputs         []string              `json:"configInputs"`        // DEPRECATED
+	ControlConfigInputs  []ControlConfigInputs `json:"controlConfigInputs"` // list of inputs from postureControlInputs in customerConfig for this rule
+	Description          string                `json:"description"`
+	Remediation          string                `json:"remediation"`
+	RuleQuery            string                `json:"ruleQuery"` // default "armo_builtins" - DEPRECATED
 }
 
 // Control represents a collection of rules which are combined together to single purpose
