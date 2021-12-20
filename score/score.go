@@ -81,14 +81,14 @@ workloads: if replicas:
 */
 func (su *ScoreUtil) GetScore(v map[string]interface{}) float32 {
 	var score float32 = 1.0
-	if workloadinterface.IsTypeWorkload(v) {
+	if k8sinterface.IsTypeWorkload(v) {
 		wl := workloadinterface.NewWorkloadObj(v)
 		score = su.processWorkload(wl, score, v)
 	} else if armoupautils.IsTypeRegoResponseVector(v) {
 		if vec := armoupautils.NewRegoResponseVectorObject(v); vec != nil {
 			related := vec.GetRelatedObjects()
 			for i := range related {
-				if workloadinterface.IsTypeWorkload(related[i].GetObject()) {
+				if k8sinterface.IsTypeWorkload(related[i].GetObject()) {
 					wl := workloadinterface.NewWorkloadObj(v)
 					score = float32(math.Max(float64(score), float64(su.processWorkload(wl, score, v))))
 

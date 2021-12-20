@@ -2,6 +2,7 @@ package objectsenvelopes
 
 import (
 	cloudsupportv1 "github.com/armosec/k8s-interface/cloudsupport/v1"
+	"github.com/armosec/k8s-interface/k8sinterface"
 	"github.com/armosec/k8s-interface/workloadinterface"
 	"github.com/armosec/opa-utils/objectsenvelopes/hostsensor"
 )
@@ -25,9 +26,6 @@ func NewObject(object map[string]interface{}) workloadinterface.IMetadata {
 }
 
 func GetObjectType(object map[string]interface{}) workloadinterface.ObjectType {
-	if workloadinterface.IsTypeWorkload(object) {
-		return workloadinterface.TypeWorkloadObject
-	}
 	if IsTypeRegoResponseVector(object) {
 		return TypeRegoResponseVectorObject
 	}
@@ -36,6 +34,9 @@ func GetObjectType(object map[string]interface{}) workloadinterface.ObjectType {
 	}
 	if cloudsupportv1.IsTypeDescriptiveInfoFromCloudProvider(object) {
 		return cloudsupportv1.TypeCloudProviderDescribe
+	}
+	if k8sinterface.IsTypeWorkload(object) {
+		return workloadinterface.TypeWorkloadObject
 	}
 	return workloadinterface.TypeUnknown
 }

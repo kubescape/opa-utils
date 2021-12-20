@@ -5,6 +5,7 @@ import (
 	"encoding/gob"
 	"strings"
 
+	"github.com/armosec/k8s-interface/k8sinterface"
 	"github.com/armosec/k8s-interface/workloadinterface"
 	"github.com/armosec/opa-utils/objectsenvelopes"
 )
@@ -65,7 +66,7 @@ func AggregateResourcesBySubjects(k8sObjects []workloadinterface.IMetadata) ([]w
 // Create custom object of apiserver pod. Has required fields + cmdline
 func AggregateResourcesByAPIServerPod(k8sObjects []workloadinterface.IMetadata) workloadinterface.IMetadata {
 	for _, obj := range k8sObjects {
-		if !workloadinterface.IsTypeWorkload(obj.GetObject()) {
+		if !k8sinterface.IsTypeWorkload(obj.GetObject()) {
 			continue
 		}
 		workload := workloadinterface.NewWorkloadObj(obj.GetObject())
