@@ -9,12 +9,7 @@ import (
 	"k8s.io/apimachinery/pkg/version"
 )
 
-type RuleStatus struct {
-	Status  string `json:"status"`
-	Message string `json:"message"`
-}
-
-// PostureReport
+// PostureReport posture scanning report structure
 type PostureReport struct {
 	CustomerGUID         string         `json:"customerGUID"`
 	ClusterName          string         `json:"clusterName"`
@@ -27,14 +22,22 @@ type PostureReport struct {
 	Results              []Result       `json:"results,omitempty"`        // Developing
 	Resources            []Resource     `json:"resource,omitempty"`
 }
+
+// SummaryDetails detailed summary of the scanning. will contain versions, counters, etc.
 type SummaryDetails struct {
-	Frameworks []FrameworkSummary        `json:"frameworks"`
-	Controls   map[string]ControlSummary `json:"controls"`
+	Frameworks []FrameworkSummary        `json:"frameworks"`         // list of framework summary
+	Controls   map[string]ControlSummary `json:"controls,omitempty"` // mapping of control - map[<control ID>]<control summary>
 }
+
+// FrameworkSummary summary of scanning from a single framework perspective
 type FrameworkSummary struct {
-	Score     float32 `json:"score"`
-	Framework string  `json:"framework"`
+	Score    float32                   `json:"score"`              // framework score
+	Name     string                    `json:"name"`               // framework name
+	Version  string                    `json:"version"`            // framework version
+	Controls map[string]ControlSummary `json:"controls,omitempty"` // mapping of control - map[<control ID>]<control summary>
 }
+
+// FrameworkSummary summary of scanning from a single control perspective
 type ControlSummary struct {
 	Score            float32 `json:"score"`
 	PassedResources  int     `json:"passedResources"`
@@ -44,21 +47,28 @@ type ControlSummary struct {
 	Status           string  `json:"status"`
 }
 
-type ResourceAssociatedRule struct {
-	RuleName    string                            `json:"ruleName"`
-	FailedPaths []string                          `json:"failedPaths"`
-	Exception   *armotypes.PostureExceptionPolicy `json:"exception,omitempty"`
-}
-type ResourceAssociatedControl struct {
-	ControlID               string
-	ResourceAssociatedRules ResourceAssociatedRule
-}
+// Result - resource result resourceID and the controls that where tested against the resource
 type Result struct {
 	ResourceID         string
-	Status             string // "failed/passed/warning  ?skipped?"
 	AssociatedControls []ResourceAssociatedControl
 }
 
+// ResourceAssociatedControl control that is associated to a resource
+type ResourceAssociatedControl struct {
+	ControlID               string
+	ResourceAssociatedRules []ResourceAssociatedRule
+}
+
+// ResourceAssociatedRule failed rule that is associated to a resource
+type ResourceAssociatedRule struct {
+	RuleName    string                            `json:"ruleName"`
+	FailedPaths []string                          `json:"failedPaths"`
+	Status      string                            // "failed/passed/warning  ?skipped?"
+	Exception   *armotypes.PostureExceptionPolicy `json:"exception,omitempty"`
+	// TODO - add list of controls inputs
+}
+
+// Resource single resource representation from resource inventory
 type Resource struct {
 	ResourceID string         `json:"resourceID"`
 	Object     interface{}    `json:"object"`
