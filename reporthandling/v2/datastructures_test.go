@@ -6,12 +6,15 @@ import (
 	"time"
 
 	"github.com/armosec/armoapi-go/armotypes"
+	"github.com/armosec/k8s-interface/k8sinterface"
 	"github.com/armosec/opa-utils/objectsenvelopes"
 	"github.com/armosec/opa-utils/reporthandling"
 	"github.com/stretchr/testify/assert"
 )
 
 func GetPostureReportMock() *PostureReport {
+	k8sinterface.InitializeMapResourcesMock()
+
 	resource := []Resource{}
 	err := json.Unmarshal([]byte(ResourcesListMock), &resource)
 	if err != nil {

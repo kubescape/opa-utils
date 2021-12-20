@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"testing"
 
+	"github.com/armosec/k8s-interface/k8sinterface"
 	"github.com/armosec/k8s-interface/workloadinterface"
 	"github.com/stretchr/testify/assert"
 )
@@ -21,6 +22,8 @@ func TestMockPolicyNotificationA(t *testing.T) {
 }
 
 func TestPostureReportWithK8SResource(t *testing.T) {
+	k8sinterface.InitializeMapResourcesMock()
+
 	expectedID := "apps/v1/default/Deployment/demoservice-server"
 	report := MockPostureReportA()
 	report.Resources = append(report.Resources, Resource{

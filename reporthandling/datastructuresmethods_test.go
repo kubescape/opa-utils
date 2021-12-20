@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"testing"
 
+	"github.com/armosec/k8s-interface/k8sinterface"
 	"github.com/armosec/opa-utils/reporthandling/mock"
 	"github.com/stretchr/testify/assert"
 )
@@ -25,6 +26,8 @@ func ControlsResultsMock(report string) ([]ControlReport, error) {
 }
 
 func TestControlsResults(t *testing.T) {
+	k8sinterface.InitializeMapResourcesMock()
+
 	framework, err := FrameworkResultsMock(mock.NSAScanV10119)
 	assert.NoError(t, err, err)
 	assert.Equal(t, len(framework.ControlReports), 21)

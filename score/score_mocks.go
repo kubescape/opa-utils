@@ -25,7 +25,7 @@ func loadResourcesMock() []map[string]interface{} {
 	return resources
 }
 
-func getResouceByType(desiredType string) map[string]interface{} {
+func getResourceByType(desiredType string) map[string]interface{} {
 	rsrcs := loadResourcesMock()
 	if rsrcs == nil {
 		return nil

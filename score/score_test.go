@@ -3,11 +3,14 @@ package score
 import (
 	"testing"
 
+	k8sinterface "github.com/armosec/k8s-interface/k8sinterface"
 	"github.com/armosec/k8s-interface/workloadinterface"
 )
 
 func TestReplicaScore(t *testing.T) {
-	deployment := getResouceByType("deployment")
+	k8sinterface.InitializeMapResourcesMock()
+
+	deployment := getResourceByType("deployment")
 	if wl := workloadinterface.NewWorkloadObj(deployment); wl == nil || wl.GetReplicas() != 3 {
 		t.Errorf("invalid wl was put into the test, should have 3 replicas %v", deployment)
 	}
@@ -20,7 +23,7 @@ func TestReplicaScore(t *testing.T) {
 }
 
 func TestDaemonScore(t *testing.T) {
-	ds := getResouceByType("daemonset")
+	ds := getResourceByType("daemonset")
 	s := ScoreUtil{}
 	score := s.GetScore(ds)
 	if score != 13 {
@@ -29,7 +32,7 @@ func TestDaemonScore(t *testing.T) {
 }
 
 func TestInactiveDaemonScore(t *testing.T) {
-	ds := getResouceByType("daemonset")
+	ds := getResourceByType("daemonset")
 	tmp := ds["status"].(map[string]interface{})
 	tmp["desiredNumberScheduled"] = 0
 	ds["status"] = tmp

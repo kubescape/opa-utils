@@ -5,6 +5,7 @@ import (
 	"regexp"
 	"strings"
 
+	"github.com/armosec/k8s-interface/k8sinterface"
 	"github.com/armosec/k8s-interface/workloadinterface"
 	"github.com/armosec/opa-utils/objectsenvelopes"
 	"github.com/armosec/opa-utils/reporthandling"
@@ -171,7 +172,7 @@ func compareName(workload workloadinterface.IMetadata, name string) bool {
 
 func compareLabels(workload workloadinterface.IMetadata, attributes map[string]string) bool {
 	w := workload.GetObject()
-	if workloadinterface.IsTypeWorkload(w) {
+	if k8sinterface.IsTypeWorkload(w) {
 		workloadLabels := labels.Set(workloadinterface.NewWorkloadObj(w).GetLabels())
 		designators := labels.Set(attributes).AsSelector()
 
