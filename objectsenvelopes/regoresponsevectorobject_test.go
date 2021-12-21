@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"testing"
 
-	"github.com/armosec/k8s-interface/k8sinterface"
 	"github.com/armosec/k8s-interface/workloadinterface"
 	"github.com/stretchr/testify/assert"
 )
@@ -36,7 +35,6 @@ func assertObjectFields(t *testing.T, b workloadinterface.IMetadata) {
 	assert.Equal(t, "/default/User/user@example.com/rbac.authorization.k8s.io/v1/default/Role/pod-reader/rbac.authorization.k8s.io/v1/default/RoleBinding/read-pods", b.GetID())
 }
 func TestNewRegoResponseVectorObject(t *testing.T) {
-	k8sinterface.InitializeMapResourcesMock()
 
 	relatedObjects := []map[string]interface{}{}
 	relatedObject := getMock(role)
@@ -56,7 +54,6 @@ func TestNewRegoResponseVectorObject(t *testing.T) {
 }
 
 func TestSetGetObject(t *testing.T) {
-	k8sinterface.InitializeMapResourcesMock()
 
 	obj := `{"name":"Jane","namespace":"","kind":"User","apiVersion":""}`
 	relatedObjects := []map[string]interface{}{}
@@ -88,7 +85,6 @@ func TestSetGetObject(t *testing.T) {
 }
 
 func TestVectorObjGetters(t *testing.T) {
-	k8sinterface.InitializeMapResourcesMock()
 
 	v, err := NewRegoResponseVectorObjectFromBytes([]byte(subjectSA))
 	if err != nil {

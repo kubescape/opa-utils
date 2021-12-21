@@ -3,13 +3,10 @@ package score
 import (
 	"testing"
 
-	k8sinterface "github.com/armosec/k8s-interface/k8sinterface"
 	"github.com/armosec/k8s-interface/workloadinterface"
 )
 
 func TestReplicaScore(t *testing.T) {
-	k8sinterface.InitializeMapResourcesMock()
-
 	deployment := getResourceByType("deployment")
 	if wl := workloadinterface.NewWorkloadObj(deployment); wl == nil || wl.GetReplicas() != 3 {
 		t.Errorf("invalid wl was put into the test, should have 3 replicas %v", deployment)

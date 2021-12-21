@@ -1,6 +1,7 @@
 package objectsenvelopes
 
 import (
+	"github.com/armosec/k8s-interface/cloudsupport/apis"
 	cloudsupportv1 "github.com/armosec/k8s-interface/cloudsupport/v1"
 	"github.com/armosec/k8s-interface/k8sinterface"
 	"github.com/armosec/k8s-interface/workloadinterface"
@@ -32,7 +33,7 @@ func GetObjectType(object map[string]interface{}) workloadinterface.ObjectType {
 	if hostsensor.IsTypeTypeHostSensor(object) {
 		return hostsensor.TypeHostSensor
 	}
-	if cloudsupportv1.IsTypeDescriptiveInfoFromCloudProvider(object) {
+	if apis.IsTypeDescriptiveInfoFromCloudProvider(object) {
 		return cloudsupportv1.TypeCloudProviderDescribe
 	}
 	if k8sinterface.IsTypeWorkload(object) {

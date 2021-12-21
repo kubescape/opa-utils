@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"testing"
 
-	"github.com/armosec/k8s-interface/k8sinterface"
 	"github.com/armosec/k8s-interface/workloadinterface"
 	"github.com/armosec/opa-utils/objectsenvelopes"
 	"github.com/stretchr/testify/assert"
@@ -36,7 +35,6 @@ func TestAggregateResourcesBySubjects(t *testing.T) {
 }
 
 func TestAggregateResourcesBySubjects2(t *testing.T) {
-	k8sinterface.InitializeMapResourcesMock()
 
 	r := make(map[string]interface{})
 	err := json.Unmarshal([]byte(role), &r)
