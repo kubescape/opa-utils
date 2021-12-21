@@ -23,7 +23,7 @@ type HostSensorMetadata struct {
 type HostSensorDataEnvelope struct {
 	ApiVersion string             `json:"apiVersion"`
 	Kind       string             `json:"kind"`
-	Metadata   HostSensorMetadata `json:"Metadata"`
+	Metadata   HostSensorMetadata `json:"metadata"`
 	Data       json.RawMessage    `json:"data"`
 }
 
