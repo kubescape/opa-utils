@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/armosec/k8s-interface/k8sinterface"
 	"github.com/armosec/k8s-interface/workloadinterface"
 )
 
@@ -78,6 +79,7 @@ func (hsde *HostSensorDataEnvelope) SetWorkload(object map[string]interface{}) {
 	hsde.SetObject(object)
 }
 
+// SetObject set to HostSensorDataEnvelope object
 func (hsde *HostSensorDataEnvelope) SetObject(object map[string]interface{}) {
 	if !IsTypeTypeHostSensor(object) {
 		return
@@ -132,7 +134,7 @@ func (hsde *HostSensorDataEnvelope) GetObjectType() workloadinterface.ObjectType
 	return TypeHostSensor
 }
 func (hsde *HostSensorDataEnvelope) GetID() string { // ->  <api-version>/<kind>/<name>
-	return fmt.Sprintf("%s/%s/%s", hsde.GetApiVersion(), hsde.GetKind(), hsde.GetName())
+	return fmt.Sprintf("%s/%s/%s", k8sinterface.JoinGroupVersion(k8sinterface.SplitApiVersion(hsde.GetApiVersion())), hsde.GetKind(), hsde.GetName())
 }
 
 func IsTypeTypeHostSensor(object map[string]interface{}) bool {
