@@ -112,6 +112,10 @@ func TestGetPoliciesMethods(t *testing.T) {
 	if err != nil || framework == nil {
 		t.Errorf("failed to get framework by name: '%s', %v", frameworksNames[0], err)
 	}
+	defaultConfigInputs, err := gs.GetDefaultConfigInputs()
+	if err != nil || defaultConfigInputs.Name == "" {
+		t.Errorf("error getting defaultConfigInputs, err: %v", err)
+	}
 }
 
 func TestGetPoliciesMethodsNew(t *testing.T) {

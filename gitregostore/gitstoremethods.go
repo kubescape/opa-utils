@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	// "github.com/armosec/capacketsgo/opapolicy"
+	"github.com/armosec/armoapi-go/armotypes"
 	opapolicy "github.com/armosec/opa-utils/reporthandling"
 	"github.com/go-gota/gota/dataframe"
 	"github.com/go-gota/gota/series"
@@ -123,7 +124,6 @@ func (gs *GitRegoStore) GetOPAControls() ([]opapolicy.Control, error) {
 }
 
 func (gs *GitRegoStore) GetOPAControlsNamesList() ([]string, error) {
-	fmt.Printf("in GetOPAControlsNamesList")
 	gs.controlsLock.RLock()
 	defer gs.controlsLock.RUnlock()
 	var controlsNameList []string
@@ -134,7 +134,6 @@ func (gs *GitRegoStore) GetOPAControlsNamesList() ([]string, error) {
 }
 
 func (gs *GitRegoStore) GetOPAControlsIDsList() ([]string, error) {
-	fmt.Printf("in GetOPAControlsNamesList")
 	gs.controlsLock.RLock()
 	defer gs.controlsLock.RUnlock()
 	var controlsIDList []string
@@ -235,4 +234,10 @@ func (gs *GitRegoStore) GetOPAFrameworkByName(frameworkName string) (*opapolicy.
 		}
 	}
 	return nil, fmt.Errorf("control '%s' not found", frameworkName)
+}
+
+func (gs *GitRegoStore) GetDefaultConfigInputs() (armotypes.CustomerConfig, error) {
+	gs.DefaultConfigInputsLock.RLock()
+	defer gs.DefaultConfigInputsLock.RUnlock()
+	return gs.DefaultConfigInputs, nil
 }
