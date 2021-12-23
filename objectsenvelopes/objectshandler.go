@@ -14,16 +14,15 @@ func NewObject(object map[string]interface{}) workloadinterface.IMetadata {
 		return nil
 	}
 	switch GetObjectType(object) {
-	case workloadinterface.TypeWorkloadObject:
-		return workloadinterface.NewWorkloadObj(object)
 	case TypeRegoResponseVectorObject:
 		return NewRegoResponseVectorObject(object)
 	case cloudsupportv1.TypeCloudProviderDescribe:
 		return cloudsupportv1.NewDescriptiveInfoFromCloudProvider(object)
 	case hostsensor.TypeHostSensor:
 		return hostsensor.NewHostSensorDataEnvelope(object)
+	default: // objects should follow the basic k8s structure
+		return workloadinterface.NewWorkloadObj(object)
 	}
-	return nil
 }
 
 func GetObjectType(object map[string]interface{}) workloadinterface.ObjectType {
