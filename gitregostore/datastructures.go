@@ -7,6 +7,7 @@ import (
 	"sync"
 
 	// "github.com/armosec/capacketsgo/opapolicy"
+	"github.com/armosec/armoapi-go/armotypes"
 	opapolicy "github.com/armosec/opa-utils/reporthandling"
 
 	"github.com/go-gota/gota/dataframe"
@@ -18,9 +19,11 @@ type GitRegoStore struct {
 	Rules                       []opapolicy.PolicyRule
 	FrameworkControlRelations   dataframe.DataFrame
 	ControlRuleRelations        dataframe.DataFrame
+	DefaultConfigInputs         armotypes.CustomerConfig
 	frameworksLock              sync.RWMutex
 	controlsLock                sync.RWMutex
 	rulesLock                   sync.RWMutex
+	DefaultConfigInputsLock     sync.RWMutex
 	URL                         string
 	httpClient                  *http.Client
 	BaseUrl                     string

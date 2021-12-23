@@ -11,6 +11,7 @@ import (
 	"time"
 
 	// "github.com/armosec/capacketsgo/opapolicy"
+	"github.com/armosec/armoapi-go/armotypes"
 	opapolicy "github.com/armosec/opa-utils/reporthandling"
 	"github.com/go-gota/gota/dataframe"
 	"go.uber.org/zap"
@@ -24,6 +25,7 @@ const (
 	rulesJsonFileName                 = "rules"
 	frameworkControlRelationsFileName = "FWName_CID_CName"
 	ControlRuleRelationsFileName      = "ControlID_RuleName"
+	defaultConfigInputsFileName       = "default_config_inputs"
 )
 
 var storeSetterMapping = map[string]storeSetter{
@@ -32,6 +34,7 @@ var storeSetterMapping = map[string]storeSetter{
 	rulesJsonFileName:                 (*GitRegoStore).setRules,
 	frameworkControlRelationsFileName: (*GitRegoStore).setFrameworkControlRelationsFileName,
 	ControlRuleRelationsFileName:      (*GitRegoStore).setControlRuleRelationsFileName,
+	defaultConfigInputsFileName:       (*GitRegoStore).setDefaultConfigInputsFileName,
 }
 
 type InnerTree []struct {
@@ -140,6 +143,14 @@ func (gs *GitRegoStore) setObjectsFromRepoOnce() error {
 				return err
 			}
 			if err := gs.setFramework(respStr); err != nil {
+				return err
+			}
+		} else if strings.HasPrefix(path.PATH, defaultConfigInputsFileName) && strings.HasSuffix(path.PATH, ".json") {
+			respStr, err := HttpGetter(gs.httpClient, rawDataPath)
+			if err != nil {
+				return err
+			}
+			if err := gs.setDefaultConfigInputsFileName(respStr); err != nil {
 				return err
 			}
 		} else if strings.HasSuffix(path.PATH, ControlRuleRelationsFileName+".csv") {
@@ -262,6 +273,16 @@ func (gs *GitRegoStore) setRules(respStr string) error {
 	gs.rulesLock.Lock()
 	defer gs.rulesLock.Unlock()
 	gs.Rules = *rules
+	return nil
+}
+func (gs *GitRegoStore) setDefaultConfigInputsFileName(respStr string) error {
+	defaultConfigInputs := armotypes.CustomerConfig{}
+	if err := JSONDecoder(respStr).Decode(&defaultConfigInputs); err != nil {
+		return err
+	}
+	gs.DefaultConfigInputsLock.Lock()
+	defer gs.DefaultConfigInputsLock.Unlock()
+	gs.DefaultConfigInputs = defaultConfigInputs
 	return nil
 }
 
