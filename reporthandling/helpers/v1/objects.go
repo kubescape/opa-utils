@@ -58,9 +58,9 @@ func (all *AllLists) Update(all2 *AllLists) {
 }
 
 func (all *AllLists) ToUnique() {
-	shared.SliceStringToUnique(all.passed)
-	shared.SliceStringToUnique(all.failed)
-	shared.SliceStringToUnique(all.excluded)
-	shared.SliceStringToUnique(all.skipped)
-	shared.SliceStringToUnique(all.other)
+	all.passed = shared.SliceStringToUnique(all.passed)
+	all.failed = shared.SliceStringToUnique(all.failed)
+	all.excluded = shared.SliceStringToUnique(all.excluded)
+	all.skipped = shared.SliceStringToUnique(all.skipped)
+	all.other = shared.SliceStringToUnique(all.other)
 }

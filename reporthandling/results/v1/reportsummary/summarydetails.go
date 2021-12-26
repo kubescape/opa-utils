@@ -38,7 +38,7 @@ func (summaryDetails *SummaryDetails) Status(f *helpersv1.Filters) apis.Scanning
 		}
 	} else {
 		for i := range summaryDetails.Frameworks {
-			if len(f.FrameworkNames) == 0 || shared.StringInSlice(f.FrameworkNames, summaryDetails.Frameworks[i].Name) {
+			if f == nil || len(f.FrameworkNames) == 0 || shared.StringInSlice(f.FrameworkNames, summaryDetails.Frameworks[i].Name) {
 				status = apis.Compare(summaryDetails.Frameworks[i].Status(), status)
 			}
 		}
@@ -140,7 +140,7 @@ func (summaryDetails *SummaryDetails) ListAllControls(f *helpersv1.Filters) *hel
 
 func (summaryDetails *SummaryDetails) ListControls(f *helpersv1.Filters, status apis.ScanningStatus) *helpersv1.AllLists {
 	controls := &helpersv1.AllLists{}
-	if len(f.FrameworkNames) == 0 { // no filters applied
+	if f == nil || len(f.FrameworkNames) == 0 { // no filters applied
 		for controlID, controlSummary := range summaryDetails.Controls {
 			s := controlSummary.Status()
 			if status == "" || s == status {

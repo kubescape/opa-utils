@@ -1,6 +1,25 @@
 package reportsummary
 
-func MockSummaryDetails() *SummaryDetails {
+func mockSummaryDetailsPassed() *SummaryDetails {
+	return &SummaryDetails{
+		Controls: map[string]ControlSummary{
+			"C-0004": *mockControlSummaryPass(),
+		},
+		ResourceCounters: *mockResourceCountersPass(),
+	}
+}
+func mockSummaryDetailsExcluded() *SummaryDetails {
+	return &SummaryDetails{
+		Frameworks: []FrameworkSummary{
+			*mockFrameworkSummaryPassExclude(),
+		},
+		Controls: map[string]ControlSummary{
+			"C-0003": *mockControlSummaryExcludePass(),
+		},
+		ResourceCounters: *mockResourceCountersExclude(),
+	}
+}
+func mockSummaryDetailsFailed() *SummaryDetails {
 	return &SummaryDetails{
 		Frameworks: []FrameworkSummary{
 			*mockFrameworkSummaryFailPass(),
@@ -11,14 +30,17 @@ func MockSummaryDetails() *SummaryDetails {
 			"C-0001": *mockControlSummaryFailPass(),
 			"C-0002": *mockControlSummaryFailPassExclude(),
 			"C-0003": *mockControlSummaryExcludePass(),
+			"C-0004": *mockControlSummaryPass(),
 		},
+		ResourceCounters: *mockResourceCountersExcludeFailPass(),
 	}
 }
 func mockFrameworkSummaryPassExclude() *FrameworkSummary {
 	return &FrameworkSummary{
-		Name:    "fw-pass-exclude",
-		Score:   0,
-		Version: "utnitest",
+		Name:             "fw-pass-exclude",
+		Score:            0,
+		Version:          "utnitest",
+		ResourceCounters: *mockResourceCountersExcludePass(),
 		Controls: map[string]ControlSummary{
 			"C-0003": *mockControlSummaryExcludePass(),
 		},
@@ -26,9 +48,10 @@ func mockFrameworkSummaryPassExclude() *FrameworkSummary {
 }
 func mockFrameworkSummaryFailExclude() *FrameworkSummary {
 	return &FrameworkSummary{
-		Name:    "fw-failed",
-		Score:   0,
-		Version: "utnitest",
+		Name:             "fw-failed",
+		Score:            0,
+		Version:          "utnitest",
+		ResourceCounters: *mockResourceCountersExcludeFailPass(),
 		Controls: map[string]ControlSummary{
 			"C-0001": *mockControlSummaryFailPass(),
 			"C-0002": *mockControlSummaryFailPassExclude(),
@@ -37,12 +60,14 @@ func mockFrameworkSummaryFailExclude() *FrameworkSummary {
 }
 func mockFrameworkSummaryFailPass() *FrameworkSummary {
 	return &FrameworkSummary{
-		Name:    "fw-failed",
-		Score:   0,
-		Version: "utnitest",
+		Name:             "fw-failed",
+		Score:            0,
+		Version:          "utnitest",
+		ResourceCounters: *mockResourceCountersFailPass(),
 		Controls: map[string]ControlSummary{
 			"C-0001": *mockControlSummaryFailPass(),
 			"C-0003": *mockControlSummaryExcludePass(),
+			"C-0004": *mockControlSummaryPass(),
 		},
 	}
 }
@@ -51,6 +76,14 @@ func mockControlSummaryExcludePass() *ControlSummary {
 		Name:             "control-exclude-pass",
 		Score:            0,
 		ResourceCounters: *mockResourceCountersExcludePass(),
+	}
+}
+
+func mockControlSummaryPass() *ControlSummary {
+	return &ControlSummary{
+		Name:             "control-pass",
+		Score:            0,
+		ResourceCounters: *mockResourceCountersPass(),
 	}
 }
 
@@ -87,5 +120,17 @@ func mockResourceCountersExcludeFailPass() *ResourceCounters {
 		PassedResources:   4,
 		ExcludedResources: 3,
 		FailedResources:   5,
+	}
+}
+
+func mockResourceCountersPass() *ResourceCounters {
+	return &ResourceCounters{
+		PassedResources: 4,
+	}
+}
+
+func mockResourceCountersExclude() *ResourceCounters {
+	return &ResourceCounters{
+		ExcludedResources: 4,
 	}
 }
