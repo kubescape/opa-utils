@@ -7,7 +7,8 @@ import (
 
 	"github.com/armosec/armoapi-go/armotypes"
 	"github.com/armosec/opa-utils/objectsenvelopes"
-	"github.com/armosec/opa-utils/reporthandling"
+	"github.com/armosec/opa-utils/reporthandling/apis"
+	"github.com/armosec/opa-utils/reporthandling/helpers/v1/reportsummary"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -30,8 +31,7 @@ func GetPostureReportMock() *PostureReport {
 						{
 							RuleName:    "bla-bla",
 							FailedPaths: []string{},
-							Exception:   &armotypes.PostureExceptionPolicy{},
-							Status:      reporthandling.StatusPassed,
+							Exception:   []armotypes.PostureExceptionPolicy{},
 						},
 					},
 				},
@@ -56,29 +56,33 @@ func GetPostureReportMock() *PostureReport {
 		ClusterName:          "minikube",
 		ReportID:             "9001c1da-3840-4f9e-a7d3-65eda7faf2e3",
 		ReportGenerationTime: time.Now().UTC(),
-		SummaryDetails: SummaryDetails{
-			Frameworks: []FrameworkSummary{
+		SummaryDetails: reportsummary.SummaryDetails{
+			Frameworks: []reportsummary.FrameworkSummary{
 				{
 					Name:  "NSA",
 					Score: 68,
-					Controls: map[string]ControlSummary{
+					Controls: map[string]reportsummary.ControlSummary{
 						"C-0045": {
-							Score:            68,
-							PassedResources:  17,
-							FailedResources:  5,
-							WarningResources: 0,
-							Status:           reporthandling.StatusFailed,
+							Score: 68,
+							ResourceCounters: reportsummary.ResourceCounters{
+								PassedResources:   17,
+								FailedResources:   5,
+								ExcludedResources: 0,
+							},
+							ScanStatus: apis.StatusFailed,
 						},
 					},
 				},
 			},
-			Controls: map[string]ControlSummary{
+			Controls: map[string]reportsummary.ControlSummary{
 				"C-0045": {
-					Score:            68,
-					PassedResources:  17,
-					FailedResources:  5,
-					WarningResources: 0,
-					Status:           reporthandling.StatusFailed,
+					Score: 68,
+					ResourceCounters: reportsummary.ResourceCounters{
+						PassedResources:   17,
+						FailedResources:   5,
+						ExcludedResources: 0,
+					},
+					ScanStatus: apis.StatusFailed,
 				},
 			},
 		},

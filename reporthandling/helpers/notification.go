@@ -5,6 +5,13 @@ import "github.com/armosec/armoapi-go/armotypes"
 type NotificationPolicyType string
 type NotificationPolicyKind string
 
+// Supported NotificationKinds
+const (
+	KindFramework NotificationPolicyKind = "Framework"
+	KindControl   NotificationPolicyKind = "Control"
+	KindRule      NotificationPolicyKind = "Rule"
+)
+
 type PolicyNotification struct {
 	NotificationType NotificationPolicyType     `json:"notificationType"`
 	Rules            []PolicyIdentifier         `json:"rules"`
