@@ -8,32 +8,27 @@ import (
 
 // IsPassed did this framework pass
 func (frameworkSummary *FrameworkSummary) IsPassed() bool {
-	return frameworkSummary.ScanStatus == apis.StatusPassed
+	return frameworkSummary.Status() == apis.StatusPassed
 }
 
 // IsFailed did this framework fail
 func (frameworkSummary *FrameworkSummary) IsFailed() bool {
-	return frameworkSummary.ScanStatus == apis.StatusFailed
+	return frameworkSummary.Status() == apis.StatusFailed
 }
 
 // IsExcluded is this framework excluded
 func (frameworkSummary *FrameworkSummary) IsExcluded() bool {
-	return frameworkSummary.ScanStatus == apis.StatusExcluded
+	return frameworkSummary.Status() == apis.StatusExcluded
 }
 
 // IsSkipped was this framework skipped
 func (frameworkSummary *FrameworkSummary) IsSkipped() bool {
-	return frameworkSummary.ScanStatus == apis.StatusSkipped
+	return frameworkSummary.Status() == apis.StatusSkipped
 }
 
 // Status get the framework status. returns an apis.ScanningStatus object
 func (frameworkSummary *FrameworkSummary) Status() apis.ScanningStatus {
-	return frameworkSummary.ScanStatus
-}
-
-// setStatus set the framework status. returns an apis.ScanningStatus object
-func (frameworkSummary *FrameworkSummary) setStatus(s apis.ScanningStatus) {
-	frameworkSummary.ScanStatus = s
+	return calculateStatus(&frameworkSummary.ResourceCounters)
 }
 
 // =================================== Counters ============================================
@@ -95,4 +90,16 @@ func (frameworkSummary *FrameworkSummary) GetScore() float32 {
 // setScore set framework score
 func (frameworkSummary *FrameworkSummary) setScore(n float32) {
 	frameworkSummary.Score = n
+}
+
+// =================================== Name ============================================
+
+// GetName return framework name
+func (frameworkSummary *FrameworkSummary) GetName() string {
+	return frameworkSummary.Name
+}
+
+// setName set framework name
+func (frameworkSummary *FrameworkSummary) setName(n string) {
+	frameworkSummary.Name = n
 }

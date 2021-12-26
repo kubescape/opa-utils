@@ -4,9 +4,9 @@ import (
 	"time"
 
 	ik8s "github.com/armosec/k8s-interface/workloadinterface"
-	"github.com/armosec/opa-utils/reporthandling/helpers/v1/reportsummary"
+	"github.com/armosec/opa-utils/reporthandling/results/v1/reportsummary"
+	"github.com/armosec/opa-utils/reporthandling/results/v1/resourcesresults"
 
-	"github.com/armosec/armoapi-go/armotypes"
 	"k8s.io/apimachinery/pkg/version"
 )
 
@@ -14,34 +14,14 @@ import (
 type PostureReport struct {
 	CustomerGUID         string                       `json:"customerGUID"`
 	ClusterName          string                       `json:"clusterName"`
-	ClusterAPIServerInfo *version.Info                `json:"clusterAPIServerInfo"`
 	ClusterCloudProvider string                       `json:"clusterCloudProvider"`
 	ReportID             string                       `json:"reportID"`
 	JobID                string                       `json:"jobID"`
+	ClusterAPIServerInfo *version.Info                `json:"clusterAPIServerInfo"`
 	ReportGenerationTime time.Time                    `json:"generationTime"`
 	SummaryDetails       reportsummary.SummaryDetails `json:"summaryDetails,omitempty"` // Developing
-	Results              []Result                     `json:"results,omitempty"`        // Developing
-	Resources            []Resource                   `json:"resource,omitempty"`
-}
-
-// Result - resource result resourceID and the controls that where tested against the resource
-type Result struct {
-	ResourceID         string
-	AssociatedControls []ResourceAssociatedControl
-}
-
-// ResourceAssociatedControl control that is associated to a resource
-type ResourceAssociatedControl struct {
-	ControlID string
-	// TODO - add list of controls inputs
-	ResourceAssociatedRules []ResourceAssociatedRule
-}
-
-// ResourceAssociatedRule failed rule that is associated to a resource
-type ResourceAssociatedRule struct {
-	RuleName    string                             `json:"ruleName"`
-	FailedPaths []string                           `json:"failedPaths"`
-	Exception   []armotypes.PostureExceptionPolicy `json:"exception,omitempty"`
+	Results              []resourcesresults.Result    `json:"results,omitempty"`        // Developing
+	Resources            []Resource                   `json:"resources,omitempty"`
 }
 
 // Resource single resource representation from resource inventory

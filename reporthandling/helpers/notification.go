@@ -1,4 +1,4 @@
-package utils
+package helpers
 
 import "github.com/armosec/armoapi-go/armotypes"
 

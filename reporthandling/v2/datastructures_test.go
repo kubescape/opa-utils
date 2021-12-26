@@ -7,8 +7,8 @@ import (
 
 	"github.com/armosec/armoapi-go/armotypes"
 	"github.com/armosec/opa-utils/objectsenvelopes"
-	"github.com/armosec/opa-utils/reporthandling/apis"
-	"github.com/armosec/opa-utils/reporthandling/helpers/v1/reportsummary"
+	"github.com/armosec/opa-utils/reporthandling/results/v1/reportsummary"
+	"github.com/armosec/opa-utils/reporthandling/results/v1/resourcesresults"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -20,16 +20,16 @@ func GetPostureReportMock() *PostureReport {
 		panic(err)
 	}
 	i := 0
-	results := []Result{}
+	results := []resourcesresults.Result{}
 	for i = 0; i < 5; i++ {
-		results = append(results, Result{
+		results = append(results, resourcesresults.Result{
 			ResourceID: objectsenvelopes.NewObject(resource[i].Object.(map[string]interface{})).GetID(),
-			AssociatedControls: []ResourceAssociatedControl{
+			AssociatedControls: []resourcesresults.ResourceAssociatedControl{
 				{
 					ControlID: "C-0045",
-					ResourceAssociatedRules: []ResourceAssociatedRule{
+					ResourceAssociatedRules: []resourcesresults.ResourceAssociatedRule{
 						{
-							RuleName:    "bla-bla",
+							Name:        "bla-bla",
 							FailedPaths: []string{},
 							Exception:   []armotypes.PostureExceptionPolicy{},
 						},
@@ -40,9 +40,9 @@ func GetPostureReportMock() *PostureReport {
 		)
 	}
 	for j := i; j < len(resource); j++ {
-		results = append(results, Result{
+		results = append(results, resourcesresults.Result{
 			ResourceID: objectsenvelopes.NewObject(resource[j].Object.(map[string]interface{})).GetID(),
-			AssociatedControls: []ResourceAssociatedControl{
+			AssociatedControls: []resourcesresults.ResourceAssociatedControl{
 				{
 					ControlID: "C-0045",
 				},
@@ -69,7 +69,6 @@ func GetPostureReportMock() *PostureReport {
 								FailedResources:   5,
 								ExcludedResources: 0,
 							},
-							ScanStatus: apis.StatusFailed,
 						},
 					},
 				},
@@ -82,7 +81,6 @@ func GetPostureReportMock() *PostureReport {
 						FailedResources:   5,
 						ExcludedResources: 0,
 					},
-					ScanStatus: apis.StatusFailed,
 				},
 			},
 		},

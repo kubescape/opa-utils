@@ -1,28 +1,47 @@
 package v1
 
+import (
+	"github.com/armosec/armoapi-go/armotypes"
+	"github.com/armosec/opa-utils/shared"
+)
+
 // Filters fields that might take effect on the resource status. If this objects is empty or nil, the status will be as determined by pre-defined logic
 type Filters struct {
-	FilterExcluded
-	FilterFailed
-	FilterPassed
-	FilterSkipped
+	FrameworkNames []string // Framework name may effect the status
 }
 
-// FilterPassed fields that might take effect on the resource status. If this objects is empty or nil, the status will be as determined by pre-defined logic
-type FilterPassed struct {
-}
+// // FilterPassed fields that might take effect on the resource status. If this objects is empty or nil, the status will be as determined by pre-defined logic
+// type FilterPassed struct {
+// }
 
-// FilterFailed fields that might take effect on the resource status. If this objects is empty or nil, the status will be as determined by pre-defined logic
-type FilterFailed struct {
-	FrameworkName string // Framework name may effect the status
-}
+// // FilterFailed fields that might take effect on the resource status. If this objects is empty or nil, the status will be as determined by pre-defined logic
+// type FilterFailed struct {
+// 	FrameworkName string // Framework name may effect the status
+// }
 
-// FilterExcluded fields that might take effect on the resource status. If this objects is empty or nil, the status will be as determined by pre-defined logic
-type FilterExcluded struct {
-	FrameworkName string // Framework name may effect the status
-}
+// // FilterExcluded fields that might take effect on the resource status. If this objects is empty or nil, the status will be as determined by pre-defined logic
+// type FilterExcluded struct {
+// 	FrameworkName string // Framework name may effect the status
+// }
 
-// FilterSkipped fields that might take effect on the resource status. If this objects is empty or nil, the status will be as determined by pre-defined logic
-type FilterSkipped struct {
-	FrameworkName string // Framework name may effect the status
+// // FilterSkipped fields that might take effect on the resource status. If this objects is empty or nil, the status will be as determined by pre-defined logic
+// type FilterSkipped struct {
+// 	FrameworkName string // Framework name may effect the status
+// }
+
+// FilterExceptions get list of exceptions and return the list of filtered exceptions
+func (f *Filters) FilterExceptions(exceptions []armotypes.PostureExceptionPolicy) []armotypes.PostureExceptionPolicy {
+	if len(f.FrameworkNames) == 0 || len(exceptions) == 0 { // there is nothing to filter
+		return exceptions
+	}
+	filteredExceptions := []armotypes.PostureExceptionPolicy{}
+	for i := range exceptions {
+		for j := range exceptions[i].PosturePolicies {
+			if exceptions[i].PosturePolicies[j].FrameworkName == "" ||
+				shared.StringInSlice(f.FrameworkNames, exceptions[i].PosturePolicies[j].FrameworkName) {
+				filteredExceptions = append(filteredExceptions, exceptions[i])
+			}
+		}
+	}
+	return filteredExceptions
 }

@@ -8,32 +8,27 @@ import (
 
 // IsPassed did this control pass
 func (controlSummary *ControlSummary) IsPassed() bool {
-	return controlSummary.ScanStatus == apis.StatusPassed
+	return controlSummary.Status() == apis.StatusPassed
 }
 
 // IsFailed did this control fail
 func (controlSummary *ControlSummary) IsFailed() bool {
-	return controlSummary.ScanStatus == apis.StatusFailed
+	return controlSummary.Status() == apis.StatusFailed
 }
 
 // IsExcluded is this control excluded
 func (controlSummary *ControlSummary) IsExcluded() bool {
-	return controlSummary.ScanStatus == apis.StatusExcluded
+	return controlSummary.Status() == apis.StatusExcluded
 }
 
 // IsSkipped was this control skipped
 func (controlSummary *ControlSummary) IsSkipped() bool {
-	return controlSummary.ScanStatus == apis.StatusSkipped
+	return controlSummary.Status() == apis.StatusSkipped
 }
 
 // Status get the control status. returns an apis.ScanningStatus object
 func (controlSummary *ControlSummary) Status() apis.ScanningStatus {
-	return controlSummary.ScanStatus
-}
-
-// setStatus set the control status. returns an apis.ScanningStatus object
-func (controlSummary *ControlSummary) setStatus(s apis.ScanningStatus) {
-	controlSummary.ScanStatus = s
+	return calculateStatus(&controlSummary.ResourceCounters)
 }
 
 // =================================== Counters ============================================
