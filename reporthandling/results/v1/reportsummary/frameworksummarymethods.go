@@ -58,28 +58,6 @@ func (frameworkSummary *FrameworkSummary) NumberOfAll() int {
 	return frameworkSummary.ResourceCounters.NumberOfAll()
 }
 
-// =================================== Setters ============================================
-
-// setNumberOfFailed set the number of failed resources
-func (frameworkSummary *FrameworkSummary) setNumberOfFailed(n int) {
-	frameworkSummary.FailedResources = n
-}
-
-// setNumberOfFailed set the number of passed resources
-func (frameworkSummary *FrameworkSummary) setNumberOfPassed(n int) {
-	frameworkSummary.PassedResources = n
-}
-
-// setNumberOfFailed set the number of excluded resources
-func (frameworkSummary *FrameworkSummary) setNumberOfExcluded(n int) {
-	frameworkSummary.ExcludedResources = n
-}
-
-// setNumberOfFailed set the number of skipped resources
-func (frameworkSummary *FrameworkSummary) setNumberOfSkipped(n int) {
-	frameworkSummary.SkippedResources = n
-}
-
 // =================================== Score ============================================
 
 // GetScore return framework score
@@ -87,19 +65,9 @@ func (frameworkSummary *FrameworkSummary) GetScore() float32 {
 	return frameworkSummary.Score
 }
 
-// setScore set framework score
-func (frameworkSummary *FrameworkSummary) setScore(n float32) {
-	frameworkSummary.Score = n
-}
-
 // =================================== Name ============================================
 
 // GetName return framework name
 func (frameworkSummary *FrameworkSummary) GetName() string {
 	return frameworkSummary.Name
-}
-
-// setName set framework name
-func (frameworkSummary *FrameworkSummary) setName(n string) {
-	frameworkSummary.Name = n
 }

@@ -16,7 +16,7 @@ type FrameworkSummary struct {
 	ResourceCounters `json:",inline"`
 }
 
-// FrameworkSummary summary of scanning from a single control perspective
+// ControlSummary summary of scanning from a single control perspective
 type ControlSummary struct {
 	Name             string  `json:"name"`
 	Score            float32 `json:"score"`

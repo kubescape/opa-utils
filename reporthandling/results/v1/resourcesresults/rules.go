@@ -19,8 +19,10 @@ func (rule *ResourceAssociatedRule) SetName(n string) {
 
 // SetName set rule name
 func (rule *ResourceAssociatedRule) Status(f *helpersv1.Filters) apis.ScanningStatus {
-	if len(f.FilterExceptions(rule.Exception)) > 0 {
-		return apis.StatusExcluded
+	if f != nil {
+		if len(f.FilterExceptions(rule.Exception)) > 0 {
+			return apis.StatusExcluded
+		}
 	}
 	return apis.StatusFailed
 }

@@ -73,28 +73,6 @@ func (summaryDetails *SummaryDetails) NumberOfAll() int {
 	return summaryDetails.ResourceCounters.NumberOfAll()
 }
 
-// =================================== Setters ============================================
-
-// setNumberOfFailed set the number of failed resources
-func (summaryDetails *SummaryDetails) setNumberOfFailed(n int) {
-	summaryDetails.FailedResources = n
-}
-
-// setNumberOfFailed set the number of passed resources
-func (summaryDetails *SummaryDetails) setNumberOfPassed(n int) {
-	summaryDetails.PassedResources = n
-}
-
-// setNumberOfFailed set the number of excluded resources
-func (summaryDetails *SummaryDetails) setNumberOfExcluded(n int) {
-	summaryDetails.ExcludedResources = n
-}
-
-// setNumberOfFailed set the number of skipped resources
-func (summaryDetails *SummaryDetails) setNumberOfSkipped(n int) {
-	summaryDetails.SkippedResources = n
-}
-
 // =========================================== List Frameworks ====================================
 
 // ListExcludedResources list all excluded resources IDs

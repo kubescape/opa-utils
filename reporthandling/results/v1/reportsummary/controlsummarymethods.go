@@ -58,28 +58,6 @@ func (controlSummary *ControlSummary) NumberOfAll() int {
 	return controlSummary.ResourceCounters.NumberOfAll()
 }
 
-// =================================== Setters ============================================
-
-// setNumberOfFailed set the number of failed resources
-func (controlSummary *ControlSummary) setNumberOfFailed(n int) {
-	controlSummary.setNumberOfFailed(n)
-}
-
-// setNumberOfFailed set the number of passed resources
-func (controlSummary *ControlSummary) setNumberOfPassed(n int) {
-	controlSummary.setNumberOfPassed(n)
-}
-
-// setNumberOfFailed set the number of excluded resources
-func (controlSummary *ControlSummary) setNumberOfExcluded(n int) {
-	controlSummary.setNumberOfExcluded(n)
-}
-
-// setNumberOfFailed set the number of skipped resources
-func (controlSummary *ControlSummary) setNumberOfSkipped(n int) {
-	controlSummary.setNumberOfSkipped(n)
-}
-
 // =================================== Score ============================================
 
 // GetScore return control score

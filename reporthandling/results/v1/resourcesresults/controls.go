@@ -5,12 +5,12 @@ import (
 	helpersv1 "github.com/armosec/opa-utils/reporthandling/helpers/v1"
 )
 
-// GetName get rule name
+// GetID get control ID
 func (control *ResourceAssociatedControl) GetID() string {
 	return control.ControlID
 }
 
-// SetName set rule name
+// SetID set control ID
 func (control *ResourceAssociatedControl) SetID(id string) {
 	control.ControlID = id
 }
