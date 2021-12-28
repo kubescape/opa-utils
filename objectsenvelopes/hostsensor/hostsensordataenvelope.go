@@ -12,7 +12,7 @@ import (
 const TypeHostSensor workloadinterface.ObjectType = "HostSensor"
 
 const (
-	GroupHostSensor = "hostdata.armo.cloud"
+	GroupHostSensor = "hostdata.kubescape.cloud"
 	Version         = "v1beta0"
 	// KindOsReleaseFile = "OsReleaseFile"
 
