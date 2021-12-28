@@ -18,31 +18,10 @@ func (control *ResourceAssociatedControl) SetID(id string) {
 // =============================== Status ====================================
 
 // Status get control status
-func (control *ResourceAssociatedControl) Status(f *helpersv1.Filters) apis.ScanningStatus {
-
-	status := apis.StatusPassed
+func (control *ResourceAssociatedControl) GetStatus(f *helpersv1.Filters) apis.IStatus {
+	status := apis.StatusPassed // if len(control.ResourceAssociatedRules) == 0 the resource passed
 	for i := range control.ResourceAssociatedRules {
-		status = apis.Compare(status, control.ResourceAssociatedRules[i].Status(f))
+		status = apis.Compare(status, control.ResourceAssociatedRules[i].GetStatus(f).Status())
 	}
-	return status
-}
-
-// IsPassed did this control pass
-func (control *ResourceAssociatedControl) IsPassed(f *helpersv1.Filters) bool {
-	return control.Status(f) == apis.StatusPassed
-}
-
-// IsFailed did this control fail
-func (control *ResourceAssociatedControl) IsFailed(f *helpersv1.Filters) bool {
-	return control.Status(f) == apis.StatusFailed
-}
-
-// IsExcluded is this rule excluded
-func (control *ResourceAssociatedControl) IsExcluded(f *helpersv1.Filters) bool {
-	return control.Status(f) == apis.StatusExcluded
-}
-
-// IsSkipped was this rule skipped
-func (control *ResourceAssociatedControl) IsSkipped(f *helpersv1.Filters) bool {
-	return control.Status(f) == apis.StatusSkipped
+	return helpersv1.NewStatus(status)
 }

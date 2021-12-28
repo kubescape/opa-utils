@@ -2,33 +2,23 @@ package reportsummary
 
 import (
 	"github.com/armosec/opa-utils/reporthandling/apis"
+	helpersv1 "github.com/armosec/opa-utils/reporthandling/helpers/v1"
 )
 
 // =================================== Status ============================================
 
-// IsPassed did this framework pass
-func (frameworkSummary *FrameworkSummary) IsPassed() bool {
-	return frameworkSummary.Status() == apis.StatusPassed
-}
-
-// IsFailed did this framework fail
-func (frameworkSummary *FrameworkSummary) IsFailed() bool {
-	return frameworkSummary.Status() == apis.StatusFailed
-}
-
-// IsExcluded is this framework excluded
-func (frameworkSummary *FrameworkSummary) IsExcluded() bool {
-	return frameworkSummary.Status() == apis.StatusExcluded
-}
-
-// IsSkipped was this framework skipped
-func (frameworkSummary *FrameworkSummary) IsSkipped() bool {
-	return frameworkSummary.Status() == apis.StatusSkipped
-}
-
 // Status get the framework status. returns an apis.ScanningStatus object
-func (frameworkSummary *FrameworkSummary) Status() apis.ScanningStatus {
-	return calculateStatus(&frameworkSummary.ResourceCounters)
+func (frameworkSummary *FrameworkSummary) GetStatus() apis.IStatus {
+	return helpersv1.NewStatus(frameworkSummary.Status)
+}
+
+// SetStatus set the framework status based on the resource counters
+func (frameworkSummary *FrameworkSummary) CalculateStatus() {
+	frameworkSummary.Status = calculateStatus(&frameworkSummary.ResourceCounters)
+	for k, v := range frameworkSummary.Controls {
+		v.CalculateStatus()
+		frameworkSummary.Controls[k] = v
+	}
 }
 
 // =================================== Counters ============================================
@@ -56,6 +46,11 @@ func (frameworkSummary *FrameworkSummary) NumberOfFailed() int {
 // NumberOfAll get the number of all resources
 func (frameworkSummary *FrameworkSummary) NumberOfAll() int {
 	return frameworkSummary.ResourceCounters.NumberOfAll()
+}
+
+// Increase increases the counter based on the status
+func (frameworkSummary *FrameworkSummary) Increase(status apis.IStatus) {
+	frameworkSummary.ResourceCounters.Increase(status)
 }
 
 // =================================== Score ============================================

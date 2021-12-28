@@ -18,32 +18,12 @@ func (result *Result) GetResourceID() string {
 // =============================== Status ====================================
 
 // Status get resource status
-func (result *Result) Status(f *helpersv1.Filters) apis.ScanningStatus {
-	status := apis.StatusPassed
+func (result *Result) GetStatus(f *helpersv1.Filters) apis.IStatus {
+	status := apis.StatusUnknown // Resource was not tested
 	for i := range result.AssociatedControls {
-		status = apis.Compare(status, result.AssociatedControls[i].Status(f))
+		status = apis.Compare(status, result.AssociatedControls[i].GetStatus(f).Status())
 	}
-	return status
-}
-
-// IsPassed did this resource pass
-func (result *Result) IsPassed(f *helpersv1.Filters) bool {
-	return result.Status(f) == apis.StatusPassed
-}
-
-// IsFailed did this resource fail
-func (result *Result) IsFailed(f *helpersv1.Filters) bool {
-	return result.Status(f) == apis.StatusFailed
-}
-
-// IsExcluded is this resource excluded
-func (result *Result) IsExcluded(f *helpersv1.Filters) bool {
-	return result.Status(f) == apis.StatusExcluded
-}
-
-// IsSkipped was this resource skipped
-func (result *Result) IsSkipped(f *helpersv1.Filters) bool {
-	return result.Status(f) == apis.StatusSkipped
+	return helpersv1.NewStatus(status)
 }
 
 // ================================= Listing ==================================
@@ -72,7 +52,7 @@ func (result *Result) ListAllControls(f *helpersv1.Filters) *helpersv1.AllLists 
 func (result *Result) listControls(f *helpersv1.Filters, status apis.ScanningStatus) *helpersv1.AllLists {
 	controls := &helpersv1.AllLists{}
 	for i := range result.AssociatedControls {
-		s := result.AssociatedControls[i].Status(f)
+		s := result.AssociatedControls[i].GetStatus(f).Status()
 		if status == "" || s == status {
 			controls.Append(s, result.AssociatedControls[i].GetID())
 		}

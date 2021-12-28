@@ -329,12 +329,7 @@ func (ruleReport *RuleReport) GetFailedResources() []map[string]interface{} {
 
 	failedResources := []map[string]interface{}{}
 	for _, ruleResponse := range ruleReport.RuleResponses {
-		if ruleResponse.Failed() {
-			failedResources = append(failedResources, ruleResponse.AlertObject.K8SApiObjects...)
-			if ruleResponse.AlertObject.ExternalObjects != nil {
-				failedResources = append(failedResources, ruleResponse.AlertObject.ExternalObjects)
-			}
-		}
+		failedResources = append(failedResources, ruleResponse.GetFailedResources()...)
 	}
 	return failedResources
 }
@@ -343,12 +338,7 @@ func (ruleReport *RuleReport) GetWarnignResources() []map[string]interface{} {
 
 	failedResources := []map[string]interface{}{}
 	for _, ruleResponse := range ruleReport.RuleResponses {
-		if ruleResponse.Warning() {
-			failedResources = append(failedResources, ruleResponse.AlertObject.K8SApiObjects...)
-			if ruleResponse.AlertObject.ExternalObjects != nil {
-				failedResources = append(failedResources, ruleResponse.AlertObject.ExternalObjects)
-			}
-		}
+		failedResources = append(failedResources, ruleResponse.GetWarnignResources()...)
 	}
 	return failedResources
 }
@@ -357,6 +347,29 @@ func (ruleReport *RuleReport) GetWarnignResources() []map[string]interface{} {
 // =========================== RuleResponse =====================================================
 // ==============================================================================================
 
+func (ruleResponse *RuleResponse) GetFailedResources() []map[string]interface{} {
+
+	failedResources := []map[string]interface{}{}
+	if ruleResponse.Failed() {
+		failedResources = append(failedResources, ruleResponse.AlertObject.K8SApiObjects...)
+		if ruleResponse.AlertObject.ExternalObjects != nil {
+			failedResources = append(failedResources, ruleResponse.AlertObject.ExternalObjects)
+		}
+	}
+	return failedResources
+}
+
+func (ruleResponse *RuleResponse) GetWarnignResources() []map[string]interface{} {
+
+	failedResources := []map[string]interface{}{}
+	if ruleResponse.Warning() {
+		failedResources = append(failedResources, ruleResponse.AlertObject.K8SApiObjects...)
+		if ruleResponse.AlertObject.ExternalObjects != nil {
+			failedResources = append(failedResources, ruleResponse.AlertObject.ExternalObjects)
+		}
+	}
+	return failedResources
+}
 func (ruleResponse *RuleResponse) Passed() bool {
 	return false
 }

@@ -8,7 +8,17 @@ const (
 	StatusIgnored  ScanningStatus = "ignored"
 	StatusFailed   ScanningStatus = "failed"
 	StatusSkipped  ScanningStatus = "skipped"
+	StatusUnknown  ScanningStatus = "" // keep this empty
 )
+
+// IStatus interface handling status
+type IStatus interface {
+	Status() ScanningStatus
+	IsPassed() bool
+	IsFailed() bool
+	IsExcluded() bool
+	IsSkipped() bool
+}
 
 // Compare receive two statuses and returns the more significant one
 /*
@@ -34,6 +44,9 @@ func Compare(a, b ScanningStatus) ScanningStatus {
 	}
 	if a != StatusPassed && b != StatusPassed {
 		return StatusSkipped
+	}
+	if a == StatusUnknown && b == StatusUnknown {
+		return StatusUnknown
 	}
 	return StatusPassed
 }

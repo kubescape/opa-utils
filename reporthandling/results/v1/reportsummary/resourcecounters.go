@@ -1,5 +1,7 @@
 package reportsummary
 
+import "github.com/armosec/opa-utils/reporthandling/apis"
+
 // =================================== Counters ============================================
 
 // NumberOfExcluded get the number of excluded resources
@@ -28,6 +30,20 @@ func (resourceCounters *ResourceCounters) NumberOfAll() int {
 }
 
 // =================================== Setters ============================================
+
+// Increase increases the counter based on the status
+func (resourceCounters *ResourceCounters) Increase(status apis.IStatus) {
+	switch status.Status() {
+	case apis.StatusExcluded:
+		resourceCounters.FailedResources++
+	case apis.StatusFailed:
+		resourceCounters.FailedResources++
+	case apis.StatusSkipped:
+		resourceCounters.SkippedResources++
+	case apis.StatusPassed:
+		resourceCounters.PassedResources++
+	}
+}
 
 // setNumberOfFailed set the number of failed resources
 func (resourceCounters *ResourceCounters) setNumberOfFailed(n int) {

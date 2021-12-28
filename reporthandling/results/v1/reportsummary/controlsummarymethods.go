@@ -2,33 +2,19 @@ package reportsummary
 
 import (
 	"github.com/armosec/opa-utils/reporthandling/apis"
+	helpersv1 "github.com/armosec/opa-utils/reporthandling/helpers/v1"
 )
 
 // =================================== Status ============================================
 
-// IsPassed did this control pass
-func (controlSummary *ControlSummary) IsPassed() bool {
-	return controlSummary.Status() == apis.StatusPassed
+// GetStatus get the control status. returns an apis.ScanningStatus object
+func (controlSummary *ControlSummary) GetStatus() apis.IStatus {
+	return helpersv1.NewStatus(controlSummary.Status)
 }
 
-// IsFailed did this control fail
-func (controlSummary *ControlSummary) IsFailed() bool {
-	return controlSummary.Status() == apis.StatusFailed
-}
-
-// IsExcluded is this control excluded
-func (controlSummary *ControlSummary) IsExcluded() bool {
-	return controlSummary.Status() == apis.StatusExcluded
-}
-
-// IsSkipped was this control skipped
-func (controlSummary *ControlSummary) IsSkipped() bool {
-	return controlSummary.Status() == apis.StatusSkipped
-}
-
-// Status get the control status. returns an apis.ScanningStatus object
-func (controlSummary *ControlSummary) Status() apis.ScanningStatus {
-	return calculateStatus(&controlSummary.ResourceCounters)
+// CalculateStatus set the control status based on the resource counters
+func (controlSummary *ControlSummary) CalculateStatus() {
+	controlSummary.Status = calculateStatus(&controlSummary.ResourceCounters)
 }
 
 // =================================== Counters ============================================
@@ -58,14 +44,14 @@ func (controlSummary *ControlSummary) NumberOfAll() int {
 	return controlSummary.ResourceCounters.NumberOfAll()
 }
 
+// Increase increases the counter based on the status
+func (controlSummary *ControlSummary) Increase(status apis.IStatus) {
+	controlSummary.ResourceCounters.Increase(status)
+}
+
 // =================================== Score ============================================
 
 // GetScore return control score
 func (controlSummary *ControlSummary) GetScore() float32 {
 	return controlSummary.Score
-}
-
-// setScore set control score
-func (controlSummary *ControlSummary) setScore(n float32) {
-	controlSummary.Score = n
 }

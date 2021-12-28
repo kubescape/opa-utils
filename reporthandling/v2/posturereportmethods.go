@@ -9,8 +9,8 @@ import (
 )
 
 // Status get the overall scanning status
-func (postureReport *PostureReport) Status(f *helpersv1.Filters) apis.ScanningStatus {
-	return postureReport.SummaryDetails.Status(f)
+func (postureReport *PostureReport) GetStatus() *helpersv1.Status {
+	return postureReport.SummaryDetails.GetStatus()
 }
 
 // =========================================== List resources ====================================
@@ -43,7 +43,7 @@ func (postureReport *PostureReport) ListAllResources(f *helpersv1.Filters) *help
 func (postureReport *PostureReport) listResources(f *helpersv1.Filters, status apis.ScanningStatus) *helpersv1.AllLists {
 	resources := &helpersv1.AllLists{}
 	for i := range postureReport.Results {
-		s := postureReport.Results[i].Status(f)
+		s := postureReport.Results[i].GetStatus(f).Status()
 		if status == "" || s == status {
 			resources.Append(s, postureReport.Results[i].GetResourceID())
 		}
@@ -80,29 +80,30 @@ func (postureReport *PostureReport) ListAllFrameworks() *helpersv1.AllLists {
 
 // =========================================== List Controls ====================================
 
+// func ListControls
 // ListExcludedResources list all excluded resources IDs
-func (postureReport *PostureReport) ListExcludedControls(f *helpersv1.Filters) []string {
-	return postureReport.SummaryDetails.ListControls(f, apis.StatusExcluded).ListExcluded()
+func (postureReport *PostureReport) ListExcludedControls() []string {
+	return postureReport.SummaryDetails.ListControls(apis.StatusExcluded).ListExcluded()
 }
 
 // ListPassedResources list all passed resources IDs
-func (postureReport *PostureReport) ListPassedControls(f *helpersv1.Filters) []string {
-	return postureReport.SummaryDetails.ListControls(f, apis.StatusPassed).ListPassed()
+func (postureReport *PostureReport) ListPassedControls() []string {
+	return postureReport.SummaryDetails.ListControls(apis.StatusPassed).ListPassed()
 }
 
 // ListSkippedResources list all skipped resources IDs
-func (postureReport *PostureReport) ListSkippedControls(f *helpersv1.Filters) []string {
-	return postureReport.SummaryDetails.ListControls(f, apis.StatusSkipped).ListSkipped()
+func (postureReport *PostureReport) ListSkippedControls() []string {
+	return postureReport.SummaryDetails.ListControls(apis.StatusSkipped).ListSkipped()
 }
 
 // ListFailedResources list all failed resources IDs
-func (postureReport *PostureReport) ListFailedControls(f *helpersv1.Filters) []string {
-	return postureReport.SummaryDetails.ListControls(f, apis.StatusFailed).ListFailed()
+func (postureReport *PostureReport) ListFailedControls() []string {
+	return postureReport.SummaryDetails.ListControls(apis.StatusFailed).ListFailed()
 }
 
 // ListAllResources list all resources IDs. This function lists the resources IDs from the "results" and not from the "resources"
-func (postureReport *PostureReport) ListAllControls(f *helpersv1.Filters) *helpersv1.AllLists {
-	return postureReport.SummaryDetails.ListControls(f, "")
+func (postureReport *PostureReport) ListAllControls() *helpersv1.AllLists {
+	return postureReport.SummaryDetails.ListControls("")
 }
 
 // ==================================== Resource =============================================
@@ -121,13 +122,13 @@ func (postureReport *PostureReport) GetResource(resourceID string) workloadinter
 }
 
 // ResourceStatus get single resource status. If resource not found will return an empty string
-func (postureReport *PostureReport) ResourceStatus(resourceID string, f *helpersv1.Filters) apis.ScanningStatus {
+func (postureReport *PostureReport) ResourceStatus(resourceID string, f *helpersv1.Filters) apis.IStatus {
 	for i := range postureReport.Results {
 		if postureReport.Results[i].ResourceID == resourceID {
-			return postureReport.Results[i].Status(f)
+			return postureReport.Results[i].GetStatus(f)
 		}
 	}
-	return ""
+	return helpersv1.NewStatus(apis.StatusUnknown)
 }
 
 // ResourceResult get the result of a single resource. If resource not found will return nil
@@ -138,4 +139,24 @@ func (postureReport *PostureReport) ResourceResult(resourceID string) *resources
 		}
 	}
 	return nil
+}
+
+// UpdateSummary get the result of a single resource. If resource not found will return nil
+func (postureReport *PostureReport) GenerateSummary() {
+	for i := range postureReport.Results {
+		postureReport.updateSummaryCounters(&postureReport.Results[i])
+	}
+	postureReport.SummaryDetails.CalculateStatus()
+}
+
+// UpdateSummary get the result of a single resource. If resource not found will return nil
+func (postureReport *PostureReport) updateSummaryCounters(resourceResult *resourcesresults.Result) {
+
+	// update full-summary counter
+	updateControlsSummaryCounters(resourceResult, postureReport.SummaryDetails.Controls, nil)
+
+	// update frameworks counters
+	for _, framework := range postureReport.SummaryDetails.Frameworks {
+		updateControlsSummaryCounters(resourceResult, framework.Controls, &helpersv1.Filters{FrameworkNames: []string{framework.Name}})
+	}
 }
