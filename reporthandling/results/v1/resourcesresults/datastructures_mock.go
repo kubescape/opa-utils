@@ -2,6 +2,7 @@ package resourcesresults
 
 import (
 	"github.com/armosec/armoapi-go/armotypes"
+	"github.com/armosec/k8s-interface/workloadinterface"
 )
 
 func MockResults() []Result {
@@ -13,8 +14,9 @@ func MockResults() []Result {
 }
 
 func mockResultPassed() *Result {
+	w := workloadinterface.NewWorkloadMock(nil)
 	return &Result{
-		ResourceID: "resource/passed",
+		ResourceID: w.GetID(),
 		AssociatedControls: []ResourceAssociatedControl{
 			*mockResourceAssociatedControl0089Passed(),
 		},
@@ -28,8 +30,9 @@ func mockResultPassed() *Result {
 // 	}
 // }
 func mockResultFailed() *Result {
+	w := workloadinterface.NewWorkloadMock(nil)
 	return &Result{
-		ResourceID: "resource/failed",
+		ResourceID: w.GetID(),
 		AssociatedControls: []ResourceAssociatedControl{
 			*mockResourceAssociatedControl0087Failed(),
 			*mockResourceAssociatedControl0088Failed(),
@@ -39,8 +42,7 @@ func mockResultFailed() *Result {
 }
 func mockResourceAssociatedControl0087Failed() *ResourceAssociatedControl {
 	return &ResourceAssociatedControl{
-		ControlID:             "C-0087",
-		ControlConfigurations: nil,
+		ControlID: "C-0087",
 		ResourceAssociatedRules: []ResourceAssociatedRule{
 			*mockResourceAssociatedRuleA(),
 			*mockResourceAssociatedRuleB(),
@@ -50,8 +52,7 @@ func mockResourceAssociatedControl0087Failed() *ResourceAssociatedControl {
 
 func mockResourceAssociatedControl0088Failed() *ResourceAssociatedControl {
 	return &ResourceAssociatedControl{
-		ControlID:             "C-0088",
-		ControlConfigurations: nil,
+		ControlID: "C-0088",
 		ResourceAssociatedRules: []ResourceAssociatedRule{
 			*mockResourceAssociatedRuleB(),
 		},
@@ -60,23 +61,24 @@ func mockResourceAssociatedControl0088Failed() *ResourceAssociatedControl {
 
 func mockResourceAssociatedControl0089Passed() *ResourceAssociatedControl {
 	return &ResourceAssociatedControl{
-		ControlID:             "C-0089",
-		ControlConfigurations: nil,
+		ControlID: "C-0089",
 	}
 }
 func mockResourceAssociatedRuleA() *ResourceAssociatedRule {
 	return &ResourceAssociatedRule{
-		Name:        "ruleA",
-		FailedPaths: []string{"path/to/fail/A"},
-		Exception:   []armotypes.PostureExceptionPolicy{},
+		Name:                  "ruleA",
+		FailedPaths:           []string{"path/to/fail/A"},
+		Exception:             []armotypes.PostureExceptionPolicy{},
+		ControlConfigurations: nil,
 	}
 }
 
 func mockResourceAssociatedRuleB() *ResourceAssociatedRule {
 	return &ResourceAssociatedRule{
-		Name:        "ruleB",
-		FailedPaths: []string{"path/to/fail/B"},
-		Exception:   []armotypes.PostureExceptionPolicy{},
+		Name:                  "ruleB",
+		FailedPaths:           []string{"path/to/fail/B"},
+		Exception:             []armotypes.PostureExceptionPolicy{},
+		ControlConfigurations: nil,
 	}
 }
 

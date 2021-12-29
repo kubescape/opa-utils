@@ -9,6 +9,9 @@ import (
 
 // Status get the scan status. returns an apis.ScanningStatus object
 func (summaryDetails *SummaryDetails) GetStatus() *helpersv1.Status {
+	if summaryDetails.Status == apis.StatusUnknown {
+		summaryDetails.CalculateStatus()
+	}
 	return helpersv1.NewStatus(summaryDetails.Status)
 }
 
@@ -130,4 +133,12 @@ func (summaryDetails *SummaryDetails) ListControls(status apis.ScanningStatus) *
 		}
 	}
 	return controls
+}
+
+// ================================================================================
+func (summaryDetails *SummaryDetails) ControlName(controlID string) string {
+	if c, ok := summaryDetails.Controls[controlID]; ok {
+		return c.Name
+	}
+	return ""
 }

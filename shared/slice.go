@@ -1,9 +1,21 @@
 package shared
 
+import "strings"
+
 // StringInSlice return true if string found in slice of strings
 func StringInSlice(strSlice []string, str string) bool {
 	for i := range strSlice {
 		if strSlice[i] == str {
+			return true
+		}
+	}
+	return false
+}
+
+// StringInSliceCaseInsensitive return true if string found in slice of strings, ignore case sensitive
+func StringInSliceCaseInsensitive(strSlice []string, str string) bool {
+	for i := range strSlice {
+		if strings.EqualFold(strSlice[i], str) {
 			return true
 		}
 	}

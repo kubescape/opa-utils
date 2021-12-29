@@ -144,13 +144,13 @@ func (postureReport *PostureReport) ResourceResult(resourceID string) *resources
 // UpdateSummary get the result of a single resource. If resource not found will return nil
 func (postureReport *PostureReport) GenerateSummary() {
 	for i := range postureReport.Results {
-		postureReport.updateSummaryCounters(&postureReport.Results[i])
+		postureReport.UpdateSummaryCounters(&postureReport.Results[i])
 	}
 	postureReport.SummaryDetails.CalculateStatus()
 }
 
 // UpdateSummary get the result of a single resource. If resource not found will return nil
-func (postureReport *PostureReport) updateSummaryCounters(resourceResult *resourcesresults.Result) {
+func (postureReport *PostureReport) UpdateSummaryCounters(resourceResult *resourcesresults.Result) {
 
 	// update full-summary counter
 	updateControlsSummaryCounters(resourceResult, postureReport.SummaryDetails.Controls, nil)

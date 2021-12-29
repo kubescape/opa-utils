@@ -1,7 +1,6 @@
 package resources
 
 import (
-	"encoding/json"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -9,7 +8,6 @@ import (
 
 	"github.com/open-policy-agent/opa/storage"
 	"github.com/open-policy-agent/opa/storage/inmem"
-	"github.com/open-policy-agent/opa/util"
 
 	k8sinterface "github.com/armosec/k8s-interface/k8sinterface"
 	"k8s.io/client-go/rest"
@@ -69,17 +67,22 @@ func NewRegoK8sConfig(k8sConfig *rest.Config) *RegoK8sConfig {
 	}
 	return &regoK8sConfig
 }
-func (data *RegoDependenciesData) TOStorage() (storage.Store, error) {
-	var jsonObj map[string]interface{}
-	bytesData, err := json.Marshal(*data)
-	if err != nil {
-		return nil, err
+
+func (data *RegoDependenciesData) GetFilteredPostureControlInputs(settings []string) map[string][]string {
+	jsonObj := map[string][]string{}
+	for i := range settings {
+		splitted := strings.Split(settings[i], ".")
+		if len(splitted) != 3 {
+			continue
+		}
+		if v, k := data.PostureControlInputs[splitted[2]]; k && v != nil {
+			jsonObj[splitted[2]] = v
+		}
 	}
-	// glog.Infof("RegoDependenciesData: %s", bytesData)
-	if err := util.UnmarshalJSON(bytesData, &jsonObj); err != nil {
-		return nil, err
-	}
-	return inmem.NewFromObject(jsonObj), nil
+	return jsonObj
+}
+func TOStorage(postureControlInputs map[string][]string) (storage.Store, error) {
+	return inmem.NewFromObject(map[string]interface{}{"postureControlInputs": postureControlInputs}), nil
 }
 
 // LoadRegoDependenciesFromDir loads the policies list from *.rego file in given directory

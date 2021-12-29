@@ -23,6 +23,10 @@ func (rule *ResourceAssociatedRule) GetStatus(f *helpersv1.Filters) apis.IStatus
 		if len(f.FilterExceptions(rule.Exception)) > 0 {
 			return helpersv1.NewStatus(apis.StatusExcluded)
 		}
+	} else {
+		if len(rule.Exception) > 0 {
+			return helpersv1.NewStatus(apis.StatusExcluded)
+		}
 	}
 	return helpersv1.NewStatus(apis.StatusFailed)
 }

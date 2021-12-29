@@ -10,6 +10,17 @@ type Filters struct {
 	FrameworkNames []string // Framework name may effect the status
 }
 
+// ListFrameworkNames list the framework name in filter object. Removes empty names
+func (f *Filters) ListFrameworkNames() []string {
+	fn := []string{}
+	for i := range f.FrameworkNames {
+		if f.FrameworkNames[i] != "" {
+			fn = append(fn, f.FrameworkNames[i])
+		}
+	}
+	return fn
+}
+
 // // FilterPassed fields that might take effect on the resource status. If this objects is empty or nil, the status will be as determined by pre-defined logic
 // type FilterPassed struct {
 // }
@@ -31,14 +42,14 @@ type Filters struct {
 
 // FilterExceptions get list of exceptions and return the list of filtered exceptions
 func (f *Filters) FilterExceptions(exceptions []armotypes.PostureExceptionPolicy) []armotypes.PostureExceptionPolicy {
-	if len(f.FrameworkNames) == 0 || len(exceptions) == 0 { // there is nothing to filter
+	if len(f.ListFrameworkNames()) == 0 || len(exceptions) == 0 { // there is nothing to filter
 		return exceptions
 	}
 	filteredExceptions := []armotypes.PostureExceptionPolicy{}
 	for i := range exceptions {
 		for j := range exceptions[i].PosturePolicies {
 			if exceptions[i].PosturePolicies[j].FrameworkName == "" ||
-				shared.StringInSlice(f.FrameworkNames, exceptions[i].PosturePolicies[j].FrameworkName) {
+				shared.StringInSliceCaseInsensitive(f.ListFrameworkNames(), exceptions[i].PosturePolicies[j].FrameworkName) {
 				filteredExceptions = append(filteredExceptions, exceptions[i])
 			}
 		}

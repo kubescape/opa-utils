@@ -47,8 +47,8 @@ func SetRuleResponsExceptions(results []reporthandling.RuleResponse, ruleExcepti
 			continue
 		}
 		for w := range workloads {
-			if exception := getException(ruleExceptions, workloads[w], clusterName); exception != nil {
-				results[i].Exception = exception
+			if exceptions := GetResourceExceptions(ruleExceptions, workloads[w], clusterName); len(exceptions) > 0 {
+				results[i].Exception = &exceptions[0]
 			}
 		}
 		results[i].RuleStatus = results[i].GetStatus()
@@ -71,16 +71,16 @@ func ruleHasExceptions(exceptionPolicy *armotypes.PostureExceptionPolicy, framew
 		if posturePolicy.FrameworkName == "" && posturePolicy.ControlName == "" && posturePolicy.ControlID == "" && posturePolicy.RuleName == "" {
 			continue // empty policy -> ignore
 		}
-		if posturePolicy.FrameworkName != "" && !strings.EqualFold(posturePolicy.FrameworkName, frameworkName) {
+		if posturePolicy.FrameworkName != "" && frameworkName != "" && !strings.EqualFold(posturePolicy.FrameworkName, frameworkName) {
 			continue // policy does not match
 		}
-		if posturePolicy.ControlName != "" && !strings.EqualFold(posturePolicy.ControlName, controlName) {
+		if posturePolicy.ControlName != "" && controlName != "" && !strings.EqualFold(posturePolicy.ControlName, controlName) {
 			continue // policy does not match
 		}
-		if posturePolicy.ControlID != "" && !strings.EqualFold(posturePolicy.ControlID, controlID) {
+		if posturePolicy.ControlID != "" && controlID != "" && !strings.EqualFold(posturePolicy.ControlID, controlID) {
 			continue // policy does not match
 		}
-		if posturePolicy.RuleName != "" && !strings.EqualFold(posturePolicy.RuleName, ruleName) {
+		if posturePolicy.RuleName != "" && ruleName != "" && !strings.EqualFold(posturePolicy.RuleName, ruleName) {
 			continue // policy does not match
 		}
 		return true // policies match
@@ -114,15 +114,18 @@ func alertObjectToWorkloads(obj *reporthandling.AlertObject) []workloadinterface
 
 	return resource
 }
-func getException(ruleExceptions []armotypes.PostureExceptionPolicy, workload workloadinterface.IMetadata, clusterName string) *armotypes.PostureExceptionPolicy {
+
+// GetResourceException get exceptions of single resource
+func GetResourceExceptions(ruleExceptions []armotypes.PostureExceptionPolicy, workload workloadinterface.IMetadata, clusterName string) []armotypes.PostureExceptionPolicy {
+	postureExceptionPolicy := []armotypes.PostureExceptionPolicy{}
 	for e := range ruleExceptions {
 		for _, resource := range ruleExceptions[e].Resources {
 			if hasException(clusterName, &resource, workload) {
-				return &ruleExceptions[e] // TODO - return disable exception out of all exceptions
+				postureExceptionPolicy = append(postureExceptionPolicy, ruleExceptions[e])
 			}
 		}
 	}
-	return nil
+	return postureExceptionPolicy
 }
 
 // compareMetadata - compare namespace and kind

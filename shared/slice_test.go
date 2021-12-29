@@ -17,6 +17,16 @@ func TestStringInSlice(t *testing.T) {
 	assert.False(t, StringInSlice([]string{"a"}, ""))
 }
 
+func TestStringInSliceCaseInsensitive(t *testing.T) {
+	assert.True(t, StringInSliceCaseInsensitive([]string{"A"}, "a"))
+	assert.True(t, StringInSliceCaseInsensitive([]string{"a"}, "A"))
+	assert.True(t, StringInSlice([]string{"A", "a", "b", "c"}, "a"))
+	assert.True(t, StringInSlice([]string{"a", "Bb", "cC"}, "cC"))
+	assert.True(t, StringInSlice([]string{"a", "Bb", "Cc"}, "Cc"))
+	assert.True(t, StringInSlice([]string{"a", "Bb", "C c"}, "C c"))
+	assert.False(t, StringInSlice([]string{"a", "bb", "c"}, "b"))
+}
+
 func TestMapStringToSlice(t *testing.T) {
 	assert.ElementsMatch(t, MapStringToSlice(map[string]interface{}{"a": nil}), []string{"a"})
 	assert.ElementsMatch(t, MapStringToSlice(map[string]interface{}{"a": nil, "b": nil}), []string{"a", "b"})

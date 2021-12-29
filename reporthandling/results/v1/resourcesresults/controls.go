@@ -15,6 +15,16 @@ func (control *ResourceAssociatedControl) SetID(id string) {
 	control.ControlID = id
 }
 
+// GetID get control ID
+func (control *ResourceAssociatedControl) GetName() string {
+	return control.Name
+}
+
+// SetID set control ID
+func (control *ResourceAssociatedControl) SetName(name string) {
+	control.Name = name
+}
+
 // =============================== Status ====================================
 
 // Status get control status

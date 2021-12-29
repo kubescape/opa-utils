@@ -8,11 +8,11 @@ import (
 	"github.com/armosec/armoapi-go/armotypes"
 )
 
-func PostureExceptionPolicyDisableMock() *armotypes.PostureExceptionPolicy {
+func postureExceptionPolicyDisableMock() *armotypes.PostureExceptionPolicy {
 	return &armotypes.PostureExceptionPolicy{}
 }
 
-func PostureExceptionPolicyAlertOnlyMock() *armotypes.PostureExceptionPolicy {
+func postureExceptionPolicyAlertOnlyMock() *armotypes.PostureExceptionPolicy {
 	return &armotypes.PostureExceptionPolicy{
 		PortalBase: armotypes.PortalBase{
 			Name: "postureExceptionPolicyAlertOnlyMock",
@@ -37,14 +37,15 @@ func PostureExceptionPolicyAlertOnlyMock() *armotypes.PostureExceptionPolicy {
 }
 
 func TestListRuleExceptions(t *testing.T) {
-	exceptionPolicies := []armotypes.PostureExceptionPolicy{*PostureExceptionPolicyAlertOnlyMock()}
+	exceptionPolicies := []armotypes.PostureExceptionPolicy{*postureExceptionPolicyAlertOnlyMock()}
 	res1 := ListRuleExceptions(exceptionPolicies, "MITRE", "", "", "")
-	assert.Equal(t, len(res1), 1)
-	if len(res1) != 1 {
-		t.Errorf("expecting 1 exception")
-	}
+	assert.Equal(t, 1, len(res1))
+
 	res2 := ListRuleExceptions(exceptionPolicies, "", "hostPath mount", "", "")
-	assert.Equal(t, len(res2), 0)
+	assert.Equal(t, len(res2), 1)
+
+	res3 := ListRuleExceptions(exceptionPolicies, "NSA", "", "", "")
+	assert.Equal(t, len(res3), 0)
 }
 
 func TestRegexCompare(t *testing.T) {

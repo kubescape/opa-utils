@@ -9,6 +9,9 @@ import (
 
 // Status get the framework status. returns an apis.ScanningStatus object
 func (frameworkSummary *FrameworkSummary) GetStatus() apis.IStatus {
+	if frameworkSummary.Status == apis.StatusUnknown {
+		frameworkSummary.CalculateStatus()
+	}
 	return helpersv1.NewStatus(frameworkSummary.Status)
 }
 
