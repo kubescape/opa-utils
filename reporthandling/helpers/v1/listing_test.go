@@ -31,11 +31,11 @@ func mockAllListsB() *AllLists {
 
 func TestAllLists(t *testing.T) {
 	listA := mockAllListsA()
-	assert.Equal(t, 2, len(listA.ListPassed()))
-	assert.Equal(t, 3, len(listA.ListExcluded()))
-	assert.Equal(t, 2, len(listA.ListFailed()))
-	assert.Equal(t, 1, len(listA.ListSkipped()))
-	assert.Equal(t, 4, len(listA.ListOther()))
+	assert.Equal(t, 2, len(listA.Passed()))
+	assert.Equal(t, 3, len(listA.Excluded()))
+	assert.Equal(t, 2, len(listA.Failed()))
+	assert.Equal(t, 1, len(listA.Skipped()))
+	assert.Equal(t, 4, len(listA.Other()))
 
 }
 
@@ -45,11 +45,11 @@ func TestAllListsUpdate(t *testing.T) {
 	listB.Update(listA)
 
 	oldListB := mockAllListsB()
-	assert.Equal(t, len(listA.ListPassed())+len(oldListB.ListPassed()), len(listB.ListPassed()))
-	assert.Equal(t, len(listA.ListExcluded())+len(oldListB.ListExcluded()), len(listB.ListExcluded()))
-	assert.Equal(t, len(listA.ListFailed())+len(oldListB.ListFailed()), len(listB.ListFailed()))
-	assert.Equal(t, len(listA.ListSkipped())+len(oldListB.ListSkipped()), len(listB.ListSkipped()))
-	assert.Equal(t, len(listA.ListOther())+len(oldListB.ListOther()), len(listB.ListOther()))
+	assert.Equal(t, len(listA.Passed())+len(oldListB.Passed()), len(listB.Passed()))
+	assert.Equal(t, len(listA.Excluded())+len(oldListB.Excluded()), len(listB.Excluded()))
+	assert.Equal(t, len(listA.Failed())+len(oldListB.Failed()), len(listB.Failed()))
+	assert.Equal(t, len(listA.Skipped())+len(oldListB.Skipped()), len(listB.Skipped()))
+	assert.Equal(t, len(listA.Other())+len(oldListB.Other()), len(listB.Other()))
 }
 
 func TestAllListsAppend(t *testing.T) {
@@ -60,7 +60,7 @@ func TestAllListsAppend(t *testing.T) {
 
 	oldListA := mockAllListsA()
 
-	assert.Equal(t, len(oldListA.ListExcluded())+3, len(listA.ListExcluded()))
+	assert.Equal(t, len(oldListA.Excluded())+3, len(listA.Excluded()))
 }
 
 func TestAllListsUnique(t *testing.T) {
@@ -72,5 +72,5 @@ func TestAllListsUnique(t *testing.T) {
 	oldListA := mockAllListsA()
 
 	listA.ToUnique()
-	assert.Equal(t, len(oldListA.ListPassed()), len(listA.ListPassed()))
+	assert.Equal(t, len(oldListA.Passed()), len(listA.Passed()))
 }

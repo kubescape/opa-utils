@@ -28,34 +28,32 @@ func (result *Result) GetStatus(f *helpersv1.Filters) apis.IStatus {
 
 // ================================= Listing ==================================
 
-// ListFailedControls return list of failed controls IDs associated to this resource
-func (result *Result) ListFailedControls(f *helpersv1.Filters) []string {
-	return result.listControls(f, apis.StatusFailed).ListFailed()
-}
-
-// ListFailedControls return list of failed controls IDs associated to this resource
-func (result *Result) ListPassedControls(f *helpersv1.Filters) []string {
-	return result.listControls(f, apis.StatusPassed).ListPassed()
-}
-
-// ListExcludedControls return list of excluded controls IDs associated to this resource
-func (result *Result) ListExcludedControls(f *helpersv1.Filters) []string {
-	return result.listControls(f, apis.StatusExcluded).ListExcluded()
-}
-
-// ListAllControls return list of all controls IDs associated to this resource
-func (result *Result) ListAllControls(f *helpersv1.Filters) *helpersv1.AllLists {
-	return result.listControls(f, "")
-}
-
 // ListFailedControls return list of failed controls IDs
-func (result *Result) listControls(f *helpersv1.Filters, status apis.ScanningStatus) *helpersv1.AllLists {
+func (result *Result) ListControls(f *helpersv1.Filters) *helpersv1.AllLists {
 	controls := &helpersv1.AllLists{}
 	for i := range result.AssociatedControls {
 		s := result.AssociatedControls[i].GetStatus(f).Status()
-		if status == "" || s == status {
-			controls.Append(s, result.AssociatedControls[i].GetID())
-		}
+		controls.Append(s, result.AssociatedControls[i].GetID())
+	}
+	return controls
+}
+
+// ListFailedControls return list of failed controls IDs
+func (result *Result) ListControlsIDs(f *helpersv1.Filters) *helpersv1.AllLists {
+	controls := &helpersv1.AllLists{}
+	for i := range result.AssociatedControls {
+		s := result.AssociatedControls[i].GetStatus(f).Status()
+		controls.Append(s, result.AssociatedControls[i].GetID())
+	}
+	return controls
+}
+
+// ListFailedControls return list of failed controls IDs
+func (result *Result) ListControlsNames(f *helpersv1.Filters) *helpersv1.AllLists {
+	controls := &helpersv1.AllLists{}
+	for i := range result.AssociatedControls {
+		s := result.AssociatedControls[i].GetStatus(f).Status()
+		controls.Append(s, result.AssociatedControls[i].GetName())
 	}
 	return controls
 }

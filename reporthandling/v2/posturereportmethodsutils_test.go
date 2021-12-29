@@ -14,7 +14,7 @@ var mockResultsFailed = resourcesresults.MockResults()[1]
 func TestUpdateControlsSummaryCountersFailed(t *testing.T) {
 	controls := map[string]reportsummary.ControlSummary{}
 
-	failedControls := mockResultsFailed.ListFailedControls(nil)
+	failedControls := mockResultsFailed.ListControls(nil).Failed()
 	for i := range failedControls {
 		controls[failedControls[i]] = reportsummary.ControlSummary{}
 	}
@@ -22,18 +22,18 @@ func TestUpdateControlsSummaryCountersFailed(t *testing.T) {
 	// New control
 	updateControlsSummaryCounters(&mockResultsFailed, controls, nil)
 	for _, v := range controls {
-		assert.Equal(t, 1, v.NumberOfAll())
-		assert.Equal(t, 1, v.NumberOfFailed())
-		assert.Equal(t, 0, v.NumberOfPassed())
-		assert.Equal(t, 0, v.NumberOfSkipped())
-		assert.Equal(t, 0, v.NumberOfExcluded())
+		assert.Equal(t, 1, v.NumberOf().All())
+		assert.Equal(t, 1, v.NumberOf().Failed())
+		assert.Equal(t, 0, v.NumberOf().Passed())
+		assert.Equal(t, 0, v.NumberOf().Skipped())
+		assert.Equal(t, 0, v.NumberOf().Excluded())
 	}
 
 }
 func TestUpdateControlsSummaryCountersPassed(t *testing.T) {
 	controls := map[string]reportsummary.ControlSummary{}
 
-	passedControls := mockResultsFailed.ListPassedControls(nil)
+	passedControls := mockResultsFailed.ListControls(nil).Passed()
 	for i := range passedControls {
 		controls[passedControls[i]] = reportsummary.ControlSummary{}
 	}
@@ -41,40 +41,40 @@ func TestUpdateControlsSummaryCountersPassed(t *testing.T) {
 	// New control
 	updateControlsSummaryCounters(&mockResultsPassed, controls, nil)
 	for _, v := range controls {
-		assert.Equal(t, 1, v.NumberOfAll())
-		assert.Equal(t, 1, v.NumberOfPassed())
-		assert.Equal(t, 0, v.NumberOfFailed())
-		assert.Equal(t, 0, v.NumberOfSkipped())
-		assert.Equal(t, 0, v.NumberOfExcluded())
+		assert.Equal(t, 1, v.NumberOf().All())
+		assert.Equal(t, 1, v.NumberOf().Passed())
+		assert.Equal(t, 0, v.NumberOf().Failed())
+		assert.Equal(t, 0, v.NumberOf().Skipped())
+		assert.Equal(t, 0, v.NumberOf().Excluded())
 	}
 }
 
 func TestUpdateControlsSummaryCountersAll(t *testing.T) {
 	controls := map[string]reportsummary.ControlSummary{}
 
-	allControls := mockResultsFailed.ListAllControls(nil)
-	tt := allControls.ListAll()
+	allControls := mockResultsFailed.ListControls(nil)
+	tt := allControls.All()
 	for i := range tt {
 		controls[tt[i]] = reportsummary.ControlSummary{}
 	}
 
 	updateControlsSummaryCounters(&mockResultsFailed, controls, nil)
-	for _, i := range allControls.ListFailed() {
+	for _, i := range allControls.Failed() {
 		v, k := controls[i]
 		assert.True(t, k)
-		assert.NotEqual(t, 0, v.NumberOfAll())
-		assert.NotEqual(t, 0, v.NumberOfFailed())
-		assert.Equal(t, 0, v.NumberOfPassed())
-		assert.Equal(t, 0, v.NumberOfSkipped())
-		assert.Equal(t, 0, v.NumberOfExcluded())
+		assert.NotEqual(t, 0, v.NumberOf().All())
+		assert.NotEqual(t, 0, v.NumberOf().Failed())
+		assert.Equal(t, 0, v.NumberOf().Passed())
+		assert.Equal(t, 0, v.NumberOf().Skipped())
+		assert.Equal(t, 0, v.NumberOf().Excluded())
 	}
-	for _, i := range allControls.ListPassed() {
+	for _, i := range allControls.Passed() {
 		v, k := controls[i]
 		assert.True(t, k)
-		assert.NotEqual(t, 0, v.NumberOfAll())
-		assert.NotEqual(t, 0, v.NumberOfPassed())
-		assert.Equal(t, 0, v.NumberOfFailed())
-		assert.Equal(t, 0, v.NumberOfSkipped())
-		assert.Equal(t, 0, v.NumberOfExcluded())
+		assert.NotEqual(t, 0, v.NumberOf().All())
+		assert.NotEqual(t, 0, v.NumberOf().Passed())
+		assert.Equal(t, 0, v.NumberOf().Failed())
+		assert.Equal(t, 0, v.NumberOf().Skipped())
+		assert.Equal(t, 0, v.NumberOf().Excluded())
 	}
 }

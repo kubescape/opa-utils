@@ -11,40 +11,41 @@ var resourcesCounter = ResourceCounters{}
 // =================================== Counters ============================================
 
 func setResourcesCountersMock() {
-	resourcesCounter.setNumberOfExcluded(6)
-	resourcesCounter.setNumberOfFailed(15)
-	resourcesCounter.setNumberOfPassed(7)
-	resourcesCounter.setNumberOfSkipped(8)
+
+	resourcesCounter.ExcludedResources = 6
+	resourcesCounter.FailedResources = 15
+	resourcesCounter.PassedResources = 7
+	resourcesCounter.SkippedResources = 8
 }
 
-// NumberOfExcluded get the number of excluded resources
-func TestNumberOfExcluded(t *testing.T) {
+// Excluded get the number of excluded resources
+func TestExcluded(t *testing.T) {
 	setResourcesCountersMock()
-	assert.Equal(t, 6, resourcesCounter.NumberOfExcluded())
+	assert.Equal(t, 6, resourcesCounter.Excluded())
 }
 
-// NumberOfPassed get the number of passed resources
-func TestNumberOfPassed(t *testing.T) {
+// Passed get the number of passed resources
+func TestPassed(t *testing.T) {
 	setResourcesCountersMock()
-	assert.Equal(t, 7, resourcesCounter.NumberOfPassed())
+	assert.Equal(t, 7, resourcesCounter.Passed())
 }
 
-// NumberOfSkipped get the number of skipped resources
-func TestNumberOfSkipped(t *testing.T) {
+// Skipped get the number of skipped resources
+func TestSkipped(t *testing.T) {
 	setResourcesCountersMock()
-	assert.Equal(t, 8, resourcesCounter.NumberOfSkipped())
+	assert.Equal(t, 8, resourcesCounter.Skipped())
 }
 
-// NumberOfFailed get the number of failed resources
-func TestNumberOfFailed(t *testing.T) {
+// Failed get the number of failed resources
+func TestFailed(t *testing.T) {
 	setResourcesCountersMock()
-	assert.Equal(t, 15, resourcesCounter.NumberOfFailed())
+	assert.Equal(t, 15, resourcesCounter.Failed())
 }
 
 // NumberOfAll get the number of all resources
 func TestNumberOfAll(t *testing.T) {
 	setResourcesCountersMock()
-	assert.Equal(t, 36, resourcesCounter.NumberOfAll())
+	assert.Equal(t, 36, resourcesCounter.All())
 }
 
 // // IsPassed did this control pass

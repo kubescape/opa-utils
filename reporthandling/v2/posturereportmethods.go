@@ -5,6 +5,7 @@ import (
 	"github.com/armosec/opa-utils/objectsenvelopes"
 	"github.com/armosec/opa-utils/reporthandling/apis"
 	helpersv1 "github.com/armosec/opa-utils/reporthandling/helpers/v1"
+	"github.com/armosec/opa-utils/reporthandling/results/v1/reportsummary"
 	"github.com/armosec/opa-utils/reporthandling/results/v1/resourcesresults"
 )
 
@@ -15,95 +16,40 @@ func (postureReport *PostureReport) GetStatus() *helpersv1.Status {
 
 // =========================================== List resources ====================================
 
-// ListExcludedResources list all excluded resources IDs
-func (postureReport *PostureReport) ListExcludedResources(f *helpersv1.Filters) []string {
-	return postureReport.listResources(f, apis.StatusExcluded).ListExcluded()
-}
-
-// ListPassedResources list all passed resources IDs
-func (postureReport *PostureReport) ListPassedResources(f *helpersv1.Filters) []string {
-	return postureReport.listResources(f, apis.StatusPassed).ListPassed()
-}
-
-// ListSkippedResources list all skipped resources IDs
-func (postureReport *PostureReport) ListSkippedResources(f *helpersv1.Filters) []string {
-	return postureReport.listResources(f, apis.StatusSkipped).ListSkipped()
-}
-
-// ListFailedResources list all failed resources IDs
-func (postureReport *PostureReport) ListFailedResources(f *helpersv1.Filters) []string {
-	return postureReport.listResources(f, apis.StatusFailed).ListFailed()
-}
-
-// ListAllResources list all resources IDs. This function lists the resources IDs from the "results" and not from the "resources"
-func (postureReport *PostureReport) ListAllResources(f *helpersv1.Filters) *helpersv1.AllLists {
-	return postureReport.listResources(f, "")
-}
-
-func (postureReport *PostureReport) listResources(f *helpersv1.Filters, status apis.ScanningStatus) *helpersv1.AllLists {
+func (postureReport *PostureReport) ListResourcesIDs(f *helpersv1.Filters) *helpersv1.AllLists {
 	resources := &helpersv1.AllLists{}
 	for i := range postureReport.Results {
-		s := postureReport.Results[i].GetStatus(f).Status()
-		if status == "" || s == status {
-			resources.Append(s, postureReport.Results[i].GetResourceID())
-		}
+		resources.Append(postureReport.Results[i].GetStatus(f).Status(), postureReport.Results[i].GetResourceID())
 	}
 	return resources
 }
 
 // =========================================== List Frameworks ====================================
 
-// ListExcludedResources list all excluded resources IDs
-func (postureReport *PostureReport) ListExcludedFrameworks() []string {
-	return postureReport.SummaryDetails.ListFrameworks(apis.StatusExcluded).ListExcluded()
+// ListFrameworksNames list all framework policies summary
+func (postureReport *PostureReport) ListFrameworks() *reportsummary.ListPolicies {
+	return postureReport.SummaryDetails.ListFrameworks()
 }
 
-// ListPassedResources list all passed resources IDs
-func (postureReport *PostureReport) ListPassedFrameworks() []string {
-	return postureReport.SummaryDetails.ListFrameworks(apis.StatusPassed).ListPassed()
-}
-
-// ListSkippedResources list all skipped resources IDs
-func (postureReport *PostureReport) ListSkippedFrameworks() []string {
-	return postureReport.SummaryDetails.ListFrameworks(apis.StatusSkipped).ListSkipped()
-}
-
-// ListFailedResources list all failed resources IDs
-func (postureReport *PostureReport) ListFailedFrameworks() []string {
-	return postureReport.SummaryDetails.ListFrameworks(apis.StatusFailed).ListFailed()
-}
-
-// ListAllResources list all resources IDs. This function lists the resources IDs from the "results" and not from the "resources"
-func (postureReport *PostureReport) ListAllFrameworks() *helpersv1.AllLists {
-	return postureReport.SummaryDetails.ListFrameworks("")
+// ListFrameworksNames list all frameworks names
+func (postureReport *PostureReport) ListFrameworksNames() *helpersv1.AllLists {
+	return postureReport.SummaryDetails.ListFrameworksNames()
 }
 
 // =========================================== List Controls ====================================
-
-// func ListControls
-// ListExcludedResources list all excluded resources IDs
-func (postureReport *PostureReport) ListExcludedControls() []string {
-	return postureReport.SummaryDetails.ListControls(apis.StatusExcluded).ListExcluded()
+// ListControls list all controls policies summary
+func (postureReport *PostureReport) ListControls() *reportsummary.ListPolicies {
+	return postureReport.SummaryDetails.ListControls()
 }
 
-// ListPassedResources list all passed resources IDs
-func (postureReport *PostureReport) ListPassedControls() []string {
-	return postureReport.SummaryDetails.ListControls(apis.StatusPassed).ListPassed()
+// ListControlsNames list all controls names
+func (postureReport *PostureReport) ListControlsNames() *helpersv1.AllLists {
+	return postureReport.SummaryDetails.ListControlsNames()
 }
 
-// ListSkippedResources list all skipped resources IDs
-func (postureReport *PostureReport) ListSkippedControls() []string {
-	return postureReport.SummaryDetails.ListControls(apis.StatusSkipped).ListSkipped()
-}
-
-// ListFailedResources list all failed resources IDs
-func (postureReport *PostureReport) ListFailedControls() []string {
-	return postureReport.SummaryDetails.ListControls(apis.StatusFailed).ListFailed()
-}
-
-// ListAllResources list all resources IDs. This function lists the resources IDs from the "results" and not from the "resources"
-func (postureReport *PostureReport) ListAllControls() *helpersv1.AllLists {
-	return postureReport.SummaryDetails.ListControls("")
+// ListControlsIDs list all controls names
+func (postureReport *PostureReport) ListControlsIDs() *helpersv1.AllLists {
+	return postureReport.SummaryDetails.ListControlsIDs()
 }
 
 // ==================================== Resource =============================================

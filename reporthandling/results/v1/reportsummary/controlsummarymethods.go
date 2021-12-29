@@ -22,29 +22,11 @@ func (controlSummary *ControlSummary) CalculateStatus() {
 
 // =================================== Counters ============================================
 
+// =================================== Counters ============================================
+
 // NumberOfExcluded get the number of excluded resources
-func (controlSummary *ControlSummary) NumberOfExcluded() int {
-	return controlSummary.ResourceCounters.NumberOfExcluded()
-}
-
-// NumberOfPassed get the number of passed resources
-func (controlSummary *ControlSummary) NumberOfPassed() int {
-	return controlSummary.ResourceCounters.NumberOfPassed()
-}
-
-// NumberOfSkipped get the number of skipped resources
-func (controlSummary *ControlSummary) NumberOfSkipped() int {
-	return controlSummary.ResourceCounters.NumberOfSkipped()
-}
-
-// NumberOfFailed get the number of failed resources
-func (controlSummary *ControlSummary) NumberOfFailed() int {
-	return controlSummary.ResourceCounters.NumberOfFailed()
-}
-
-// NumberOfAll get the number of all resources
-func (controlSummary *ControlSummary) NumberOfAll() int {
-	return controlSummary.ResourceCounters.NumberOfAll()
+func (controlSummary *ControlSummary) NumberOf() ICounters {
+	return &controlSummary.ResourceCounters
 }
 
 // Increase increases the counter based on the status
@@ -57,4 +39,16 @@ func (controlSummary *ControlSummary) Increase(status apis.IStatus) {
 // GetScore return control score
 func (controlSummary *ControlSummary) GetScore() float32 {
 	return controlSummary.Score
+}
+
+// =================================== Name ============================================
+
+// GetName return control name
+func (controlSummary *ControlSummary) GetName() string {
+	return controlSummary.Name
+}
+
+// GetName return control ID
+func (controlSummary *ControlSummary) GetID() string {
+	return controlSummary.Name
 }

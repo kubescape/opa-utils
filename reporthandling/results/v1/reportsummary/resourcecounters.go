@@ -2,31 +2,41 @@ package reportsummary
 
 import "github.com/armosec/opa-utils/reporthandling/apis"
 
+type ICounters interface {
+	Excluded() int
+	Passed() int
+	Skipped() int
+	Failed() int
+	All() int
+
+	Increase(status apis.IStatus)
+}
+
 // =================================== Counters ============================================
 
 // NumberOfExcluded get the number of excluded resources
-func (resourceCounters *ResourceCounters) NumberOfExcluded() int {
+func (resourceCounters *ResourceCounters) Excluded() int {
 	return resourceCounters.ExcludedResources
 }
 
 // NumberOfPassed get the number of passed resources
-func (resourceCounters *ResourceCounters) NumberOfPassed() int {
+func (resourceCounters *ResourceCounters) Passed() int {
 	return resourceCounters.PassedResources
 }
 
 // NumberOfSkipped get the number of skipped resources
-func (resourceCounters *ResourceCounters) NumberOfSkipped() int {
+func (resourceCounters *ResourceCounters) Skipped() int {
 	return resourceCounters.SkippedResources
 }
 
 // NumberOfFailed get the number of failed resources
-func (resourceCounters *ResourceCounters) NumberOfFailed() int {
+func (resourceCounters *ResourceCounters) Failed() int {
 	return resourceCounters.FailedResources
 }
 
 // NumberOfAll get the number of all resources
-func (resourceCounters *ResourceCounters) NumberOfAll() int {
-	return resourceCounters.NumberOfExcluded() + resourceCounters.NumberOfFailed() + resourceCounters.NumberOfSkipped() + resourceCounters.NumberOfPassed()
+func (resourceCounters *ResourceCounters) All() int {
+	return resourceCounters.Excluded() + resourceCounters.Failed() + resourceCounters.Skipped() + resourceCounters.Passed()
 }
 
 // =================================== Setters ============================================
@@ -43,24 +53,4 @@ func (resourceCounters *ResourceCounters) Increase(status apis.IStatus) {
 	case apis.StatusPassed:
 		resourceCounters.PassedResources++
 	}
-}
-
-// setNumberOfFailed set the number of failed resources
-func (resourceCounters *ResourceCounters) setNumberOfFailed(n int) {
-	resourceCounters.FailedResources = n
-}
-
-// setNumberOfFailed set the number of passed resources
-func (resourceCounters *ResourceCounters) setNumberOfPassed(n int) {
-	resourceCounters.PassedResources = n
-}
-
-// setNumberOfFailed set the number of excluded resources
-func (resourceCounters *ResourceCounters) setNumberOfExcluded(n int) {
-	resourceCounters.ExcludedResources = n
-}
-
-// setNumberOfFailed set the number of skipped resources
-func (resourceCounters *ResourceCounters) setNumberOfSkipped(n int) {
-	resourceCounters.SkippedResources = n
 }

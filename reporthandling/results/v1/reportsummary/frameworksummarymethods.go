@@ -27,28 +27,8 @@ func (frameworkSummary *FrameworkSummary) CalculateStatus() {
 // =================================== Counters ============================================
 
 // NumberOfExcluded get the number of excluded resources
-func (frameworkSummary *FrameworkSummary) NumberOfExcluded() int {
-	return frameworkSummary.ResourceCounters.NumberOfExcluded()
-}
-
-// NumberOfPassed get the number of passed resources
-func (frameworkSummary *FrameworkSummary) NumberOfPassed() int {
-	return frameworkSummary.ResourceCounters.NumberOfPassed()
-}
-
-// NumberOfSkipped get the number of skipped resources
-func (frameworkSummary *FrameworkSummary) NumberOfSkipped() int {
-	return frameworkSummary.ResourceCounters.NumberOfSkipped()
-}
-
-// NumberOfFailed get the number of failed resources
-func (frameworkSummary *FrameworkSummary) NumberOfFailed() int {
-	return frameworkSummary.ResourceCounters.NumberOfFailed()
-}
-
-// NumberOfAll get the number of all resources
-func (frameworkSummary *FrameworkSummary) NumberOfAll() int {
-	return frameworkSummary.ResourceCounters.NumberOfAll()
+func (frameworkSummary *FrameworkSummary) NumberOf() ICounters {
+	return &frameworkSummary.ResourceCounters
 }
 
 // Increase increases the counter based on the status

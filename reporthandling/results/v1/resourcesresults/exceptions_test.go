@@ -132,23 +132,23 @@ func TestSetExceptions(t *testing.T) {
 	// simple test
 	result1 := mockResultFailed()
 	result1.SetExceptions(w, exceptions, "")
-	assert.Equal(t, 1, len(result1.ListExcludedControls(nil)))
-	assert.Equal(t, 1, len(result1.ListPassedControls(nil)))
-	assert.Equal(t, 1, len(result1.ListFailedControls(nil)))
+	assert.Equal(t, 1, len(result1.ListControls(nil).Excluded()))
+	assert.Equal(t, 1, len(result1.ListControls(nil).Passed()))
+	assert.Equal(t, 1, len(result1.ListControls(nil).Failed()))
 
 	// test cluster name
 	result2 := mockResultFailed()
 	result2.SetExceptions(w, exceptions, "unitest")
-	assert.Equal(t, 2, len(result2.ListExcludedControls(nil)))
-	assert.Equal(t, 1, len(result2.ListPassedControls(nil)))
-	assert.Equal(t, 0, len(result2.ListFailedControls(nil)))
+	assert.Equal(t, 2, len(result2.ListControls(nil).Excluded()))
+	assert.Equal(t, 1, len(result2.ListControls(nil).Passed()))
+	assert.Equal(t, 0, len(result2.ListControls(nil).Failed()))
 
 	// test wrong cluster name
 	result3 := mockResultFailed()
 	result3.SetExceptions(w, exceptions, "unitest2")
-	assert.Equal(t, 1, len(result3.ListExcludedControls(nil)))
-	assert.Equal(t, 1, len(result3.ListPassedControls(nil)))
-	assert.Equal(t, 1, len(result3.ListFailedControls(nil)))
+	assert.Equal(t, 1, len(result3.ListControls(nil).Excluded()))
+	assert.Equal(t, 1, len(result3.ListControls(nil).Passed()))
+	assert.Equal(t, 1, len(result3.ListControls(nil).Failed()))
 
 	// test filters on frameworks
 	exceptions = []armotypes.PostureExceptionPolicy{}
@@ -157,10 +157,10 @@ func TestSetExceptions(t *testing.T) {
 
 	result4 := mockResultFailed()
 	result4.SetExceptions(w, exceptions, "unitest")
-	assert.Equal(t, 2, len(result4.ListExcludedControls(&v1.Filters{FrameworkNames: []string{"nsa"}})))
-	assert.Equal(t, 2, len(result4.ListExcludedControls(&v1.Filters{FrameworkNames: []string{"nsa"}})))
-	assert.Equal(t, 2, len(result4.ListExcludedControls(&v1.Filters{FrameworkNames: []string{""}})))
-	assert.Equal(t, 2, len(result4.ListExcludedControls(nil)))
-	assert.Equal(t, 2, len(result4.ListExcludedControls(&v1.Filters{FrameworkNames: []string{"mitre", "nsa"}})))
-	assert.Equal(t, 1, len(result4.ListExcludedControls(&v1.Filters{FrameworkNames: []string{"mitre"}})))
+	assert.Equal(t, 2, len(result4.ListControls(&v1.Filters{FrameworkNames: []string{"nsa"}}).Excluded()))
+	assert.Equal(t, 2, len(result4.ListControls(&v1.Filters{FrameworkNames: []string{"nsa"}}).Excluded()))
+	assert.Equal(t, 2, len(result4.ListControls(&v1.Filters{FrameworkNames: []string{""}}).Excluded()))
+	assert.Equal(t, 2, len(result4.ListControls(nil).Excluded()))
+	assert.Equal(t, 2, len(result4.ListControls(&v1.Filters{FrameworkNames: []string{"mitre", "nsa"}}).Excluded()))
+	assert.Equal(t, 1, len(result4.ListControls(&v1.Filters{FrameworkNames: []string{"mitre"}}).Excluded()))
 }

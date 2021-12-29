@@ -17,12 +17,12 @@ type AllLists struct {
 	other    []string
 }
 
-func (all *AllLists) ListFailed() []string   { return all.failed }
-func (all *AllLists) ListPassed() []string   { return all.passed }
-func (all *AllLists) ListExcluded() []string { return all.excluded }
-func (all *AllLists) ListSkipped() []string  { return all.skipped }
-func (all *AllLists) ListOther() []string    { return all.other }
-func (all *AllLists) ListAll() []string {
+func (all *AllLists) Failed() []string   { return all.failed }
+func (all *AllLists) Passed() []string   { return all.passed }
+func (all *AllLists) Excluded() []string { return all.excluded }
+func (all *AllLists) Skipped() []string  { return all.skipped }
+func (all *AllLists) Other() []string    { return all.other }
+func (all *AllLists) All() []string {
 	l := []string{}
 	l = append(l, all.failed...)
 	l = append(l, all.excluded...)

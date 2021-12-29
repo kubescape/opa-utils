@@ -33,14 +33,14 @@ func TestResultStatus(t *testing.T) {
 
 func TestResultList(t *testing.T) {
 	r := mockResultFailed()
-	assert.NotEqual(t, 0, len(r.ListAllControls(nil).ListAll()))
-	assert.NotEqual(t, 0, len(r.ListFailedControls(nil)))
-	assert.NotEqual(t, 0, len(r.ListPassedControls(nil)))
-	assert.Equal(t, 0, len(r.ListExcludedControls(nil)))
+	assert.NotEqual(t, 0, len(r.ListControls(nil).All()))
+	assert.NotEqual(t, 0, len(r.ListControls(nil).Failed()))
+	assert.NotEqual(t, 0, len(r.ListControls(nil).Passed()))
+	assert.Equal(t, 0, len(r.ListControls(nil).Excluded()))
 
 	r3 := mockResultPassed()
-	assert.NotEqual(t, 0, len(r3.ListAllControls(nil).ListAll()))
-	assert.NotEqual(t, 0, len(r3.ListPassedControls(nil)))
-	assert.Equal(t, 0, len(r3.ListExcludedControls(nil)))
-	assert.Equal(t, 0, len(r3.ListFailedControls(nil)))
+	assert.NotEqual(t, 0, len(r3.ListControls(nil).All()))
+	assert.NotEqual(t, 0, len(r3.ListControls(nil).Passed()))
+	assert.Equal(t, 0, len(r3.ListControls(nil).Excluded()))
+	assert.Equal(t, 0, len(r3.ListControls(nil).Failed()))
 }

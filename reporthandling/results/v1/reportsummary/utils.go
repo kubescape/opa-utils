@@ -4,13 +4,13 @@ import "github.com/armosec/opa-utils/reporthandling/apis"
 
 func calculateStatus(counters *ResourceCounters) apis.ScanningStatus {
 
-	if counters.NumberOfFailed() != 0 {
+	if counters.Failed() != 0 {
 		return apis.StatusFailed
 	}
-	if counters.NumberOfExcluded() != 0 {
+	if counters.Excluded() != 0 {
 		return apis.StatusExcluded
 	}
-	if counters.NumberOfSkipped() == counters.NumberOfAll() {
+	if counters.Skipped() == counters.All() {
 		return apis.StatusSkipped
 	}
 	return apis.StatusPassed

@@ -20,14 +20,6 @@ func TestSetStatus(t *testing.T) {
 		f.Controls[k] = v
 	}
 
-	// make sure status is empty
-	assert.Equal(t, apis.StatusUnknown, f.GetStatus().Status())
-	for _, v := range f.Controls {
-		assert.Equal(t, apis.StatusUnknown, v.GetStatus().Status())
-	}
-
-	f.CalculateStatus()
-
 	i := 0
 	assert.Equal(t, status[i], f.GetStatus().Status())
 	for _, v := range f.Controls {

@@ -39,7 +39,7 @@ func TestRuleStatus(t *testing.T) {
 
 func TestRuleListing(t *testing.T) {
 	r := mockSummaryDetailsFailed()
-	assert.NotEqual(t, 0, len(r.ListAllFrameworks().ListAll()))
-	assert.NotEqual(t, 0, len(r.ListFailedFrameworks()))
-	// assert.NotEqual(t, 0, len(r.ListFailedControls(nil)))
+	assert.NotEqual(t, 0, len(r.ListFrameworksNames().All()))
+	assert.NotEqual(t, 0, len(r.ListFrameworksNames().Failed()))
+	assert.NotEqual(t, 0, len(r.ListControlsNames().Failed()))
 }
