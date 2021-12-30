@@ -1,6 +1,9 @@
 package reportsummary
 
-import "github.com/armosec/opa-utils/reporthandling/apis"
+import (
+	"github.com/armosec/opa-utils/reporthandling/apis"
+	helpersv1 "github.com/armosec/opa-utils/reporthandling/helpers/v1"
+)
 
 type ICounters interface {
 	Excluded() int
@@ -10,9 +13,18 @@ type ICounters interface {
 	All() int
 
 	Increase(status apis.IStatus)
+	Set(*helpersv1.AllLists)
 }
 
 // =================================== Counters ============================================
+
+// NumberOfExcluded get the number of excluded resources
+func (resourceCounters *ResourceCounters) Set(allLists *helpersv1.AllLists) {
+	resourceCounters.ExcludedResources = len(allLists.Excluded())
+	resourceCounters.FailedResources = len(allLists.Failed())
+	resourceCounters.PassedResources = len(allLists.Passed())
+	resourceCounters.SkippedResources = len(allLists.Skipped())
+}
 
 // NumberOfExcluded get the number of excluded resources
 func (resourceCounters *ResourceCounters) Excluded() int {
@@ -45,7 +57,7 @@ func (resourceCounters *ResourceCounters) All() int {
 func (resourceCounters *ResourceCounters) Increase(status apis.IStatus) {
 	switch status.Status() {
 	case apis.StatusExcluded:
-		resourceCounters.FailedResources++
+		resourceCounters.ExcludedResources++
 	case apis.StatusFailed:
 		resourceCounters.FailedResources++
 	case apis.StatusSkipped:

@@ -1,8 +1,6 @@
 package v2
 
 import (
-	"github.com/armosec/k8s-interface/workloadinterface"
-	"github.com/armosec/opa-utils/objectsenvelopes"
 	"github.com/armosec/opa-utils/reporthandling/apis"
 	helpersv1 "github.com/armosec/opa-utils/reporthandling/helpers/v1"
 	"github.com/armosec/opa-utils/reporthandling/results/v1/reportsummary"
@@ -17,11 +15,7 @@ func (postureReport *PostureReport) GetStatus() *helpersv1.Status {
 // =========================================== List resources ====================================
 
 func (postureReport *PostureReport) ListResourcesIDs(f *helpersv1.Filters) *helpersv1.AllLists {
-	resources := &helpersv1.AllLists{}
-	for i := range postureReport.Results {
-		resources.Append(postureReport.Results[i].GetStatus(f).Status(), postureReport.Results[i].GetResourceID())
-	}
-	return resources
+	return postureReport.SummaryDetails.ListResourcesIDs()
 }
 
 // =========================================== List Frameworks ====================================
@@ -54,19 +48,6 @@ func (postureReport *PostureReport) ListControlsIDs() *helpersv1.AllLists {
 
 // ==================================== Resource =============================================
 
-// GetResource get single resource in IMetadata interface representation
-func (postureReport *PostureReport) GetResource(resourceID string) workloadinterface.IMetadata {
-	for i := range postureReport.Resources {
-		if postureReport.Resources[i].ResourceID == resourceID {
-			if m, ok := postureReport.Resources[i].Object.(map[string]interface{}); ok {
-				return objectsenvelopes.NewObject(m)
-			}
-			break
-		}
-	}
-	return nil
-}
-
 // ResourceStatus get single resource status. If resource not found will return an empty string
 func (postureReport *PostureReport) ResourceStatus(resourceID string, f *helpersv1.Filters) apis.IStatus {
 	for i := range postureReport.Results {
@@ -88,21 +69,15 @@ func (postureReport *PostureReport) ResourceResult(resourceID string) *resources
 }
 
 // UpdateSummary get the result of a single resource. If resource not found will return nil
-func (postureReport *PostureReport) GenerateSummary() {
+func (postureReport *PostureReport) InitializeSummary() {
+
 	for i := range postureReport.Results {
-		postureReport.UpdateSummaryCounters(&postureReport.Results[i])
+		postureReport.AppendResourceResultToSummary(&postureReport.Results[i])
 	}
-	postureReport.SummaryDetails.CalculateStatus()
+	postureReport.SummaryDetails.InitResourcesSummary()
 }
 
-// UpdateSummary get the result of a single resource. If resource not found will return nil
-func (postureReport *PostureReport) UpdateSummaryCounters(resourceResult *resourcesresults.Result) {
-
-	// update full-summary counter
-	updateControlsSummaryCounters(resourceResult, postureReport.SummaryDetails.Controls, nil)
-
-	// update frameworks counters
-	for _, framework := range postureReport.SummaryDetails.Frameworks {
-		updateControlsSummaryCounters(resourceResult, framework.Controls, &helpersv1.Filters{FrameworkNames: []string{framework.Name}})
-	}
+// AppendResourceResultToSummary get the result of a single resource. If resource not found will return nil
+func (postureReport *PostureReport) AppendResourceResultToSummary(resourceResult *resourcesresults.Result) {
+	postureReport.SummaryDetails.AppendResourceResult(resourceResult)
 }

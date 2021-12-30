@@ -48,7 +48,7 @@ func (result *Result) ListControlsIDs(f *helpersv1.Filters) *helpersv1.AllLists 
 	return controls
 }
 
-// ListFailedControls return list of failed controls IDs
+// ListFailedControls return list of controls IDs
 func (result *Result) ListControlsNames(f *helpersv1.Filters) *helpersv1.AllLists {
 	controls := &helpersv1.AllLists{}
 	for i := range result.AssociatedControls {
@@ -56,4 +56,16 @@ func (result *Result) ListControlsNames(f *helpersv1.Filters) *helpersv1.AllList
 		controls.Append(s, result.AssociatedControls[i].GetName())
 	}
 	return controls
+}
+
+// ListRulesNames return list of rules names
+func (result *Result) ListRulesNames(f *helpersv1.Filters) *helpersv1.AllLists {
+	rules := &helpersv1.AllLists{}
+	for i := range result.AssociatedControls {
+		for j := range result.AssociatedControls[i].ResourceAssociatedRules {
+			s := result.AssociatedControls[i].GetStatus(f).Status()
+			rules.Append(s, result.AssociatedControls[i].ResourceAssociatedRules[j].GetName())
+		}
+	}
+	return rules
 }

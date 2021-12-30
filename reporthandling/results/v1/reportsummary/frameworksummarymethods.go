@@ -18,10 +18,6 @@ func (frameworkSummary *FrameworkSummary) GetStatus() apis.IStatus {
 // SetStatus set the framework status based on the resource counters
 func (frameworkSummary *FrameworkSummary) CalculateStatus() {
 	frameworkSummary.Status = calculateStatus(&frameworkSummary.ResourceCounters)
-	for k, v := range frameworkSummary.Controls {
-		v.CalculateStatus()
-		frameworkSummary.Controls[k] = v
-	}
 }
 
 // =================================== Counters ============================================
@@ -34,6 +30,29 @@ func (frameworkSummary *FrameworkSummary) NumberOf() ICounters {
 // Increase increases the counter based on the status
 func (frameworkSummary *FrameworkSummary) Increase(status apis.IStatus) {
 	frameworkSummary.ResourceCounters.Increase(status)
+}
+
+// List resources IDs
+func (frameworkSummary *FrameworkSummary) List() *helpersv1.AllLists {
+	return &frameworkSummary.resourceIDs
+}
+
+// initResourcesSummary must run this AFTER initializing the controls
+func (frameworkSummary *FrameworkSummary) initResourcesSummary() {
+	frameworkSummary.resourceIDs = helpersv1.AllLists{}
+	for _, control := range frameworkSummary.Controls {
+		frameworkSummary.resourceIDs.Update(control.List())
+	}
+	frameworkSummary.resourceIDs.ToUnique()
+
+	frameworkSummary.ResourceCounters.Set(&frameworkSummary.resourceIDs)
+}
+
+// Append increases the counter based on the status
+func (frameworkSummary *FrameworkSummary) Append(status apis.IStatus, ids ...string) {
+	for i := range ids {
+		frameworkSummary.resourceIDs.Append(status.Status(), ids[i])
+	}
 }
 
 // =================================== Score ============================================

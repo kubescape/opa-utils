@@ -3,6 +3,7 @@ package reportsummary
 import (
 	"github.com/armosec/opa-utils/reporthandling/apis"
 	helpersv1 "github.com/armosec/opa-utils/reporthandling/helpers/v1"
+	"github.com/armosec/opa-utils/reporthandling/results/v1/resourcesresults"
 )
 
 // =================================== Status ============================================
@@ -18,13 +19,6 @@ func (summaryDetails *SummaryDetails) GetStatus() *helpersv1.Status {
 // SetStatus set the framework status based on the resource counters
 func (summaryDetails *SummaryDetails) CalculateStatus() {
 	summaryDetails.Status = calculateStatus(&summaryDetails.ResourceCounters)
-	for i := range summaryDetails.Frameworks {
-		summaryDetails.Frameworks[i].CalculateStatus()
-	}
-	for k, c := range summaryDetails.Controls {
-		c.CalculateStatus()
-		summaryDetails.Controls[k] = c
-	}
 }
 
 // =================================== Counters ============================================
@@ -37,6 +31,22 @@ func (summaryDetails *SummaryDetails) NumberOf() ICounters {
 // Increase increases the counter based on the status
 func (summaryDetails *SummaryDetails) Increase(status apis.IStatus) {
 	summaryDetails.ResourceCounters.Increase(status)
+}
+
+// InitResourcesSummary must run this AFTER initializing the controls
+func (summaryDetails *SummaryDetails) InitResourcesSummary() {
+	for _, frameworks := range summaryDetails.Frameworks {
+		frameworks.initResourcesSummary()
+	}
+
+	summaryDetails.resourceIDs = helpersv1.AllLists{}
+
+	for _, control := range summaryDetails.Controls {
+		summaryDetails.resourceIDs.Update(control.List())
+	}
+	summaryDetails.resourceIDs.ToUnique()
+
+	summaryDetails.ResourceCounters.Set(&summaryDetails.resourceIDs)
 }
 
 // =========================================== List Frameworks ====================================
@@ -94,4 +104,32 @@ func (summaryDetails *SummaryDetails) ControlName(controlID string) string {
 		return c.Name
 	}
 	return ""
+}
+
+// ListResourcesIDs list all resources IDs
+func (summaryDetails *SummaryDetails) ListResourcesIDs() *helpersv1.AllLists {
+	return &summaryDetails.resourceIDs
+}
+
+// updateSummaryWithResource get the result of a single resource. If resource not found will return nil
+func (summaryDetails *SummaryDetails) AppendResourceResult(resourceResult *resourcesresults.Result) {
+
+	// update full-summary counter
+	updateControlsSummaryCounters(resourceResult, summaryDetails.Controls, nil)
+
+	// update frameworks counters
+	for _, framework := range summaryDetails.Frameworks {
+		updateControlsSummaryCounters(resourceResult, framework.Controls, &helpersv1.Filters{FrameworkNames: []string{framework.Name}})
+	}
+}
+
+func updateControlsSummaryCounters(resourceResult *resourcesresults.Result, controls map[string]ControlSummary, f *helpersv1.Filters) {
+	// update controls counters
+	for i := range resourceResult.AssociatedControls {
+		controlID := resourceResult.AssociatedControls[i].ControlID
+		if controlSummary, ok := controls[controlID]; ok {
+			controlSummary.Append(resourceResult.AssociatedControls[i].GetStatus(f), resourceResult.ResourceID)
+			controls[controlID] = controlSummary
+		}
+	}
 }
