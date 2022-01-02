@@ -43,7 +43,6 @@ func (frameworkSummary *FrameworkSummary) initResourcesSummary() {
 	for _, control := range frameworkSummary.Controls {
 		frameworkSummary.resourceIDs.Update(control.List())
 	}
-	frameworkSummary.resourceIDs.ToUnique()
 
 	frameworkSummary.ResourceCounters.Set(&frameworkSummary.resourceIDs)
 }

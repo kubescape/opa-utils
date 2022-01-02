@@ -44,12 +44,12 @@ func TestAllListsUpdate(t *testing.T) {
 	listB := mockAllListsB()
 	listB.Update(listA)
 
-	oldListB := mockAllListsB()
-	assert.Equal(t, len(listA.Passed())+len(oldListB.Passed()), len(listB.Passed()))
-	assert.Equal(t, len(listA.Excluded())+len(oldListB.Excluded()), len(listB.Excluded()))
-	assert.Equal(t, len(listA.Failed())+len(oldListB.Failed()), len(listB.Failed()))
-	assert.Equal(t, len(listA.Skipped())+len(oldListB.Skipped()), len(listB.Skipped()))
-	assert.Equal(t, len(listA.Other())+len(oldListB.Other()), len(listB.Other()))
+	assert.Equal(t, 11, len(listB.All()))
+	assert.Equal(t, 0, len(listB.Passed()))
+	assert.Equal(t, 4, len(listB.Excluded()))
+	assert.Equal(t, 3, len(listB.Failed()))
+	assert.Equal(t, 4, len(listB.Skipped()))
+	assert.Equal(t, 0, len(listB.Other()))
 }
 
 func TestAllListsAppend(t *testing.T) {
@@ -60,7 +60,7 @@ func TestAllListsAppend(t *testing.T) {
 
 	oldListA := mockAllListsA()
 
-	assert.Equal(t, len(oldListA.Excluded())+3, len(listA.Excluded()))
+	assert.Equal(t, len(oldListA.Excluded()), len(listA.Excluded()))
 }
 
 func TestAllListsUnique(t *testing.T) {
@@ -71,6 +71,20 @@ func TestAllListsUnique(t *testing.T) {
 
 	oldListA := mockAllListsA()
 
-	listA.ToUnique()
 	assert.Equal(t, len(oldListA.Passed()), len(listA.Passed()))
+
+	listMock := AllLists{}
+
+	listMock.Append(apis.StatusPassed, "a")
+	assert.Equal(t, 1, len(listMock.All()))
+	assert.Equal(t, len(listMock.All()), len(listMock.Passed()))
+	assert.Equal(t, 0, len(listMock.Failed()))
+	assert.Equal(t, 0, len(listMock.Excluded()))
+
+	listMock.Append(apis.StatusExcluded, "a")
+	listMock.Append(apis.StatusFailed, "a")
+
+	assert.Equal(t, 1, len(listMock.All()))
+	assert.Equal(t, len(listMock.All()), len(listMock.Failed()))
+	assert.Equal(t, 0, len(listMock.Passed()))
 }

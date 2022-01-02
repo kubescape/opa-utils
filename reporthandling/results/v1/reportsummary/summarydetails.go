@@ -35,8 +35,8 @@ func (summaryDetails *SummaryDetails) Increase(status apis.IStatus) {
 
 // InitResourcesSummary must run this AFTER initializing the controls
 func (summaryDetails *SummaryDetails) InitResourcesSummary() {
-	for _, frameworks := range summaryDetails.Frameworks {
-		frameworks.initResourcesSummary()
+	for i := range summaryDetails.Frameworks {
+		summaryDetails.Frameworks[i].initResourcesSummary()
 	}
 
 	summaryDetails.resourceIDs = helpersv1.AllLists{}
@@ -44,7 +44,6 @@ func (summaryDetails *SummaryDetails) InitResourcesSummary() {
 	for _, control := range summaryDetails.Controls {
 		summaryDetails.resourceIDs.Update(control.List())
 	}
-	summaryDetails.resourceIDs.ToUnique()
 
 	summaryDetails.ResourceCounters.Set(&summaryDetails.resourceIDs)
 }
