@@ -29,9 +29,8 @@ func GetPostureReportMock() *PostureReport {
 					ControlID: "C-0045",
 					ResourceAssociatedRules: []resourcesresults.ResourceAssociatedRule{
 						{
-							Name:        "bla-bla",
-							FailedPaths: []string{},
-							Exception:   []armotypes.PostureExceptionPolicy{},
+							Name:      "bla-bla",
+							Exception: []armotypes.PostureExceptionPolicy{},
 						},
 					},
 				},

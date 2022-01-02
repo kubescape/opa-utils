@@ -18,7 +18,10 @@ type ResourceAssociatedControl struct {
 // ResourceAssociatedRule failed rule that is associated to a resource
 type ResourceAssociatedRule struct {
 	Name                  string                             `json:"name"` // rule name
-	FailedPaths           []string                           `json:"failedPaths"`
+	Paths                 []Path                             `json:"paths,omitempty"`
 	Exception             []armotypes.PostureExceptionPolicy `json:"exception,omitempty"`
 	ControlConfigurations map[string][]string                `json:"controlConfigurations,omitempty"`
+}
+type Path struct {
+	FailedPath string `json:"failedPath"`
 }

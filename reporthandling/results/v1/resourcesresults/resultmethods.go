@@ -69,3 +69,14 @@ func (result *Result) ListRulesNames(f *helpersv1.Filters) *helpersv1.AllLists {
 	}
 	return rules
 }
+
+// ListRulesNames return list of rules names
+func (result *Result) ListRules() []ResourceAssociatedRule {
+	rules := []ResourceAssociatedRule{}
+	for i := range result.AssociatedControls {
+		for j := range result.AssociatedControls[i].ResourceAssociatedRules {
+			rules = append(rules, result.AssociatedControls[i].ResourceAssociatedRules[j])
+		}
+	}
+	return rules
+}

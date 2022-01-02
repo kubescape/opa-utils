@@ -22,7 +22,7 @@ func (controlSummary *ControlSummary) CalculateStatus() {
 
 // =================================== Counters ============================================
 
-// NumberOfExcluded get the number of excluded resources
+// NumberOf get the number of resources
 func (controlSummary *ControlSummary) NumberOf() ICounters {
 	return &controlSummary.ResourceCounters
 }
@@ -34,13 +34,13 @@ func (controlSummary *ControlSummary) increase(status apis.IStatus) {
 
 // List resources IDs
 func (controlSummary *ControlSummary) List() *helpersv1.AllLists {
-	return &controlSummary.resourceIDs
+	return &controlSummary.ResourceIDs
 }
 
 // Append increases the counter based on the status
 func (controlSummary *ControlSummary) Append(status apis.IStatus, ids ...string) {
 	for i := range ids {
-		controlSummary.resourceIDs.Append(status.Status(), ids[i])
+		controlSummary.ResourceIDs.Append(status.Status(), ids[i])
 		controlSummary.increase(status)
 	}
 }

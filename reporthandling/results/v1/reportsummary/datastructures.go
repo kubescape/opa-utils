@@ -32,7 +32,9 @@ type ControlSummary struct {
 	Status           apis.ScanningStatus `json:"status"`
 	Score            float32             `json:"score"`
 	ResourceCounters ResourceCounters    `json:",inline"`
-	resourceIDs      helpersv1.AllLists  `json:"-"`
+	ResourceIDs      helpersv1.AllLists  `json:"-"`
+	Description      string              `json:"-"`
+	Remediation      string              `json:"-"`
 }
 
 type ResourceCounters struct {

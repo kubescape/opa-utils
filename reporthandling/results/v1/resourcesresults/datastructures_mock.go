@@ -67,7 +67,7 @@ func mockResourceAssociatedControl0089Passed() *ResourceAssociatedControl {
 func mockResourceAssociatedRuleA() *ResourceAssociatedRule {
 	return &ResourceAssociatedRule{
 		Name:                  "ruleA",
-		FailedPaths:           []string{"path/to/fail/A"},
+		Paths:                 []Path{{FailedPath: "path/to/fail/A"}},
 		Exception:             []armotypes.PostureExceptionPolicy{},
 		ControlConfigurations: nil,
 	}
@@ -76,7 +76,7 @@ func mockResourceAssociatedRuleA() *ResourceAssociatedRule {
 func mockResourceAssociatedRuleB() *ResourceAssociatedRule {
 	return &ResourceAssociatedRule{
 		Name:                  "ruleB",
-		FailedPaths:           []string{"path/to/fail/B"},
+		Paths:                 []Path{{FailedPath: "path/to/fail/B"}},
 		Exception:             []armotypes.PostureExceptionPolicy{},
 		ControlConfigurations: nil,
 	}

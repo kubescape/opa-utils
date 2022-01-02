@@ -46,6 +46,7 @@ func TestRuleListing(t *testing.T) {
 	assert.NotEqual(t, 0, len(r.ListFrameworksNames().All()))
 	assert.NotEqual(t, 0, len(r.ListFrameworksNames().Failed()))
 	assert.NotEqual(t, 0, len(r.ListControlsNames().Failed()))
+	assert.NotEqual(t, 0, len(r.ListControlsIDs().Failed()))
 }
 
 func TestUpdateControlsSummaryCountersFailed(t *testing.T) {
