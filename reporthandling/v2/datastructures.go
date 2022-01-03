@@ -15,7 +15,7 @@ type PostureReport struct {
 	CustomerGUID         string                       `json:"customerGUID"`
 	ClusterName          string                       `json:"clusterName"`
 	ClusterCloudProvider string                       `json:"clusterCloudProvider"`
-	ReportID             string                       `json:"reportID"`
+	ReportID             string                       `json:"reportGUID"`
 	JobID                string                       `json:"jobID"`
 	ClusterAPIServerInfo *version.Info                `json:"clusterAPIServerInfo"`
 	ReportGenerationTime time.Time                    `json:"generationTime"`
