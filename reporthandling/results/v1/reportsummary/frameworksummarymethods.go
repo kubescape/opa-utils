@@ -23,7 +23,7 @@ func (frameworkSummary *FrameworkSummary) CalculateStatus() {
 // =================================== Counters ============================================
 
 // NumberOfExcluded get the number of excluded resources
-func (frameworkSummary *FrameworkSummary) NumberOf() ICounters {
+func (frameworkSummary *FrameworkSummary) NumberOfResources() ICounters {
 	return &frameworkSummary.ResourceCounters
 }
 
@@ -45,6 +45,7 @@ func (frameworkSummary *FrameworkSummary) initResourcesSummary() {
 	}
 
 	frameworkSummary.ResourceCounters.Set(&frameworkSummary.resourceIDs)
+	frameworkSummary.CalculateStatus()
 }
 
 // Append increases the counter based on the status
@@ -66,4 +67,33 @@ func (frameworkSummary *FrameworkSummary) GetScore() float32 {
 // GetName return framework name
 func (frameworkSummary *FrameworkSummary) GetName() string {
 	return frameworkSummary.Name
+}
+
+// =========================================== List Controls ====================================
+
+// ListControlsNames list all framework names
+func (frameworkSummary *FrameworkSummary) ListControlsNames() *helpersv1.AllLists {
+	controls := &helpersv1.AllLists{}
+	for _, controlSummary := range frameworkSummary.Controls {
+		controls.Append(controlSummary.GetStatus().Status(), controlSummary.Name)
+	}
+	return controls
+}
+
+func (frameworkSummary *FrameworkSummary) ListControlsIDs() *helpersv1.AllLists {
+	controls := &helpersv1.AllLists{}
+	for controlID, controlSummary := range frameworkSummary.Controls {
+		controls.Append(controlSummary.GetStatus().Status(), controlID)
+	}
+	return controls
+}
+
+// ListFrameworks list all frameworks
+func (frameworkSummary *FrameworkSummary) ListControls() *ListPolicies {
+	controls := ListPolicies{}
+	for i := range frameworkSummary.Controls {
+		control := frameworkSummary.Controls[i]
+		controls.Append(control.GetStatus().Status(), &control)
+	}
+	return &controls
 }

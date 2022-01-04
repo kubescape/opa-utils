@@ -2,6 +2,7 @@ package v1
 
 import (
 	"github.com/armosec/armoapi-go/armotypes"
+	"github.com/armosec/opa-utils/reporthandling/apis"
 	"github.com/armosec/opa-utils/shared"
 )
 
@@ -55,4 +56,12 @@ func (f *Filters) FilterExceptions(exceptions []armotypes.PostureExceptionPolicy
 		}
 	}
 	return filteredExceptions
+}
+
+// ListingFilters filter list based on filters. If nil of empty list, the list will be ignored
+type ListingFilters struct {
+	FrameworkNames []string              // Framework name may effect the status
+	ControlsNames  []string              // Framework name may effect the status
+	ControlsIDs    []string              // Framework name may effect the status
+	Statuses       []apis.ScanningStatus // Framework name may effect the status
 }

@@ -7,7 +7,7 @@ type IPolicies interface {
 	CalculateStatus()
 
 	// Counters
-	NumberOf() ICounters
+	NumberOfResources() ICounters
 
 	// Score
 	GetScore() float32

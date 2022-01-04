@@ -28,14 +28,9 @@ func (result *Result) GetStatus(f *helpersv1.Filters) apis.IStatus {
 
 // ================================= Listing ==================================
 
-// ListFailedControls return list of failed controls IDs
-func (result *Result) ListControls(f *helpersv1.Filters) *helpersv1.AllLists {
-	controls := &helpersv1.AllLists{}
-	for i := range result.AssociatedControls {
-		s := result.AssociatedControls[i].GetStatus(f).Status()
-		controls.Append(s, result.AssociatedControls[i].GetID())
-	}
-	return controls
+// // ListControls return list of controls
+func (result *Result) ListControls() []ResourceAssociatedControl {
+	return result.AssociatedControls
 }
 
 // ListFailedControls return list of failed controls IDs
@@ -70,7 +65,7 @@ func (result *Result) ListRulesNames(f *helpersv1.Filters) *helpersv1.AllLists {
 	return rules
 }
 
-// ListRulesNames return list of rules names
+// ListRules return list of rules
 func (result *Result) ListRules() []ResourceAssociatedRule {
 	rules := []ResourceAssociatedRule{}
 	ruleNames := map[string]bool{}
@@ -84,3 +79,36 @@ func (result *Result) ListRules() []ResourceAssociatedRule {
 	}
 	return rules
 }
+
+// ListRulesOfControl return list of rules related to a controlID or controlName
+func (result *Result) ListRulesOfControl(controlID, controlName string) []ResourceAssociatedRule {
+	rules := []ResourceAssociatedRule{}
+	ruleNames := map[string]bool{}
+	for i := range result.AssociatedControls {
+		if (controlID != "" && result.AssociatedControls[i].ControlID != controlID) || (controlName != "" && result.AssociatedControls[i].Name != controlName) {
+			continue
+		}
+		for j := range result.AssociatedControls[i].ResourceAssociatedRules {
+			if _, ok := ruleNames[result.AssociatedControls[i].ResourceAssociatedRules[j].GetName()]; !ok {
+				rules = append(rules, result.AssociatedControls[i].ResourceAssociatedRules[j])
+				ruleNames[result.AssociatedControls[i].ResourceAssociatedRules[j].GetName()] = true
+			}
+		}
+	}
+	return rules
+}
+
+// // ListRulesNames return list of rules names
+// func (result *Result) ListRules(ls *helpersv1.ListingFilters) []ResourceAssociatedRule {
+// 	rules := []ResourceAssociatedRule{}
+// 	ruleNames := map[string]bool{}
+// 	for i := range result.AssociatedControls {
+// 		for j := range result.AssociatedControls[i].ResourceAssociatedRules {
+// 			if _, ok := ruleNames[result.AssociatedControls[i].ResourceAssociatedRules[j].GetName()]; !ok { // check for uniqueness
+// 				rules = append(rules, result.AssociatedControls[i].ResourceAssociatedRules[j])
+// 				ruleNames[result.AssociatedControls[i].ResourceAssociatedRules[j].GetName()] = true
+// 			}
+// 		}
+// 	}
+// 	return rules
+// }

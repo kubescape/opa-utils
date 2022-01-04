@@ -24,7 +24,7 @@ func (summaryDetails *SummaryDetails) CalculateStatus() {
 // =================================== Counters ============================================
 
 // NumberOfExcluded get the number of excluded resources
-func (summaryDetails *SummaryDetails) NumberOf() ICounters {
+func (summaryDetails *SummaryDetails) NumberOfResources() ICounters {
 	return &summaryDetails.ResourceCounters
 }
 
@@ -46,6 +46,7 @@ func (summaryDetails *SummaryDetails) InitResourcesSummary() {
 	}
 
 	summaryDetails.ResourceCounters.Set(&summaryDetails.resourceIDs)
+	summaryDetails.CalculateStatus()
 }
 
 // =========================================== List Frameworks ====================================
@@ -128,6 +129,7 @@ func updateControlsSummaryCounters(resourceResult *resourcesresults.Result, cont
 		controlID := resourceResult.AssociatedControls[i].ControlID
 		if controlSummary, ok := controls[controlID]; ok {
 			controlSummary.Append(resourceResult.AssociatedControls[i].GetStatus(f), resourceResult.ResourceID)
+			controlSummary.CalculateStatus()
 			controls[controlID] = controlSummary
 		}
 	}

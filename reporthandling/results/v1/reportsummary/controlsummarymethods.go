@@ -23,7 +23,7 @@ func (controlSummary *ControlSummary) CalculateStatus() {
 // =================================== Counters ============================================
 
 // NumberOf get the number of resources
-func (controlSummary *ControlSummary) NumberOf() ICounters {
+func (controlSummary *ControlSummary) NumberOfResources() ICounters {
 	return &controlSummary.ResourceCounters
 }
 
@@ -59,7 +59,7 @@ func (controlSummary *ControlSummary) GetName() string {
 	return controlSummary.Name
 }
 
-// GetName return control ID
+// GetID return control ID
 func (controlSummary *ControlSummary) GetID() string {
-	return controlSummary.Name
+	return controlSummary.ControlID
 }
