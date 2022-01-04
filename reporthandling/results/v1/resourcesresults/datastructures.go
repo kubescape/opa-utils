@@ -1,6 +1,9 @@
 package resourcesresults
 
-import "github.com/armosec/armoapi-go/armotypes"
+import (
+	"github.com/armosec/armoapi-go/armotypes"
+	"github.com/armosec/opa-utils/reporthandling/apis"
+)
 
 // Result - resource result resourceID and the controls that where tested against the resource
 type Result struct {
@@ -18,6 +21,7 @@ type ResourceAssociatedControl struct {
 // ResourceAssociatedRule failed rule that is associated to a resource
 type ResourceAssociatedRule struct {
 	Name                  string                             `json:"name"` // rule name
+	Status                apis.ScanningStatus                `json:"status"`
 	Paths                 []Path                             `json:"paths,omitempty"`
 	Exception             []armotypes.PostureExceptionPolicy `json:"exception,omitempty"`
 	ControlConfigurations map[string][]string                `json:"controlConfigurations,omitempty"`

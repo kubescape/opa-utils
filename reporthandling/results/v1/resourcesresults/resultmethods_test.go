@@ -44,3 +44,12 @@ func TestResultList(t *testing.T) {
 	assert.Equal(t, 0, len(r3.ListControlsIDs(nil).Excluded()))
 	assert.Equal(t, 0, len(r3.ListControlsIDs(nil).Failed()))
 }
+
+func TestListRulesOfControl(t *testing.T) {
+	r := mockResultFailed()
+	assert.Equal(t, 3, len(r.ListRulesOfControl("", "")))
+	assert.NotEqual(t, 0, len(r.ListRulesOfControl("", r.ListControlsNames(nil).All()[0])))
+	assert.NotEqual(t, 3, len(r.ListRulesOfControl("", r.ListControlsNames(nil).All()[0])))
+	assert.NotEqual(t, 0, len(r.ListRulesOfControl(r.ListControlsIDs(nil).All()[0], "")))
+	assert.NotEqual(t, 3, len(r.ListRulesOfControl(r.ListControlsIDs(nil).All()[0], "")))
+}

@@ -84,14 +84,14 @@ func (result *Result) ListRules() []ResourceAssociatedRule {
 func (result *Result) ListRulesOfControl(controlID, controlName string) []ResourceAssociatedRule {
 	rules := []ResourceAssociatedRule{}
 	ruleNames := map[string]bool{}
-	for i := range result.AssociatedControls {
-		if (controlID != "" && result.AssociatedControls[i].ControlID != controlID) || (controlName != "" && result.AssociatedControls[i].Name != controlName) {
+	for _, control := range result.ListControls() {
+		if (controlID != "" && control.ControlID != controlID) || (controlName != "" && control.Name != controlName) {
 			continue
 		}
-		for j := range result.AssociatedControls[i].ResourceAssociatedRules {
-			if _, ok := ruleNames[result.AssociatedControls[i].ResourceAssociatedRules[j].GetName()]; !ok {
-				rules = append(rules, result.AssociatedControls[i].ResourceAssociatedRules[j])
-				ruleNames[result.AssociatedControls[i].ResourceAssociatedRules[j].GetName()] = true
+		for _, rule := range control.ListRules() {
+			if _, ok := ruleNames[rule.GetName()]; !ok {
+				rules = append(rules, rule)
+				ruleNames[rule.GetName()] = true
 			}
 		}
 	}

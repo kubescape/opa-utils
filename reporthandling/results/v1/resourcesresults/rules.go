@@ -19,14 +19,19 @@ func (rule *ResourceAssociatedRule) SetName(n string) {
 
 // SetName set rule name
 func (rule *ResourceAssociatedRule) GetStatus(f *helpersv1.Filters) apis.IStatus {
-	if f != nil {
-		if len(f.FilterExceptions(rule.Exception)) > 0 {
-			return helpersv1.NewStatus(apis.StatusExcluded)
-		}
-	} else {
-		if len(rule.Exception) > 0 {
-			return helpersv1.NewStatus(apis.StatusExcluded)
+	if rule.Status == apis.StatusFailed || rule.Status == apis.StatusExcluded {
+		if f != nil {
+			if len(f.FilterExceptions(rule.Exception)) > 0 {
+				return helpersv1.NewStatus(apis.StatusExcluded)
+			}
+		} else {
+			if len(rule.Exception) > 0 {
+				return helpersv1.NewStatus(apis.StatusExcluded)
+			}
 		}
 	}
-	return helpersv1.NewStatus(apis.StatusFailed)
+	if rule.Status == apis.StatusUnknown {
+		return helpersv1.NewStatus(apis.StatusIgnored)
+	}
+	return helpersv1.NewStatus(rule.Status)
 }
