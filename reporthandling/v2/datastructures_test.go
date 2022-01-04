@@ -1,6 +1,7 @@
 package v2
 
 import (
+	"bytes"
 	"encoding/json"
 	"testing"
 	"time"
@@ -9,6 +10,7 @@ import (
 	"github.com/armosec/opa-utils/objectsenvelopes"
 	"github.com/armosec/opa-utils/reporthandling/results/v1/reportsummary"
 	"github.com/armosec/opa-utils/reporthandling/results/v1/resourcesresults"
+	"github.com/francoispqt/gojay"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -92,4 +94,21 @@ func TestPostureReportMock(t *testing.T) {
 	p := GetPostureReportMock()
 	assert.Equal(t, 22, len(p.Resources))
 	// t.Error(p.ToString())
+}
+
+//this test validates the unmarshaller that used to validate the posture object in e.r and other places
+func TestPostureReportGojayUnmarshal(t *testing.T) {
+	postureReport := &PostureReport{}
+	original := GetPostureReportMock()
+	asBytes, err := json.Marshal(original)
+	assert.NoError(t, err, "failed to marshal postureReport")
+
+	err = gojay.NewDecoder(bytes.NewReader(asBytes)).Decode(postureReport)
+	assert.NoError(t, err, "failed to unmarshal using gojay postureReport")
+
+	assert.Equal(t, original.ReportID, postureReport.ReportID)
+	assert.Equal(t, original.CustomerGUID, postureReport.CustomerGUID)
+	assert.Equal(t, original.ClusterName, postureReport.ClusterName)
+	assert.Equal(t, original.ReportGenerationTime.UTC(), postureReport.ReportGenerationTime.UTC())
+
 }

@@ -32,6 +32,7 @@ type ControlSummary struct {
 	Name             string              `json:"name"`
 	Status           apis.ScanningStatus `json:"status"`
 	Score            float32             `json:"score"`
+	ScoreFactor      float32             `json:"scoreFactor"`
 	ResourceCounters ResourceCounters    `json:",inline"`
 	ResourceIDs      helpersv1.AllLists  `json:"-"`
 	Description      string              `json:"-"`
