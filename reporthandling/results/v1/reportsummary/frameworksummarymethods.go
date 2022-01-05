@@ -102,13 +102,3 @@ func (frameworkSummary *FrameworkSummary) ListControlsIDs() *helpersv1.AllLists 
 	}
 	return controls
 }
-
-// ListFrameworks list all frameworks
-func (frameworkSummary *FrameworkSummary) ListControls() *ListPolicies {
-	controls := ListPolicies{}
-	for i := range frameworkSummary.Controls {
-		control := frameworkSummary.Controls[i]
-		controls.Append(control.GetStatus().Status(), &control)
-	}
-	return &controls
-}
