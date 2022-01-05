@@ -41,7 +41,9 @@ func (summaryDetails *SummaryDetails) InitResourcesSummary() {
 
 	summaryDetails.resourceIDs = helpersv1.AllLists{}
 
-	for _, control := range summaryDetails.Controls {
+	for k, control := range summaryDetails.Controls {
+		control.initResourcesSummary()
+		summaryDetails.Controls[k] = control
 		summaryDetails.resourceIDs.Update(control.List())
 	}
 
@@ -120,6 +122,7 @@ func (summaryDetails *SummaryDetails) AppendResourceResult(resourceResult *resou
 	// update frameworks counters
 	for _, framework := range summaryDetails.Frameworks {
 		updateControlsSummaryCounters(resourceResult, framework.Controls, &helpersv1.Filters{FrameworkNames: []string{framework.Name}})
+		framework.CalculateStatus()
 	}
 }
 

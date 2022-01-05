@@ -40,7 +40,9 @@ func (frameworkSummary *FrameworkSummary) List() *helpersv1.AllLists {
 // initResourcesSummary must run this AFTER initializing the controls
 func (frameworkSummary *FrameworkSummary) initResourcesSummary() {
 	frameworkSummary.resourceIDs = helpersv1.AllLists{}
-	for _, control := range frameworkSummary.Controls {
+	for k, control := range frameworkSummary.Controls {
+		control.initResourcesSummary()
+		frameworkSummary.Controls[k] = control
 		frameworkSummary.resourceIDs.Update(control.List())
 	}
 
