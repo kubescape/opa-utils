@@ -35,3 +35,8 @@ func (control *ResourceAssociatedControl) GetStatus(f *helpersv1.Filters) apis.I
 	}
 	return helpersv1.NewStatus(status)
 }
+
+// ListRules return list of rules
+func (control *ResourceAssociatedControl) ListRules() []ResourceAssociatedRule {
+	return control.ResourceAssociatedRules
+}

@@ -30,6 +30,7 @@ type ControlSummaries map[string]ControlSummary
 
 // ControlSummary summary of scanning from a single control perspective
 type ControlSummary struct {
+	ControlID        string              `json:"controlID"`
 	Name             string              `json:"name"`
 	Status           apis.ScanningStatus `json:"status"`
 	Score            float32             `json:"score"`

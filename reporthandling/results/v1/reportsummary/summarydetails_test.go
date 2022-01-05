@@ -52,7 +52,7 @@ func TestRuleListing(t *testing.T) {
 func TestUpdateControlsSummaryCountersFailed(t *testing.T) {
 	controls := map[string]ControlSummary{}
 
-	failedControls := mockResultsFailed.ListControls(nil).Failed()
+	failedControls := mockResultsFailed.ListControlsIDs(nil).Failed()
 	for i := range failedControls {
 		controls[failedControls[i]] = ControlSummary{}
 	}
@@ -71,7 +71,7 @@ func TestUpdateControlsSummaryCountersFailed(t *testing.T) {
 func TestUpdateControlsSummaryCountersPassed(t *testing.T) {
 	controls := map[string]ControlSummary{}
 
-	passedControls := mockResultsFailed.ListControls(nil).Passed()
+	passedControls := mockResultsFailed.ListControlsIDs(nil).Passed()
 	for i := range passedControls {
 		controls[passedControls[i]] = ControlSummary{}
 	}
@@ -90,7 +90,7 @@ func TestUpdateControlsSummaryCountersPassed(t *testing.T) {
 func TestUpdateControlsSummaryCountersAll(t *testing.T) {
 	controls := map[string]ControlSummary{}
 
-	allControls := mockResultsFailed.ListControls(nil)
+	allControls := mockResultsFailed.ListControlsIDs(nil)
 	tt := allControls.All()
 	for i := range tt {
 		controls[tt[i]] = ControlSummary{}

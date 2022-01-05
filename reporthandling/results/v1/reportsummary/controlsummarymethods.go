@@ -59,9 +59,14 @@ func (controlSummary *ControlSummary) GetName() string {
 	return controlSummary.Name
 }
 
-// GetName return control ID
+// GetID return control ID
 func (controlSummary *ControlSummary) GetID() string {
-	return controlSummary.Name
+	return controlSummary.ControlID
+}
+
+// initResourcesSummary must run this AFTER initializing the controls
+func (controlSummary *ControlSummary) initResourcesSummary() {
+	controlSummary.CalculateStatus()
 }
 
 //===============ControlSummaries
