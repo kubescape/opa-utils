@@ -42,7 +42,7 @@ func (summaryDetails *SummaryDetails) InitResourcesSummary() {
 	summaryDetails.resourceIDs = helpersv1.AllLists{}
 
 	for _, control := range summaryDetails.Controls {
-		summaryDetails.resourceIDs.Update(control.List())
+		summaryDetails.resourceIDs.Update(control.ListResourcesIDs())
 	}
 
 	summaryDetails.ResourceCounters.Set(&summaryDetails.resourceIDs)

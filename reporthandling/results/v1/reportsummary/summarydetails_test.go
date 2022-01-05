@@ -60,11 +60,11 @@ func TestUpdateControlsSummaryCountersFailed(t *testing.T) {
 	// New control
 	updateControlsSummaryCounters(&mockResultsFailed, controls, nil)
 	for _, v := range controls {
-		assert.Equal(t, 1, v.NumberOf().All())
-		assert.Equal(t, 1, v.NumberOf().Failed())
-		assert.Equal(t, 0, v.NumberOf().Passed())
-		assert.Equal(t, 0, v.NumberOf().Skipped())
-		assert.Equal(t, 0, v.NumberOf().Excluded())
+		assert.Equal(t, 1, v.NumberOfResources().All())
+		assert.Equal(t, 1, v.NumberOfResources().Failed())
+		assert.Equal(t, 0, v.NumberOfResources().Passed())
+		assert.Equal(t, 0, v.NumberOfResources().Skipped())
+		assert.Equal(t, 0, v.NumberOfResources().Excluded())
 	}
 
 }
@@ -79,11 +79,11 @@ func TestUpdateControlsSummaryCountersPassed(t *testing.T) {
 	// New control
 	updateControlsSummaryCounters(&mockResultsPassed, controls, nil)
 	for _, v := range controls {
-		assert.Equal(t, 1, v.NumberOf().All())
-		assert.Equal(t, 1, v.NumberOf().Passed())
-		assert.Equal(t, 0, v.NumberOf().Failed())
-		assert.Equal(t, 0, v.NumberOf().Skipped())
-		assert.Equal(t, 0, v.NumberOf().Excluded())
+		assert.Equal(t, 1, v.NumberOfResources().All())
+		assert.Equal(t, 1, v.NumberOfResources().Passed())
+		assert.Equal(t, 0, v.NumberOfResources().Failed())
+		assert.Equal(t, 0, v.NumberOfResources().Skipped())
+		assert.Equal(t, 0, v.NumberOfResources().Excluded())
 	}
 }
 
@@ -100,19 +100,19 @@ func TestUpdateControlsSummaryCountersAll(t *testing.T) {
 	for _, i := range allControls.Failed() {
 		v, k := controls[i]
 		assert.True(t, k)
-		assert.NotEqual(t, 0, v.NumberOf().All())
-		assert.NotEqual(t, 0, v.NumberOf().Failed())
-		assert.Equal(t, 0, v.NumberOf().Passed())
-		assert.Equal(t, 0, v.NumberOf().Skipped())
-		assert.Equal(t, 0, v.NumberOf().Excluded())
+		assert.NotEqual(t, 0, v.NumberOfResources().All())
+		assert.NotEqual(t, 0, v.NumberOfResources().Failed())
+		assert.Equal(t, 0, v.NumberOfResources().Passed())
+		assert.Equal(t, 0, v.NumberOfResources().Skipped())
+		assert.Equal(t, 0, v.NumberOfResources().Excluded())
 	}
 	for _, i := range allControls.Passed() {
 		v, k := controls[i]
 		assert.True(t, k)
-		assert.NotEqual(t, 0, v.NumberOf().All())
-		assert.NotEqual(t, 0, v.NumberOf().Passed())
-		assert.Equal(t, 0, v.NumberOf().Failed())
-		assert.Equal(t, 0, v.NumberOf().Skipped())
-		assert.Equal(t, 0, v.NumberOf().Excluded())
+		assert.NotEqual(t, 0, v.NumberOfResources().All())
+		assert.NotEqual(t, 0, v.NumberOfResources().Passed())
+		assert.Equal(t, 0, v.NumberOfResources().Failed())
+		assert.Equal(t, 0, v.NumberOfResources().Skipped())
+		assert.Equal(t, 0, v.NumberOfResources().Excluded())
 	}
 }

@@ -1,6 +1,9 @@
 package reportsummary
 
-import "github.com/armosec/opa-utils/reporthandling/apis"
+import (
+	"github.com/armosec/opa-utils/reporthandling/apis"
+	helpersv1 "github.com/armosec/opa-utils/reporthandling/helpers/v1"
+)
 
 func MockSummaryDetails() *SummaryDetails {
 	return mockSummaryDetailsFailed()
@@ -86,6 +89,7 @@ func mockControlSummaryExcludePass() *ControlSummary {
 		Score:            0,
 		Status:           apis.StatusExcluded,
 		ResourceCounters: *mockResourceCountersExcludePass(),
+		ResourceIDs:      *helpersv1.MockAllListsForIntegration(),
 	}
 }
 
@@ -95,6 +99,7 @@ func mockControlSummaryPass() *ControlSummary {
 		Score:            0,
 		Status:           apis.StatusPassed,
 		ResourceCounters: *mockResourceCountersPass(),
+		ResourceIDs:      *helpersv1.MockAllListsForIntegration(),
 	}
 }
 
@@ -104,6 +109,7 @@ func mockControlSummaryFailPass() *ControlSummary {
 		Score:            0,
 		Status:           apis.StatusFailed,
 		ResourceCounters: *mockResourceCountersFailPass(),
+		ResourceIDs:      *helpersv1.MockAllListsForIntegration(),
 	}
 }
 func mockControlSummaryFailPassExclude() *ControlSummary {
@@ -112,6 +118,7 @@ func mockControlSummaryFailPassExclude() *ControlSummary {
 		Status:           apis.StatusFailed,
 		Score:            0,
 		ResourceCounters: *mockResourceCountersExcludeFailPass(),
+		ResourceIDs:      *helpersv1.MockAllListsForIntegration(),
 	}
 }
 func mockResourceCountersFailPass() *ResourceCounters {

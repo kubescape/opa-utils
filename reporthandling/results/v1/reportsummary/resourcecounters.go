@@ -11,9 +11,6 @@ type ICounters interface {
 	Skipped() int
 	Failed() int
 	All() int
-
-	Increase(status apis.IStatus)
-	Set(*helpersv1.AllLists)
 }
 
 // =================================== Counters ============================================

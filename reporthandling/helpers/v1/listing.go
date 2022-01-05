@@ -33,23 +33,23 @@ func (all *AllLists) All() []string {
 }
 
 // Append append single string to matching status list
-func (all *AllLists) Append(status apis.ScanningStatus, str string) {
+func (all *AllLists) Append(status apis.ScanningStatus, str ...string) {
 
 	switch status {
 	case apis.StatusPassed:
-		all.passed = append(all.passed, str)
+		all.passed = append(all.passed, str...)
 	case apis.StatusFailed:
-		all.failed = append(all.failed, str)
+		all.failed = append(all.failed, str...)
 	case apis.StatusExcluded:
-		all.excluded = append(all.excluded, str)
+		all.excluded = append(all.excluded, str...)
 	case apis.StatusSkipped:
-		all.skipped = append(all.skipped, str)
+		all.skipped = append(all.skipped, str...)
 	default:
-		all.other = append(all.other, str)
+		all.other = append(all.other, str...)
 	}
 
 	// make sure the lists are unique
-	all.toUnique()
+	all.ToUnique()
 }
 
 // Update AllLists objects with
@@ -61,10 +61,10 @@ func (all *AllLists) Update(all2 *AllLists) {
 	all.other = append(all.other, all2.other...)
 
 	// make sure the lists are unique
-	all.toUnique()
+	all.ToUnique()
 }
 
-func (all *AllLists) toUnique() {
+func (all *AllLists) ToUnique() {
 	// remove duplications from each resource list
 	all.failed = shared.SliceStringToUnique(all.failed)
 	all.excluded = shared.SliceStringToUnique(all.excluded)

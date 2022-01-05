@@ -1,13 +1,38 @@
 package reportsummary
 
-import "github.com/armosec/opa-utils/reporthandling/apis"
+import (
+	"github.com/armosec/opa-utils/reporthandling/apis"
+	helpersv1 "github.com/armosec/opa-utils/reporthandling/helpers/v1"
+)
 
+type ControlCriteria string
+
+const (
+	EControlCriteriaID   ControlCriteria = "ID"
+	EControlCriteriaName ControlCriteria = "name"
+)
+
+type IFrameworkSummary interface {
+	IPolicies
+	ListControls() IControlsSummaries
+}
+
+type IControlSummary interface {
+	IPolicies
+}
+
+type IControlsSummaries interface {
+	GetControl(criteria ControlCriteria, value string) IControlSummary
+	NumberOfControls() ICounters
+	ListControlsIDs() *helpersv1.AllLists
+	ListResourcesIDs() *helpersv1.AllLists //avoid using this  outside of kubescape
+}
 type IPolicies interface {
 	GetStatus() apis.IStatus
 	CalculateStatus()
-
+	ListResourcesIDs() *helpersv1.AllLists //avoid using this outside of kubescape
 	// Counters
-	NumberOf() ICounters
+	NumberOfResources() ICounters
 
 	// Score
 	GetScore() float32

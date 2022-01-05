@@ -9,6 +9,7 @@ const (
 	StatusFailed   ScanningStatus = "failed"
 	StatusSkipped  ScanningStatus = "skipped"
 	StatusUnknown  ScanningStatus = "" // keep this empty
+
 )
 
 // IStatus interface handling status

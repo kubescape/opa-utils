@@ -23,7 +23,7 @@ func (frameworkSummary *FrameworkSummary) CalculateStatus() {
 // =================================== Counters ============================================
 
 // NumberOfExcluded get the number of excluded resources
-func (frameworkSummary *FrameworkSummary) NumberOf() ICounters {
+func (frameworkSummary *FrameworkSummary) NumberOfResources() ICounters {
 	return &frameworkSummary.ResourceCounters
 }
 
@@ -32,16 +32,29 @@ func (frameworkSummary *FrameworkSummary) Increase(status apis.IStatus) {
 	frameworkSummary.ResourceCounters.Increase(status)
 }
 
+func (frameworkSummary *FrameworkSummary) ListControls() IControlsSummaries {
+	return &frameworkSummary.Controls
+}
+
 // List resources IDs
-func (frameworkSummary *FrameworkSummary) List() *helpersv1.AllLists {
+func (frameworkSummary *FrameworkSummary) ListResourcesIDs() *helpersv1.AllLists {
 	return &frameworkSummary.resourceIDs
+}
+
+func (frameworkSummary *FrameworkSummary) NumberOfControls() ICounters {
+	controlsCounters := &PostureCounters{}
+	for _, ctrlSummary := range frameworkSummary.Controls {
+		controlsCounters.Increase(ctrlSummary.GetStatus())
+	}
+
+	return controlsCounters
 }
 
 // initResourcesSummary must run this AFTER initializing the controls
 func (frameworkSummary *FrameworkSummary) initResourcesSummary() {
 	frameworkSummary.resourceIDs = helpersv1.AllLists{}
 	for _, control := range frameworkSummary.Controls {
-		frameworkSummary.resourceIDs.Update(control.List())
+		frameworkSummary.resourceIDs.Update(control.ListResourcesIDs())
 	}
 
 	frameworkSummary.ResourceCounters.Set(&frameworkSummary.resourceIDs)

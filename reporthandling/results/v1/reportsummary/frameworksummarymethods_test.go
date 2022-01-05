@@ -28,3 +28,19 @@ func TestSetStatus(t *testing.T) {
 	}
 
 }
+
+func TestFrameworkControlsSummariesCounters(t *testing.T) {
+	f := mockFrameworkSummaryFailPass()
+	assert.Equal(t, len(f.Controls), f.ListControls().NumberOfControls().All(), "invalid total control count")
+	assert.Equal(t, len(f.ListControls().ListControlsIDs().Failed()), f.ListControls().NumberOfControls().Failed(), "invalid total failed control count")
+	assert.Equal(t, len(f.ListControls().ListControlsIDs().Passed()), f.ListControls().NumberOfControls().Passed(), "invalid total passed control count")
+	assert.Equal(t, len(f.ListControls().ListControlsIDs().Excluded()), f.ListControls().NumberOfControls().Excluded(), "invalid total excluded/warning control count")
+	assert.Equal(t, len(f.ListControls().ListControlsIDs().Skipped()), f.ListControls().NumberOfControls().Skipped(), "invalid total skipped control count")
+}
+
+func TestFrameworkGettingSpecificControl(t *testing.T) {
+	f := mockFrameworkSummaryFailPass()
+	a := f.ListControls().GetControl(EControlCriteriaID, "1234")
+	assert.Nil(t, a, "control id '1234' shouldn't exist")
+	assert.Equal(t, "control-fail-pass", f.ListControls().GetControl(EControlCriteriaID, "C-0001").GetName(), "wrong control retrieved")
+}

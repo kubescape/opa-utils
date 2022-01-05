@@ -10,8 +10,14 @@ import (
 	"k8s.io/apimachinery/pkg/version"
 )
 
+type PostureAttributes struct {
+	Attribute string   `json:"attributeName"`
+	Values    []string `json:"values"`
+}
+
 // PostureReport posture scanning report structure
 type PostureReport struct {
+	Attributes           []PostureAttributes          `json:"attributes"` //allow flexible properties for posture reports
 	CustomerGUID         string                       `json:"customerGUID"`
 	ClusterName          string                       `json:"clusterName"`
 	ClusterCloudProvider string                       `json:"clusterCloudProvider"`
