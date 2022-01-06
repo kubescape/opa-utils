@@ -5,6 +5,11 @@ import (
 	helpersv1 "github.com/armosec/opa-utils/reporthandling/helpers/v1"
 )
 
+type PostureAttributes struct {
+	Attribute string   `json:"attributeName"`
+	Values    []string `json:"values"`
+}
+
 // SummaryDetails detailed summary of the scanning. will contain versions, counters, etc.
 type SummaryDetails struct {
 	Score            float32             `json:"score"`              // overall score

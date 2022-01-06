@@ -1,6 +1,8 @@
 package reportsummary
 
 import (
+	"time"
+
 	"github.com/armosec/opa-utils/reporthandling/apis"
 	helpersv1 "github.com/armosec/opa-utils/reporthandling/helpers/v1"
 )
@@ -11,6 +13,16 @@ const (
 	EControlCriteriaID   ControlCriteria = "ID"
 	EControlCriteriaName ControlCriteria = "name"
 )
+
+type IBasicPostureReport interface {
+	GetCustomerGUID() string
+	GetClusterName() string
+	GetReportGUID() string
+	GetJobID() string
+	GetTimestamp() *time.Time
+
+	//todo GetISummaryDetails
+}
 
 type IFrameworkSummary interface {
 	IPolicies

@@ -1,6 +1,8 @@
 package v2
 
 import (
+	"time"
+
 	"github.com/armosec/opa-utils/reporthandling/apis"
 	helpersv1 "github.com/armosec/opa-utils/reporthandling/helpers/v1"
 	"github.com/armosec/opa-utils/reporthandling/results/v1/reportsummary"
@@ -80,4 +82,25 @@ func (postureReport *PostureReport) InitializeSummary() {
 // AppendResourceResultToSummary get the result of a single resource. If resource not found will return nil
 func (postureReport *PostureReport) AppendResourceResultToSummary(resourceResult *resourcesresults.Result) {
 	postureReport.SummaryDetails.AppendResourceResult(resourceResult)
+}
+
+//========IPostureReport implementations =======
+func (postureReport *PostureReport) GetCustomerGUID() string {
+	return postureReport.CustomerGUID
+}
+
+func (postureReport *PostureReport) GetClusterName() string {
+	return postureReport.ClusterName
+}
+
+func (postureReport *PostureReport) GetReportGUID() string {
+	return postureReport.ReportID
+}
+
+func (postureReport *PostureReport) GetJobID() string {
+	return postureReport.JobID
+}
+
+func (postureReport *PostureReport) GetTimestamp() *time.Time {
+	return &postureReport.ReportGenerationTime
 }
