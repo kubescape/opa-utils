@@ -39,15 +39,12 @@ func (summaryDetails *SummaryDetails) InitResourcesSummary() {
 		summaryDetails.Frameworks[i].initResourcesSummary()
 	}
 
-	summaryDetails.resourceIDs = helpersv1.AllLists{}
-
 	for k, control := range summaryDetails.Controls {
 		control.initResourcesSummary()
 		summaryDetails.Controls[k] = control
-		summaryDetails.resourceIDs.Update(control.ListResourcesIDs())
 	}
 
-	summaryDetails.ResourceCounters.Set(&summaryDetails.resourceIDs)
+	summaryDetails.ResourceCounters.Set(summaryDetails.Controls.ListResourcesIDs())
 	summaryDetails.CalculateStatus()
 }
 
@@ -100,6 +97,18 @@ func (summaryDetails *SummaryDetails) ListControls() *ListPolicies {
 	return &controls
 }
 
+//NumberOfControls get number of controls
+func (summaryDetails *SummaryDetails) NumberOfControls() ICounters {
+
+	return &PostureCounters{
+		PassedCounter:   len(summaryDetails.ListControlsIDs().Passed()),
+		FailedCounter:   len(summaryDetails.ListControlsIDs().Failed()),
+		ExcludedCounter: len(summaryDetails.ListControlsIDs().Excluded()),
+		SkippedCounter:  len(summaryDetails.ListControlsIDs().Skipped()),
+		UnknownCounter:  len(summaryDetails.ListControlsIDs().Other()),
+	}
+}
+
 // ================================================================================
 func (summaryDetails *SummaryDetails) ControlName(controlID string) string {
 	if c, ok := summaryDetails.Controls[controlID]; ok {
@@ -110,7 +119,7 @@ func (summaryDetails *SummaryDetails) ControlName(controlID string) string {
 
 // ListResourcesIDs list all resources IDs
 func (summaryDetails *SummaryDetails) ListResourcesIDs() *helpersv1.AllLists {
-	return &summaryDetails.resourceIDs
+	return summaryDetails.Controls.ListResourcesIDs()
 }
 
 // updateSummaryWithResource get the result of a single resource. If resource not found will return nil

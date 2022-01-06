@@ -17,7 +17,6 @@ type SummaryDetails struct {
 	Frameworks       []FrameworkSummary  `json:"frameworks"`         // list of framework summary
 	Controls         ControlSummaries    `json:"controls,omitempty"` // mapping of control - map[<control ID>]<control summary>
 	ResourceCounters ResourceCounters    `json:",inline"`
-	resourceIDs      helpersv1.AllLists  `json:"-"`
 }
 
 // FrameworkSummary summary of scanning from a single framework perspective
@@ -28,7 +27,6 @@ type FrameworkSummary struct {
 	Version          string              `json:"version"`            // framework version
 	Controls         ControlSummaries    `json:"controls,omitempty"` // mapping of control - map[<control ID>]<control summary>
 	ResourceCounters ResourceCounters    `json:",inline"`
-	resourceIDs      helpersv1.AllLists  `json:"-"`
 }
 
 type ControlSummaries map[string]ControlSummary
@@ -39,8 +37,9 @@ type ControlSummary struct {
 	Name             string              `json:"name"`
 	Status           apis.ScanningStatus `json:"status"`
 	Score            float32             `json:"score"`
-	ResourceCounters ResourceCounters    `json:",inline"`
+	ScoreFactor      float32             `json:"scoreFactor"`
 	ResourceIDs      helpersv1.AllLists  `json:"resourceIDs"`
+	ResourceCounters ResourceCounters    `json:",inline"`
 	Description      string              `json:"-"`
 	Remediation      string              `json:"-"`
 }

@@ -52,6 +52,11 @@ func (controlSummary *ControlSummary) GetScore() float32 {
 	return controlSummary.Score
 }
 
+// GetScoreFactor return control score
+func (controlSummary *ControlSummary) GetScoreFactor() float32 {
+	return controlSummary.ScoreFactor
+}
+
 // =================================== Name ============================================
 
 // GetName return control name
@@ -126,14 +131,16 @@ func (controlSummaries *ControlSummaries) ListResourcesIDs() *helpersv1.AllLists
 	//I've implemented it like this because i wanted to support future changes and access things only via interfaces(Lior)
 	ctrlIDs := controlSummaries.ListControlsIDs().All()
 	for _, ctrlID := range ctrlIDs {
-		tmp := controlSummaries.GetControl(EControlCriteriaID, ctrlID).ListResourcesIDs()
-		allList.Append(apis.StatusFailed, controlSummaries.GetControl(EControlCriteriaID, ctrlID).ListResourcesIDs().Failed()...)
-		allList.Append(apis.StatusExcluded, controlSummaries.GetControl(EControlCriteriaID, ctrlID).ListResourcesIDs().Excluded()...)
-		allList.Append(apis.StatusPassed, tmp.Passed()...)
-		allList.Append(apis.StatusSkipped, controlSummaries.GetControl(EControlCriteriaID, ctrlID).ListResourcesIDs().Skipped()...)
-		allList.Append(apis.StatusUnknown, controlSummaries.GetControl(EControlCriteriaID, ctrlID).ListResourcesIDs().Other()...)
+		resourcesIDs := controlSummaries.GetControl(EControlCriteriaID, ctrlID).ListResourcesIDs()
+		allList.Append(apis.StatusFailed, resourcesIDs.Failed()...)
+		allList.Append(apis.StatusExcluded, resourcesIDs.Excluded()...)
+		allList.Append(apis.StatusPassed, resourcesIDs.Passed()...)
+		allList.Append(apis.StatusSkipped, resourcesIDs.Skipped()...)
+		allList.Append(apis.StatusUnknown, resourcesIDs.Other()...)
 	}
 
-	// allList.ToUnique()
+	// initialize resources IDs
+	allList.ToUnique()
+
 	return allList
 }

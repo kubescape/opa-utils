@@ -31,10 +31,12 @@ type IFrameworkSummary interface {
 
 type IControlSummary interface {
 	IPolicies
+	GetScoreFactor() float32
 }
 
 type IControlsSummaries interface {
 	GetControl(criteria ControlCriteria, value string) IControlSummary
+
 	NumberOfControls() ICounters
 	ListControlsIDs() *helpersv1.AllLists
 	ListResourcesIDs() *helpersv1.AllLists //avoid using this  outside of kubescape

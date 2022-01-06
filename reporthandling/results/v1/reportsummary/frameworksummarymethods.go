@@ -38,7 +38,7 @@ func (frameworkSummary *FrameworkSummary) ListControls() IControlsSummaries {
 
 // List resources IDs
 func (frameworkSummary *FrameworkSummary) ListResourcesIDs() *helpersv1.AllLists {
-	return &frameworkSummary.resourceIDs
+	return frameworkSummary.Controls.ListResourcesIDs()
 }
 
 func (frameworkSummary *FrameworkSummary) NumberOfControls() ICounters {
@@ -52,22 +52,13 @@ func (frameworkSummary *FrameworkSummary) NumberOfControls() ICounters {
 
 // initResourcesSummary must run this AFTER initializing the controls
 func (frameworkSummary *FrameworkSummary) initResourcesSummary() {
-	frameworkSummary.resourceIDs = helpersv1.AllLists{}
 	for k, control := range frameworkSummary.Controls {
 		control.initResourcesSummary()
 		frameworkSummary.Controls[k] = control
-		frameworkSummary.resourceIDs.Update(control.ListResourcesIDs())
 	}
 
-	frameworkSummary.ResourceCounters.Set(&frameworkSummary.resourceIDs)
+	frameworkSummary.ResourceCounters.Set(frameworkSummary.Controls.ListResourcesIDs())
 	frameworkSummary.CalculateStatus()
-}
-
-// Append increases the counter based on the status
-func (frameworkSummary *FrameworkSummary) Append(status apis.IStatus, ids ...string) {
-	for i := range ids {
-		frameworkSummary.resourceIDs.Append(status.Status(), ids[i])
-	}
 }
 
 // =================================== Score ============================================
