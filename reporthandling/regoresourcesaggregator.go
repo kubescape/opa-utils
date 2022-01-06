@@ -3,7 +3,6 @@ package reporthandling
 import (
 	"bytes"
 	"encoding/gob"
-	"fmt"
 	"strings"
 
 	"github.com/armosec/k8s-interface/k8sinterface"
@@ -48,7 +47,7 @@ func AggregateResourcesBySubjects(k8sObjects []workloadinterface.IMetadata) ([]w
 											if err != nil {
 												return aggregatedK8sObjects, err
 											}
-											subjectCopy["apiVersion"] = fmt.Sprintf("%s/%s", objectsenvelopes.RegoAttackVectorGroup, objectsenvelopes.RegoAttackVectorVersion)
+											// subjectCopy["apiVersion"] = fmt.Sprintf("%s/%s", objectsenvelopes.RegoAttackVectorGroup, objectsenvelopes.RegoAttackVectorVersion)
 											subjectCopy[objectsenvelopes.RelatedObjectsKey] = []map[string]interface{}{bindingWorkload.GetObject(), roleWorkload.GetObject()}
 											newObj := objectsenvelopes.NewRegoResponseVectorObject(subjectCopy)
 											aggregatedK8sObjects = append(aggregatedK8sObjects, newObj)

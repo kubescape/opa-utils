@@ -19,8 +19,8 @@ import (
 // relatedObjects []IMetadata - includes related objects that need to be shown together with failed object
 // e.g subjects will have in relatedObjects - role + rolebinding
 
-const RegoAttackVectorGroup string = "regoAttackVector"
-const RegoAttackVectorVersion string = "v1"
+// const RegoAttackVectorGroup string = "regoAttackVector"
+// const RegoAttackVectorVersion string = "v1"
 
 const RelatedObjectsKey string = "relatedObjects"
 const TypeRegoResponseVectorObject workloadinterface.ObjectType = "regoResponse"
