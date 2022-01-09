@@ -7,7 +7,8 @@ import (
 
 // Result - resource result resourceID and the controls that where tested against the resource
 type Result struct {
-	ResourceID         string                      `json:"resourceID"`
+	ResourceID string `json:"resourceID"` // <apigroup>/<namespace>/<kind>/<name>
+
 	AssociatedControls []ResourceAssociatedControl `json:"controls,omitempty"`
 }
 
