@@ -8,6 +8,7 @@ import (
 
 	"github.com/armosec/armoapi-go/armotypes"
 	"github.com/armosec/opa-utils/objectsenvelopes"
+	"github.com/armosec/opa-utils/reporthandling"
 	"github.com/armosec/opa-utils/reporthandling/results/v1/reportsummary"
 	"github.com/armosec/opa-utils/reporthandling/results/v1/resourcesresults"
 	"github.com/francoispqt/gojay"
@@ -16,7 +17,7 @@ import (
 
 func GetPostureReportMock() *PostureReport {
 
-	resource := []Resource{}
+	resource := []reporthandling.Resource{}
 	err := json.Unmarshal([]byte(ResourcesListMock), &resource)
 	if err != nil {
 		panic(err)

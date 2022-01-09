@@ -3,7 +3,7 @@ package v2
 import (
 	"time"
 
-	ik8s "github.com/armosec/k8s-interface/workloadinterface"
+	"github.com/armosec/opa-utils/reporthandling"
 	"github.com/armosec/opa-utils/reporthandling/results/v1/reportsummary"
 	"github.com/armosec/opa-utils/reporthandling/results/v1/resourcesresults"
 
@@ -22,12 +22,5 @@ type PostureReport struct {
 	ReportGenerationTime time.Time                         `json:"generationTime"`
 	SummaryDetails       reportsummary.SummaryDetails      `json:"summaryDetails,omitempty"` // Developing
 	Results              []resourcesresults.Result         `json:"results,omitempty"`        // Developing
-	Resources            []Resource                        `json:"resources,omitempty"`
-}
-
-// Resource single resource representation from resource inventory
-type Resource struct {
-	ResourceID string         `json:"resourceID"`
-	Object     interface{}    `json:"object"`
-	IMetadata  ik8s.IMetadata `json:"-"`
+	Resources            []reporthandling.Resource         `json:"resources,omitempty"`
 }

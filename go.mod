@@ -3,7 +3,7 @@ module github.com/armosec/opa-utils
 go 1.17
 
 require (
-	github.com/armosec/armoapi-go v0.0.40
+	github.com/armosec/armoapi-go v0.0.41
 	github.com/armosec/k8s-interface v0.0.50
 	github.com/francoispqt/gojay v1.2.13
 	github.com/open-policy-agent/opa v0.33.1
@@ -15,6 +15,7 @@ require (
 )
 
 require (
+	github.com/armosec/armo-interfaces v0.0.3 // indirect
 	github.com/aws/aws-sdk-go v1.41.11 // indirect
 	github.com/golang/groupcache v0.0.0-20210331224755-41bb18bfe9da // indirect
 	github.com/googleapis/gax-go/v2 v2.0.5 // indirect
