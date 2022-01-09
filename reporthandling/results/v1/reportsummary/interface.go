@@ -32,6 +32,15 @@ type IFrameworkSummary interface {
 type IControlSummary interface {
 	IPolicies
 	GetScoreFactor() float32
+
+	// GetID get control ID
+	GetID() string
+
+	// GetRemediation get control remediation
+	GetRemediation() string
+
+	// GetDescription get control description
+	GetDescription() string
 }
 
 type IControlsSummaries interface {
@@ -45,6 +54,7 @@ type IPolicies interface {
 	GetStatus() apis.IStatus
 	CalculateStatus()
 	ListResourcesIDs() *helpersv1.AllLists //avoid using this outside of kubescape
+
 	// Counters
 	NumberOfResources() ICounters
 

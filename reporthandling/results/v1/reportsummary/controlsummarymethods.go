@@ -74,7 +74,18 @@ func (controlSummary *ControlSummary) initResourcesSummary() {
 	controlSummary.CalculateStatus()
 }
 
-//===============ControlSummaries
+// GetRemediation get control remediation
+func (controlSummary *ControlSummary) GetRemediation() string {
+	return controlSummary.Remediation
+}
+
+// GetDescription get control description
+func (controlSummary *ControlSummary) GetDescription() string {
+	return controlSummary.Description
+
+}
+
+//=============== ControlSummaries
 func (controlSummaries *ControlSummaries) GetIDs() []string {
 	keys := make([]string, 0, len((*controlSummaries)))
 	for k := range *controlSummaries {
