@@ -11,8 +11,8 @@ import (
 )
 
 type PaginationMarks struct {
-	ReportNumber int  `json:"reportNumber"` // serial number of report, used in pagination
-	IsLastReport bool `json:"isLastReport"` //specify this is the last report, used in pagination
+	ReportNumber int  `json:"chunkNumber"` // serial number of report, used in pagination
+	IsLastReport bool `json:"isLastChunk"` //specify this is the last report, used in pagination
 }
 
 // PostureReport posture scanning report structure
