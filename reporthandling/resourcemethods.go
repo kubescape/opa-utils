@@ -1,6 +1,8 @@
 package reporthandling
 
 import (
+	"encoding/json"
+
 	"github.com/armosec/k8s-interface/workloadinterface"
 	"github.com/armosec/opa-utils/objectsenvelopes"
 )
@@ -26,8 +28,16 @@ func (r *Resource) middleware() workloadinterface.IMetadata {
 		return r.IMetadata
 	}
 
-	if m, ok := r.Object.(map[string]interface{}); ok {
-		r.IMetadata = objectsenvelopes.NewObject(m)
+	if r.Object != nil {
+		bObject, err := json.Marshal(r.Object)
+		if err != nil {
+			return r.IMetadata
+		}
+		mObject := map[string]interface{}{}
+		if err := json.Unmarshal(bObject, &mObject); err != nil {
+			return r.IMetadata
+		}
+		r.IMetadata = objectsenvelopes.NewObject(mObject)
 	}
 	return r.IMetadata
 }
