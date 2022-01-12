@@ -86,9 +86,11 @@ type NotificationPolicyKind string
 
 // Supported NotificationTypes
 const (
-	TypeValidateRules   NotificationPolicyType = "validateRules"
-	TypeExecPostureScan NotificationPolicyType = "execPostureScan"
-	TypeUpdateRules     NotificationPolicyType = "updateRules"
+	TypeValidateRules       NotificationPolicyType = "validateRules"
+	TypeExecPostureScan     NotificationPolicyType = "execPostureScan"
+	TypeUpdateRules         NotificationPolicyType = "updateRules"
+	TypeRunKubescapeJob     NotificationPolicyType = "runKubescapeJob"
+	TypeSetKubescapeCronJob NotificationPolicyType = "setKubescapeCronJob"
 )
 
 // Supported NotificationKinds

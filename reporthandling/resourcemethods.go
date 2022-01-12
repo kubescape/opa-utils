@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 
 	"github.com/armosec/k8s-interface/workloadinterface"
+
 	"github.com/armosec/opa-utils/objectsenvelopes"
 )
 
@@ -128,4 +129,13 @@ func (r *Resource) GetID() string {
 		return ""
 	}
 	return mw.GetID()
+}
+
+func (r *Resource) GetObjectType() workloadinterface.ObjectType {
+	mw := r.middleware()
+	if mw == nil {
+		return ""
+	}
+
+	return mw.GetObjectType()
 }
