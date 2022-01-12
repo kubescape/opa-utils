@@ -105,7 +105,7 @@ func (r *Resource) GetApiVersion() string {
 	if mw == nil {
 		return ""
 	}
-	return mw.GetKind()
+	return mw.GetApiVersion()
 
 }
 func (r *Resource) GetWorkload() map[string]interface{} {
