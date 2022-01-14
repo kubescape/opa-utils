@@ -9,6 +9,8 @@ import (
 
 	"github.com/armosec/k8s-interface/workloadinterface"
 	armoupautils "github.com/armosec/opa-utils/objectsenvelopes"
+	"github.com/armosec/opa-utils/reporthandling/results/v1/reportsummary"
+	v2 "github.com/armosec/opa-utils/reporthandling/v2"
 	"go.uber.org/zap"
 	appsv1 "k8s.io/api/apps/v1"
 
@@ -178,4 +180,86 @@ func NewScore(allResources map[string]workloadinterface.IMetadata) *ScoreUtil {
 	}
 
 	return postureScore
+}
+
+func (su *ScoreUtil) CalculatePostureReportV2(report *v2.PostureReport) error {
+	//calculate controls by framework score
+	for i := range report.SummaryDetails.Frameworks {
+		report.SummaryDetails.Frameworks[i].Score = 0
+		var wcsFwork float32 = 0
+		fwUnormalizedScore, wcsFwork := su.ControlsSummariesScore(&report.SummaryDetails.Frameworks[i].Controls, report.SummaryDetails.Frameworks[i].GetName())
+
+		if wcsFwork == 0 {
+			report.SummaryDetails.Frameworks[i].Score = 0
+			return fmt.Errorf("unable to calculate score for framework %s due to bad wcs score\n", report.SummaryDetails.Frameworks[i].GetName())
+		}
+		report.SummaryDetails.Frameworks[i].Score = (fwUnormalizedScore * 100) / wcsFwork
+		if su.isDebugMode {
+			fmt.Printf("framework %s score %v\n", report.SummaryDetails.Frameworks[i].GetName(), report.SummaryDetails.Frameworks[i].GetScore())
+		}
+
+	}
+	totalUnormalizedScore, totalWcsScore := su.ControlsSummariesScore(&report.SummaryDetails.Controls, "")
+
+	report.SummaryDetails.Score = (totalUnormalizedScore * 100) / totalWcsScore
+	return nil
+}
+
+func (su *ScoreUtil) ControlsSummariesScore(ctrls *reportsummary.ControlSummaries, frameworkName string) (totalUnormalizedScore float32, totalWcsScore float32) {
+	totalUnormalizedScore = 0
+	totalWcsScore = 0
+
+	for ctrlID := range *ctrls {
+		ctrl := (*ctrls)[ctrlID]
+		ctrl.Score = 0
+		ctrlScore, unormScore, wcs := su.ControlV2Score(&ctrl, frameworkName)
+		ctrl.Score = ctrlScore
+		(*ctrls)[ctrlID] = ctrl
+		totalUnormalizedScore += unormScore
+		totalWcsScore += wcs
+	}
+
+	return totalUnormalizedScore, totalWcsScore
+}
+
+// /*
+// ControlScore:
+// @input:
+// IControlSummary - //assuming ListResourcesIDs() is functional @ this scope
+// frameworkName - calculate this control according to a given framework weights
+
+// ctrl.score = baseScore * SUM_resource (resourceWeight*min(#replicas*replicaweight,1)(nodes if daemonset)
+
+// returns ctrlscore(normalized),ctrlscore(unnormalized),wcsscore,
+
+// */
+func (su *ScoreUtil) ControlV2Score(ctrl reportsummary.IControlSummary, frameworkName string) (ctrlScore float32, unormalizedScore float32, wcsScore float32) {
+	ctrlScore = 0
+	unormalizedScore = 0
+	wcsScore = 0
+	failedResourceIDS := ctrl.ListResourcesIDs().Failed()
+	allResourcesIDS := ctrl.ListResourcesIDs().All()
+
+	for i := range failedResourceIDS {
+		unormalizedScore += su.GetScore(su.resources[failedResourceIDS[i]].GetObject())
+
+	}
+	unormalizedScore *= ctrl.GetScoreFactor()
+
+	for i := range allResourcesIDS {
+		wcsScore += su.GetScore(su.resources[allResourcesIDS[i]].GetObject())
+
+	}
+
+	wcsScore *= ctrl.GetScoreFactor()
+	// //x
+	// ctrlReport.ARMOImprovement = unormalizedScore * ctrlReport.ARMOImprovement
+	if wcsScore > 0 {
+		ctrlScore = (unormalizedScore * 100) / wcsScore
+	} else {
+		//ctrlReport.Score = 0
+		zap.L().Error("worst case scenario was 0, meaning no resources input were given - score is not available(will appear as > 1)")
+	}
+	return ctrlScore, unormalizedScore, wcsScore
+
 }
