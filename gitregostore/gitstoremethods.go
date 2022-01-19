@@ -233,7 +233,7 @@ func (gs *GitRegoStore) GetOPAFrameworkByName(frameworkName string) (*opapolicy.
 			return &fw, nil
 		}
 	}
-	return nil, fmt.Errorf("control '%s' not found", frameworkName)
+	return nil, fmt.Errorf("framework '%s' not found", frameworkName)
 }
 
 func (gs *GitRegoStore) GetDefaultConfigInputs() (armotypes.CustomerConfig, error) {
