@@ -87,11 +87,13 @@ type NotificationPolicyKind string
 
 // Supported NotificationTypes
 const (
-	TypeValidateRules       NotificationPolicyType = "validateRules"
-	TypeExecPostureScan     NotificationPolicyType = "execPostureScan"
-	TypeUpdateRules         NotificationPolicyType = "updateRules"
-	TypeRunKubescapeJob     NotificationPolicyType = "runKubescapeJob"
-	TypeSetKubescapeCronJob NotificationPolicyType = "setKubescapeCronJob"
+	TypeValidateRules          NotificationPolicyType = "validateRules"
+	TypeExecPostureScan        NotificationPolicyType = "execPostureScan"
+	TypeUpdateRules            NotificationPolicyType = "updateRules"
+	TypeRunKubescapeJob        NotificationPolicyType = "runKubescapeJob"
+	TypeSetKubescapeCronJob    NotificationPolicyType = "setKubescapeCronJob"
+	TypeUpdateKubescapeCronJob NotificationPolicyType = "updateKubescapeCronJob"
+	TypeDeleteKubescapeCronJob NotificationPolicyType = "deleteKubescapeCronJob"
 )
 
 // Supported NotificationKinds
@@ -112,4 +114,19 @@ type PolicyNotification struct {
 type PolicyIdentifier struct {
 	Kind NotificationPolicyKind `json:"kind"`
 	Name string                 `json:"name"`
+}
+
+type KubescapeNotification struct {
+	JobParams        KubescapeJobParams         `json:"jobParams"`
+	NotificationType NotificationPolicyType     `json:"notificationType"`
+	Designators      armotypes.PortalDesignator `json:"designators"`
+}
+
+type KubescapeJobParams struct {
+	Name            string `json:"name,omitempty"`
+	ID              string `json:"id,omitempty"`
+	ClusterName     string `json:"clusterName"`
+	FrameworkName   string `json:"frameworkName"`
+	CronTabSchedule string `json:"cronTabSchedule,omitempty"`
+	JobID           string `json:"jobID,omitempty"`
 }
