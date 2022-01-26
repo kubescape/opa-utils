@@ -104,11 +104,10 @@ const (
 )
 
 type PolicyNotification struct {
-	NotificationType NotificationPolicyType     `json:"notificationType"`
-	Rules            []PolicyIdentifier         `json:"rules"`
-	ReportID         string                     `json:"reportID"`
-	JobID            string                     `json:"jobID"`
-	Designators      armotypes.PortalDesignator `json:"designators"`
+	Rules                 []PolicyIdentifier `json:"rules"`
+	ReportID              string             `json:"reportID"`
+	JobID                 string             `json:"jobID"`
+	KubescapeNotification `json:",inline"`
 }
 
 type PolicyIdentifier struct {
@@ -117,9 +116,9 @@ type PolicyIdentifier struct {
 }
 
 type KubescapeNotification struct {
-	JobParams        KubescapeJobParams         `json:"jobParams"`
-	NotificationType NotificationPolicyType     `json:"notificationType"`
-	Designators      armotypes.PortalDesignator `json:"designators"`
+	KubescapeJobParams KubescapeJobParams         `json:"kubescapeJobParams"`
+	NotificationType   NotificationPolicyType     `json:"notificationType"`
+	Designators        armotypes.PortalDesignator `json:"designators"`
 }
 
 type KubescapeJobParams struct {

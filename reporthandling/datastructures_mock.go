@@ -189,10 +189,11 @@ func MockRuleB() *PolicyRule {
 
 func MockPolicyNotificationA() *PolicyNotification {
 	return &PolicyNotification{
-		NotificationType: TypeExecPostureScan,
-		ReportID:         AMockReportID,
-		JobID:            AMockJobID,
-		Designators:      armotypes.PortalDesignator{},
+		KubescapeNotification: KubescapeNotification{
+			NotificationType: TypeExecPostureScan,
+			Designators:      armotypes.PortalDesignator{}},
+		ReportID: AMockReportID,
+		JobID:    AMockJobID,
 		Rules: []PolicyIdentifier{
 			{
 				Kind: KindFramework,
