@@ -30,13 +30,17 @@ func (r *Resource) middleware() workloadinterface.IMetadata {
 	}
 
 	if r.Object != nil {
-		bObject, err := json.Marshal(r.Object)
-		if err != nil {
-			return r.IMetadata
-		}
 		mObject := map[string]interface{}{}
-		if err := json.Unmarshal(bObject, &mObject); err != nil {
-			return r.IMetadata
+		var ok bool
+		if mObject, ok = r.Object.(map[string]interface{}); !ok {
+			// can we get rid of this marshal / unmarshal totally?
+			bObject, err := json.Marshal(r.Object)
+			if err != nil {
+				return r.IMetadata
+			}
+			if err := json.Unmarshal(bObject, &mObject); err != nil {
+				return r.IMetadata
+			}
 		}
 		r.IMetadata = objectsenvelopes.NewObject(mObject)
 	}
