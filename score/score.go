@@ -110,6 +110,15 @@ func (*ScoreUtil) processWorkload(wl *workloadinterface.Workload, score float32,
 		}
 
 		if strings.ToLower(wl.GetKind()) == "daemonset" {
+			/*
+				if n, ok := workloadinterface.InspectMap(v, "status", "desiredNumberScheduled"); ok {
+					if desiredNumberScheduled, ok := n.(int32); ok && desiredNumberScheduled > 0 {
+						score *= float32(desiredNumberScheduled)
+					}
+				}
+			*/
+
+			//TODO - replace marshal and unmarshal by map inspection look code above
 			b, err := json.Marshal(v)
 			if err == nil {
 				dmnset := appsv1.DaemonSet{}
