@@ -23,6 +23,7 @@ const (
 type RuleResponse struct {
 	AlertMessage string                            `json:"alertMessage"`
 	FailedPaths  []string                          `json:"failedPaths"`
+	FixPaths     []armotypes.FixPath               `json:"fixPaths"`
 	RuleStatus   string                            `json:"ruleStatus"`
 	PackageName  string                            `json:"packagename"`
 	AlertScore   AlertScore                        `json:"alertScore"`
