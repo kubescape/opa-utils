@@ -67,20 +67,23 @@ func ListRuleExceptions(exceptionPolicies []armotypes.PostureExceptionPolicy, fr
 }
 
 func ruleHasExceptions(exceptionPolicy *armotypes.PostureExceptionPolicy, frameworkName, controlName, controlID, ruleName string) bool {
+	if len(exceptionPolicy.PosturePolicies) == 0 {
+		return true // empty policy -> apply all
+	}
 	for _, posturePolicy := range exceptionPolicy.PosturePolicies {
 		if posturePolicy.FrameworkName == "" && posturePolicy.ControlName == "" && posturePolicy.ControlID == "" && posturePolicy.RuleName == "" {
-			continue // empty policy -> ignore
+			return true // empty policy -> apply all
 		}
-		if posturePolicy.FrameworkName != "" && frameworkName != "" && !strings.EqualFold(posturePolicy.FrameworkName, frameworkName) {
+		if posturePolicy.FrameworkName != "" && frameworkName != "" && !(strings.EqualFold(posturePolicy.FrameworkName, frameworkName) || regexCompare(strings.ToLower(posturePolicy.FrameworkName), strings.ToLower(frameworkName))) {
 			continue // policy does not match
 		}
-		if posturePolicy.ControlName != "" && controlName != "" && !strings.EqualFold(posturePolicy.ControlName, controlName) {
+		if posturePolicy.ControlName != "" && controlName != "" && !(strings.EqualFold(posturePolicy.ControlName, controlName) || regexCompare(strings.ToLower(posturePolicy.ControlName), strings.ToLower(controlName))) {
 			continue // policy does not match
 		}
-		if posturePolicy.ControlID != "" && controlID != "" && !strings.EqualFold(posturePolicy.ControlID, controlID) {
+		if posturePolicy.ControlID != "" && controlID != "" && !(strings.EqualFold(posturePolicy.ControlID, controlID) || regexCompare(strings.ToLower(posturePolicy.ControlID), strings.ToLower(controlID))) {
 			continue // policy does not match
 		}
-		if posturePolicy.RuleName != "" && ruleName != "" && !strings.EqualFold(posturePolicy.RuleName, ruleName) {
+		if posturePolicy.RuleName != "" && ruleName != "" && !(strings.EqualFold(posturePolicy.RuleName, ruleName) || regexCompare(strings.ToLower(posturePolicy.RuleName), strings.ToLower(ruleName))) {
 			continue // policy does not match
 		}
 		return true // policies match
@@ -170,7 +173,7 @@ func compareKind(workload workloadinterface.IMetadata, kind string) bool {
 }
 
 func compareName(workload workloadinterface.IMetadata, name string) bool {
-	return regexCompare(workload.GetName(), name)
+	return regexCompare(name, workload.GetName())
 }
 
 func compareLabels(workload workloadinterface.IMetadata, attributes map[string]string) bool {

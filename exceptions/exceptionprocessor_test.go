@@ -30,12 +30,28 @@ func postureExceptionPolicyAlertOnlyMock() *armotypes.PostureExceptionPolicy {
 		},
 		PosturePolicies: []armotypes.PosturePolicy{
 			{
-				FrameworkName: "MITRE",
+				FrameworkName: "MIT.*",
 			},
 		},
 	}
 }
 
+func emptyPostureExceptionPolicyAlertOnlyMock() *armotypes.PostureExceptionPolicy {
+	return &armotypes.PostureExceptionPolicy{
+		PortalBase: armotypes.PortalBase{
+			Name: "postureExceptionPolicyAlertOnlyMock",
+		},
+		PolicyType: "postureExceptionPolicy",
+		Actions:    []armotypes.PostureExceptionPolicyActions{armotypes.AlertOnly},
+		Resources: []armotypes.PortalDesignator{
+			{
+				DesignatorType: armotypes.DesignatorAttributes,
+				Attributes:     map[string]string{},
+			},
+		},
+		PosturePolicies: []armotypes.PosturePolicy{},
+	}
+}
 func TestListRuleExceptions(t *testing.T) {
 	exceptionPolicies := []armotypes.PostureExceptionPolicy{*postureExceptionPolicyAlertOnlyMock()}
 	res1 := ListRuleExceptions(exceptionPolicies, "MITRE", "", "", "")
@@ -46,8 +62,57 @@ func TestListRuleExceptions(t *testing.T) {
 
 	res3 := ListRuleExceptions(exceptionPolicies, "NSA", "", "", "")
 	assert.Equal(t, len(res3), 0)
+
 }
 
+func TestListRuleExceptionsRegex(t *testing.T) {
+	exceptionPolicy := emptyPostureExceptionPolicyAlertOnlyMock()
+	res1 := ListRuleExceptions([]armotypes.PostureExceptionPolicy{*exceptionPolicy}, "MITRE", "", "", "")
+	assert.Equal(t, 1, len(res1))
+
+	exceptionPolicy.PosturePolicies = append(exceptionPolicy.PosturePolicies, armotypes.PosturePolicy{
+		FrameworkName: "MIT.*",
+	})
+
+	res2 := ListRuleExceptions([]armotypes.PostureExceptionPolicy{*exceptionPolicy}, "MITRE", "", "", "")
+	assert.Equal(t, 1, len(res2))
+
+	res2 = ListRuleExceptions([]armotypes.PostureExceptionPolicy{*exceptionPolicy}, "2MITRE", "", "", "")
+	assert.Equal(t, 0, len(res2))
+
+	exceptionPolicy.PosturePolicies[0] = armotypes.PosturePolicy{
+		FrameworkName: "mit.*",
+	}
+	res2 = ListRuleExceptions([]armotypes.PostureExceptionPolicy{*exceptionPolicy}, "MITRE", "", "", "")
+	assert.Equal(t, 1, len(res2))
+
+	exceptionPolicy.PosturePolicies[0] = armotypes.PosturePolicy{
+		FrameworkName: "mitre",
+	}
+	res2 = ListRuleExceptions([]armotypes.PostureExceptionPolicy{*exceptionPolicy}, "MITRE", "", "", "")
+	assert.Equal(t, 1, len(res2))
+
+	exceptionPolicy.PosturePolicies[0] = armotypes.PosturePolicy{
+		FrameworkName: "MITRE",
+		ControlName:   "my.*",
+		RuleName:      "rule.*vk",
+	}
+
+	res3 := ListRuleExceptions([]armotypes.PostureExceptionPolicy{*exceptionPolicy}, "MITRE", "", "", "")
+	assert.Equal(t, 1, len(res3))
+
+	res3 = ListRuleExceptions([]armotypes.PostureExceptionPolicy{*exceptionPolicy}, "MITRE", "my-control", "", "")
+	assert.Equal(t, 1, len(res3))
+
+	res3 = ListRuleExceptions([]armotypes.PostureExceptionPolicy{*exceptionPolicy}, "MITRE", "control-my", "", "")
+	assert.Equal(t, 0, len(res3))
+
+	res3 = ListRuleExceptions([]armotypes.PostureExceptionPolicy{*exceptionPolicy}, "MITRE", "my-control", "", "rulebla -bla vk")
+	assert.Equal(t, 1, len(res3))
+
+	res3 = ListRuleExceptions([]armotypes.PostureExceptionPolicy{*exceptionPolicy}, "MITRE", "control-my", "", "rulebla -bla")
+	assert.Equal(t, 0, len(res3))
+}
 func TestRegexCompare(t *testing.T) {
 	assert.True(t, compareCluster(".*minikube.*", "bez-minikube-25-10"))
 	assert.True(t, compareCluster("bez-minikube-25-10", "bez-minikube-25-10"))
