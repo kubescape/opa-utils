@@ -151,16 +151,28 @@ func (su *ScoreUtil) ControlScore(ctrlReport *reporthandling.ControlReport, fram
 	failedResourceIDS := ctrlReport.ListResourcesIDs().GetFailedResources()
 	allResourcesIDS := ctrlReport.ListResourcesIDs().GetAllResources()
 	for i := range failedResourceIDS {
-		ctrlReport.Score += su.GetScore(su.resources[failedResourceIDS[i]].GetObject())
+		if failedResourceIDS, ok := su.resources[failedResourceIDS[i]]; ok {
+			ctrlReport.Score += su.GetScore(failedResourceIDS.GetObject())
+		}
 	}
-	ctrlReport.Score *= ctrlReport.BaseScore
+	if ctrlReport.Score != 0 {
+		ctrlReport.Score *= ctrlReport.BaseScore
+	} else {
+		ctrlReport.Score = ctrlReport.BaseScore
+	}
 
 	var wcsScore float32 = 0
 	for i := range allResourcesIDS {
-		wcsScore += su.GetScore(su.resources[allResourcesIDS[i]].GetObject())
+		if allResourcesIDS, ok := su.resources[allResourcesIDS[i]]; ok {
+			wcsScore += su.GetScore(allResourcesIDS.GetObject())
+		}
+	}
+	if ctrlReport.Score != 0 {
+		wcsScore *= ctrlReport.BaseScore
+	} else {
+		wcsScore = ctrlReport.BaseScore
 	}
 
-	wcsScore *= ctrlReport.BaseScore
 	//x
 	unormalizedScore := ctrlReport.Score
 	ctrlReport.ARMOImprovement = unormalizedScore * ctrlReport.ARMOImprovement
