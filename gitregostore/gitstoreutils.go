@@ -121,28 +121,31 @@ func (gs *GitRegoStore) setObjectsFromRepoOnce() error {
 	for _, path := range trees.TREE {
 		rawDataPath := "https://raw.githubusercontent.com/" + gs.Owner + "/" + gs.Repository + "/" + gs.Branch + "/" + path.PATH
 
-		if strings.HasPrefix(path.PATH, rulesJsonFileName) && strings.HasSuffix(path.PATH, ".json") {
+		if strings.HasPrefix(path.PATH, rulesJsonFileName+"/") && strings.HasSuffix(path.PATH, ".json") {
 			respStr, err := HttpGetter(gs.httpClient, rawDataPath)
 			if err != nil {
 				return err
 			}
 			if err := gs.setRulesWithRawRego(respStr, rawDataPath); err != nil {
+				zap.L().Debug("In setObjectsFromRepoOnce - failed to set rule %s\n", zap.String("path", rawDataPath))
 				return err
 			}
-		} else if strings.HasPrefix(path.PATH, controlsJsonFileName) && strings.HasSuffix(path.PATH, ".json") {
+		} else if strings.HasPrefix(path.PATH, controlsJsonFileName+"/") && strings.HasSuffix(path.PATH, ".json") {
 			respStr, err := HttpGetter(gs.httpClient, rawDataPath)
 			if err != nil {
 				return err
 			}
 			if err := gs.setControl(respStr); err != nil {
+				zap.L().Debug("In setObjectsFromRepoOnce - failed to set control %s\n", zap.String("path", rawDataPath))
 				return err
 			}
-		} else if strings.HasPrefix(path.PATH, frameworksJsonFileName) && strings.HasSuffix(path.PATH, ".json") {
+		} else if strings.HasPrefix(path.PATH, frameworksJsonFileName+"/") && strings.HasSuffix(path.PATH, ".json") {
 			respStr, err := HttpGetter(gs.httpClient, rawDataPath)
 			if err != nil {
 				return err
 			}
 			if err := gs.setFramework(respStr); err != nil {
+				zap.L().Debug("In setObjectsFromRepoOnce - failed to set framework %s\n", zap.String("path", rawDataPath))
 				return err
 			}
 		} else if strings.HasPrefix(path.PATH, defaultConfigInputsFileName) && strings.HasSuffix(path.PATH, ".json") {
@@ -151,6 +154,7 @@ func (gs *GitRegoStore) setObjectsFromRepoOnce() error {
 				return err
 			}
 			if err := gs.setDefaultConfigInputsFileName(respStr); err != nil {
+				zap.L().Debug("In setObjectsFromRepoOnce - failed to set DefaultConfigInputs %s\n", zap.String("path", rawDataPath))
 				return err
 			}
 		} else if strings.HasSuffix(path.PATH, ControlRuleRelationsFileName+".csv") {
