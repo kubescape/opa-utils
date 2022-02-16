@@ -11,19 +11,16 @@ import (
 
 // GetStatus get the control status. returns an apis.ScanningStatus object
 func (controlSummary *ControlSummary) GetStatus() apis.IStatus {
-	if controlSummary.Status == apis.StatusUnknown {
+	if controlSummary.Status == apis.StatusUnknown || (controlSummary.StatusInfo == apis.StatusInfo{}) {
 		controlSummary.CalculateStatus()
 	}
-	if (controlSummary.StatusInfo != StatusInfo{}) {
-		return helpersv1.NewStatusInfo(controlSummary.StatusInfo.Status, controlSummary.StatusInfo.Info)
-	}
-	return helpersv1.NewStatus(controlSummary.Status)
+	return helpersv1.NewStatusInfo(controlSummary.StatusInfo.InnerStatus, controlSummary.StatusInfo.InnerInfo)
 
 }
 
 // CalculateStatus set the control status based on the resource counters
 func (controlSummary *ControlSummary) CalculateStatus() {
-	controlSummary.StatusInfo.Status = calculateStatus(&controlSummary.ResourceCounters)
+	controlSummary.StatusInfo.InnerStatus = calculateStatus(&controlSummary.ResourceCounters)
 	controlSummary.Status = calculateStatus(&controlSummary.ResourceCounters)
 }
 

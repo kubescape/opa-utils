@@ -8,13 +8,25 @@ import (
 func MockSummaryDetails() *SummaryDetails {
 	return mockSummaryDetailsFailed()
 }
-func mockSummaryDetailsSkipped() *SummaryDetails {
+func mockSummaryDetailsStatusIrrelevant() *SummaryDetails {
 	return &SummaryDetails{
 		Frameworks: []FrameworkSummary{
 			*mockFrameworkSummaryFailPass(),
 		},
 		Controls: map[string]ControlSummary{
-			"C-0001": *mockControlSummarySkipped(),
+			"C-0001": *mockControlSummaryStatusIrelevant(),
+		},
+		ResourceCounters: *mockResourceCountersExcludeFailPass(),
+		Status:           apis.StatusFailed,
+	}
+}
+func mockSummaryDetailsStatusSkipped() *SummaryDetails {
+	return &SummaryDetails{
+		Frameworks: []FrameworkSummary{
+			*mockFrameworkSummaryFailPass(),
+		},
+		Controls: map[string]ControlSummary{
+			"C-0001": *mockControlSummaryStatusSkipped(),
 		},
 		ResourceCounters: *mockResourceCountersExcludeFailPass(),
 		Status:           apis.StatusFailed,
@@ -134,20 +146,30 @@ func mockControlSummaryFailPassExclude() *ControlSummary {
 		ResourceIDs:      *helpersv1.MockAllListsForIntegration(),
 	}
 }
-
-func mockControlSummarySkipped() *ControlSummary {
+func mockControlSummaryStatusSkipped() *ControlSummary {
 	return &ControlSummary{
 		Name:   "control-skipped",
 		Status: apis.StatusSkipped,
-		StatusInfo: StatusInfo{
-			Status: apis.InofStatusIrelevant,
-			Info:   "no host sensor flag",
+		StatusInfo: apis.StatusInfo{
+			InnerStatus: apis.InfoStatusSkipped,
+			InnerInfo:   "no host sensor flag",
 		},
 		Score: 0,
-		// ResourceCounters: ResourceCounters{},
-		// ResourceIDs:      *helpersv1.MockAllListsForIntegration(),
 	}
 }
+
+func mockControlSummaryStatusIrelevant() *ControlSummary {
+	return &ControlSummary{
+		Name:   "control-irrelevant",
+		Status: apis.StatusSkipped,
+		StatusInfo: apis.StatusInfo{
+			InnerStatus: apis.InfoStatusIrelevant,
+			InnerInfo:   "no k8s dashboard in cluster",
+		},
+		Score: 0,
+	}
+}
+
 func mockResourceCountersFailPass() *ResourceCounters {
 	return &ResourceCounters{
 		PassedResources: 5,

@@ -13,8 +13,8 @@ const (
 )
 
 const (
-	InofStatusSkipped   ScanningStatus = "N/A"
-	InofStatusIrelevant ScanningStatus = "irelevant"
+	InfoStatusSkipped   ScanningStatus = "skipped" // skipped / N/A
+	InfoStatusIrelevant ScanningStatus = "irelevant"
 )
 
 // IStatus interface handling status

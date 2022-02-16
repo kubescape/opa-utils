@@ -29,17 +29,32 @@ func TestSetStatus(t *testing.T) {
 
 }
 
-func TestStatusInfo(t *testing.T) {
+func TestStatusInfoSkipped(t *testing.T) {
 	var status apis.ScanningStatus
 	var info string
 
-	f := mockSummaryDetailsSkipped() // control -> status: "irrelevant", info: "no host sensor flag"
+	f := mockSummaryDetailsStatusSkipped() // control -> status: "skipped", info: "no host sensor flag"
 
 	for _, v := range f.Controls {
 		status = v.GetStatus().Status()
 		info = v.GetStatus().Info()
-		assert.Equal(t, status, "irrelevant")
+		assert.Equal(t, status, apis.InfoStatusSkipped)
 		assert.Equal(t, info, "no host sensor flag")
+	}
+
+}
+
+func TestStatusInfoIrelevant(t *testing.T) {
+	var status apis.ScanningStatus
+	var info string
+
+	f := mockSummaryDetailsStatusIrrelevant() // control -> status: "irrelevant", info: "no k8s dashboard in cluster"
+
+	for _, v := range f.Controls {
+		status = v.GetStatus().Status()
+		info = v.GetStatus().Info()
+		assert.Equal(t, status, apis.InfoStatusIrelevant)
+		assert.Equal(t, info, "no k8s dashboard in cluster")
 	}
 
 }
