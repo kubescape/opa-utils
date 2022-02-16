@@ -29,8 +29,24 @@ func TestSetStatus(t *testing.T) {
 
 }
 
+func TestStatusInfo(t *testing.T) {
+	var status apis.ScanningStatus
+	var info string
+
+	f := mockSummaryDetailsSkipped() // control -> status: "irrelevant", info: "no host sensor flag"
+
+	for _, v := range f.Controls {
+		status = v.GetStatus().Status()
+		info = v.GetStatus().Info()
+		assert.Equal(t, status, "irrelevant")
+		assert.Equal(t, info, "no host sensor flag")
+	}
+
+}
+
 func TestFrameworkControlsSummariesCounters(t *testing.T) {
 	f := mockFrameworkSummaryFailPass()
+	f.ListControlsIDs().Skipped()
 	assert.Equal(t, len(f.Controls), f.ListControls().NumberOfControls().All(), "invalid total control count")
 	assert.Equal(t, len(f.ListControls().ListControlsIDs().Failed()), f.ListControls().NumberOfControls().Failed(), "invalid total failed control count")
 	assert.Equal(t, len(f.ListControls().ListControlsIDs().Passed()), f.ListControls().NumberOfControls().Passed(), "invalid total passed control count")

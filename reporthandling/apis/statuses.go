@@ -12,9 +12,15 @@ const (
 
 )
 
+const (
+	InofStatusSkipped   ScanningStatus = "N/A"
+	InofStatusIrelevant ScanningStatus = "irelevant"
+)
+
 // IStatus interface handling status
 type IStatus interface {
 	Status() ScanningStatus
+	Info() string
 	IsPassed() bool
 	IsFailed() bool
 	IsExcluded() bool

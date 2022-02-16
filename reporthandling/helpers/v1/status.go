@@ -14,6 +14,10 @@ func (s *Status) Status() apis.ScanningStatus {
 	return s.status
 }
 
+func (s *Status) Info() string {
+	return ""
+}
+
 // IsPassed is the status pass
 func (s *Status) IsPassed() bool {
 	return s.status == apis.StatusPassed

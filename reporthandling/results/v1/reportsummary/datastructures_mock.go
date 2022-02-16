@@ -8,6 +8,19 @@ import (
 func MockSummaryDetails() *SummaryDetails {
 	return mockSummaryDetailsFailed()
 }
+func mockSummaryDetailsSkipped() *SummaryDetails {
+	return &SummaryDetails{
+		Frameworks: []FrameworkSummary{
+			*mockFrameworkSummaryFailPass(),
+		},
+		Controls: map[string]ControlSummary{
+			"C-0001": *mockControlSummarySkipped(),
+		},
+		ResourceCounters: *mockResourceCountersExcludeFailPass(),
+		Status:           apis.StatusFailed,
+	}
+}
+
 func mockSummaryDetailsFailed() *SummaryDetails {
 	return &SummaryDetails{
 		Frameworks: []FrameworkSummary{
@@ -119,6 +132,20 @@ func mockControlSummaryFailPassExclude() *ControlSummary {
 		Score:            0,
 		ResourceCounters: *mockResourceCountersExcludeFailPass(),
 		ResourceIDs:      *helpersv1.MockAllListsForIntegration(),
+	}
+}
+
+func mockControlSummarySkipped() *ControlSummary {
+	return &ControlSummary{
+		Name:   "control-skipped",
+		Status: apis.StatusSkipped,
+		StatusInfo: StatusInfo{
+			Status: apis.InofStatusIrelevant,
+			Info:   "no host sensor flag",
+		},
+		Score: 0,
+		// ResourceCounters: ResourceCounters{},
+		// ResourceIDs:      *helpersv1.MockAllListsForIntegration(),
 	}
 }
 func mockResourceCountersFailPass() *ResourceCounters {
