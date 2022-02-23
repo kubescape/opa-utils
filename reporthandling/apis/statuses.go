@@ -14,7 +14,7 @@ const (
 
 const (
 	InofStatusSkipped   ScanningStatus = "N/A"
-	InofStatusIrelevant ScanningStatus = "irelevant"
+	InofStatusIrelevant ScanningStatus = "irrelevant"
 )
 
 // IStatus interface handling status
