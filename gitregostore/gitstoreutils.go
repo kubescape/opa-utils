@@ -194,17 +194,42 @@ func (gs *GitRegoStore) setControl(respStr string) error {
 
 func (gs *GitRegoStore) setRulesWithRawRego(respStr string, path string) error {
 	rule := &opapolicy.PolicyRule{}
-	if err := JSONDecoder(respStr).Decode(rule); err != nil {
+	rawRego, err := gs.getRulesWithRawRego(rule, respStr, path)
+	if err != nil {
 		return err
+	}
+	filterRego, err := gs.getRulesWithFilterRego(rule, respStr, path)
+	if err != nil && !strings.Contains(err.Error(), "404 Not Found") {
+		return err
+	}
+	rule.Rule = rawRego
+	rule.ResourceEnumerator = filterRego
+	gs.Rules = append(gs.Rules, *rule)
+	return nil
+}
+
+func (gs *GitRegoStore) getRulesWithRawRego(rule *opapolicy.PolicyRule, respStr string, path string) (string, error) {
+	if err := JSONDecoder(respStr).Decode(rule); err != nil {
+		return "", err
 	}
 	rawRegoPath := path[:strings.LastIndex(path, "/")] + "/raw.rego"
 	respString, err := HttpGetter(gs.httpClient, rawRegoPath)
 	if err != nil {
-		return err
+		return "", err
 	}
-	rule.Rule = respString
-	gs.Rules = append(gs.Rules, *rule)
-	return nil
+	return respString, nil
+}
+
+func (gs *GitRegoStore) getRulesWithFilterRego(rule *opapolicy.PolicyRule, respStr string, path string) (string, error) {
+	if err := JSONDecoder(respStr).Decode(rule); err != nil {
+		return "", err
+	}
+	rawRegoPath := path[:strings.LastIndex(path, "/")] + "/filter.rego"
+	respString, err := HttpGetter(gs.httpClient, rawRegoPath)
+	if err != nil {
+		return "", err
+	}
+	return respString, nil
 }
 
 // ======================== set Objects From Release =============================================
