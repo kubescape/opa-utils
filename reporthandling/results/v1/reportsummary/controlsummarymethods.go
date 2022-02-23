@@ -21,6 +21,9 @@ func (controlSummary *ControlSummary) GetStatus() apis.IStatus {
 // CalculateStatus set the control status based on the resource counters
 func (controlSummary *ControlSummary) CalculateStatus() {
 	controlSummary.StatusInfo.InnerStatus = calculateStatus(&controlSummary.ResourceCounters)
+	if controlSummary.StatusInfo.InnerStatus == apis.InfoStatusSkipped {
+		controlSummary.StatusInfo.InnerStatus = apis.InfoStatusIrelevant
+	}
 	controlSummary.Status = calculateStatus(&controlSummary.ResourceCounters)
 }
 
