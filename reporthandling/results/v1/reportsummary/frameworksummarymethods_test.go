@@ -38,7 +38,7 @@ func TestStatusInfo(t *testing.T) {
 	for _, v := range f.Controls {
 		status = v.GetStatus().Status()
 		info = v.GetStatus().Info()
-		assert.Equal(t, status, "irrelevant")
+		assert.Equal(t, status, apis.InofStatusIrelevant)
 		assert.Equal(t, info, "no host sensor flag")
 	}
 
