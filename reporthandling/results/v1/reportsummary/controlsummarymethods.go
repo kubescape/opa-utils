@@ -11,6 +11,9 @@ import (
 
 // GetStatus get the control status. returns an apis.ScanningStatus object
 func (controlSummary *ControlSummary) GetStatus() apis.IStatus {
+	if controlSummary.Status == apis.StatusUnknown {
+		controlSummary.CalculateStatus()
+	}
 	if controlSummary.StatusInfo == (apis.StatusInfo{}) {
 		return helpersv1.NewStatusInfo(controlSummary.Status, controlSummary.StatusInfo.InnerInfo)
 	}

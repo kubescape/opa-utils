@@ -41,6 +41,18 @@ func TestStatusInfoNotPresent(t *testing.T) {
 
 }
 
+func TestStatusEmpty(t *testing.T) {
+
+	f := mockSummaryDetailsStatusEmpty()
+	for _, v := range f.Controls {
+		status := v.GetStatus()
+		assert.Equal(t, reflect.TypeOf(status), reflect.TypeOf(&apis.StatusInfo{}))
+		assert.Equal(t, status.Status(), apis.InfoStatusIrelevant)
+		assert.Equal(t, status.Info(), "")
+	}
+
+}
+
 func TestStatusInfoSkipped(t *testing.T) {
 	var status apis.ScanningStatus
 	var info string

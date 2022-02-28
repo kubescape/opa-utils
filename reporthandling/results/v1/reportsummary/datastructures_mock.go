@@ -34,6 +34,19 @@ func mockSummaryDetailsNoInnerStatus() *SummaryDetails {
 	}
 }
 
+func mockSummaryDetailsStatusEmpty() *SummaryDetails {
+	return &SummaryDetails{
+		Frameworks: []FrameworkSummary{
+			*mockFrameworkSummaryFailPass(),
+		},
+		Controls: map[string]ControlSummary{
+			"C-0001": *mockControlSummaryStatusEmpty(),
+		},
+		ResourceCounters: *mockResourceCountersExcludeFailPass(),
+		Status:           apis.StatusFailed,
+	}
+}
+
 func mockSummaryDetailsStatusSkipped() *SummaryDetails {
 	return &SummaryDetails{
 		Frameworks: []FrameworkSummary{
@@ -178,6 +191,13 @@ func mockControlSummaryNoInnerStatus() *ControlSummary {
 		Status:     apis.StatusSkipped,
 		StatusInfo: apis.StatusInfo{},
 		Score:      0,
+	}
+}
+
+func mockControlSummaryStatusEmpty() *ControlSummary {
+	return &ControlSummary{
+		Name:  "control-irrelevant",
+		Score: 0,
 	}
 }
 
