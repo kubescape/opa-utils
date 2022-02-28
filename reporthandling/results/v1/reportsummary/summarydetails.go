@@ -17,6 +17,7 @@ func (summaryDetails *SummaryDetails) GetStatus() *helpersv1.Status {
 }
 
 // SetStatus set the framework status based on the resource counters
+// Only for kubescape
 func (summaryDetails *SummaryDetails) CalculateStatus() {
 	summaryDetails.Status = calculateStatus(&summaryDetails.ResourceCounters)
 }

@@ -11,14 +11,14 @@ import (
 
 // GetStatus get the control status. returns an apis.ScanningStatus object
 func (controlSummary *ControlSummary) GetStatus() apis.IStatus {
-	if controlSummary.Status == apis.StatusUnknown || (controlSummary.StatusInfo == apis.StatusInfo{}) {
-		controlSummary.CalculateStatus()
+	if controlSummary.StatusInfo == (apis.StatusInfo{}) {
+		return helpersv1.NewStatusInfo(controlSummary.Status, controlSummary.StatusInfo.InnerInfo)
 	}
 	return helpersv1.NewStatusInfo(controlSummary.StatusInfo.InnerStatus, controlSummary.StatusInfo.InnerInfo)
-
 }
 
 // CalculateStatus set the control status based on the resource counters
+// Only for kubescape
 func (controlSummary *ControlSummary) CalculateStatus() {
 	controlSummary.StatusInfo.InnerStatus = calculateStatus(&controlSummary.ResourceCounters)
 	if controlSummary.StatusInfo.InnerStatus == apis.InfoStatusSkipped {

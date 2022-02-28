@@ -20,6 +20,20 @@ func mockSummaryDetailsStatusIrrelevant() *SummaryDetails {
 		Status:           apis.StatusFailed,
 	}
 }
+
+func mockSummaryDetailsNoInnerStatus() *SummaryDetails {
+	return &SummaryDetails{
+		Frameworks: []FrameworkSummary{
+			*mockFrameworkSummaryFailPass(),
+		},
+		Controls: map[string]ControlSummary{
+			"C-0001": *mockControlSummaryNoInnerStatus(),
+		},
+		ResourceCounters: *mockResourceCountersExcludeFailPass(),
+		Status:           apis.StatusFailed,
+	}
+}
+
 func mockSummaryDetailsStatusSkipped() *SummaryDetails {
 	return &SummaryDetails{
 		Frameworks: []FrameworkSummary{
@@ -155,6 +169,15 @@ func mockControlSummaryStatusSkipped() *ControlSummary {
 			InnerInfo:   "no host sensor flag",
 		},
 		Score: 0,
+	}
+}
+
+func mockControlSummaryNoInnerStatus() *ControlSummary {
+	return &ControlSummary{
+		Name:       "control-irrelevant",
+		Status:     apis.StatusSkipped,
+		StatusInfo: apis.StatusInfo{},
+		Score:      0,
 	}
 }
 

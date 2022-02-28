@@ -1,6 +1,7 @@
 package reportsummary
 
 import (
+	"reflect"
 	"testing"
 
 	"github.com/armosec/opa-utils/reporthandling/apis"
@@ -16,7 +17,6 @@ func TestSetStatus(t *testing.T) {
 	f.Status = apis.StatusUnknown
 	for k, v := range f.Controls {
 		status = append(status, v.GetStatus().Status())
-		v.Status = apis.StatusUnknown
 		f.Controls[k] = v
 	}
 
@@ -25,6 +25,18 @@ func TestSetStatus(t *testing.T) {
 	for _, v := range f.Controls {
 		i++
 		assert.Equal(t, status[i], v.GetStatus().Status())
+	}
+
+}
+
+func TestStatusInfoNotPresent(t *testing.T) {
+
+	f := mockSummaryDetailsNoInnerStatus() // Status: skipped , InnerStatus empty
+	for _, v := range f.Controls {
+		status := v.GetStatus()
+		assert.Equal(t, reflect.TypeOf(status), reflect.TypeOf(&apis.StatusInfo{}))
+		assert.Equal(t, status.Status(), apis.InfoStatusSkipped)
+		assert.Equal(t, status.Info(), "")
 	}
 
 }
