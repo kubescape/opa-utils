@@ -31,11 +31,17 @@ type FrameworkSummary struct {
 
 type ControlSummaries map[string]ControlSummary
 
+type StatusInfo struct {
+	Status apis.ScanningStatus `json:"status"` // N/A / skipped / irrelevant
+	Info   string              `json:"info"`   // missing --enable flag
+}
+
 // ControlSummary summary of scanning from a single control perspective
 type ControlSummary struct {
 	ControlID        string              `json:"controlID"`
 	Name             string              `json:"name"`
-	Status           apis.ScanningStatus `json:"status"`
+	Status           apis.ScanningStatus `json:"status"` // skipped
+	StatusInfo       StatusInfo          `json:"statusInfo,omitempty"`
 	Score            float32             `json:"score"`
 	ScoreFactor      float32             `json:"scoreFactor"`
 	ResourceIDs      helpersv1.AllLists  `json:"resourceIDs"`

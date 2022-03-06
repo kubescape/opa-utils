@@ -14,11 +14,16 @@ func (controlSummary *ControlSummary) GetStatus() apis.IStatus {
 	if controlSummary.Status == apis.StatusUnknown {
 		controlSummary.CalculateStatus()
 	}
+	if (controlSummary.StatusInfo != StatusInfo{}) {
+		return helpersv1.NewStatusInfo(controlSummary.StatusInfo.Status, controlSummary.StatusInfo.Info)
+	}
 	return helpersv1.NewStatus(controlSummary.Status)
+
 }
 
 // CalculateStatus set the control status based on the resource counters
 func (controlSummary *ControlSummary) CalculateStatus() {
+	controlSummary.StatusInfo.Status = calculateStatus(&controlSummary.ResourceCounters)
 	controlSummary.Status = calculateStatus(&controlSummary.ResourceCounters)
 }
 
