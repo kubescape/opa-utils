@@ -1,7 +1,6 @@
 package gitregostore
 
 import (
-	"fmt"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -55,52 +54,46 @@ func TestInitGitRegoStoreFromRelease(t *testing.T) {
 // 	}
 // }
 
-func TestFilterRegoesForDev(t *testing.T) {
-	baseUrl := "https://api.github.com/repos"
-	owner := "armosec"
-	repository := "regolibrary"
-	path := "git/trees"
-	tag := ""
-	branch := "dev"
-	frequency := 1
-	gs := InitGitRegoStore(baseUrl, owner, repository, path, tag, branch, frequency)
-	if gs.Controls == nil {
-		t.Errorf("failed to decode controls")
-	}
-	if gs.Frameworks == nil {
-		t.Errorf("failed to decode frameworks")
-	}
-	if gs.Rules == nil {
-		t.Errorf("failed to decode rules")
-	}
-	fmt.Println(gs.URL)
-	gsMaster := InitDefaultGitRegoStore(-1)
+// func TestFilterRegoesForDev(t *testing.T) {
+// 	baseUrl := "https://api.github.com/repos"
+// 	owner := "armosec"
+// 	repository := "regolibrary"
+// 	path := "git/trees"
+// 	tag := ""
+// 	branch := "dev"
+// 	frequency := 1
+// 	gs := InitGitRegoStore(baseUrl, owner, repository, path, tag, branch, frequency)
+// 	assert.Nil(t, gs.Controls, "failed to decode controls")
+// 	assert.Nil(t, gs.Frameworks, "failed to decode frameworks")
+// 	assert.Nil(t, gs.Rules, "failed to decode rules")
+// 	gsMaster := InitDefaultGitRegoStore(-1)
 
-	for _, control := range gs.Controls {
-		ctrlMaster, err := gsMaster.GetOPAControlByName(control.Name)
-		if err != nil {
-			t.Errorf(err.Error())
-		}
-		ctrl, err := gs.GetOPAControlByName(control.Name)
-		if err != nil {
-			t.Errorf(err.Error())
-		}
-		for _, rule_master := range ctrlMaster.Rules {
-			for _, rule := range ctrl.Rules {
-				if rule.Name == rule_master.Name {
-					if rule_master.ResourceEnumerator != "" && rule.ResourceEnumerator == "" {
-						t.Errorf("resource enumerator not working")
-						return
-					}
-				}
-			}
+// 	for _, control := range gs.Controls {
+// 		ctrlMaster, err := gsMaster.GetOPAControlByName(control.Name)
+// 		if err != nil {
+// 			assert.Error(t, err)
+// 		}
+// 		ctrl, err := gs.GetOPAControlByName(control.Name)
+// 		if err != nil {
+// 			assert.Error(t, err)
+// 		}
+// 		for _, rule_master := range ctrlMaster.Rules {
+// 			for _, rule := range ctrl.Rules {
+// 				if rule.Name == rule_master.Name {
+// 					if rule_master.ResourceEnumerator != "" && rule.ResourceEnumerator == "" {
+// 						t.Errorf("resource enumerator not working")
+// 						continue
+// 					}
+// 				}
+// 			}
 
-		}
-	}
-	if len(gs.Frameworks) > 4 {
-		t.Errorf("failed to decode controls")
-	}
-}
+// 		}
+// 	}
+// 	assert.Greater(t, 4, len(gs.Frameworks))
+// 	// if len(gs.Frameworks) > 4 {
+// 	// 	t.Errorf("failed to decode controls")
+// 	// }
+// }
 func TestGetPoliciesMethods(t *testing.T) {
 	gs := InitDefaultGitRegoStore(-1)
 
