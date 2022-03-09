@@ -32,7 +32,7 @@ func TestPassed(t *testing.T) {
 // Skipped get the number of skipped resources
 func TestSkipped(t *testing.T) {
 	setResourcesCountersMock()
-	assert.Equal(t, 8, resourcesCounter.Skipped())
+	assert.Equal(t, 0, resourcesCounter.Skipped())
 }
 
 // Failed get the number of failed resources
@@ -44,7 +44,7 @@ func TestFailed(t *testing.T) {
 // NumberOfAll get the number of all resources
 func TestNumberOfAll(t *testing.T) {
 	setResourcesCountersMock()
-	assert.Equal(t, 36, resourcesCounter.All())
+	assert.Equal(t, 28, resourcesCounter.All())
 }
 
 // // IsPassed did this control pass

@@ -11,18 +11,19 @@ import (
 
 // GetStatus get the control status. returns an apis.ScanningStatus object
 func (controlSummary *ControlSummary) GetStatus() apis.IStatus {
-	if controlSummary.StatusInfo == (apis.StatusInfo{}) || controlSummary.StatusInfo.InnerInfo == "" {
-		controlSummary.CalculateStatus()
+	// Backward compability
+	if controlSummary.StatusInfo.Status() == apis.StatusUnknown {
+		controlSummary.StatusInfo.InnerStatus = controlSummary.Status
 	}
 	return &controlSummary.StatusInfo
 }
 
 func (controlSummary *ControlSummary) SetStatus(statusInfo *apis.StatusInfo) {
-	if statusInfo == nil || statusInfo.InnerInfo == "" {
+	if statusInfo == nil || statusInfo.Status() == apis.StatusUnknown {
 		controlSummary.CalculateStatus()
 	} else {
 		controlSummary.StatusInfo = *statusInfo
-		controlSummary.Status = statusInfo.InnerStatus
+		controlSummary.Status = statusInfo.Status()
 	}
 }
 
@@ -30,7 +31,7 @@ func (controlSummary *ControlSummary) SetStatus(statusInfo *apis.StatusInfo) {
 func (controlSummary *ControlSummary) CalculateStatus() {
 	controlSummary.StatusInfo.InnerStatus = calculateStatus(&controlSummary.ResourceCounters)
 	// Statuses should be the same
-	controlSummary.Status = controlSummary.StatusInfo.InnerStatus
+	controlSummary.Status = controlSummary.StatusInfo.Status()
 }
 
 // =================================== Counters ============================================
@@ -78,11 +79,6 @@ func (controlSummary *ControlSummary) GetName() string {
 // GetID return control ID
 func (controlSummary *ControlSummary) GetID() string {
 	return controlSummary.ControlID
-}
-
-// initResourcesSummary must run this AFTER initializing the controls
-func (controlSummary *ControlSummary) initResourcesSummary() {
-	controlSummary.CalculateStatus()
 }
 
 // GetRemediation get control remediation

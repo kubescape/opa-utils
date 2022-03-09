@@ -30,5 +30,5 @@ func (s *StatusInfo) IsExcluded() bool {
 
 // IsSkipped is the status skipped
 func (s *StatusInfo) IsSkipped() bool {
-	return s.InnerStatus == InfoStatusSkipped || s.InnerStatus == StatusIrrelevant
+	return !s.IsExcluded() && !s.IsPassed() && !s.IsFailed()
 }

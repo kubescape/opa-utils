@@ -45,6 +45,7 @@ func TestStatusEmpty(t *testing.T) {
 
 	f := mockSummaryDetailsStatusEmpty()
 	for _, v := range f.Controls {
+		v.Status = apis.StatusIrrelevant
 		status := v.GetStatus()
 		assert.Equal(t, reflect.TypeOf(status), reflect.TypeOf(&apis.StatusInfo{}))
 		assert.Equal(t, status.Status(), apis.StatusIrrelevant)

@@ -10,6 +10,7 @@ const (
 	StatusSkipped    ScanningStatus = "skipped"
 	StatusUnknown    ScanningStatus = "" // keep this empty
 	StatusIrrelevant ScanningStatus = "irrelevant"
+	StatusError      ScanningStatus = "error"
 )
 
 const (
