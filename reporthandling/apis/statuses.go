@@ -3,18 +3,18 @@ package apis
 type ScanningStatus string
 
 const (
-	StatusPassed   ScanningStatus = "passed"
-	StatusExcluded ScanningStatus = "excluded"
-	StatusIgnored  ScanningStatus = "ignored"
-	StatusFailed   ScanningStatus = "failed"
-	StatusSkipped  ScanningStatus = "skipped"
-	StatusUnknown  ScanningStatus = "" // keep this empty
-
+	StatusPassed     ScanningStatus = "passed"
+	StatusExcluded   ScanningStatus = "excluded"
+	StatusIgnored    ScanningStatus = "ignored"
+	StatusFailed     ScanningStatus = "failed"
+	StatusSkipped    ScanningStatus = "skipped"
+	StatusUnknown    ScanningStatus = "" // keep this empty
+	StatusIrrelevant ScanningStatus = "irrelevant"
+	StatusError      ScanningStatus = "error"
 )
 
 const (
-	InofStatusSkipped   ScanningStatus = "N/A"
-	InofStatusIrelevant ScanningStatus = "irrelevant"
+	InfoStatusSkipped ScanningStatus = "skipped"
 )
 
 // IStatus interface handling status

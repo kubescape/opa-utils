@@ -10,6 +10,13 @@ func NewStatus(status apis.ScanningStatus) *Status {
 	return &Status{status: status}
 }
 
+func NewStatusInfo(status apis.ScanningStatus, info string) *apis.StatusInfo {
+	return &apis.StatusInfo{
+		InnerStatus: status,
+		InnerInfo:   info,
+	}
+}
+
 func (s *Status) Status() apis.ScanningStatus {
 	return s.status
 }

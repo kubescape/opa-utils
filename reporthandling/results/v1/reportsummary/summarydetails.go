@@ -40,8 +40,10 @@ func (summaryDetails *SummaryDetails) InitResourcesSummary() {
 	}
 
 	for k, control := range summaryDetails.Controls {
-		control.initResourcesSummary()
-		summaryDetails.Controls[k] = control
+		if control.GetStatus().Status() == apis.StatusUnknown {
+			control.CalculateStatus()
+			summaryDetails.Controls[k] = control
+		}
 	}
 
 	summaryDetails.ResourceCounters.Set(summaryDetails.Controls.ListResourcesIDs())

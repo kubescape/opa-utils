@@ -1,6 +1,7 @@
 package reportsummary
 
 import (
+	"reflect"
 	"testing"
 
 	"github.com/armosec/opa-utils/reporthandling/apis"
@@ -16,7 +17,6 @@ func TestSetStatus(t *testing.T) {
 	f.Status = apis.StatusUnknown
 	for k, v := range f.Controls {
 		status = append(status, v.GetStatus().Status())
-		v.Status = apis.StatusUnknown
 		f.Controls[k] = v
 	}
 
@@ -29,17 +29,57 @@ func TestSetStatus(t *testing.T) {
 
 }
 
-func TestStatusInfo(t *testing.T) {
+func TestStatusInfoNotPresent(t *testing.T) {
+
+	f := mockSummaryDetailsNoInnerStatus() // Status: skipped , InnerStatus empty
+	for _, v := range f.Controls {
+		status := v.GetStatus()
+		assert.Equal(t, reflect.TypeOf(status), reflect.TypeOf(&apis.StatusInfo{}))
+		assert.Equal(t, status.Status(), apis.InfoStatusSkipped)
+		assert.Equal(t, status.Info(), "")
+	}
+
+}
+
+func TestStatusEmpty(t *testing.T) {
+
+	f := mockSummaryDetailsStatusEmpty()
+	for _, v := range f.Controls {
+		v.Status = apis.StatusIrrelevant
+		status := v.GetStatus()
+		assert.Equal(t, reflect.TypeOf(status), reflect.TypeOf(&apis.StatusInfo{}))
+		assert.Equal(t, status.Status(), apis.StatusIrrelevant)
+		assert.Equal(t, status.Info(), "")
+	}
+
+}
+
+func TestStatusInfoSkipped(t *testing.T) {
 	var status apis.ScanningStatus
 	var info string
 
-	f := mockSummaryDetailsSkipped() // control -> status: "irrelevant", info: "no host sensor flag"
+	f := mockSummaryDetailsStatusSkipped() // control -> status: "skipped", info: "no host sensor flag"
 
 	for _, v := range f.Controls {
 		status = v.GetStatus().Status()
 		info = v.GetStatus().Info()
-		assert.Equal(t, status, apis.InofStatusIrelevant)
+		assert.Equal(t, status, apis.InfoStatusSkipped)
 		assert.Equal(t, info, "no host sensor flag")
+	}
+
+}
+
+func TestStatusInfoIrelevant(t *testing.T) {
+	var status apis.ScanningStatus
+	var info string
+
+	f := mockSummaryDetailsStatusIrrelevant() // control -> status: "irrelevant", info: "no k8s dashboard in cluster"
+
+	for _, v := range f.Controls {
+		status = v.GetStatus().Status()
+		info = v.GetStatus().Info()
+		assert.Equal(t, status, apis.StatusIrrelevant)
+		assert.Equal(t, info, "no k8s dashboard in cluster")
 	}
 
 }
