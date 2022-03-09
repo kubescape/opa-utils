@@ -47,7 +47,7 @@ func TestStatusEmpty(t *testing.T) {
 	for _, v := range f.Controls {
 		status := v.GetStatus()
 		assert.Equal(t, reflect.TypeOf(status), reflect.TypeOf(&apis.StatusInfo{}))
-		assert.Equal(t, status.Status(), apis.InfoStatusIrelevant)
+		assert.Equal(t, status.Status(), apis.StatusIrrelevant)
 		assert.Equal(t, status.Info(), "")
 	}
 
@@ -77,7 +77,7 @@ func TestStatusInfoIrelevant(t *testing.T) {
 	for _, v := range f.Controls {
 		status = v.GetStatus().Status()
 		info = v.GetStatus().Info()
-		assert.Equal(t, status, apis.InfoStatusIrelevant)
+		assert.Equal(t, status, apis.StatusIrrelevant)
 		assert.Equal(t, info, "no k8s dashboard in cluster")
 	}
 

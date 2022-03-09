@@ -11,23 +11,30 @@ import (
 
 // GetStatus get the control status. returns an apis.ScanningStatus object
 func (controlSummary *ControlSummary) GetStatus() apis.IStatus {
-	if controlSummary.Status == apis.StatusUnknown {
+	if controlSummary.StatusInfo == (apis.StatusInfo{}) || controlSummary.StatusInfo.InnerInfo == "" {
 		controlSummary.CalculateStatus()
 	}
-	if controlSummary.StatusInfo == (apis.StatusInfo{}) {
-		return helpersv1.NewStatusInfo(controlSummary.Status, controlSummary.StatusInfo.InnerInfo)
+	return &controlSummary.StatusInfo
+}
+
+func (controlSummary *ControlSummary) SetStatus(statusInfo *apis.StatusInfo) {
+	if statusInfo == nil {
+		controlSummary.CalculateStatus()
+	} else if statusInfo.InnerInfo == "" {
+		// default is irrelevant
+		controlSummary.CalculateStatus()
+	} else {
+		controlSummary.StatusInfo = *statusInfo
+		controlSummary.Status = statusInfo.InnerStatus
 	}
-	return helpersv1.NewStatusInfo(controlSummary.StatusInfo.InnerStatus, controlSummary.StatusInfo.InnerInfo)
 }
 
 // CalculateStatus set the control status based on the resource counters
 // Only for kubescape
 func (controlSummary *ControlSummary) CalculateStatus() {
 	controlSummary.StatusInfo.InnerStatus = calculateStatus(&controlSummary.ResourceCounters)
-	if controlSummary.StatusInfo.InnerStatus == apis.InfoStatusSkipped {
-		controlSummary.StatusInfo.InnerStatus = apis.InfoStatusIrelevant
-	}
-	controlSummary.Status = calculateStatus(&controlSummary.ResourceCounters)
+	// Statuses should be the same
+	controlSummary.Status = controlSummary.StatusInfo.InnerStatus
 }
 
 // =================================== Counters ============================================

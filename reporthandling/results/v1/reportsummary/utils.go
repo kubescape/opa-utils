@@ -10,8 +10,9 @@ func calculateStatus(counters *ResourceCounters) apis.ScanningStatus {
 	if counters.Excluded() != 0 {
 		return apis.StatusExcluded
 	}
-	if counters.All() == counters.Skipped() {
-		return apis.StatusSkipped
+	// No resources -> irrelevant
+	if counters.All() == 0 {
+		return apis.StatusIrrelevant
 	}
 	return apis.StatusPassed
 }

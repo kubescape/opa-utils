@@ -20,7 +20,6 @@ func (resourceCounters *ResourceCounters) Set(allLists *helpersv1.AllLists) {
 	resourceCounters.ExcludedResources = len(allLists.Excluded())
 	resourceCounters.FailedResources = len(allLists.Failed())
 	resourceCounters.PassedResources = len(allLists.Passed())
-	resourceCounters.SkippedResources = len(allLists.Skipped())
 }
 
 // NumberOfExcluded get the number of excluded resources
@@ -35,7 +34,7 @@ func (resourceCounters *ResourceCounters) Passed() int {
 
 // NumberOfSkipped get the number of skipped resources
 func (resourceCounters *ResourceCounters) Skipped() int {
-	return resourceCounters.SkippedResources
+	return 0
 }
 
 // NumberOfFailed get the number of failed resources
@@ -57,8 +56,6 @@ func (resourceCounters *ResourceCounters) Increase(status apis.IStatus) {
 		resourceCounters.ExcludedResources++
 	case apis.StatusFailed:
 		resourceCounters.FailedResources++
-	case apis.StatusSkipped:
-		resourceCounters.SkippedResources++
 	case apis.StatusPassed:
 		resourceCounters.PassedResources++
 	}

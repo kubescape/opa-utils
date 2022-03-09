@@ -49,7 +49,6 @@ type ResourceCounters struct {
 	PassedResources   int `json:"passedResources"`
 	FailedResources   int `json:"failedResources"`
 	ExcludedResources int `json:"excludedResources"`
-	SkippedResources  int `json:"skippedResources"`
 }
 
 type PostureCounters struct {

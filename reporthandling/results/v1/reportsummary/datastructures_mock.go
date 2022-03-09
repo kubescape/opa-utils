@@ -206,7 +206,7 @@ func mockControlSummaryStatusIrelevant() *ControlSummary {
 		Name:   "control-irrelevant",
 		Status: apis.StatusSkipped,
 		StatusInfo: apis.StatusInfo{
-			InnerStatus: apis.InfoStatusIrelevant,
+			InnerStatus: apis.StatusIrrelevant,
 			InnerInfo:   "no k8s dashboard in cluster",
 		},
 		Score: 0,
@@ -232,21 +232,17 @@ func mockResourceCountersExcludeFailPass() *ResourceCounters {
 		PassedResources:   4,
 		ExcludedResources: 3,
 		FailedResources:   5,
-		SkippedResources:  4,
 	}
 }
 
 func mockResourceCountersPass() *ResourceCounters {
 	return &ResourceCounters{
-		PassedResources:  4,
-		SkippedResources: 10,
+		PassedResources: 4,
 	}
 }
 
 func mockResourceCountersSkipped() *ResourceCounters {
-	return &ResourceCounters{
-		SkippedResources: 10,
-	}
+	return &ResourceCounters{}
 }
 
 func mockResourceCountersExclude() *ResourceCounters {

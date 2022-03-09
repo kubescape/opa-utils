@@ -15,7 +15,6 @@ func setResourcesCountersMock() {
 	resourcesCounter.ExcludedResources = 6
 	resourcesCounter.FailedResources = 15
 	resourcesCounter.PassedResources = 7
-	resourcesCounter.SkippedResources = 8
 }
 
 // Excluded get the number of excluded resources
