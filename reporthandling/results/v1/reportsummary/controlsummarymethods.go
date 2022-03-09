@@ -18,10 +18,7 @@ func (controlSummary *ControlSummary) GetStatus() apis.IStatus {
 }
 
 func (controlSummary *ControlSummary) SetStatus(statusInfo *apis.StatusInfo) {
-	if statusInfo == nil {
-		controlSummary.CalculateStatus()
-	} else if statusInfo.InnerInfo == "" {
-		// default is irrelevant
+	if statusInfo == nil || statusInfo.InnerInfo == "" {
 		controlSummary.CalculateStatus()
 	} else {
 		controlSummary.StatusInfo = *statusInfo
@@ -30,7 +27,6 @@ func (controlSummary *ControlSummary) SetStatus(statusInfo *apis.StatusInfo) {
 }
 
 // CalculateStatus set the control status based on the resource counters
-// Only for kubescape
 func (controlSummary *ControlSummary) CalculateStatus() {
 	controlSummary.StatusInfo.InnerStatus = calculateStatus(&controlSummary.ResourceCounters)
 	// Statuses should be the same

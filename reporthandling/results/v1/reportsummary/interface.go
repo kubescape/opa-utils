@@ -52,7 +52,7 @@ type IControlsSummaries interface {
 }
 type IPolicies interface {
 	GetStatus() apis.IStatus
-	CalculateStatus()                      // Only for kubescape
+	CalculateStatus()
 	ListResourcesIDs() *helpersv1.AllLists //avoid using this outside of kubescape
 
 	// Counters
