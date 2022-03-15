@@ -32,10 +32,6 @@ func (frameworkSummary *FrameworkSummary) Increase(status apis.IStatus) {
 	frameworkSummary.ResourceCounters.Increase(status)
 }
 
-func (frameworkSummary *FrameworkSummary) ListControls() IControlsSummaries {
-	return &frameworkSummary.Controls
-}
-
 // List resources IDs
 func (frameworkSummary *FrameworkSummary) ListResourcesIDs() *helpersv1.AllLists {
 	return frameworkSummary.Controls.ListResourcesIDs()
@@ -94,4 +90,9 @@ func (frameworkSummary *FrameworkSummary) ListControlsIDs() *helpersv1.AllLists 
 		controls.Append(controlSummary.GetStatus().Status(), controlID)
 	}
 	return controls
+}
+
+// ListControls list controls contained in framework
+func (frameworkSummary *FrameworkSummary) ListControls() IControlsSummaries {
+	return &frameworkSummary.Controls
 }

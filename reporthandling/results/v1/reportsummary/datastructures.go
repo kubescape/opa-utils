@@ -10,6 +10,8 @@ type PostureAttributes struct {
 	Values    []string `json:"values"`
 }
 
+type ControlSummaries map[string]ControlSummary
+
 // SummaryDetails detailed summary of the scanning. will contain versions, counters, etc.
 type SummaryDetails struct {
 	Score            float32             `json:"score"`              // overall score
@@ -28,8 +30,6 @@ type FrameworkSummary struct {
 	Controls         ControlSummaries    `json:"controls,omitempty"` // mapping of control - map[<control ID>]<control summary>
 	ResourceCounters ResourceCounters    `json:",inline"`
 }
-
-type ControlSummaries map[string]ControlSummary
 
 // ControlSummary summary of scanning from a single control perspective
 type ControlSummary struct {
