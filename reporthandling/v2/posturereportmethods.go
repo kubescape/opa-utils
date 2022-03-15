@@ -34,7 +34,7 @@ func (postureReport *PostureReport) ListFrameworksNames() *helpersv1.AllLists {
 
 // =========================================== List Controls ====================================
 // ListControls list all controls policies summary
-func (postureReport *PostureReport) ListControls() reportsummary.IControlsSummaries {
+func (postureReport *PostureReport) ListControls() []reportsummary.IControlSummary {
 	return postureReport.SummaryDetails.ListControls()
 }
 

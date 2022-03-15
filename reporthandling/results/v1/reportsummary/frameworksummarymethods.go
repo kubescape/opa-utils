@@ -92,7 +92,16 @@ func (frameworkSummary *FrameworkSummary) ListControlsIDs() *helpersv1.AllLists 
 	return controls
 }
 
-// ListControls list controls contained in framework
-func (frameworkSummary *FrameworkSummary) ListControls() IControlsSummaries {
+// ListControls list all controls
+func (frameworkSummary *FrameworkSummary) ListControls() []IControlSummary {
+	controls := make([]IControlSummary, len(frameworkSummary.Controls))
+	for i, id := range frameworkSummary.Controls.ListControlsIDs().All() {
+		controls[i] = frameworkSummary.Controls.GetControl(EControlCriteriaID, id)
+	}
+	return controls
+}
+
+// Controls return the controls
+func (frameworkSummary *FrameworkSummary) GetControls() IControlsSummaries {
 	return &frameworkSummary.Controls
 }

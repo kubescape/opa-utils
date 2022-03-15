@@ -95,8 +95,12 @@ func (summaryDetails *SummaryDetails) ListControlsIDs() *helpersv1.AllLists {
 }
 
 // ListControls list all controls
-func (summaryDetails *SummaryDetails) ListControls() IControlsSummaries {
-	return &summaryDetails.Controls
+func (summaryDetails *SummaryDetails) ListControls() []IControlSummary {
+	controls := make([]IControlSummary, len(summaryDetails.Controls))
+	for i, id := range summaryDetails.Controls.ListControlsIDs().All() {
+		controls[i] = summaryDetails.Controls.GetControl(EControlCriteriaID, id)
+	}
+	return controls
 }
 
 //NumberOfControls get number of controls
