@@ -76,7 +76,7 @@ func (postureReport *PostureReport) InitializeSummary() {
 	for i := range postureReport.Results {
 		postureReport.AppendResourceResultToSummary(&postureReport.Results[i])
 	}
-	postureReport.SummaryDetails.InitResourcesSummary()
+	postureReport.SummaryDetails.InitResourcesSummary(nil)
 }
 
 // AppendResourceResultToSummary get the result of a single resource. If resource not found will return nil
