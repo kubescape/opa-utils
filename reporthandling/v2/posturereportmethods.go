@@ -23,7 +23,7 @@ func (postureReport *PostureReport) ListResourcesIDs(f *helpersv1.Filters) *help
 // =========================================== List Frameworks ====================================
 
 // ListFrameworksNames list all framework policies summary
-func (postureReport *PostureReport) ListFrameworks() *reportsummary.ListPolicies {
+func (postureReport *PostureReport) ListFrameworks() []reportsummary.IFrameworkSummary {
 	return postureReport.SummaryDetails.ListFrameworks()
 }
 
@@ -34,7 +34,7 @@ func (postureReport *PostureReport) ListFrameworksNames() *helpersv1.AllLists {
 
 // =========================================== List Controls ====================================
 // ListControls list all controls policies summary
-func (postureReport *PostureReport) ListControls() *reportsummary.ListPolicies {
+func (postureReport *PostureReport) ListControls() []reportsummary.IControlSummary {
 	return postureReport.SummaryDetails.ListControls()
 }
 

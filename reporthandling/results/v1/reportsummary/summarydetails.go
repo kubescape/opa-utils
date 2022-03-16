@@ -16,6 +16,11 @@ func (summaryDetails *SummaryDetails) GetStatus() *helpersv1.Status {
 	return helpersv1.NewStatus(summaryDetails.Status)
 }
 
+// GetScore return score
+func (summaryDetails *SummaryDetails) GetScore() float32 {
+	return summaryDetails.Score
+}
+
 // SetStatus set the framework status based on the resource counters
 func (summaryDetails *SummaryDetails) CalculateStatus() {
 	summaryDetails.Status = calculateStatus(&summaryDetails.ResourceCounters)
@@ -64,12 +69,12 @@ func (summaryDetails *SummaryDetails) ListFrameworksNames() *helpersv1.AllLists 
 }
 
 // ListFrameworks list all frameworks
-func (summaryDetails *SummaryDetails) ListFrameworks() *ListPolicies {
-	frameworks := ListPolicies{}
+func (summaryDetails *SummaryDetails) ListFrameworks() []IFrameworkSummary {
+	frameworks := []IFrameworkSummary{}
 	for i := range summaryDetails.Frameworks {
-		frameworks.Append(summaryDetails.Frameworks[i].GetStatus().Status(), &summaryDetails.Frameworks[i])
+		frameworks = append(frameworks, &summaryDetails.Frameworks[i])
 	}
-	return &frameworks
+	return frameworks
 }
 
 // =========================================== List Controls ====================================
@@ -91,14 +96,13 @@ func (summaryDetails *SummaryDetails) ListControlsIDs() *helpersv1.AllLists {
 	return controls
 }
 
-// ListFrameworks list all frameworks
-func (summaryDetails *SummaryDetails) ListControls() *ListPolicies {
-	controls := ListPolicies{}
-	for i := range summaryDetails.Controls {
-		control := summaryDetails.Controls[i]
-		controls.Append(control.GetStatus().Status(), &control)
+// ListControls list all controls
+func (summaryDetails *SummaryDetails) ListControls() []IControlSummary {
+	controls := make([]IControlSummary, len(summaryDetails.Controls))
+	for i, id := range summaryDetails.Controls.ListControlsIDs().All() {
+		controls[i] = summaryDetails.Controls.GetControl(EControlCriteriaID, id)
 	}
-	return &controls
+	return controls
 }
 
 //NumberOfControls get number of controls

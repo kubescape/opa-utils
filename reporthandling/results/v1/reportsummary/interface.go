@@ -26,7 +26,8 @@ type IBasicPostureReport interface {
 
 type IFrameworkSummary interface {
 	IPolicies
-	ListControls() IControlsSummaries
+	ListControls() []IControlSummary
+	NumberOfControls() ICounters
 }
 
 type IControlSummary interface {

@@ -32,10 +32,6 @@ func (frameworkSummary *FrameworkSummary) Increase(status apis.IStatus) {
 	frameworkSummary.ResourceCounters.Increase(status)
 }
 
-func (frameworkSummary *FrameworkSummary) ListControls() IControlsSummaries {
-	return &frameworkSummary.Controls
-}
-
 // List resources IDs
 func (frameworkSummary *FrameworkSummary) ListResourcesIDs() *helpersv1.AllLists {
 	return frameworkSummary.Controls.ListResourcesIDs()
@@ -94,4 +90,18 @@ func (frameworkSummary *FrameworkSummary) ListControlsIDs() *helpersv1.AllLists 
 		controls.Append(controlSummary.GetStatus().Status(), controlID)
 	}
 	return controls
+}
+
+// ListControls list all controls
+func (frameworkSummary *FrameworkSummary) ListControls() []IControlSummary {
+	controls := make([]IControlSummary, len(frameworkSummary.Controls))
+	for i, id := range frameworkSummary.Controls.ListControlsIDs().All() {
+		controls[i] = frameworkSummary.Controls.GetControl(EControlCriteriaID, id)
+	}
+	return controls
+}
+
+// Controls return the controls
+func (frameworkSummary *FrameworkSummary) GetControls() IControlsSummaries {
+	return &frameworkSummary.Controls
 }

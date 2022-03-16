@@ -87,16 +87,16 @@ func TestStatusInfoIrelevant(t *testing.T) {
 func TestFrameworkControlsSummariesCounters(t *testing.T) {
 	f := mockFrameworkSummaryFailPass()
 	f.ListControlsIDs().Skipped()
-	assert.Equal(t, len(f.Controls), f.ListControls().NumberOfControls().All(), "invalid total control count")
-	assert.Equal(t, len(f.ListControls().ListControlsIDs().Failed()), f.ListControls().NumberOfControls().Failed(), "invalid total failed control count")
-	assert.Equal(t, len(f.ListControls().ListControlsIDs().Passed()), f.ListControls().NumberOfControls().Passed(), "invalid total passed control count")
-	assert.Equal(t, len(f.ListControls().ListControlsIDs().Excluded()), f.ListControls().NumberOfControls().Excluded(), "invalid total excluded/warning control count")
-	assert.Equal(t, len(f.ListControls().ListControlsIDs().Skipped()), f.ListControls().NumberOfControls().Skipped(), "invalid total skipped control count")
+	assert.Equal(t, len(f.Controls), f.GetControls().NumberOfControls().All(), "invalid total control count")
+	assert.Equal(t, len(f.GetControls().ListControlsIDs().Failed()), f.GetControls().NumberOfControls().Failed(), "invalid total failed control count")
+	assert.Equal(t, len(f.GetControls().ListControlsIDs().Passed()), f.GetControls().NumberOfControls().Passed(), "invalid total passed control count")
+	assert.Equal(t, len(f.GetControls().ListControlsIDs().Excluded()), f.GetControls().NumberOfControls().Excluded(), "invalid total excluded/warning control count")
+	assert.Equal(t, len(f.GetControls().ListControlsIDs().Skipped()), f.GetControls().NumberOfControls().Skipped(), "invalid total skipped control count")
 }
 
 func TestFrameworkGettingSpecificControl(t *testing.T) {
 	f := mockFrameworkSummaryFailPass()
-	a := f.ListControls().GetControl(EControlCriteriaID, "1234")
+	a := f.GetControls().GetControl(EControlCriteriaID, "1234")
 	assert.Nil(t, a, "control id '1234' shouldn't exist")
-	assert.Equal(t, "control-fail-pass", f.ListControls().GetControl(EControlCriteriaID, "C-0001").GetName(), "wrong control retrieved")
+	assert.Equal(t, "control-fail-pass", f.GetControls().GetControl(EControlCriteriaID, "C-0001").GetName(), "wrong control retrieved")
 }

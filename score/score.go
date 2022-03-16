@@ -155,11 +155,7 @@ func (su *ScoreUtil) ControlScore(ctrlReport *reporthandling.ControlReport, fram
 			ctrlReport.Score += su.GetScore(failedResourceIDS.GetObject())
 		}
 	}
-	if ctrlReport.Score != 0 {
-		ctrlReport.Score *= ctrlReport.BaseScore
-	} else {
-		ctrlReport.Score = ctrlReport.BaseScore
-	}
+	ctrlReport.Score *= ctrlReport.BaseScore
 
 	var wcsScore float32 = 0
 	for i := range allResourcesIDS {
