@@ -50,7 +50,6 @@ type ScanMetadata struct {
 	FailThreshold      float32  `json:"failThreshold,omitempty"`  // Failure score threshold
 	Submit             bool     `json:"submit,omitempty"`         // Submit results to Armo BE
 	HostScanner        bool     `json:"hostScanner,omitempty"`    // Deploy ARMO K8s host sensor to collect data from certain controls
-	KeepLocal          bool     `json:"keepLocal,omitempty"`      // Do not submit results
 	Logger             string   `json:"logger,omitempty"`         // logger level - debug/info/error
 	TargetType         string   `json:"targetType,omitempty"`     // framework/control
 	TargetNames        []string `json:"targetNames,omitempty"`    // list of frameworks/controls
