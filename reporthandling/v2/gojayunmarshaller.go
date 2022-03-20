@@ -74,7 +74,7 @@ func (m *ScanMetadata) UnmarshalJSONObject(dec *gojay.Decoder, key string) (err 
 		err = dec.String(&(m.Format))
 	case "excludedNamespaces": // []string
 		err = dec.SliceString(&(m.ExcludedNamespaces))
-	case "includeNamespace": // []string
+	case "includeNamespaces": // []string
 		err = dec.SliceString(&(m.IncludeNamespaces))
 	case "failThreshold": // float32
 		err = dec.Float32(&(m.FailThreshold))

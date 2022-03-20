@@ -88,6 +88,27 @@ func GetPostureReportMock() *PostureReport {
 		},
 		Results:   results,
 		Resources: GetResourcesListMock(),
+		Metadata: Metadata{
+			ClusterMetadata: ClusterMetadata{
+				NumberOfWorkerNodes: 8,
+				ContextName:         "minikube",
+			},
+			ScanMetadata: ScanMetadata{
+				Format:             "json",
+				ExcludedNamespaces: []string{"exclude-namespace"},
+				IncludeNamespaces:  []string{"include-namespace"},
+				FailThreshold:      23.54,
+				Submit:             true,
+				HostScanner:        true,
+				KeepLocal:          false,
+				Logger:             "fantastic-logger",
+				TargetType:         "framework",
+				TargetNames:        []string{"framework"},
+				UseExceptions:      "/path/to/exceptions",
+				ControlsInputs:     "/path/to/ctrls",
+				VerboseMode:        true,
+			},
+		},
 	}
 }
 
@@ -112,4 +133,20 @@ func TestPostureReportGojayUnmarshal(t *testing.T) {
 	assert.Equal(t, original.ClusterName, postureReport.ClusterName)
 	assert.Equal(t, original.ReportGenerationTime.UTC(), postureReport.ReportGenerationTime.UTC())
 
+	// Metadata
+	assert.Equal(t, original.Metadata.ClusterMetadata.NumberOfWorkerNodes, postureReport.Metadata.ClusterMetadata.NumberOfWorkerNodes)
+	assert.Equal(t, original.Metadata.ClusterMetadata.ContextName, postureReport.Metadata.ClusterMetadata.ContextName)
+	assert.Equal(t, original.Metadata.ScanMetadata.Format, postureReport.Metadata.ScanMetadata.Format)
+	assert.Equal(t, original.Metadata.ScanMetadata.ExcludedNamespaces, postureReport.Metadata.ScanMetadata.ExcludedNamespaces)
+	assert.Equal(t, original.Metadata.ScanMetadata.IncludeNamespaces, postureReport.Metadata.ScanMetadata.IncludeNamespaces)
+	assert.Equal(t, original.Metadata.ScanMetadata.FailThreshold, postureReport.Metadata.ScanMetadata.FailThreshold)
+	assert.Equal(t, original.Metadata.ScanMetadata.Submit, postureReport.Metadata.ScanMetadata.Submit)
+	assert.Equal(t, original.Metadata.ScanMetadata.HostScanner, postureReport.Metadata.ScanMetadata.HostScanner)
+	assert.Equal(t, original.Metadata.ScanMetadata.KeepLocal, postureReport.Metadata.ScanMetadata.KeepLocal)
+	assert.Equal(t, original.Metadata.ScanMetadata.Logger, postureReport.Metadata.ScanMetadata.Logger)
+	assert.Equal(t, original.Metadata.ScanMetadata.TargetType, postureReport.Metadata.ScanMetadata.TargetType)
+	assert.Equal(t, original.Metadata.ScanMetadata.TargetNames, postureReport.Metadata.ScanMetadata.TargetNames)
+	assert.Equal(t, original.Metadata.ScanMetadata.UseExceptions, postureReport.Metadata.ScanMetadata.UseExceptions)
+	assert.Equal(t, original.Metadata.ScanMetadata.ControlsInputs, postureReport.Metadata.ScanMetadata.ControlsInputs)
+	assert.Equal(t, original.Metadata.ScanMetadata.VerboseMode, postureReport.Metadata.ScanMetadata.VerboseMode)
 }
