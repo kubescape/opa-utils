@@ -42,9 +42,9 @@ func (pcounter *PostureCounters) Increase(status apis.IStatus) {
 		pcounter.ExcludedCounter++
 	case apis.StatusFailed:
 		pcounter.FailedCounter++
-	case apis.StatusSkipped:
-		pcounter.SkippedCounter++
 	case apis.StatusPassed:
 		pcounter.PassedCounter++
+	case apis.StatusSkipped, apis.StatusIrrelevant, apis.StatusError:
+		pcounter.SkippedCounter++
 	}
 }
