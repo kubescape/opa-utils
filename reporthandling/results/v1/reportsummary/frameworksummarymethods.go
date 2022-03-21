@@ -47,9 +47,11 @@ func (frameworkSummary *FrameworkSummary) NumberOfControls() ICounters {
 }
 
 // initResourcesSummary must run this AFTER initializing the controls
-func (frameworkSummary *FrameworkSummary) initResourcesSummary() {
+func (frameworkSummary *FrameworkSummary) initResourcesSummary(controlInfoMap map[string]apis.StatusInfo) {
 	for k, control := range frameworkSummary.Controls {
-		if control.GetStatus().Status() == apis.StatusUnknown {
+		if statusInfo, ok := controlInfoMap[control.ControlID]; ok && statusInfo.InnerStatus != apis.StatusUnknown {
+			control.SetStatus(&statusInfo)
+		} else if control.GetStatus().Status() == apis.StatusUnknown {
 			control.CalculateStatus()
 		}
 		frameworkSummary.Controls[k] = control

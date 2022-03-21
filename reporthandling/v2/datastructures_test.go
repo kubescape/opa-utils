@@ -100,7 +100,6 @@ func GetPostureReportMock() *PostureReport {
 				FailThreshold:      23.54,
 				Submit:             true,
 				HostScanner:        true,
-				KeepLocal:          false,
 				Logger:             "fantastic-logger",
 				TargetType:         "framework",
 				TargetNames:        []string{"framework"},
@@ -142,7 +141,6 @@ func TestPostureReportGojayUnmarshal(t *testing.T) {
 	assert.Equal(t, original.Metadata.ScanMetadata.FailThreshold, postureReport.Metadata.ScanMetadata.FailThreshold)
 	assert.Equal(t, original.Metadata.ScanMetadata.Submit, postureReport.Metadata.ScanMetadata.Submit)
 	assert.Equal(t, original.Metadata.ScanMetadata.HostScanner, postureReport.Metadata.ScanMetadata.HostScanner)
-	assert.Equal(t, original.Metadata.ScanMetadata.KeepLocal, postureReport.Metadata.ScanMetadata.KeepLocal)
 	assert.Equal(t, original.Metadata.ScanMetadata.Logger, postureReport.Metadata.ScanMetadata.Logger)
 	assert.Equal(t, original.Metadata.ScanMetadata.TargetType, postureReport.Metadata.ScanMetadata.TargetType)
 	assert.Equal(t, original.Metadata.ScanMetadata.TargetNames, postureReport.Metadata.ScanMetadata.TargetNames)

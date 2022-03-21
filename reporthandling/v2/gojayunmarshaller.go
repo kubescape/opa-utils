@@ -66,7 +66,7 @@ func (file *Metadata) NKeys() int {
 	return 0
 }
 
-// ScanMetadata unmarshaller
+// ScanMetadata unmarshaler
 func (m *ScanMetadata) UnmarshalJSONObject(dec *gojay.Decoder, key string) (err error) {
 
 	switch key {
@@ -82,8 +82,6 @@ func (m *ScanMetadata) UnmarshalJSONObject(dec *gojay.Decoder, key string) (err 
 		err = dec.Bool(&(m.Submit))
 	case "hostScanner": // bool
 		err = dec.Bool(&(m.HostScanner))
-	case "keepLocal": // bool
-		err = dec.Bool(&(m.KeepLocal))
 	case "logger": // string
 		err = dec.String(&(m.Logger))
 	case "targetType": // string

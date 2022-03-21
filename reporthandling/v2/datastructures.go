@@ -43,19 +43,27 @@ type Metadata struct {
 	ClusterMetadata ClusterMetadata `json:"clusterMetadata,omitempty"`
 }
 
+type ScanningTarget uint16
+
+const (
+	Cluster ScanningTarget = 0
+	Files   ScanningTarget = 1
+)
+
 type ScanMetadata struct {
-	Format             string   `json:"format,omitempty"`             // Format results (table, json, junit ...)
-	ExcludedNamespaces []string `json:"excludedNamespaces,omitempty"` // used for host sensor namespace
-	IncludeNamespaces  []string `json:"includeNamespaces,omitempty"`
-	FailThreshold      float32  `json:"failThreshold,omitempty"`  // Failure score threshold
-	Submit             bool     `json:"submit,omitempty"`         // Submit results to Armo BE
-	HostScanner        bool     `json:"hostScanner,omitempty"`    // Deploy ARMO K8s host sensor to collect data from certain controls
-	Logger             string   `json:"logger,omitempty"`         // logger level - debug/info/error
-	TargetType         string   `json:"targetType,omitempty"`     // framework/control
-	TargetNames        []string `json:"targetNames,omitempty"`    // list of frameworks/controls
-	UseExceptions      string   `json:"useExceptions,omitempty"`  // Load file with exceptions configuration
-	ControlsInputs     string   `json:"controlsInputs,omitempty"` // Load file with inputs for controls
-	VerboseMode        bool     `json:"verboseMode,omitempty"`    // Display all of the input resources and not only failed resources
+	Format             string         `json:"format,omitempty"`             // Format results (table, json, junit ...)
+	ScanningTarget     ScanningTarget `json:"scanningTarget,omitempty"`     // scanning target
+	ExcludedNamespaces []string       `json:"excludedNamespaces,omitempty"` // used for host sensor namespace
+	IncludeNamespaces  []string       `json:"includeNamespaces,omitempty"`
+	FailThreshold      float32        `json:"failThreshold,omitempty"`  // Failure score threshold
+	Submit             bool           `json:"submit,omitempty"`         // Submit results to Armo BE
+	HostScanner        bool           `json:"hostScanner,omitempty"`    // Deploy ARMO K8s host sensor to collect data from certain controls
+	Logger             string         `json:"logger,omitempty"`         // logger level - debug/info/error
+	TargetType         string         `json:"targetType,omitempty"`     // framework/control
+	TargetNames        []string       `json:"targetNames,omitempty"`    // list of frameworks/controls
+	UseExceptions      string         `json:"useExceptions,omitempty"`  // Load file with exceptions configuration
+	ControlsInputs     string         `json:"controlsInputs,omitempty"` // Load file with inputs for controls
+	VerboseMode        bool           `json:"verboseMode,omitempty"`    // Display all of the input resources and not only failed resources
 }
 
 const (
@@ -63,3 +71,14 @@ const (
 	GCP = "GCP"
 	EKS = "EKS"
 )
+
+func (st *ScanningTarget) String() string {
+	switch *st {
+	case 0:
+		return "Cluster"
+	case 1:
+		return "File"
+	default:
+		return ""
+	}
+}

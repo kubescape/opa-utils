@@ -41,11 +41,11 @@ func (summaryDetails *SummaryDetails) Increase(status apis.IStatus) {
 // InitResourcesSummary must run this AFTER initializing the controls
 func (summaryDetails *SummaryDetails) InitResourcesSummary(controlInfoMap map[string]apis.StatusInfo) {
 	for i := range summaryDetails.Frameworks {
-		summaryDetails.Frameworks[i].initResourcesSummary()
+		summaryDetails.Frameworks[i].initResourcesSummary(controlInfoMap)
 	}
 
 	for k, control := range summaryDetails.Controls {
-		if statusInfo, ok := controlInfoMap[control.ControlID]; ok {
+		if statusInfo, ok := controlInfoMap[control.ControlID]; ok && statusInfo.InnerStatus != apis.StatusUnknown {
 			control.SetStatus(&statusInfo)
 		} else if control.GetStatus().Status() == apis.StatusUnknown {
 			control.CalculateStatus()
