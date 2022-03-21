@@ -27,6 +27,8 @@ func (r *PostureReport) UnmarshalJSONObject(dec *gojay.Decoder, key string) (err
 	case "generationTime":
 		err = dec.Time(&(r.ReportGenerationTime), time.RFC3339)
 		r.ReportGenerationTime = r.ReportGenerationTime.Local()
+	case "metadata":
+		err = dec.Object(&(r.Metadata))
 	}
 	return err
 
@@ -43,6 +45,86 @@ func (r *PostureReport) UnmarshalJSONObject(dec *gojay.Decoder, key string) (err
 // }
 
 func (file *PostureReport) NKeys() int {
+	return 0
+}
+
+// Metadata unmarshaller
+func (m *Metadata) UnmarshalJSONObject(dec *gojay.Decoder, key string) (err error) {
+
+	switch key {
+	case "scanMetadata":
+		err = dec.Object(&(m.ScanMetadata))
+
+	case "clusterMetadata":
+		err = dec.Object(&(m.ClusterMetadata))
+	}
+	return err
+
+}
+
+func (file *Metadata) NKeys() int {
+	return 0
+}
+
+// ScanMetadata unmarshaller
+func (m *ScanMetadata) UnmarshalJSONObject(dec *gojay.Decoder, key string) (err error) {
+
+	switch key {
+	case "format": // string
+		err = dec.String(&(m.Format))
+	case "excludedNamespaces": // []string
+		err = dec.SliceString(&(m.ExcludedNamespaces))
+	case "includeNamespaces": // []string
+		err = dec.SliceString(&(m.IncludeNamespaces))
+	case "failThreshold": // float32
+		err = dec.Float32(&(m.FailThreshold))
+	case "submit": // bool
+		err = dec.Bool(&(m.Submit))
+	case "hostScanner": // bool
+		err = dec.Bool(&(m.HostScanner))
+	case "keepLocal": // bool
+		err = dec.Bool(&(m.KeepLocal))
+	case "logger": // string
+		err = dec.String(&(m.Logger))
+	case "targetType": // string
+		err = dec.String(&(m.TargetType))
+	case "targetNames": // []string
+		err = dec.SliceString(&(m.TargetNames))
+	case "useExceptions": // string
+		err = dec.String(&(m.UseExceptions))
+	case "controlsInputs": // string
+		err = dec.String(&(m.ControlsInputs))
+	case "verboseMode": // bool
+		err = dec.Bool(&(m.VerboseMode))
+	}
+	return err
+
+}
+
+func (file *ScanMetadata) NKeys() int {
+	return 0
+}
+
+// ScanMetadata unmarshaller
+func (m *ClusterMetadata) UnmarshalJSONObject(dec *gojay.Decoder, key string) (err error) {
+
+	switch key {
+
+	case "numberOfWorkerNodes": //int
+		err = dec.Int(&(m.NumberOfWorkerNodes))
+
+	case "cloudProvider": //string
+		err = dec.String(&(m.CloudProvider))
+
+	case "contextName": //string
+		err = dec.String(&(m.ContextName))
+
+	}
+	return err
+
+}
+
+func (file *ClusterMetadata) NKeys() int {
 	return 0
 }
 
