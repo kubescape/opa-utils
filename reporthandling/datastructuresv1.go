@@ -92,8 +92,13 @@ type PostureReport struct {
 	Resources            []Resource            `json:"resource,omitempty"`
 }
 
+type Source struct {
+	Path string `json:"path"`
+}
+
 type Resource struct {
 	ResourceID string         `json:"resourceID"`
 	Object     interface{}    `json:"object"`
+	Source     *Source        `json:"source,omitempty"`
 	IMetadata  ik8s.IMetadata `json:"-"`
 }
