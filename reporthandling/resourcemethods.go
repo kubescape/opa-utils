@@ -23,6 +23,14 @@ func NewResource(obj map[string]interface{}) *Resource {
 		Object: obj,
 	}
 }
+func NewResourceIMetadata(obj workloadinterface.IMetadata) *Resource {
+	return &Resource{
+		Object:     obj.GetObject(),
+		IMetadata:  obj,
+		ResourceID: obj.GetID(),
+		Source:     nil,
+	}
+}
 
 func (r *Resource) middleware() workloadinterface.IMetadata {
 	if r.IMetadata != nil {
@@ -134,6 +142,9 @@ func (r *Resource) GetID() string {
 	}
 	return mw.GetID()
 }
+
+func (r *Resource) SetSource(s *Source) { r.Source = s }
+func (r *Resource) GetSource() *Source  { return r.Source }
 
 func (r *Resource) GetObjectType() workloadinterface.ObjectType {
 	mw := r.middleware()
