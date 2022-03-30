@@ -38,16 +38,43 @@ type ClusterMetadata struct {
 	ContextName         string `json:"contextName,omitempty"`
 }
 
+type RepoContextMetadata struct {
+	Repo   string `json:"repo,omitempty"`
+	Owner  string `json:"owner,omitempty"`
+	Branch string `json:"branch,omitempty"`
+}
+
+type FileContextMetadata struct {
+	FilePath string `json:"filePath,omitempty"` // like "hostpath"
+	HostName string `json:"hostName,omitempty"` // like "hostpath"
+}
+type DirectoryContextMetadata struct {
+	BasePath string `json:"basePath,omitempty"` // the scanning request base path
+	HostName string `json:"hostName,omitempty"` // like "hostpath"
+}
+
+type HelmContextMetadata struct {
+	ChartName string `json:"chartName,omitempty"`
+}
+type ContextMetadata struct {
+	ClusterContextMetadata   *ClusterMetadata          `json:"clusterContextMetadata,omitempty"`
+	RepoContextMetadata      *RepoContextMetadata      `json:"gitRepoContextMetadata,omitempty"`
+	FileContextMetadata      *FileContextMetadata      `json:"fileContextMetadata,omitempty"`
+	HelmContextMetadata      *HelmContextMetadata      `json:"helmContextMetadata,omitempty"`
+	DirectoryContextMetadata *DirectoryContextMetadata `json:"directoryContextMetadata,omitempty"`
+}
+
 type Metadata struct {
 	ScanMetadata    ScanMetadata    `json:"scanMetadata,omitempty"`
-	ClusterMetadata ClusterMetadata `json:"clusterMetadata,omitempty"`
+	ContextMetadata ContextMetadata `json:"targetMetadata,omitempty"`
+	ClusterMetadata ClusterMetadata `json:"clusterMetadata,omitempty"` // DEPRECATED
 }
 
 type ScanningTarget uint16
 
 const (
 	Cluster ScanningTarget = 0
-	Files   ScanningTarget = 1
+	File    ScanningTarget = 1
 )
 
 type ScanMetadata struct {
