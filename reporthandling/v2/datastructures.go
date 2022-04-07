@@ -20,14 +20,14 @@ type PostureReport struct {
 	Attributes           []reportsummary.PostureAttributes `json:"attributes"` //allow flexible properties for posture reports
 	CustomerGUID         string                            `json:"customerGUID"`
 	ClusterName          string                            `json:"clusterName"`
-	ClusterCloudProvider string                            `json:"clusterCloudProvider"`
+	ClusterCloudProvider string                            `json:"clusterCloudProvider"` // Deprecated
 	ReportID             string                            `json:"reportGUID"`
 	JobID                string                            `json:"jobID"`
 	PaginationInfo       PaginationMarks                   `json:"paginationInfo"`
 	ClusterAPIServerInfo *version.Info                     `json:"clusterAPIServerInfo"`
 	ReportGenerationTime time.Time                         `json:"generationTime"`
-	SummaryDetails       reportsummary.SummaryDetails      `json:"summaryDetails,omitempty"` // Developing
-	Results              []resourcesresults.Result         `json:"results,omitempty"`        // Developing
+	SummaryDetails       reportsummary.SummaryDetails      `json:"summaryDetails,omitempty"`
+	Results              []resourcesresults.Result         `json:"results,omitempty"`
 	Resources            []reporthandling.Resource         `json:"resources,omitempty"`
 	Metadata             Metadata                          `json:"metadata,omitempty"`
 }
@@ -79,6 +79,7 @@ const (
 
 type ScanMetadata struct {
 	Format             string         `json:"format,omitempty"`             // Format results (table, json, junit ...)
+	FormatVersion      string         `json:"formatVersion,omitempty"`      // Format version (v1, v2)
 	ScanningTarget     ScanningTarget `json:"scanningTarget,omitempty"`     // scanning target
 	ExcludedNamespaces []string       `json:"excludedNamespaces,omitempty"` // used for host sensor namespace
 	IncludeNamespaces  []string       `json:"includeNamespaces,omitempty"`
