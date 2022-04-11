@@ -21,7 +21,7 @@ const (
 
 // RegoResponse the expected response of single run of rego policy
 type RuleResponse struct {
-	FixCommand   string                            `json:"fixCommand"`
+	FixCommand   string                            `json:"fixCommand,omitempty"`
 	AlertMessage string                            `json:"alertMessage"`
 	FailedPaths  []string                          `json:"failedPaths"`
 	FixPaths     []armotypes.FixPath               `json:"fixPaths"`
