@@ -82,10 +82,23 @@ type UpdatedFramework struct {
 	Controls  []interface{} `json:"controls"`
 }
 
-type NotificationPolicyType string
+// ********************************* Moved to httpserver/apis/v1/apis.go ****************************************
+
 type NotificationPolicyKind string
 
+// Supported NotificationKinds
+const (
+	KindFramework NotificationPolicyKind = "Framework"
+	KindControl   NotificationPolicyKind = "Control"
+	KindRule      NotificationPolicyKind = "Rule"
+)
+
+// ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+// =================================== DEPRECATED =====================================
 // Supported NotificationTypes
+type NotificationPolicyType string
+
 const (
 	TypeValidateRules          NotificationPolicyType = "validateRules"
 	TypeExecPostureScan        NotificationPolicyType = "execPostureScan"
@@ -94,13 +107,6 @@ const (
 	TypeSetKubescapeCronJob    NotificationPolicyType = "setKubescapeCronJob"
 	TypeUpdateKubescapeCronJob NotificationPolicyType = "updateKubescapeCronJob"
 	TypeDeleteKubescapeCronJob NotificationPolicyType = "deleteKubescapeCronJob"
-)
-
-// Supported NotificationKinds
-const (
-	KindFramework NotificationPolicyKind = "Framework"
-	KindControl   NotificationPolicyKind = "Control"
-	KindRule      NotificationPolicyKind = "Rule"
 )
 
 type PolicyNotification struct {
