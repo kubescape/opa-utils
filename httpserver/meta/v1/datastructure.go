@@ -19,3 +19,18 @@ type PostScanRequest struct {
 	// ControlsInputs     string      // Load file with inputs for controls
 	// VerboseMode        bool        // Display all of the input resources and not only failed resources
 }
+
+type ScanResponseType string
+
+const (
+	ErrorScanResponseType     ScanResponseType = "error"
+	ResultsV1ScanResponseType ScanResponseType = "v1results"
+	IDScanResponseType        ScanResponseType = "id"
+	StatusScanResponseType    ScanResponseType = "status"
+)
+
+type Response struct {
+	ID       string           `json:"id"`
+	Type     ScanResponseType `json:"type"`
+	Response []byte           `json:"response,omitempty"`
+}
