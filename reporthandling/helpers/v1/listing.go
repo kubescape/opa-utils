@@ -2,7 +2,7 @@ package v1
 
 import (
 	"github.com/armosec/opa-utils/reporthandling/apis"
-	"github.com/armosec/opa-utils/shared"
+	"github.com/armosec/utils-go/str"
 )
 
 // ReportObject any report object must be compliment with a map[string]interface{} structures
@@ -29,7 +29,7 @@ func (all *AllLists) All() []string {
 	l = append(l, all.passed...)
 	l = append(l, all.skipped...)
 	l = append(l, all.other...)
-	return shared.SliceStringToUnique(l)
+	return str.SliceStringToUnique(l)
 }
 
 // Append append single string to matching status list
@@ -66,11 +66,11 @@ func (all *AllLists) Update(all2 *AllLists) {
 
 func (all *AllLists) ToUnique() {
 	// remove duplications from each resource list
-	all.failed = shared.SliceStringToUnique(all.failed)
-	all.excluded = shared.SliceStringToUnique(all.excluded)
-	all.passed = shared.SliceStringToUnique(all.passed)
-	all.skipped = shared.SliceStringToUnique(all.skipped)
-	all.other = shared.SliceStringToUnique(all.other)
+	all.failed = str.SliceStringToUnique(all.failed)
+	all.excluded = str.SliceStringToUnique(all.excluded)
+	all.passed = str.SliceStringToUnique(all.passed)
+	all.skipped = str.SliceStringToUnique(all.skipped)
+	all.other = str.SliceStringToUnique(all.other)
 
 	// remove failed from excluded list
 	all.excluded = trimUnique(all.excluded, all.failed)

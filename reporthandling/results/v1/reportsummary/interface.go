@@ -113,11 +113,3 @@ func (all *ListPolicies) Update(all2 *ListPolicies) {
 	all.skipped = append(all.skipped, all2.skipped...)
 	all.other = append(all.other, all2.other...)
 }
-
-// func (all *ListPolicies) ToUnique() {
-// 	all.passed = shared.SliceStringToUnique(all.passed)
-// 	all.failed = shared.SliceStringToUnique(all.failed)
-// 	all.excluded = shared.SliceStringToUnique(all.excluded)
-// 	all.skipped = shared.SliceStringToUnique(all.skipped)
-// 	all.other = shared.SliceStringToUnique(all.other)
-// }

@@ -3,7 +3,7 @@ package v1
 import (
 	"github.com/armosec/armoapi-go/armotypes"
 	"github.com/armosec/opa-utils/reporthandling/apis"
-	"github.com/armosec/opa-utils/shared"
+	"github.com/armosec/utils-go/str"
 )
 
 // Filters fields that might take effect on the resource status. If this objects is empty or nil, the status will be as determined by pre-defined logic
@@ -50,7 +50,7 @@ func (f *Filters) FilterExceptions(exceptions []armotypes.PostureExceptionPolicy
 	for i := range exceptions {
 		for j := range exceptions[i].PosturePolicies {
 			if exceptions[i].PosturePolicies[j].FrameworkName == "" ||
-				shared.StringInSliceCaseInsensitive(f.ListFrameworkNames(), exceptions[i].PosturePolicies[j].FrameworkName) {
+				str.StringInSliceCaseInsensitive(f.ListFrameworkNames(), exceptions[i].PosturePolicies[j].FrameworkName) {
 				filteredExceptions = append(filteredExceptions, exceptions[i])
 			}
 		}
