@@ -8,3 +8,12 @@ const (
 	KindControl   NotificationPolicyKind = "Control"
 	KindRule      NotificationPolicyKind = "Rule"
 )
+
+type ScanResponseType string
+
+const (
+	ErrorScanResponseType     ScanResponseType = "error"
+	ResultsV1ScanResponseType ScanResponseType = "v1results"
+	IDScanResponseType        ScanResponseType = "id"
+	StatusScanResponseType    ScanResponseType = "status"
+)
