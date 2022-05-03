@@ -79,6 +79,7 @@ const (
 
 type ScanMetadata struct {
 	Format             string         `json:"format,omitempty"`             // Format results (table, json, junit ...)
+	KubescapeVersion   string         `json:"kubescapeVersion,omitempty"`   // Kubescape version
 	FormatVersion      string         `json:"formatVersion,omitempty"`      // Format version (v1, v2)
 	ScanningTarget     ScanningTarget `json:"scanningTarget,omitempty"`     // scanning target
 	ExcludedNamespaces []string       `json:"excludedNamespaces,omitempty"` // used for host sensor namespace
