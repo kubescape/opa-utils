@@ -93,13 +93,23 @@ type PostureReport struct {
 	Resources            []Resource            `json:"resource,omitempty"`
 }
 
+// Source - File source metadata
 type Source struct {
-	Path string `json:"path"`
+	Path         string     `json:"path,omitempty"`         // deprecated
+	RelativePath string     `json:"relativePath,omitempty"` // relative path from the repo base
+	LastCommit   LastCommit `json:"lastCommit,omitempty"`
+}
+
+// LastCommit - file in git repo last commit metadata
+type LastCommit struct {
+	Hash          string `json:"hash,omitempty"`          // commit hash
+	Date          string `json:"date,omitempty"`          // commit date
+	CommitterName string `json:"committerName,omitempty"` // commiter name
 }
 
 type Resource struct {
 	ResourceID string         `json:"resourceID"`
 	Object     interface{}    `json:"object"`
-	Source     *Source        `json:"source,omitempty"`
 	IMetadata  ik8s.IMetadata `json:"-"`
+	Source     *Source        `json:"source,omitempty"`
 }

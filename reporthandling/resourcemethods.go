@@ -18,6 +18,13 @@ import (
 // GetID() string // Get K8S workload ID -> <api-group>/<api-version>/<kind>/<name>
 // //isK8sObject()
 
+// IResource is an extension for IMetadata so we can include the source and other file metadata
+type IResource interface {
+	workloadinterface.IMetadata //
+	GetSource() *Source
+	SetSource(s *Source)
+}
+
 func NewResource(obj map[string]interface{}) *Resource {
 	return &Resource{
 		Object: obj,

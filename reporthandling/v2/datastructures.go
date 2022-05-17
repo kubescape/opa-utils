@@ -39,9 +39,13 @@ type ClusterMetadata struct {
 }
 
 type RepoContextMetadata struct {
-	Repo   string `json:"repo,omitempty"`
-	Owner  string `json:"owner,omitempty"`
-	Branch string `json:"branch,omitempty"`
+	Provider      string                    `json:"provider,omitempty"` // repo provider name. e.g. github, gitlab
+	Repo          string                    `json:"repo,omitempty"`
+	Owner         string                    `json:"owner,omitempty"`
+	Branch        string                    `json:"branch,omitempty"`
+	DefaultBranch string                    `json:"defaultBranch,omitempty"`
+	OriginURL     string                    `json:"originURL,omitempty"`
+	LastCommit    reporthandling.LastCommit `json:"lastCommit,omitempty"`
 }
 
 type FileContextMetadata struct {

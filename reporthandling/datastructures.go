@@ -81,14 +81,3 @@ type UpdatedFramework struct {
 	Framework `json:",inline"`
 	Controls  []interface{} `json:"controls"`
 }
-
-// ********************************* Moved to httpserver/apis/v1/apis.go ****************************************
-
-type NotificationPolicyKind string
-
-// Supported NotificationKinds
-const (
-	KindFramework NotificationPolicyKind = "Framework"
-	KindControl   NotificationPolicyKind = "Control"
-	KindRule      NotificationPolicyKind = "Rule"
-)
