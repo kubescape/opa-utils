@@ -12,8 +12,9 @@ const (
 type ScanResponseType string
 
 const (
-	ErrorScanResponseType     ScanResponseType = "error"
-	ResultsV1ScanResponseType ScanResponseType = "v1results"
-	IDScanResponseType        ScanResponseType = "id"
-	StatusScanResponseType    ScanResponseType = "status"
+	IDScanResponseType        ScanResponseType = "id"        // DEPRECATED - will return busy/ready instead
+	ErrorScanResponseType     ScanResponseType = "error"     // error accrued, returning error message
+	ResultsV1ScanResponseType ScanResponseType = "v1results" // returning v1 results object
+	BusyScanResponseType      ScanResponseType = "busy"      // Server is busy with previous request
+	ReadyScanResponseType     ScanResponseType = "ready"     // Server successfully completed request
 )

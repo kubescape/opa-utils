@@ -8,18 +8,6 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestMockPolicyNotificationA(t *testing.T) {
-	policy := MockPolicyNotificationA()
-	bp, err := json.Marshal(policy)
-	if err != nil {
-		t.Error(err)
-	} else {
-		t.Logf("%s\n", string(bp))
-		// t.Errorf("%s\n", string(bp))
-	}
-
-}
-
 func TestPostureReportWithK8SResource(t *testing.T) {
 
 	expectedID := "apps/v1/default/Deployment/demoservice-server"

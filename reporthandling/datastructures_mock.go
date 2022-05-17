@@ -187,21 +187,6 @@ func MockRuleB() *PolicyRule {
 	}
 }
 
-func MockPolicyNotificationA() *PolicyNotification {
-	return &PolicyNotification{
-		KubescapeNotification: KubescapeNotification{
-			NotificationType: TypeExecPostureScan,
-			Designators:      armotypes.PortalDesignator{}},
-		ReportID: AMockReportID,
-		JobID:    AMockJobID,
-		Rules: []PolicyIdentifier{
-			{
-				Kind: KindFramework,
-				Name: AMockFrameworkName,
-			}},
-	}
-}
-
 func MockTemp() string {
 	return `
 	package armo_builtins

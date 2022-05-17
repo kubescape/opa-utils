@@ -23,5 +23,5 @@ type PostScanRequest struct {
 type Response struct {
 	ID       string              `json:"id"`
 	Type     v1.ScanResponseType `json:"type"`
-	Response []byte              `json:"response,omitempty"`
+	Response interface{}         `json:"response,omitempty"`
 }

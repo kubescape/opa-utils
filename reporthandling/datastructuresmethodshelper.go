@@ -1,10 +1,5 @@
 package reporthandling
 
-import (
-	"bytes"
-	"encoding/json"
-)
-
 type ResourcesIDs struct {
 	passedResources  []string
 	failedResources  []string
@@ -42,14 +37,6 @@ func (r *ResourcesIDs) setWarningResources(a []string) {
 // setPassedResources - initialized after warning resources are set
 func (r *ResourcesIDs) setPassedResources(a []string) {
 	r.passedResources = TrimUniqueIDs(GetUniqueResourcesIDs(a), append(r.failedResources, r.warningResources...))
-}
-
-func (pn *PolicyNotification) ToJSONBytesBuffer() (*bytes.Buffer, error) {
-	res, err := json.Marshal(pn)
-	if err != nil {
-		return nil, err
-	}
-	return bytes.NewBuffer(res), err
 }
 
 func deleteFromMap(m map[string]interface{}, keepFields []string) {
