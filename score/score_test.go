@@ -48,16 +48,34 @@ func TestInactiveDaemonScore(t *testing.T) {
 func TestEmptyFrameworV2kMock(t *testing.T) {
 	s := NewScore(map[string]workloadinterface.IMetadata{})
 	report := &v2.PostureReport{
-		Attributes:           []reportsummary.PostureAttributes{},
-		CustomerGUID:         "",
-		ClusterName:          "",
-		ClusterCloudProvider: "",
-		ReportID:             "",
-		JobID:                "",
-		PaginationInfo:       v2.PaginationMarks{},
-		SummaryDetails:       reportsummary.SummaryDetails{Frameworks: []reportsummary.FrameworkSummary{{Name: "empty", Controls: reportsummary.ControlSummaries{}}}},
-		Results:              []resourcesresults.Result{},
-		Resources:            []reporthandling.Resource{},
+		SummaryDetails: reportsummary.SummaryDetails{Frameworks: []reportsummary.FrameworkSummary{{Name: "empty", Controls: reportsummary.ControlSummaries{}}}},
+		Results:        []resourcesresults.Result{},
+		Resources:      []reporthandling.Resource{},
+	}
+	err := s.CalculatePostureReportV2(report)
+
+	if err == nil || report.SummaryDetails.Frameworks[0].Score != 0.0 {
+		t.Errorf("empty framework should return an error and have score equals 0")
+	}
+}
+
+func TestSkippedFrameworV2kMock(t *testing.T) {
+	s := NewScore(map[string]workloadinterface.IMetadata{})
+	report := &v2.PostureReport{
+		SummaryDetails: reportsummary.SummaryDetails{Frameworks: []reportsummary.FrameworkSummary{{Name: "skipped", Controls: reportsummary.ControlSummaries{
+			"skipped1": reportsummary.ControlSummary{
+				Name:        "skipped1",
+				ControlID:   "Skippie1",
+				Description: "skipper",
+			},
+			"skipped2": reportsummary.ControlSummary{
+				Name:        "skipped2",
+				ControlID:   "Skippie2",
+				Description: "skipper",
+			},
+		}}}},
+		Results:   []resourcesresults.Result{},
+		Resources: []reporthandling.Resource{},
 	}
 	err := s.CalculatePostureReportV2(report)
 
