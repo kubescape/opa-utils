@@ -104,3 +104,11 @@ func (postureReport *PostureReport) GetJobID() string {
 func (postureReport *PostureReport) GetTimestamp() *time.Time {
 	return &postureReport.ReportGenerationTime
 }
+
+func (postureReport *PostureReport) GetScannigTarget() ScanningTarget {
+	return postureReport.Metadata.ScanMetadata.ScanningTarget
+}
+
+func (postureReport *PostureReport) GetContextMetadata() *ContextMetadata {
+	return &postureReport.Metadata.ContextMetadata
+}
