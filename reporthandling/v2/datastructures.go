@@ -44,7 +44,7 @@ type RepoContextMetadata struct {
 	Owner         string                    `json:"owner,omitempty"`
 	Branch        string                    `json:"branch,omitempty"`
 	DefaultBranch string                    `json:"defaultBranch,omitempty"`
-	OriginURL     string                    `json:"originURL,omitempty"`
+	RemoteURL     string                    `json:"remoteURL,omitempty"`
 	LastCommit    reporthandling.LastCommit `json:"lastCommit,omitempty"`
 }
 
