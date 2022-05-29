@@ -1,12 +1,14 @@
 package v2
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/armosec/opa-utils/reporthandling/apis"
 	helpersv1 "github.com/armosec/opa-utils/reporthandling/helpers/v1"
 	"github.com/armosec/opa-utils/reporthandling/results/v1/reportsummary"
 	"github.com/armosec/opa-utils/reporthandling/results/v1/resourcesresults"
+	"github.com/armosec/utils-go/str"
 )
 
 // Status get the overall scanning status
@@ -111,4 +113,19 @@ func (postureReport *PostureReport) GetScannigTarget() ScanningTarget {
 
 func (postureReport *PostureReport) GetContextMetadata() *ContextMetadata {
 	return &postureReport.Metadata.ContextMetadata
+}
+
+func (postureReport *PostureReport) GetRepositoryHash() string {
+	contextMetadata := postureReport.GetContextMetadata()
+	if contextMetadata == nil || contextMetadata.RepoContextMetadata == nil {
+		return ""
+	}
+
+	repoIdentifier := fmt.Sprintf("%s/%s/%s/%s",
+		contextMetadata.RepoContextMetadata.Provider,
+		contextMetadata.RepoContextMetadata.Owner,
+		contextMetadata.RepoContextMetadata.Repo,
+		contextMetadata.RepoContextMetadata.Branch)
+
+	return str.AsFNVHash(repoIdentifier)
 }

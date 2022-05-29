@@ -6,4 +6,5 @@ type IBasicPostureReport interface {
 	reportsummary.IBasicPostureReport
 	GetScannigTarget() ScanningTarget
 	GetContextMetadata() *ContextMetadata
+	GetRepositoryHash() string
 }
