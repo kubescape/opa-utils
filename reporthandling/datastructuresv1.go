@@ -102,11 +102,11 @@ type Source struct {
 
 // LastCommit - file in git repo last commit metadata
 type LastCommit struct {
-	Hash           string `json:"hash,omitempty"`           // commit hash
-	Date           string `json:"date,omitempty"`           // commit date
-	CommitterName  string `json:"committerName,omitempty"`  // committer name
-	CommitterEmail string `json:"committerEmail,omitempty"` // committer email
-	Message        string `json:"message,omitempty"`        // commit message
+	Hash           string    `json:"hash,omitempty"`           // commit hash
+	Date           time.Time `json:"date,omitempty"`           // commit date
+	CommitterName  string    `json:"committerName,omitempty"`  // committer name
+	CommitterEmail string    `json:"committerEmail,omitempty"` // committer email
+	Message        string    `json:"message,omitempty"`        // commit message
 }
 
 type Resource struct {
