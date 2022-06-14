@@ -4,7 +4,7 @@ go 1.18
 
 require (
 	github.com/armosec/armoapi-go v0.0.73
-	github.com/armosec/k8s-interface v0.0.76
+	github.com/armosec/k8s-interface v0.0.78
 	github.com/armosec/rbac-utils v0.0.14
 	github.com/armosec/utils-go v0.0.4
 	github.com/francoispqt/gojay v1.2.13
