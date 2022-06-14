@@ -40,6 +40,9 @@ func GetObjectType(object map[string]interface{}) workloadinterface.ObjectType {
 	if apis.IsTypeDescriptiveInfoFromCloudProvider(object) {
 		return cloudsupportv1.TypeCloudProviderDescribe
 	}
+	if localworkload.IsTypeLocalWorkload(object) {
+		return localworkload.TypeLocalWorkload
+	}
 	if k8sinterface.IsTypeWorkload(object) {
 		return workloadinterface.TypeWorkloadObject
 	}

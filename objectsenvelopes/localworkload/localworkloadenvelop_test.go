@@ -29,3 +29,8 @@ func TestGetKind(t *testing.T) {
 	m := NewLocalWorkloadMck()
 	assert.Equal(t, "b", m.GetKind())
 }
+
+func TestGetID(t *testing.T) {
+	m := NewLocalWorkloadMck()
+	assert.Equal(t, "path=L3BhdGgvZmlsZQ==////b/", m.GetID())
+}
