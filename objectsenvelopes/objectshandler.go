@@ -6,6 +6,7 @@ import (
 	"github.com/armosec/k8s-interface/k8sinterface"
 	"github.com/armosec/k8s-interface/workloadinterface"
 	"github.com/armosec/opa-utils/objectsenvelopes/hostsensor"
+	"github.com/armosec/opa-utils/objectsenvelopes/localworkload"
 )
 
 // Returns the currect object that supports the IMetadata interface
@@ -20,6 +21,8 @@ func NewObject(object map[string]interface{}) workloadinterface.IMetadata {
 		return cloudsupportv1.NewDescriptiveInfoFromCloudProvider(object)
 	case hostsensor.TypeHostSensor:
 		return hostsensor.NewHostSensorDataEnvelope(object)
+	case localworkload.TypeLocalWorkload:
+		return localworkload.NewLocalWorkload(object)
 	case workloadinterface.TypeWorkloadObject:
 		return workloadinterface.NewWorkloadObj(object)
 	default: // objects should follow the basic k8s structure
