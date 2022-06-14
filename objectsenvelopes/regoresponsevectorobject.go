@@ -66,6 +66,10 @@ func (obj *RegoResponseVectorObject) SetName(name string) {
 	obj.object["name"] = name
 }
 
+func (obj *RegoResponseVectorObject) SetApiVersion(apiVersion string) {
+	obj.object["apiVersion"] = apiVersion
+}
+
 func (obj *RegoResponseVectorObject) SetKind(kind string) {
 	obj.object["kind"] = kind
 }
