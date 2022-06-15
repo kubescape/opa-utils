@@ -74,10 +74,6 @@ func (obj *RegoResponseVectorObject) SetKind(kind string) {
 	obj.object["kind"] = kind
 }
 
-func (obj *RegoResponseVectorObject) SetApiVersion(apiVersion string) {
-	obj.object["apiVersion"] = apiVersion
-}
-
 func (obj *RegoResponseVectorObject) SetWorkload(object map[string]interface{}) { // DEPRECATED
 	obj.SetObject(object)
 }
