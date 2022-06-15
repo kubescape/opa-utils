@@ -97,6 +97,13 @@ func (r *Resource) SetObject(m map[string]interface{}) {
 	}
 }
 
+func (r *Resource) SetApiVersion(s string) {
+	mw := r.middleware()
+	if mw != nil {
+		mw.SetApiVersion(s)
+	}
+}
+
 func (r *Resource) GetNamespace() string {
 	mw := r.middleware()
 	if mw == nil {
