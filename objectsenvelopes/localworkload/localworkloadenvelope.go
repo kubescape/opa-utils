@@ -1,7 +1,6 @@
 package localworkload
 
 import (
-	"encoding/base64"
 	"fmt"
 
 	"github.com/armosec/k8s-interface/workloadinterface"
@@ -23,7 +22,7 @@ func NewLocalWorkload(object map[string]interface{}) *LocalWorkload {
 	return localWorkload
 }
 func (localWorkload *LocalWorkload) GetID() string {
-	return fmt.Sprintf("path=%s/%s", base64.StdEncoding.EncodeToString([]byte(localWorkload.GetPath())), localWorkload.BaseObject.GetID())
+	return fmt.Sprintf("path=%s/api=%s", localWorkload.GetPath(), localWorkload.BaseObject.GetID())
 }
 func (localWorkload *LocalWorkload) SetPath(p string) {
 	workloadinterface.SetInMap(localWorkload.GetObject(), []string{}, "path", p)

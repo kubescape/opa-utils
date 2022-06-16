@@ -32,5 +32,11 @@ func TestGetKind(t *testing.T) {
 
 func TestGetID(t *testing.T) {
 	m := NewLocalWorkloadMck()
-	assert.Equal(t, "path=L3BhdGgvZmlsZQ==////b/", m.GetID())
+	assert.Equal(t, "path=/path/file/api=///b/", m.GetID())
+}
+
+func TestSetID(t *testing.T) {
+	m := NewLocalWorkloadMck()
+	m.SetPath("")
+	assert.Equal(t, "path=/api=///b/", m.GetID())
 }
