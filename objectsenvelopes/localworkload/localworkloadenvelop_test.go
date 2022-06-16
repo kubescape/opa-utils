@@ -8,8 +8,8 @@ import (
 
 func NewLocalWorkloadMck() *LocalWorkload {
 	object := map[string]interface{}{
-		"kind": "b",
-		"path": "/path/file",
+		"kind":  "b",
+		PathKey: "/path/file",
 	}
 	return NewLocalWorkload(object)
 }
@@ -32,11 +32,19 @@ func TestGetKind(t *testing.T) {
 
 func TestGetID(t *testing.T) {
 	m := NewLocalWorkloadMck()
-	assert.Equal(t, "path=/path/file/api=///b/", m.GetID())
+	assert.Equal(t, "path=1336429864/api=///b/", m.GetID())
 }
 
 func TestSetID(t *testing.T) {
 	m := NewLocalWorkloadMck()
 	m.SetPath("")
-	assert.Equal(t, "path=/api=///b/", m.GetID())
+	assert.Equal(t, "path=2166136261/api=///b/", m.GetID())
+}
+
+func TestDeletePathEntry(t *testing.T) {
+	m := NewLocalWorkloadMck()
+	assert.Equal(t, "/path/file", m.GetObject()[PathKey].(string))
+
+	m.DeletePathEntry()
+	assert.Equal(t, nil, m.GetObject()[PathKey])
 }
