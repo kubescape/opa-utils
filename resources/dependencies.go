@@ -49,6 +49,24 @@ unix_permission_from_octal(perm) = ret {
         "read": bits.and(perm, 4) != 0
     }
 }
+
+# check that the given permissions are more permissive than 644
+is_not_strict_conf_permission(p){
+	not is_strict_conf_permission(p)
+}
+
+# check that the given permissions are 644 or above
+is_strict_conf_permission(p){
+	perm := unix_permission(p)
+	not perm.user.exec
+	not perm.group.write
+	not perm.group.exec
+	not perm.everyone.write
+	not perm.everyone.exec
+	not perm.setgid
+	not perm.setuid
+	not perm.sticky
+}
 `
 
 var RegoDesignators = `
