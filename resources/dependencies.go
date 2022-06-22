@@ -67,6 +67,22 @@ is_strict_conf_permission(p){
 	not perm.setuid
 	not perm.sticky
 }
+
+# Check if file ownership is different than root:root
+is_not_strict_conf_ownership(ownership){
+	not is_strict_conf_ownership(ownership)
+}
+
+# File ownership check only if there is no error
+is_strict_conf_ownership(ownership){
+	ownership.err
+}
+
+# Ensure file ownership are root:root
+is_strict_conf_ownership(ownership){
+	ownership.uid == 0
+    ownership.gid == 0
+}
 `
 
 var RegoDesignators = `
