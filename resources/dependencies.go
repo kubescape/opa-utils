@@ -28,6 +28,45 @@ object_intersection(parent,sub1) = r{
 is_subobject(sub,parent) {
 object_intersection(sub,parent)  == sub
 }
+
+# parse unix permissions
+unix_permission(perm) = ret {
+    ret := {
+    	"user": unix_permission_from_octal(bits.rsh(perm, 6)), 
+        "group": unix_permission_from_octal(bits.rsh(perm, 3)),
+        "everyone": unix_permission_from_octal(perm),
+        "setuid": bits.and(perm, 2048) != 0,
+        "setgid": bits.and(perm, 1024) != 0,
+        "sticky": bits.and(perm, 512) != 0
+    }
+}
+
+# parse single unix permission (one octal digit)
+unix_permission_from_octal(perm) = ret {
+    ret := {
+        "exec": bits.and(perm, 1) != 0,
+        "write": bits.and(perm, 2) != 0,
+        "read": bits.and(perm, 4) != 0
+    }
+}
+
+# check that the given permissions are more permissive than 644
+is_not_strict_conf_permission(p){
+	not is_strict_conf_permission(p)
+}
+
+# check that the given permissions are 644 or above
+is_strict_conf_permission(p){
+	perm := unix_permission(p)
+	not perm.user.exec
+	not perm.group.write
+	not perm.group.exec
+	not perm.everyone.write
+	not perm.everyone.exec
+	not perm.setgid
+	not perm.setuid
+	not perm.sticky
+}
 `
 
 var RegoDesignators = `
