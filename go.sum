@@ -106,8 +106,8 @@ github.com/armon/go-metrics v0.0.0-20180917152333-f0300d1749da/go.mod h1:Q73ZrmV
 github.com/armon/go-metrics v0.3.10/go.mod h1:4O98XIr/9W0sxpJ8UaYkvjk10Iff7SnFrb4QAOwNTFc=
 github.com/armon/go-radix v0.0.0-20180808171621-7fddfc383310/go.mod h1:ufUuZ+zHj4x4TnLV4JWEpy2hxWSpsRywHrMgIH9cCH8=
 github.com/armon/go-radix v1.0.0/go.mod h1:ufUuZ+zHj4x4TnLV4JWEpy2hxWSpsRywHrMgIH9cCH8=
-github.com/armosec/armoapi-go v0.0.73 h1:LMf+eCkkf+W9NVvOzHKFgVUEpBMvh27M7//UQP3aiO8=
-github.com/armosec/armoapi-go v0.0.73/go.mod h1:/9SQAgtLbYkfFneRRm/zkIn3zz+4Y2xv6N3vtFcyF8s=
+github.com/armosec/armoapi-go v0.0.96 h1:8rOflchOs+dH2tXAxkxe6gGJqTHUVly6p6hcu2TzIiA=
+github.com/armosec/armoapi-go v0.0.96/go.mod h1:vpKd2UroTmzXKE1dSNQ6y2zRF13auJEmy9X2XBoFZYc=
 github.com/armosec/k8s-interface v0.0.78 h1:zqIzbFQqSxVMjcDsB4+lgGNgkHVqDZ369/WTGGdLKCE=
 github.com/armosec/k8s-interface v0.0.78/go.mod h1:8NX4xWXh8mwW7QyZdZea1czNdM2azCK9BbUNmiZYXW0=
 github.com/armosec/rbac-utils v0.0.14 h1:CKYKcgqJEXWF2Hen/B1pVGtS3nDAG1wp9dDv6oNtq90=
