@@ -3,17 +3,13 @@ package v2
 import (
 	"time"
 
+	armoapi "github.com/armosec/armoapi-go/apis"
 	"github.com/armosec/opa-utils/reporthandling"
 	"github.com/armosec/opa-utils/reporthandling/results/v1/reportsummary"
 	"github.com/armosec/opa-utils/reporthandling/results/v1/resourcesresults"
 
 	"k8s.io/apimachinery/pkg/version"
 )
-
-type PaginationMarks struct {
-	ReportNumber int  `json:"chunkNumber"` // serial number of report, used in pagination
-	IsLastReport bool `json:"isLastChunk"` //specify this is the last report, used in pagination
-}
 
 // PostureReport posture scanning report structure
 type PostureReport struct {
@@ -23,7 +19,7 @@ type PostureReport struct {
 	ClusterCloudProvider string                            `json:"clusterCloudProvider"` // Deprecated
 	ReportID             string                            `json:"reportGUID"`
 	JobID                string                            `json:"jobID"`
-	PaginationInfo       PaginationMarks                   `json:"paginationInfo"`
+	PaginationInfo       armoapi.PaginationMarks           `json:"paginationInfo"`
 	ClusterAPIServerInfo *version.Info                     `json:"clusterAPIServerInfo"`
 	ReportGenerationTime time.Time                         `json:"generationTime"`
 	SummaryDetails       reportsummary.SummaryDetails      `json:"summaryDetails,omitempty"`
