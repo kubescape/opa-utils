@@ -94,6 +94,7 @@ type PostureReport struct {
 }
 
 const (
+	SourceTypeJson      string = "JSON"
 	SourceTypeYaml      string = "YAML"
 	SourceTypeHelmChart string = "Helm Chart"
 )
