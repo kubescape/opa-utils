@@ -93,10 +93,16 @@ type PostureReport struct {
 	Resources            []Resource            `json:"resource,omitempty"`
 }
 
+const (
+	SourceTypeYaml      string = "YAML"
+	SourceTypeHelmChart string = "Helm Chart"
+)
+
 // Source - File source metadata
 type Source struct {
 	Path         string     `json:"path,omitempty"`         // deprecated
 	RelativePath string     `json:"relativePath,omitempty"` // relative path from the repo base
+	FileType     string     `json:"fileType,omitempty"`     // file type
 	LastCommit   LastCommit `json:"lastCommit,omitempty"`
 }
 
