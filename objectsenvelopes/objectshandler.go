@@ -25,8 +25,10 @@ func NewObject(object map[string]interface{}) workloadinterface.IMetadata {
 		return localworkload.NewLocalWorkload(object)
 	case workloadinterface.TypeWorkloadObject:
 		return workloadinterface.NewWorkloadObj(object)
-	default: // objects should follow the basic k8s structure
+	case workloadinterface.TypeBaseObject: // objects should follow the basic k8s structure
 		return workloadinterface.NewBaseObject(object)
+	default:
+		return nil
 	}
 }
 
