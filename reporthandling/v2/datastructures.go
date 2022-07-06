@@ -73,8 +73,11 @@ type Metadata struct {
 type ScanningTarget uint16
 
 const (
-	Cluster ScanningTarget = 0
-	File    ScanningTarget = 1
+	Cluster   ScanningTarget = 0
+	File      ScanningTarget = 1
+	Repo      ScanningTarget = 2
+	GitLocal  ScanningTarget = 3
+	Directory ScanningTarget = 4
 )
 
 type ScanMetadata struct {
@@ -107,6 +110,12 @@ func (st *ScanningTarget) String() string {
 		return "Cluster"
 	case 1:
 		return "File"
+	case 2:
+		return "Repo"
+	case 3:
+		return "GitLocal"
+	case 4:
+		return "Directory"
 	default:
 		return ""
 	}
