@@ -101,10 +101,11 @@ const (
 
 // Source - File source metadata
 type Source struct {
-	Path         string     `json:"path,omitempty"`         // deprecated
-	RelativePath string     `json:"relativePath,omitempty"` // relative path from the repo base
-	FileType     string     `json:"fileType,omitempty"`     // file type
-	LastCommit   LastCommit `json:"lastCommit,omitempty"`
+	Path          string     `json:"path,omitempty"`          // deprecated
+	RelativePath  string     `json:"relativePath,omitempty"`  // relative path from the repo base
+	FileType      string     `json:"fileType,omitempty"`      // file type
+	HelmChartName string     `json:"helmChartName,omitempty"` // helm chart name (if FileType is "Helm Chart")
+	LastCommit    LastCommit `json:"lastCommit,omitempty"`
 }
 
 // LastCommit - file in git repo last commit metadata
