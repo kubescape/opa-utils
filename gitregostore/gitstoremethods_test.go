@@ -2,8 +2,6 @@ package gitregostore
 
 import (
 	"testing"
-
-	"github.com/stretchr/testify/assert"
 )
 
 func TestInitDefaultGitRegoStore(t *testing.T) {
@@ -219,12 +217,4 @@ func TestGetPoliciesMethodsNew(t *testing.T) {
 	if err != nil || framework == nil {
 		t.Errorf("failed to get framework by name: '%s', %v", frameworksNames[0], err)
 	}
-}
-
-func TestIsControlID(t *testing.T) {
-	assert.True(t, isControlID("c-0001"))
-	assert.True(t, isControlID("C-0001"))
-	assert.False(t, isControlID("c-00012"))
-	assert.False(t, isControlID("t-0001"))
-	assert.False(t, isControlID("my name"))
 }
