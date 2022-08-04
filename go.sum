@@ -112,8 +112,8 @@ github.com/armosec/k8s-interface v0.0.78 h1:zqIzbFQqSxVMjcDsB4+lgGNgkHVqDZ369/WT
 github.com/armosec/k8s-interface v0.0.78/go.mod h1:8NX4xWXh8mwW7QyZdZea1czNdM2azCK9BbUNmiZYXW0=
 github.com/armosec/rbac-utils v0.0.14 h1:CKYKcgqJEXWF2Hen/B1pVGtS3nDAG1wp9dDv6oNtq90=
 github.com/armosec/rbac-utils v0.0.14/go.mod h1:Ex/IdGWhGv9HZq6Hs8N/ApzCKSIvpNe/ETqDfnuyah0=
-github.com/armosec/utils-go v0.0.4 h1:BUoFY4dps+R11i6rRlYCZ43mHH7P01AzWT/qDum4Rhw=
-github.com/armosec/utils-go v0.0.4/go.mod h1:itWmRLzRdsnwjpEOomL0mBWGnVNNIxSjDAdyc+b0iUo=
+github.com/armosec/utils-go v0.0.9 h1:Ri7SjCFHfORN1dBH4NYKYfVEEkt6Af4iFgbRskFeyac=
+github.com/armosec/utils-go v0.0.9/go.mod h1:F/K1mI/qcj7fNuJl7xktoCeHM83azOF0Zq6eC2WuPyU=
 github.com/armosec/utils-k8s-go v0.0.6 h1:GriAQZeKsVdlM64lwRnh4EDKlb2R9tK7WXtRYQOrPwk=
 github.com/armosec/utils-k8s-go v0.0.6/go.mod h1:YFdWi3rEQQLbN6mZO21TSdoda8kGQYRV4rs5CRp8Kjs=
 github.com/asaskevich/govalidator v0.0.0-20190424111038-f61b66f89f4a/go.mod h1:lB+ZfQJz7igIIfQNfa7Ml4HSf2uFQQRzpGGRXenZAgY=

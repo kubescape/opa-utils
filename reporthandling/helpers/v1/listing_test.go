@@ -88,3 +88,104 @@ func TestAllListsUnique(t *testing.T) {
 	assert.Equal(t, len(listMock.All()), len(listMock.Failed()))
 	assert.Equal(t, 0, len(listMock.Passed()))
 }
+
+func TestAppendSlice(t *testing.T) {
+	type args struct {
+		origin   []string
+		expected []string
+		appendTo []string
+		index    *int
+	}
+	tests := []struct {
+		name string
+		args args
+	}{
+		{
+			name: "append to empty slice",
+			args: args{
+				origin:   make([]string, 2),
+				expected: []string{"a", "b"},
+				appendTo: []string{"a", "b"},
+				index:    intToPointer(0),
+			},
+		},
+		{
+			name: "append to non empty slice",
+			args: args{
+				origin:   []string{"a", "b", "", ""},
+				expected: []string{"a", "b", "c", "d"},
+				appendTo: []string{"c", "d"},
+				index:    intToPointer(2),
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			appendSlice(tt.args.origin, tt.args.appendTo, tt.args.index)
+			assert.Equal(t, tt.args.expected, tt.args.origin)
+			assert.Equal(t, len(tt.args.expected), *tt.args.index)
+		})
+	}
+}
+func intToPointer(i int) *int {
+	return &i
+}
+
+func TestTrimUnique(t *testing.T) {
+	type args struct {
+		origin   []string
+		trimFrom []string
+		expected []string
+	}
+	tests := []struct {
+		name string
+		args args
+	}{
+		{
+			name: "trim from begging of slice",
+			args: args{
+				origin:   []string{"a", "b", "c"},
+				trimFrom: []string{"a"},
+				expected: []string{"c", "b"},
+			},
+		},
+		{
+			name: "trim from middle of slice",
+			args: args{
+				origin:   []string{"a", "b", "c"},
+				trimFrom: []string{"b"},
+				expected: []string{"a", "c"},
+			},
+		},
+		{
+			name: "trim from end of slice",
+			args: args{
+				origin:   []string{"a", "b", "c"},
+				trimFrom: []string{"c"},
+				expected: []string{"a", "b"},
+			},
+		},
+		{
+			name: "do nothing",
+			args: args{
+				origin:   []string{"a", "b", "c"},
+				trimFrom: []string{"d"},
+				expected: []string{"a", "b", "c"},
+			},
+		},
+		{
+			name: "trim all",
+			args: args{
+				origin:   []string{"a", "b", "c"},
+				trimFrom: []string{"a", "b", "c"},
+				expected: []string{},
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			dd := trimUnique(tt.args.origin, tt.args.trimFrom)
+			assert.Equal(t, tt.args.expected, dd)
+		})
+	}
+}

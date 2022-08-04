@@ -23,12 +23,15 @@ func (all *AllLists) Excluded() []string { return all.excluded }
 func (all *AllLists) Skipped() []string  { return all.skipped }
 func (all *AllLists) Other() []string    { return all.other }
 func (all *AllLists) All() []string {
-	l := []string{}
-	l = append(l, all.failed...)
-	l = append(l, all.excluded...)
-	l = append(l, all.passed...)
-	l = append(l, all.skipped...)
-	l = append(l, all.other...)
+	size := len(all.excluded) + len(all.failed) + len(all.passed) + len(all.skipped) + len(all.other)
+	l := make([]string, size)
+	index := 0
+	appendSlice(l, all.failed, &index)
+	appendSlice(l, all.excluded, &index)
+	appendSlice(l, all.passed, &index)
+	appendSlice(l, all.skipped, &index)
+	appendSlice(l, all.other, &index)
+
 	return str.SliceStringToUnique(l)
 }
 
@@ -88,22 +91,33 @@ func (all *AllLists) ToUnique() {
 	all.other = trimUnique(all.other, trimmed)
 }
 
-// trimUnique trim the list, return original list without the "trimFrom" list
+// trimUnique trim the list, return original list without the "trimFrom" list. the list is trimmed in place, so the original list is modified. Also, the list is not sorted
 func trimUnique(origin, trimFrom []string) []string {
 	if len(origin) == 0 || len(trimFrom) == 0 { // if there is nothing to trim
 		return origin
 	}
-	unique := map[string]bool{}
-	originList := []string{}
+	toRemove := make(map[string]bool, len(trimFrom))
 
 	for i := range trimFrom {
-		unique[trimFrom[i]] = true
+		toRemove[trimFrom[i]] = true
 	}
 
-	for i := range origin {
-		if found := unique[origin[i]]; !found {
-			originList = append(originList, origin[i])
+	originLen := len(origin)
+	for i := 0; i < originLen; {
+		if _, ok := toRemove[origin[i]]; ok {
+			str.RemoveIndexFromStringSlice(&origin, i)
+			originLen--
+		} else {
+			i++
 		}
 	}
-	return originList
+	return origin
+}
+
+// appendSlice append a slice to a slice the index indicates the position of the slice
+func appendSlice(origin, appendTo []string, index *int) {
+	for i := range appendTo {
+		origin[*index] = appendTo[i]
+		*index++
+	}
 }
