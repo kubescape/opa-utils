@@ -12,13 +12,13 @@ list_contains(lista,element) {
 # 	name := metadata.generateName
 #}
 getPodName(metadata) = name {
-	name := metadata.name
+    name := metadata.name
 }
 
 #returns subobject ,sub1 is partial to parent,  e.g parent = {a:a,b:b,c:c,d:d}
 # sub1 = {b:b,c:c} - result is {b:b,c:c}, if sub1={b:b,e:f} returns {b:b}
 object_intersection(parent,sub1) = r{
-  
+
   r := {k:p  | p := sub1[k]
               parent[k]== p
               }
@@ -32,7 +32,7 @@ object_intersection(sub,parent)  == sub
 # parse unix permissions
 unix_permission(perm) = ret {
     ret := {
-    	"user": unix_permission_from_octal(bits.rsh(perm, 6)), 
+        "user": unix_permission_from_octal(bits.rsh(perm, 6)), 
         "group": unix_permission_from_octal(bits.rsh(perm, 3)),
         "everyone": unix_permission_from_octal(perm),
         "setuid": bits.and(perm, 2048) != 0,
@@ -52,35 +52,66 @@ unix_permission_from_octal(perm) = ret {
 
 # check that the given permissions are more permissive than 644
 is_not_strict_conf_permission(p){
-	not is_strict_conf_permission(p)
+    not is_strict_conf_permission(p)
 }
 
 # check that the given permissions are 644 or above
+# deprecated. use 'unix_permissions_allow' instead
 is_strict_conf_permission(p){
-	perm := unix_permission(p)
-	not perm.user.exec
-	not perm.group.write
-	not perm.group.exec
-	not perm.everyone.write
-	not perm.everyone.exec
-	not perm.setgid
-	not perm.setuid
-	not perm.sticky
+    perm := unix_permission(p)
+    not perm.user.exec
+    not perm.group.write
+    not perm.group.exec
+    not perm.everyone.write
+    not perm.everyone.exec
+    not perm.setgid
+    not perm.setuid
+    not perm.sticky
+}
+
+# check if (unix permission integers) 'actual' permissions allowd by 'allow'
+unix_permissions_allow(allow, actual) {
+    allow_parsed := unix_permission(allow)
+    actual_parsed := unix_permission(actual)
+    
+    # attributes    
+    _unix_perm_allow(allow_parsed.setuid,  actual_parsed.setuid)
+    _unix_perm_allow(allow_parsed.setgid,  actual_parsed.setgid)
+    _unix_perm_allow(allow_parsed.sticky,  actual_parsed.sticky)
+    
+    # regular    
+    key := ["read", "write", "exec"][_]
+    _unix_perm_allow(allow_parsed.user[key],  actual_parsed.user[key])
+    _unix_perm_allow(allow_parsed.group[key],  actual_parsed.group[key])
+    _unix_perm_allow(allow_parsed.everyone[key],  actual_parsed.everyone[key])
+
+}
+
+# check if boolian 'actual' permission allowd by 'allow'
+# true, true => true
+# true, false => true
+# false, false => ture
+# false, true => false
+_unix_perm_allow(allow, actual) {
+    allow == true
+}
+_unix_perm_allow(allow, actual) {
+    allow == actual
 }
 
 # Check if file ownership is different than root:root
 is_not_strict_conf_ownership(ownership){
-	not is_strict_conf_ownership(ownership)
+    not is_strict_conf_ownership(ownership)
 }
 
 # File ownership check only if there is no error
 is_strict_conf_ownership(ownership){
-	ownership.err
+    ownership.err
 }
 
 # Ensure file ownership are root:root
 is_strict_conf_ownership(ownership){
-	ownership.uid == 0
+    ownership.uid == 0
     ownership.gid == 0
 }
 `
