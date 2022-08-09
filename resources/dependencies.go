@@ -69,7 +69,7 @@ is_strict_conf_permission(p){
     not perm.sticky
 }
 
-# check if (unix permission integers) 'actual' permissions allowd by 'allow'
+# check if (unix permission integers) 'actual' permissions allowed by 'allow'
 unix_permissions_allow(allow, actual) {
     allow_parsed := unix_permission(allow)
     actual_parsed := unix_permission(actual)
@@ -87,7 +87,7 @@ unix_permissions_allow(allow, actual) {
 
 }
 
-# check if boolian 'actual' permission allowd by 'allow'
+# check if boolian 'actual' permission allowed by 'allow'
 # true, true => true
 # true, false => true
 # false, false => ture
