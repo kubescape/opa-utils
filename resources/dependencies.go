@@ -80,11 +80,10 @@ unix_permissions_allow(allow, actual) {
     _unix_perm_allow(allow_parsed.sticky,  actual_parsed.sticky)
     
     # regular    
-    key := ["read", "write", "exec"][_]
-    _unix_perm_allow(allow_parsed.user[key],  actual_parsed.user[key])
-    _unix_perm_allow(allow_parsed.group[key],  actual_parsed.group[key])
-    _unix_perm_allow(allow_parsed.everyone[key],  actual_parsed.everyone[key])
-
+    keys :=  ["read", "write", "exec"]
+	count({key | key := keys[_]; not _unix_perm_allow(allow_parsed.user[key],  actual_parsed.user[key])}) == 0
+	count({key | key := keys[_]; not _unix_perm_allow(allow_parsed.group[key],  actual_parsed.group[key])}) == 0
+	count({key | key := keys[_]; not _unix_perm_allow(allow_parsed.everyone[key],  actual_parsed.everyone[key])}) == 0
 }
 
 # check if boolian 'actual' permission allowed by 'allow'
