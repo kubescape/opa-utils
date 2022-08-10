@@ -6,7 +6,7 @@ import (
 	ik8s "github.com/armosec/k8s-interface/workloadinterface"
 
 	"github.com/armosec/armoapi-go/armotypes"
-	rbacutils "github.com/armosec/rbac-utils/rbacutils"
+	rbacutils "github.com/kubescape/rbac-utils/rbacutils"
 	"k8s.io/apimachinery/pkg/version"
 )
 

@@ -5,10 +5,10 @@ go 1.18
 require (
 	github.com/armosec/armoapi-go v0.0.96
 	github.com/armosec/k8s-interface v0.0.78
-	github.com/armosec/rbac-utils v0.0.14
 	github.com/armosec/utils-go v0.0.9
 	github.com/francoispqt/gojay v1.2.13
 	github.com/go-gota/gota v0.12.0
+	github.com/kubescape/rbac-utils v0.0.16
 	github.com/open-policy-agent/opa v0.42.0
 	github.com/stretchr/testify v1.8.0
 	go.uber.org/zap v1.21.0

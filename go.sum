@@ -154,8 +154,6 @@ github.com/armosec/armoapi-go v0.0.96 h1:8rOflchOs+dH2tXAxkxe6gGJqTHUVly6p6hcu2T
 github.com/armosec/armoapi-go v0.0.96/go.mod h1:vpKd2UroTmzXKE1dSNQ6y2zRF13auJEmy9X2XBoFZYc=
 github.com/armosec/k8s-interface v0.0.78 h1:zqIzbFQqSxVMjcDsB4+lgGNgkHVqDZ369/WTGGdLKCE=
 github.com/armosec/k8s-interface v0.0.78/go.mod h1:8NX4xWXh8mwW7QyZdZea1czNdM2azCK9BbUNmiZYXW0=
-github.com/armosec/rbac-utils v0.0.14 h1:CKYKcgqJEXWF2Hen/B1pVGtS3nDAG1wp9dDv6oNtq90=
-github.com/armosec/rbac-utils v0.0.14/go.mod h1:Ex/IdGWhGv9HZq6Hs8N/ApzCKSIvpNe/ETqDfnuyah0=
 github.com/armosec/utils-go v0.0.9 h1:Ri7SjCFHfORN1dBH4NYKYfVEEkt6Af4iFgbRskFeyac=
 github.com/armosec/utils-go v0.0.9/go.mod h1:F/K1mI/qcj7fNuJl7xktoCeHM83azOF0Zq6eC2WuPyU=
 github.com/armosec/utils-k8s-go v0.0.6 h1:GriAQZeKsVdlM64lwRnh4EDKlb2R9tK7WXtRYQOrPwk=
@@ -761,6 +759,8 @@ github.com/kr/pty v1.1.5/go.mod h1:9r2w37qlBe7rQ6e1fg1S/9xpWHSnaqNdHD3WcMdbPDA=
 github.com/kr/text v0.1.0/go.mod h1:4Jbv+DJW3UT/LiOwJeYQe1efqtUx/iVham/4vfdArNI=
 github.com/kr/text v0.2.0 h1:5Nx0Ya0ZqY2ygV366QzturHI13Jq95ApcVaJBhpS+AY=
 github.com/kr/text v0.2.0/go.mod h1:eLer722TekiGuMkidMxC/pM04lWEeraHUUmBw8l2grE=
+github.com/kubescape/rbac-utils v0.0.16 h1:4QNuJY9V4u6cPmpcvawCfbnMR07g/7gafUjvtEqSLuY=
+github.com/kubescape/rbac-utils v0.0.16/go.mod h1:pkYJB28jPMOO5Hww5esXE4ccARM3pAlLAuSQEn9Ob+Q=
 github.com/linuxkit/virtsock v0.0.0-20201010232012-f8cee7dfc7a3/go.mod h1:3r6x7q95whyfWQpmGZTu3gk3v2YkMi05HEzl7Tf7YEo=
 github.com/lunixbochs/vtclean v1.0.0/go.mod h1:pHhQNgMf3btfWnGBVipUOjRYhoOsdGqdm/+2c2E2WMI=
 github.com/lyft/protoc-gen-star v0.5.3/go.mod h1:V0xaHgaf5oCCqmcxYcWiDfTiKsZsRc87/1qhoTACD8w=
