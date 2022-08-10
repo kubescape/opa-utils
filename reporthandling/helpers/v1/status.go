@@ -1,6 +1,6 @@
 package v1
 
-import "github.com/armosec/opa-utils/reporthandling/apis"
+import "github.com/kubescape/opa-utils/reporthandling/apis"
 
 type Status struct {
 	status apis.ScanningStatus

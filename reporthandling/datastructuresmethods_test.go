@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"testing"
 
-	"github.com/armosec/opa-utils/reporthandling/mock"
+	"github.com/kubescape/opa-utils/reporthandling/mock"
 	"github.com/stretchr/testify/assert"
 )
 

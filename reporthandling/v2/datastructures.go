@@ -4,9 +4,9 @@ import (
 	"time"
 
 	armoapi "github.com/armosec/armoapi-go/apis"
-	"github.com/armosec/opa-utils/reporthandling"
-	"github.com/armosec/opa-utils/reporthandling/results/v1/reportsummary"
-	"github.com/armosec/opa-utils/reporthandling/results/v1/resourcesresults"
+	"github.com/kubescape/opa-utils/reporthandling"
+	"github.com/kubescape/opa-utils/reporthandling/results/v1/reportsummary"
+	"github.com/kubescape/opa-utils/reporthandling/results/v1/resourcesresults"
 
 	"k8s.io/apimachinery/pkg/version"
 )

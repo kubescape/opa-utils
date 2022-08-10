@@ -1,6 +1,6 @@
 package v1
 
-import v1 "github.com/armosec/opa-utils/httpserver/apis/v1"
+import v1 "github.com/kubescape/opa-utils/httpserver/apis/v1"
 
 // A request to trigger a Kubescape scan
 type PostScanRequest struct {

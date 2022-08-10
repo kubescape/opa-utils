@@ -1,7 +1,7 @@
 package reportsummary
 
 import (
-	"github.com/armosec/opa-utils/reporthandling/apis"
+	"github.com/kubescape/opa-utils/reporthandling/apis"
 )
 
 // NumberOfExcluded get the number of excluded posture object

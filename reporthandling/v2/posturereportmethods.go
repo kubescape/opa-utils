@@ -4,11 +4,11 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/armosec/opa-utils/reporthandling/apis"
-	helpersv1 "github.com/armosec/opa-utils/reporthandling/helpers/v1"
-	"github.com/armosec/opa-utils/reporthandling/results/v1/reportsummary"
-	"github.com/armosec/opa-utils/reporthandling/results/v1/resourcesresults"
 	"github.com/armosec/utils-go/str"
+	"github.com/kubescape/opa-utils/reporthandling/apis"
+	helpersv1 "github.com/kubescape/opa-utils/reporthandling/helpers/v1"
+	"github.com/kubescape/opa-utils/reporthandling/results/v1/reportsummary"
+	"github.com/kubescape/opa-utils/reporthandling/results/v1/resourcesresults"
 )
 
 // Status get the overall scanning status

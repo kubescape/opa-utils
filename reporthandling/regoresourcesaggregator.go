@@ -7,7 +7,7 @@ import (
 
 	"github.com/armosec/k8s-interface/k8sinterface"
 	"github.com/armosec/k8s-interface/workloadinterface"
-	"github.com/armosec/opa-utils/objectsenvelopes"
+	"github.com/kubescape/opa-utils/objectsenvelopes"
 )
 
 var aggregatorAttribute = "resourcesAggregator"

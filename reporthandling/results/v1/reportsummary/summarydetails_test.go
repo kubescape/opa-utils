@@ -3,8 +3,8 @@ package reportsummary
 import (
 	"testing"
 
-	"github.com/armosec/opa-utils/reporthandling/apis"
-	"github.com/armosec/opa-utils/reporthandling/results/v1/resourcesresults"
+	"github.com/kubescape/opa-utils/reporthandling/apis"
+	"github.com/kubescape/opa-utils/reporthandling/results/v1/resourcesresults"
 	"github.com/stretchr/testify/assert"
 )
 

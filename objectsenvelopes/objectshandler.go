@@ -5,8 +5,8 @@ import (
 	cloudsupportv1 "github.com/armosec/k8s-interface/cloudsupport/v1"
 	"github.com/armosec/k8s-interface/k8sinterface"
 	"github.com/armosec/k8s-interface/workloadinterface"
-	"github.com/armosec/opa-utils/objectsenvelopes/hostsensor"
-	"github.com/armosec/opa-utils/objectsenvelopes/localworkload"
+	"github.com/kubescape/opa-utils/objectsenvelopes/hostsensor"
+	"github.com/kubescape/opa-utils/objectsenvelopes/localworkload"
 )
 
 // Returns the currect object that supports the IMetadata interface

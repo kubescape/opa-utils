@@ -2,9 +2,9 @@ package v2
 
 import (
 	"github.com/armosec/k8s-interface/workloadinterface"
-	"github.com/armosec/opa-utils/objectsenvelopes"
-	"github.com/armosec/opa-utils/reporthandling/results/v1/resourcesresults"
 	"github.com/armosec/utils-go/str"
+	"github.com/kubescape/opa-utils/objectsenvelopes"
+	"github.com/kubescape/opa-utils/reporthandling/results/v1/resourcesresults"
 )
 
 // GetResource get single resource in IMetadata interface representation

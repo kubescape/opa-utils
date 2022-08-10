@@ -1,8 +1,8 @@
 package v1
 
 import (
-	"github.com/armosec/opa-utils/reporthandling/apis"
 	"github.com/armosec/utils-go/str"
+	"github.com/kubescape/opa-utils/reporthandling/apis"
 )
 
 // ReportObject any report object must be compliment with a map[string]interface{} structures

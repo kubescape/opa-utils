@@ -1,4 +1,4 @@
-module github.com/armosec/opa-utils
+module github.com/kubescape/opa-utils
 
 go 1.18
 

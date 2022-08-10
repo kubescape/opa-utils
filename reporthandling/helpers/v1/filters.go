@@ -2,8 +2,8 @@ package v1
 
 import (
 	"github.com/armosec/armoapi-go/armotypes"
-	"github.com/armosec/opa-utils/reporthandling/apis"
 	"github.com/armosec/utils-go/str"
+	"github.com/kubescape/opa-utils/reporthandling/apis"
 )
 
 // Filters fields that might take effect on the resource status. If this objects is empty or nil, the status will be as determined by pre-defined logic

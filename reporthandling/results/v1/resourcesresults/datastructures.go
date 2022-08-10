@@ -2,7 +2,7 @@ package resourcesresults
 
 import (
 	"github.com/armosec/armoapi-go/armotypes"
-	"github.com/armosec/opa-utils/reporthandling/apis"
+	"github.com/kubescape/opa-utils/reporthandling/apis"
 )
 
 // Result - resource result resourceID and the controls that where tested against the resource

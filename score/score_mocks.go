@@ -7,7 +7,7 @@ import (
 
 	"github.com/armosec/k8s-interface/workloadinterface"
 
-	"github.com/armosec/opa-utils/reporthandling"
+	"github.com/kubescape/opa-utils/reporthandling"
 )
 
 func loadResourcesMock() []map[string]interface{} {

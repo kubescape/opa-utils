@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/armosec/opa-utils/objectsenvelopes"
+	"github.com/kubescape/opa-utils/objectsenvelopes"
 	"github.com/open-policy-agent/opa/rego"
 )
 

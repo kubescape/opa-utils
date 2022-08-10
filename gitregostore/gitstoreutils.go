@@ -12,8 +12,8 @@ import (
 
 	// "github.com/armosec/capacketsgo/opapolicy"
 	"github.com/armosec/armoapi-go/armotypes"
-	opapolicy "github.com/armosec/opa-utils/reporthandling"
 	"github.com/go-gota/gota/dataframe"
+	opapolicy "github.com/kubescape/opa-utils/reporthandling"
 	"go.uber.org/zap"
 )
 

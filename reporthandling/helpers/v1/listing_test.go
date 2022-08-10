@@ -3,7 +3,7 @@ package v1
 import (
 	"testing"
 
-	"github.com/armosec/opa-utils/reporthandling/apis"
+	"github.com/kubescape/opa-utils/reporthandling/apis"
 	"github.com/stretchr/testify/assert"
 )
 

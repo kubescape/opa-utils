@@ -5,7 +5,7 @@ import (
 	"testing"
 
 	"github.com/armosec/k8s-interface/workloadinterface"
-	"github.com/armosec/opa-utils/objectsenvelopes"
+	"github.com/kubescape/opa-utils/objectsenvelopes"
 	"github.com/stretchr/testify/assert"
 )
 

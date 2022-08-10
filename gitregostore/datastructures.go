@@ -8,7 +8,7 @@ import (
 
 	// "github.com/armosec/capacketsgo/opapolicy"
 	"github.com/armosec/armoapi-go/armotypes"
-	opapolicy "github.com/armosec/opa-utils/reporthandling"
+	opapolicy "github.com/kubescape/opa-utils/reporthandling"
 
 	"github.com/go-gota/gota/dataframe"
 )

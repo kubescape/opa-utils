@@ -1,6 +1,6 @@
 package reportsummary
 
-import "github.com/armosec/opa-utils/reporthandling/apis"
+import "github.com/kubescape/opa-utils/reporthandling/apis"
 
 func calculateStatus(counters *ResourceCounters) apis.ScanningStatus {
 

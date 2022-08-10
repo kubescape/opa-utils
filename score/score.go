@@ -8,15 +8,15 @@ import (
 	"strings"
 
 	"github.com/armosec/k8s-interface/workloadinterface"
-	armoupautils "github.com/armosec/opa-utils/objectsenvelopes"
-	"github.com/armosec/opa-utils/reporthandling/results/v1/reportsummary"
-	v2 "github.com/armosec/opa-utils/reporthandling/v2"
+	armoupautils "github.com/kubescape/opa-utils/objectsenvelopes"
+	"github.com/kubescape/opa-utils/reporthandling/results/v1/reportsummary"
+	v2 "github.com/kubescape/opa-utils/reporthandling/v2"
 	"go.uber.org/zap"
 	appsv1 "k8s.io/api/apps/v1"
 
 	// corev1 "k8s.io/api/core/v1"
 	k8sinterface "github.com/armosec/k8s-interface/k8sinterface"
-	"github.com/armosec/opa-utils/reporthandling"
+	"github.com/kubescape/opa-utils/reporthandling"
 )
 
 const (

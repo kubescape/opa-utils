@@ -5,7 +5,7 @@ import (
 
 	"github.com/armosec/armoapi-go/armotypes"
 	"github.com/armosec/k8s-interface/workloadinterface"
-	v1 "github.com/armosec/opa-utils/reporthandling/helpers/v1"
+	v1 "github.com/kubescape/opa-utils/reporthandling/helpers/v1"
 	"github.com/stretchr/testify/assert"
 )
 
