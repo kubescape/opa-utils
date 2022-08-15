@@ -7,7 +7,7 @@ import (
 	"os"
 	"strings"
 
-	"github.com/armosec/k8s-interface/workloadinterface"
+	"github.com/kubescape/k8s-interface/workloadinterface"
 	armoupautils "github.com/kubescape/opa-utils/objectsenvelopes"
 	"github.com/kubescape/opa-utils/reporthandling/results/v1/reportsummary"
 	v2 "github.com/kubescape/opa-utils/reporthandling/v2"
@@ -15,7 +15,7 @@ import (
 	appsv1 "k8s.io/api/apps/v1"
 
 	// corev1 "k8s.io/api/core/v1"
-	k8sinterface "github.com/armosec/k8s-interface/k8sinterface"
+	k8sinterface "github.com/kubescape/k8s-interface/k8sinterface"
 	"github.com/kubescape/opa-utils/reporthandling"
 )
 

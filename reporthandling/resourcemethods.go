@@ -3,7 +3,7 @@ package reporthandling
 import (
 	"encoding/json"
 
-	"github.com/armosec/k8s-interface/workloadinterface"
+	"github.com/kubescape/k8s-interface/workloadinterface"
 
 	"github.com/kubescape/opa-utils/objectsenvelopes"
 )

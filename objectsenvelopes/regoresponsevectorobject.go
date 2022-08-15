@@ -6,7 +6,7 @@ import (
 	"sort"
 	"strings"
 
-	"github.com/armosec/k8s-interface/workloadinterface"
+	"github.com/kubescape/k8s-interface/workloadinterface"
 )
 
 // This object is the structure of externalObject responses from regos

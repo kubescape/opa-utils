@@ -5,7 +5,7 @@ import (
 	"os"
 	"strings"
 
-	"github.com/armosec/k8s-interface/workloadinterface"
+	"github.com/kubescape/k8s-interface/workloadinterface"
 
 	"github.com/kubescape/opa-utils/reporthandling"
 )

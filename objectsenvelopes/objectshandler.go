@@ -1,10 +1,10 @@
 package objectsenvelopes
 
 import (
-	"github.com/armosec/k8s-interface/cloudsupport/apis"
-	cloudsupportv1 "github.com/armosec/k8s-interface/cloudsupport/v1"
-	"github.com/armosec/k8s-interface/k8sinterface"
-	"github.com/armosec/k8s-interface/workloadinterface"
+	"github.com/kubescape/k8s-interface/cloudsupport/apis"
+	cloudsupportv1 "github.com/kubescape/k8s-interface/cloudsupport/v1"
+	"github.com/kubescape/k8s-interface/k8sinterface"
+	"github.com/kubescape/k8s-interface/workloadinterface"
 	"github.com/kubescape/opa-utils/objectsenvelopes/hostsensor"
 	"github.com/kubescape/opa-utils/objectsenvelopes/localworkload"
 )

@@ -3,8 +3,8 @@ package localworkload
 import (
 	"fmt"
 
-	"github.com/armosec/k8s-interface/workloadinterface"
 	"github.com/armosec/utils-go/str"
+	"github.com/kubescape/k8s-interface/workloadinterface"
 )
 
 const TypeLocalWorkload workloadinterface.ObjectType = "LocalWorkload"

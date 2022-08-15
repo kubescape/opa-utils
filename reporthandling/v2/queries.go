@@ -1,8 +1,8 @@
 package v2
 
 import (
-	"github.com/armosec/k8s-interface/workloadinterface"
 	"github.com/armosec/utils-go/str"
+	"github.com/kubescape/k8s-interface/workloadinterface"
 	"github.com/kubescape/opa-utils/objectsenvelopes"
 	"github.com/kubescape/opa-utils/reporthandling/results/v1/resourcesresults"
 )

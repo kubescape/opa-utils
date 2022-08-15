@@ -9,7 +9,7 @@ import (
 	"github.com/open-policy-agent/opa/storage"
 	"github.com/open-policy-agent/opa/storage/inmem"
 
-	k8sinterface "github.com/armosec/k8s-interface/k8sinterface"
+	k8sinterface "github.com/kubescape/k8s-interface/k8sinterface"
 	"k8s.io/client-go/rest"
 )
 

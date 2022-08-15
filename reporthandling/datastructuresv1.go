@@ -3,7 +3,7 @@ package reporthandling
 import (
 	"time"
 
-	ik8s "github.com/armosec/k8s-interface/workloadinterface"
+	ik8s "github.com/kubescape/k8s-interface/workloadinterface"
 
 	"github.com/armosec/armoapi-go/armotypes"
 	rbacutils "github.com/kubescape/rbac-utils/rbacutils"
