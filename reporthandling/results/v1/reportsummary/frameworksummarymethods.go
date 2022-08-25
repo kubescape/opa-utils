@@ -57,7 +57,7 @@ func (frameworkSummary *FrameworkSummary) initResourcesSummary(controlInfoMap ma
 		frameworkSummary.Controls[k] = control
 	}
 
-	frameworkSummary.ResourceCounters.Set(frameworkSummary.Controls.ListResourcesIDs())
+	frameworkSummary.ResourceCounters.Set(frameworkSummary.ListResourcesIDs())
 	frameworkSummary.CalculateStatus()
 }
 

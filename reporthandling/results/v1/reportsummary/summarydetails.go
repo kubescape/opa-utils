@@ -53,7 +53,7 @@ func (summaryDetails *SummaryDetails) InitResourcesSummary(controlInfoMap map[st
 		summaryDetails.Controls[k] = control
 	}
 
-	summaryDetails.ResourceCounters.Set(summaryDetails.Controls.ListResourcesIDs())
+	summaryDetails.ResourceCounters.Set(summaryDetails.ListResourcesIDs())
 	summaryDetails.CalculateStatus()
 }
 
@@ -105,7 +105,7 @@ func (summaryDetails *SummaryDetails) ListControls() []IControlSummary {
 	return controls
 }
 
-//NumberOfControls get number of controls
+// NumberOfControls get number of controls
 func (summaryDetails *SummaryDetails) NumberOfControls() ICounters {
 
 	return &PostureCounters{

@@ -49,12 +49,12 @@ type IControlsSummaries interface {
 
 	NumberOfControls() ICounters
 	ListControlsIDs() *helpersv1.AllLists
-	ListResourcesIDs() *helpersv1.AllLists //avoid using this  outside of kubescape
+	ListResourcesIDs() *helpersv1.AllLists
 }
 type IPolicies interface {
 	GetStatus() apis.IStatus
 	CalculateStatus()
-	ListResourcesIDs() *helpersv1.AllLists //avoid using this outside of kubescape
+	ListResourcesIDs() *helpersv1.AllLists
 
 	// Counters
 	NumberOfResources() ICounters
