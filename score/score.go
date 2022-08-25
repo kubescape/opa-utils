@@ -76,10 +76,10 @@ func (su *ScoreUtil) CalculateFrameworkScore(framework *reporthandling.Framework
 /*
 daemonset: daemonsetscore*#nodes
 workloads: if replicas:
-             replicascore*workloadkindscore*#replicas
-           else:
-		     regular
 
+	             replicascore*workloadkindscore*#replicas
+	           else:
+			     regular
 */
 func (su *ScoreUtil) GetScore(v map[string]interface{}) float32 {
 	var score float32 = 1.0
@@ -144,12 +144,12 @@ frameworkName - calculate this control according to a given framework weights
 ctrl.score = baseScore * SUM_resource (resourceWeight*min(#replicas*replicaweight,1)(nodes if daemonset)
 
 returns wcsscore,ctrlscore(unnormalized)
-
 */
 func (su *ScoreUtil) ControlScore(ctrlReport *reporthandling.ControlReport, frameworkName string) (float32, float32) {
 
-	failedResourceIDS := ctrlReport.ListResourcesIDs().GetFailedResources()
-	allResourcesIDS := ctrlReport.ListResourcesIDs().GetAllResources()
+	resourcesIDs := ctrlReport.ListResourcesIDs()
+	failedResourceIDS := resourcesIDs.GetFailedResources()
+	allResourcesIDS := resourcesIDs.GetAllResources()
 	for i := range failedResourceIDS {
 		if failedResourceIDS, ok := su.resources[failedResourceIDS[i]]; ok {
 			ctrlReport.Score += su.GetScore(failedResourceIDS.GetObject())
@@ -254,8 +254,9 @@ func (su *ScoreUtil) ControlV2Score(ctrl reportsummary.IControlSummary, framewor
 	ctrlScore = 0
 	unormalizedScore = 0
 	wcsScore = 0
-	failedResourceIDS := ctrl.ListResourcesIDs().Failed()
-	allResourcesIDS := ctrl.ListResourcesIDs().All()
+	resourcesIDs := ctrl.ListResourcesIDs()
+	failedResourceIDS := resourcesIDs.Failed()
+	allResourcesIDSIter := resourcesIDs.All()
 
 	for i := range failedResourceIDS {
 		if _, ok := su.resources[failedResourceIDS[i]]; ok {
@@ -265,11 +266,11 @@ func (su *ScoreUtil) ControlV2Score(ctrl reportsummary.IControlSummary, framewor
 	}
 	unormalizedScore *= ctrl.GetScoreFactor()
 
-	for i := range allResourcesIDS {
-		if _, ok := su.resources[allResourcesIDS[i]]; ok {
-			wcsScore += su.GetScore(su.resources[allResourcesIDS[i]].GetObject())
+	for allResourcesIDSIter.HasNext() {
+		resourceId := allResourcesIDSIter.Next()
+		if _, ok := su.resources[resourceId]; ok {
+			wcsScore += su.GetScore(su.resources[resourceId].GetObject())
 		}
-
 	}
 
 	wcsScore *= ctrl.GetScoreFactor()

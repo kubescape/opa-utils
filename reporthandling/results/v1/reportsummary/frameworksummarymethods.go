@@ -57,7 +57,7 @@ func (frameworkSummary *FrameworkSummary) initResourcesSummary(controlInfoMap ma
 		frameworkSummary.Controls[k] = control
 	}
 
-	frameworkSummary.ResourceCounters.Set(frameworkSummary.Controls.ListResourcesIDs())
+	frameworkSummary.ResourceCounters.Set(frameworkSummary.ListResourcesIDs())
 	frameworkSummary.CalculateStatus()
 }
 
@@ -83,6 +83,7 @@ func (frameworkSummary *FrameworkSummary) ListControlsNames() *helpersv1.AllList
 	for _, controlSummary := range frameworkSummary.Controls {
 		controls.Append(controlSummary.GetStatus().Status(), controlSummary.Name)
 	}
+	controls.ToUniqueControls()
 	return controls
 }
 
@@ -91,14 +92,17 @@ func (frameworkSummary *FrameworkSummary) ListControlsIDs() *helpersv1.AllLists 
 	for controlID, controlSummary := range frameworkSummary.Controls {
 		controls.Append(controlSummary.GetStatus().Status(), controlID)
 	}
+	controls.ToUniqueControls()
 	return controls
 }
 
 // ListControls list all controls
 func (frameworkSummary *FrameworkSummary) ListControls() []IControlSummary {
 	controls := make([]IControlSummary, len(frameworkSummary.Controls))
-	for i, id := range frameworkSummary.Controls.ListControlsIDs().All() {
-		controls[i] = frameworkSummary.Controls.GetControl(EControlCriteriaID, id)
+	iter := frameworkSummary.Controls.ListControlsIDs().All()
+	i := 0
+	for iter.HasNext() {
+		controls[i] = frameworkSummary.Controls.GetControl(EControlCriteriaID, iter.Next())
 	}
 	return controls
 }

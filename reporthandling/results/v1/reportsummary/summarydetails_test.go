@@ -43,7 +43,7 @@ func TestRuleStatus(t *testing.T) {
 
 func TestRuleListing(t *testing.T) {
 	r := mockSummaryDetailsFailed()
-	assert.NotEqual(t, 0, len(r.ListFrameworksNames().All()))
+	assert.NotEqual(t, 0, r.ListFrameworksNames().All().Len())
 	assert.NotEqual(t, 0, len(r.ListFrameworksNames().Failed()))
 	assert.NotEqual(t, 0, len(r.ListControlsNames().Failed()))
 	assert.NotEqual(t, 0, len(r.ListControlsIDs().Failed()))
@@ -92,8 +92,8 @@ func TestUpdateControlsSummaryCountersAll(t *testing.T) {
 
 	allControls := mockResultsFailed.ListControlsIDs(nil)
 	tt := allControls.All()
-	for i := range tt {
-		controls[tt[i]] = ControlSummary{}
+	for tt.HasNext() {
+		controls[tt.Next()] = ControlSummary{}
 	}
 
 	updateControlsSummaryCounters(&mockResultsFailed, controls, nil)

@@ -53,7 +53,7 @@ func (summaryDetails *SummaryDetails) InitResourcesSummary(controlInfoMap map[st
 		summaryDetails.Controls[k] = control
 	}
 
-	summaryDetails.ResourceCounters.Set(summaryDetails.Controls.ListResourcesIDs())
+	summaryDetails.ResourceCounters.Set(summaryDetails.ListResourcesIDs())
 	summaryDetails.CalculateStatus()
 }
 
@@ -65,6 +65,7 @@ func (summaryDetails *SummaryDetails) ListFrameworksNames() *helpersv1.AllLists 
 	for i := range summaryDetails.Frameworks {
 		frameworks.Append(summaryDetails.Frameworks[i].GetStatus().Status(), summaryDetails.Frameworks[i].GetName())
 	}
+	frameworks.ToUniqueControls()
 	return frameworks
 }
 
@@ -85,6 +86,7 @@ func (summaryDetails *SummaryDetails) ListControlsNames() *helpersv1.AllLists {
 	for _, controlSummary := range summaryDetails.Controls {
 		controls.Append(controlSummary.GetStatus().Status(), controlSummary.Name)
 	}
+	controls.ToUniqueControls()
 	return controls
 }
 
@@ -93,19 +95,23 @@ func (summaryDetails *SummaryDetails) ListControlsIDs() *helpersv1.AllLists {
 	for controlID, controlSummary := range summaryDetails.Controls {
 		controls.Append(controlSummary.GetStatus().Status(), controlID)
 	}
+	controls.ToUniqueControls()
 	return controls
 }
 
 // ListControls list all controls
 func (summaryDetails *SummaryDetails) ListControls() []IControlSummary {
 	controls := make([]IControlSummary, len(summaryDetails.Controls))
-	for i, id := range summaryDetails.Controls.ListControlsIDs().All() {
-		controls[i] = summaryDetails.Controls.GetControl(EControlCriteriaID, id)
+	iter := summaryDetails.ListControlsIDs().All()
+	i := 0
+	for iter.HasNext() {
+		controls[i] = summaryDetails.Controls.GetControl(EControlCriteriaID, iter.Next())
+		i++
 	}
 	return controls
 }
 
-//NumberOfControls get number of controls
+// NumberOfControls get number of controls
 func (summaryDetails *SummaryDetails) NumberOfControls() ICounters {
 
 	return &PostureCounters{
