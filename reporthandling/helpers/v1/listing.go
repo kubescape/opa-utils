@@ -32,7 +32,7 @@ func (all *AllLists) All() []string {
 	appendSlice(l, all.skipped, &index)
 	appendSlice(l, all.other, &index)
 
-	return str.SliceStringToUnique(l)
+	return l
 }
 
 // Append append single string to matching status list
@@ -50,9 +50,6 @@ func (all *AllLists) Append(status apis.ScanningStatus, str ...string) {
 	default:
 		all.other = append(all.other, str...)
 	}
-
-	// make sure the lists are unique
-	all.ToUnique()
 }
 
 // Update AllLists objects with
@@ -62,11 +59,9 @@ func (all *AllLists) Update(all2 *AllLists) {
 	all.excluded = append(all.excluded, all2.excluded...)
 	all.skipped = append(all.skipped, all2.skipped...)
 	all.other = append(all.other, all2.other...)
-
-	// make sure the lists are unique
-	all.ToUnique()
 }
 
+// ToUnique - Call this function only when setting the List
 func (all *AllLists) ToUnique() {
 	// remove duplications from each resource list
 	all.failed = str.SliceStringToUnique(all.failed)
@@ -77,18 +72,6 @@ func (all *AllLists) ToUnique() {
 
 	// remove failed from excluded list
 	all.excluded = trimUnique(all.excluded, all.failed)
-
-	// remove failed and excluded from passed list
-	trimmed := append(all.failed, all.excluded...)
-	all.passed = trimUnique(all.passed, trimmed)
-
-	// remove failed, excluded and passed from skipped list
-	trimmed = append(trimmed, all.passed...)
-	all.skipped = trimUnique(all.skipped, trimmed)
-
-	// remove failed, excluded, passed and skipped from other list
-	trimmed = append(trimmed, all.skipped...)
-	all.other = trimUnique(all.other, trimmed)
 }
 
 // trimUnique trim the list, return original list without the "trimFrom" list. the list is trimmed in place, so the original list is modified. Also, the list is not sorted
