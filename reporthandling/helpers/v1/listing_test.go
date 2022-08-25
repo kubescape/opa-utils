@@ -43,6 +43,7 @@ func TestAllListsUpdate(t *testing.T) {
 	listA := mockAllListsA()
 	listB := mockAllListsB()
 	listB.Update(listA)
+	listB.ToUnique()
 
 	assert.Equal(t, 11, len(listB.All()))
 	assert.Equal(t, 0, len(listB.Passed()))
@@ -177,6 +178,22 @@ func TestTrimUnique(t *testing.T) {
 			name: "trim all",
 			args: args{
 				origin:   []string{"a", "b", "c"},
+				trimFrom: []string{"a", "b", "c"},
+				expected: []string{},
+			},
+		},
+		{
+			name: "trimFrom larger",
+			args: args{
+				origin:   []string{"a", "b", "c"},
+				trimFrom: []string{"a", "b", "e", "d"},
+				expected: []string{"c"},
+			},
+		},
+		{
+			name: "trim all not sorted",
+			args: args{
+				origin:   []string{"c", "a", "b"},
 				trimFrom: []string{"a", "b", "c"},
 				expected: []string{},
 			},

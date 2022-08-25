@@ -92,7 +92,7 @@ func (controlSummary *ControlSummary) GetDescription() string {
 
 }
 
-//=============== ControlSummaries
+// =============== ControlSummaries
 func (controlSummaries *ControlSummaries) GetIDs() []string {
 	keys := make([]string, 0, len((*controlSummaries)))
 	for k := range *controlSummaries {
@@ -128,10 +128,11 @@ func (controlSummaries *ControlSummaries) ListControlsIDs() *helpersv1.AllLists 
 	for controlID, controlSummary := range *controlSummaries {
 		controls.Append(controlSummary.GetStatus().Status(), controlID)
 	}
+	controls.ToUnique()
 	return controls
 }
 
-//might be redundant
+// might be redundant
 func (controlSummaries *ControlSummaries) NumberOfControls() ICounters {
 
 	return &PostureCounters{
