@@ -256,7 +256,7 @@ func (su *ScoreUtil) ControlV2Score(ctrl reportsummary.IControlSummary, framewor
 	wcsScore = 0
 	resourcesIDs := ctrl.ListResourcesIDs()
 	failedResourceIDS := resourcesIDs.Failed()
-	allResourcesIDS := resourcesIDs.All()
+	allResourcesIDSIter := resourcesIDs.All()
 
 	for i := range failedResourceIDS {
 		if _, ok := su.resources[failedResourceIDS[i]]; ok {
@@ -266,11 +266,11 @@ func (su *ScoreUtil) ControlV2Score(ctrl reportsummary.IControlSummary, framewor
 	}
 	unormalizedScore *= ctrl.GetScoreFactor()
 
-	for i := range allResourcesIDS {
-		if _, ok := su.resources[allResourcesIDS[i]]; ok {
-			wcsScore += su.GetScore(su.resources[allResourcesIDS[i]].GetObject())
+	for allResourcesIDSIter.HasNext() {
+		resourceId := allResourcesIDSIter.Next()
+		if _, ok := su.resources[resourceId]; ok {
+			wcsScore += su.GetScore(su.resources[resourceId].GetObject())
 		}
-
 	}
 
 	wcsScore *= ctrl.GetScoreFactor()
