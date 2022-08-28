@@ -113,13 +113,13 @@ func (summaryDetails *SummaryDetails) ListControls() []IControlSummary {
 
 // NumberOfControls get number of controls
 func (summaryDetails *SummaryDetails) NumberOfControls() ICounters {
-
+	controlsIds := summaryDetails.ListControlsIDs()
 	return &PostureCounters{
-		PassedCounter:   len(summaryDetails.ListControlsIDs().Passed()),
-		FailedCounter:   len(summaryDetails.ListControlsIDs().Failed()),
-		ExcludedCounter: len(summaryDetails.ListControlsIDs().Excluded()),
-		SkippedCounter:  len(summaryDetails.ListControlsIDs().Skipped()),
-		UnknownCounter:  len(summaryDetails.ListControlsIDs().Other()),
+		PassedCounter:   len(controlsIds.Passed()),
+		FailedCounter:   len(controlsIds.Failed()),
+		ExcludedCounter: len(controlsIds.Excluded()),
+		SkippedCounter:  len(controlsIds.Skipped()),
+		UnknownCounter:  len(controlsIds.Other()),
 	}
 }
 
