@@ -7,7 +7,7 @@ require (
 	github.com/armosec/utils-go v0.0.12
 	github.com/francoispqt/gojay v1.2.13
 	github.com/go-gota/gota v0.12.0
-	github.com/kubescape/k8s-interface v0.0.82
+	github.com/kubescape/k8s-interface v0.0.83
 	github.com/kubescape/rbac-utils v0.0.17
 	github.com/open-policy-agent/opa v0.42.0
 	github.com/stretchr/testify v1.8.0
