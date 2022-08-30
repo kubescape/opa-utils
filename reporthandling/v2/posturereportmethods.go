@@ -7,6 +7,7 @@ import (
 	"github.com/armosec/utils-go/str"
 	"github.com/kubescape/opa-utils/reporthandling/apis"
 	helpersv1 "github.com/kubescape/opa-utils/reporthandling/helpers/v1"
+	"github.com/kubescape/opa-utils/reporthandling/results/v1/prioritization"
 	"github.com/kubescape/opa-utils/reporthandling/results/v1/reportsummary"
 	"github.com/kubescape/opa-utils/reporthandling/results/v1/resourcesresults"
 )
@@ -72,6 +73,16 @@ func (postureReport *PostureReport) ResourceResult(resourceID string) *resources
 	return nil
 }
 
+// PrioritizedResource get a prioritized resource by resource ID. If resource not found will return nil
+func (postureReport *PostureReport) PrioritizedResource(resourceID string) *prioritization.PrioritizedResource {
+	for i := range postureReport.PrioritizedResources {
+		if postureReport.PrioritizedResources[i].GetResourceID() == resourceID {
+			return &postureReport.PrioritizedResources[i]
+		}
+	}
+	return nil
+}
+
 // UpdateSummary get the result of a single resource. If resource not found will return nil
 func (postureReport *PostureReport) InitializeSummary() {
 
@@ -86,7 +97,7 @@ func (postureReport *PostureReport) AppendResourceResultToSummary(resourceResult
 	postureReport.SummaryDetails.AppendResourceResult(resourceResult)
 }
 
-//========IPostureReport implementations =======
+// ========IPostureReport implementations =======
 func (postureReport *PostureReport) GetCustomerGUID() string {
 	return postureReport.CustomerGUID
 }

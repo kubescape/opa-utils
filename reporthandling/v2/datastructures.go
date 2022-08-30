@@ -5,6 +5,7 @@ import (
 
 	armoapi "github.com/armosec/armoapi-go/apis"
 	"github.com/kubescape/opa-utils/reporthandling"
+	"github.com/kubescape/opa-utils/reporthandling/results/v1/prioritization"
 	"github.com/kubescape/opa-utils/reporthandling/results/v1/reportsummary"
 	"github.com/kubescape/opa-utils/reporthandling/results/v1/resourcesresults"
 
@@ -13,19 +14,20 @@ import (
 
 // PostureReport posture scanning report structure
 type PostureReport struct {
-	Attributes           []reportsummary.PostureAttributes `json:"attributes"` //allow flexible properties for posture reports
-	CustomerGUID         string                            `json:"customerGUID"`
-	ClusterName          string                            `json:"clusterName"`
-	ClusterCloudProvider string                            `json:"clusterCloudProvider"` // Deprecated
-	ReportID             string                            `json:"reportGUID"`
-	JobID                string                            `json:"jobID"`
-	PaginationInfo       armoapi.PaginationMarks           `json:"paginationInfo"`
-	ClusterAPIServerInfo *version.Info                     `json:"clusterAPIServerInfo"`
-	ReportGenerationTime time.Time                         `json:"generationTime"`
-	SummaryDetails       reportsummary.SummaryDetails      `json:"summaryDetails,omitempty"`
-	Results              []resourcesresults.Result         `json:"results,omitempty"`
-	Resources            []reporthandling.Resource         `json:"resources,omitempty"`
-	Metadata             Metadata                          `json:"metadata,omitempty"`
+	Attributes           []reportsummary.PostureAttributes    `json:"attributes"` //allow flexible properties for posture reports
+	CustomerGUID         string                               `json:"customerGUID"`
+	ClusterName          string                               `json:"clusterName"`
+	ClusterCloudProvider string                               `json:"clusterCloudProvider"` // Deprecated
+	ReportID             string                               `json:"reportGUID"`
+	JobID                string                               `json:"jobID"`
+	PaginationInfo       armoapi.PaginationMarks              `json:"paginationInfo"`
+	ClusterAPIServerInfo *version.Info                        `json:"clusterAPIServerInfo"`
+	ReportGenerationTime time.Time                            `json:"generationTime"`
+	SummaryDetails       reportsummary.SummaryDetails         `json:"summaryDetails,omitempty"`
+	Results              []resourcesresults.Result            `json:"results,omitempty"`
+	Resources            []reporthandling.Resource            `json:"resources,omitempty"`
+	PrioritizedResources []prioritization.PrioritizedResource `json:"prioritizedResources,omitempty"`
+	Metadata             Metadata                             `json:"metadata,omitempty"`
 }
 
 type ClusterMetadata struct {
