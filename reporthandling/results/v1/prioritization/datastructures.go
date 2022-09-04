@@ -7,8 +7,8 @@ const (
 )
 
 type PriorityVectorControl struct {
-	ControlID string
-	Category  string
+	ControlID string `json:"controlID"`
+	Category  string `json:"category"`
 }
 
 // ControlsVector - list of controls which represent a priority vector
