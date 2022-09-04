@@ -12,13 +12,44 @@ func (pr *PrioritizedResource) GetResourceID() string {
 
 // =============================== Score ====================================
 
-// GetScore get resource score, which is a sum of its priority vectors scores
-func (pr *PrioritizedResource) GetScore() float64 {
+// CalculateScore calculates resource score, which is a sum of its priority vectors scores
+func (pr *PrioritizedResource) CalculateScore() float64 {
 	var score float64 = 0
 	for i := range pr.PriorityVector {
 		score += pr.PriorityVector[i].GetScore()
 	}
 	return score
+}
+
+// GetScore returns the score of the prioritized resource
+func (pr *PrioritizedResource) GetScore() float64 {
+	return pr.Score
+}
+
+// SetScore updates the score of the prioritized resource
+func (pr *PrioritizedResource) SetScore(score float64) {
+	pr.Score = score
+}
+
+// =============================== Severity ====================================
+
+// CalculateSeverity calculates resource severity, which is the max severity of its priority vectors scores
+func (pr *PrioritizedResource) CalculateSeverity() int {
+	var severity int = 0
+	for i := range pr.PriorityVector {
+		if pr.PriorityVector[i].GetSeverity() > severity {
+			severity = pr.PriorityVector[i].GetSeverity()
+		}
+	}
+	return severity
+}
+
+func (pr *PrioritizedResource) GetSeverity() int {
+	return pr.Severity
+}
+
+func (pr *PrioritizedResource) SetSeverity(severity int) {
+	pr.Severity = severity
 }
 
 // ================================= Listing ==================================
@@ -27,8 +58,12 @@ func (pr *PrioritizedResource) GetScore() float64 {
 func (pr *PrioritizedResource) ListControlsIDs() []string {
 	ids := make([]string, 0)
 	for i := range pr.PriorityVector {
-		if pr.PriorityVector[i].Type == ControlPriorityVectorType {
-			ids = append(ids, pr.PriorityVector[i].Vector...)
+		if pr.PriorityVector[i].GetType() == ControlPriorityVectorType {
+			iter := pr.PriorityVector[i].GetIterator()
+			for iter.HasNext() {
+				control := iter.Next().(PriorityVectorControl)
+				ids = append(ids, control.ControlID)
+			}
 		}
 	}
 	return ids

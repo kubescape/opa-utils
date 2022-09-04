@@ -6,15 +6,29 @@ const (
 	ControlPriorityVectorType PriorityVectorType = "control"
 )
 
-// PriorityVector a list of items of a specific type and a score
-type PriorityVector struct {
-	Type   PriorityVectorType `json:"type"`
-	Vector []string           `json:"vector"`
-	Score  float64            `json:"score"`
+type PriorityVectorControl struct {
+	ControlID string
+	Category  string
+}
+
+// ControlsVector - list of controls which represent a priority vector
+type ControlsVector struct {
+	Type     PriorityVectorType      `json:"type"`
+	Vector   []PriorityVectorControl `json:"vector"`
+	Score    float64                 `json:"score"`
+	Severity int                     `json:"severity"`
 }
 
 // PrioritizedResource - resource with a score based on its priority vectors
 type PrioritizedResource struct {
-	ResourceID     string           `json:"resourceID"`
-	PriorityVector []PriorityVector `json:"priorityVector"`
+	ResourceID     string            `json:"resourceID"`
+	PriorityVector []IPriorityVector `json:"priorityVector"`
+	Score          float64           `json:"score"`
+	Severity       int               `json:"severity"`
+}
+
+type ControlsVectorIterator struct {
+	vector *[]PriorityVectorControl
+	size   int
+	index  int
 }

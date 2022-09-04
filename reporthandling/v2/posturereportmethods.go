@@ -7,7 +7,6 @@ import (
 	"github.com/armosec/utils-go/str"
 	"github.com/kubescape/opa-utils/reporthandling/apis"
 	helpersv1 "github.com/kubescape/opa-utils/reporthandling/helpers/v1"
-	"github.com/kubescape/opa-utils/reporthandling/results/v1/prioritization"
 	"github.com/kubescape/opa-utils/reporthandling/results/v1/reportsummary"
 	"github.com/kubescape/opa-utils/reporthandling/results/v1/resourcesresults"
 )
@@ -68,16 +67,6 @@ func (postureReport *PostureReport) ResourceResult(resourceID string) *resources
 	for i := range postureReport.Results {
 		if postureReport.Results[i].ResourceID == resourceID {
 			return &postureReport.Results[i]
-		}
-	}
-	return nil
-}
-
-// PrioritizedResource get a prioritized resource by resource ID. If resource not found will return nil
-func (postureReport *PostureReport) PrioritizedResource(resourceID string) *prioritization.PrioritizedResource {
-	for i := range postureReport.PrioritizedResources {
-		if postureReport.PrioritizedResources[i].GetResourceID() == resourceID {
-			return &postureReport.PrioritizedResources[i]
 		}
 	}
 	return nil
