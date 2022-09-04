@@ -10,7 +10,7 @@ import (
 func TestSetResourceID(t *testing.T) {
 	pr := &PrioritizedResource{
 		ResourceID:     "aa/bb/cc",
-		PriorityVector: []IPriorityVector{},
+		PriorityVector: []ControlsVector{},
 	}
 	assert.Equal(t, "aa/bb/cc", pr.ResourceID)
 
@@ -21,7 +21,7 @@ func TestSetResourceID(t *testing.T) {
 func TestGetResourceID(t *testing.T) {
 	pr := &PrioritizedResource{
 		ResourceID:     "aa/bb/cc",
-		PriorityVector: []IPriorityVector{},
+		PriorityVector: []ControlsVector{},
 	}
 	assert.Equal(t, "aa/bb/cc", pr.GetResourceID())
 }
@@ -29,7 +29,7 @@ func TestGetResourceID(t *testing.T) {
 func TestPrioritizedResourceCalculateScore(t *testing.T) {
 	type fields struct {
 		ResourceID     string
-		PriorityVector []IPriorityVector
+		PriorityVector []ControlsVector
 	}
 	tests := []struct {
 		name   string
@@ -40,7 +40,7 @@ func TestPrioritizedResourceCalculateScore(t *testing.T) {
 			name: "empty priority vector",
 			fields: fields{
 				ResourceID:     "A",
-				PriorityVector: []IPriorityVector{},
+				PriorityVector: []ControlsVector{},
 			},
 			want: 0,
 		},
@@ -48,13 +48,13 @@ func TestPrioritizedResourceCalculateScore(t *testing.T) {
 			name: "non-empty priority vector",
 			fields: fields{
 				ResourceID: "A",
-				PriorityVector: []IPriorityVector{
-					&ControlsVector{
+				PriorityVector: []ControlsVector{
+					{
 						Type:   ControlPriorityVectorType,
 						Score:  4.5,
 						Vector: []PriorityVectorControl{{ControlID: "C1"}, {ControlID: "C2"}},
 					},
-					&ControlsVector{
+					{
 						Type:   ControlPriorityVectorType,
 						Score:  2.5,
 						Vector: []PriorityVectorControl{{ControlID: "C3"}},
@@ -80,7 +80,7 @@ func TestPrioritizedResourceCalculateScore(t *testing.T) {
 func TestListControlsIDs(t *testing.T) {
 	type fields struct {
 		ResourceID     string
-		PriorityVector []IPriorityVector
+		PriorityVector []ControlsVector
 	}
 	tests := []struct {
 		name   string
@@ -91,7 +91,7 @@ func TestListControlsIDs(t *testing.T) {
 			name: "empty priority vector",
 			fields: fields{
 				ResourceID:     "A",
-				PriorityVector: []IPriorityVector{},
+				PriorityVector: []ControlsVector{},
 			},
 			want: []string{},
 		},
@@ -99,13 +99,13 @@ func TestListControlsIDs(t *testing.T) {
 			name: "non-empty priority vector",
 			fields: fields{
 				ResourceID: "A",
-				PriorityVector: []IPriorityVector{
-					&ControlsVector{
+				PriorityVector: []ControlsVector{
+					{
 						Type:   ControlPriorityVectorType,
 						Score:  4.5,
 						Vector: []PriorityVectorControl{{ControlID: "C1"}, {ControlID: "C2"}},
 					},
-					&ControlsVector{
+					{
 						Type:   ControlPriorityVectorType,
 						Score:  2.5,
 						Vector: []PriorityVectorControl{{ControlID: "C3"}},
