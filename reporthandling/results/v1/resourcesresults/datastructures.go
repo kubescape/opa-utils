@@ -11,9 +11,9 @@ import (
 type Result struct {
 	ResourceID string `json:"resourceID"` // <apigroup>/<namespace>/<kind>/<name>
 
-	AssociatedControls  []ResourceAssociatedControl        `json:"controls,omitempty"`
-	RawResource         reporthandling.Resource            `json:"rawResource,omitempty"`
-	PrioritizedResource prioritization.PrioritizedResource `json:"prioritizedResource,omitempty"`
+	AssociatedControls  []ResourceAssociatedControl         `json:"controls,omitempty"`
+	RawResource         reporthandling.Resource             `json:"rawResource,omitempty"`
+	PrioritizedResource *prioritization.PrioritizedResource `json:"prioritizedResource,omitempty"`
 }
 
 // ResourceAssociatedControl control that is associated to a resource
