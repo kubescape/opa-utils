@@ -12,7 +12,7 @@ type Result struct {
 	ResourceID string `json:"resourceID"` // <apigroup>/<namespace>/<kind>/<name>
 
 	AssociatedControls  []ResourceAssociatedControl         `json:"controls,omitempty"`
-	RawResource         reporthandling.Resource             `json:"rawResource,omitempty"`
+	RawResource         *reporthandling.Resource            `json:"rawResource,omitempty"`
 	PrioritizedResource *prioritization.PrioritizedResource `json:"prioritizedResource,omitempty"`
 }
 
