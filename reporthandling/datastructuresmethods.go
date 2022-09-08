@@ -112,18 +112,6 @@ func (frameworkReport *FrameworkReport) SetDefaultScore() {
 	frameworkReport.Score = float32(percentage(frameworkReport.GetNumberOfResources(), frameworkReport.GetNumberOfFailedResources()))
 }
 
-/*
-
-func SetDefaultScore()
-// set score
-for c, controlReport := range opap.PostureReport.FrameworkReports[f].ControlReports {
-	// sumFailed += controlReport.GetNumberOfFailedResources()
-	// sumTotal += controlReport.GetNumberOfResources()
-	opap.PostureReport.FrameworkReports[f].ControlReports[c].Score = float32(percentage(controlReport.GetNumberOfResources(), controlReport.GetNumberOfFailedResources()))
-}
-opap.PostureReport.FrameworkReports[f].Score = float32(percentage(frameworkReport.GetNumberOfResources(), frameworkReport.GetNumberOfFailedResources()))
-
-*/
 // ==============================================================================================
 // ========================== ControlReport =====================================================
 // ==============================================================================================
@@ -322,9 +310,10 @@ func (ruleReport *RuleReport) GetAllResourcesIDs() []string {
 }
 
 // DO NOT USE!
-// func (ruleReport *RuleReport) GetAllResources() []map[string]interface{} {
-// 	return ruleReport.ListInputResources
-// }
+//
+//	func (ruleReport *RuleReport) GetAllResources() []map[string]interface{} {
+//		return ruleReport.ListInputResources
+//	}
 func (ruleReport *RuleReport) GetFailedResources() []map[string]interface{} {
 
 	failedResources := []map[string]interface{}{}

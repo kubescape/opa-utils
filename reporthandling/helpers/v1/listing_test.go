@@ -45,7 +45,10 @@ func TestAllListsUpdate(t *testing.T) {
 	listB.Update(listA)
 	listB.ToUnique()
 
-	assert.Equal(t, 11, len(listB.All()))
+	assert.Equal(t, 24, listB.All().Len())
+	listB.ToUniqueResources()
+	assert.Equal(t, 11, listB.All().Len())
+
 	assert.Equal(t, 0, len(listB.Passed()))
 	assert.Equal(t, 4, len(listB.Excluded()))
 	assert.Equal(t, 3, len(listB.Failed()))
@@ -58,17 +61,18 @@ func TestAllListsAppend(t *testing.T) {
 	listA.Append(apis.StatusExcluded, "b")
 	listA.Append(apis.StatusExcluded, "b")
 	listA.Append(apis.StatusExcluded, "b")
-
+	listA.ToUniqueResources()
 	oldListA := mockAllListsA()
 
 	assert.Equal(t, len(oldListA.Excluded()), len(listA.Excluded()))
 }
 
-func TestAllListsUnique(t *testing.T) {
+func TestAllListsUniqueResources(t *testing.T) {
 	listA := mockAllListsA()
 	listA.Append(apis.StatusPassed, "b")
 	listA.Append(apis.StatusPassed, "b")
 	listA.Append(apis.StatusPassed, "b")
+	listA.ToUniqueResources()
 
 	oldListA := mockAllListsA()
 
@@ -77,17 +81,48 @@ func TestAllListsUnique(t *testing.T) {
 	listMock := AllLists{}
 
 	listMock.Append(apis.StatusPassed, "a")
-	assert.Equal(t, 1, len(listMock.All()))
-	assert.Equal(t, len(listMock.All()), len(listMock.Passed()))
+	listMock.ToUniqueResources()
+	assert.Equal(t, 1, listMock.All().Len())
+	assert.Equal(t, listMock.All().Len(), len(listMock.Passed()))
 	assert.Equal(t, 0, len(listMock.Failed()))
 	assert.Equal(t, 0, len(listMock.Excluded()))
 
 	listMock.Append(apis.StatusExcluded, "a")
 	listMock.Append(apis.StatusFailed, "a")
+	listMock.ToUniqueResources()
 
-	assert.Equal(t, 1, len(listMock.All()))
-	assert.Equal(t, len(listMock.All()), len(listMock.Failed()))
+	assert.Equal(t, 1, listMock.All().Len())
+	assert.Equal(t, listMock.All().Len(), len(listMock.Failed()))
 	assert.Equal(t, 0, len(listMock.Passed()))
+}
+
+func TestAllListsUniqueControls(t *testing.T) {
+	listA := mockAllListsA()
+	listA.Append(apis.StatusPassed, "b")
+	listA.Append(apis.StatusPassed, "b")
+	listA.Append(apis.StatusPassed, "b")
+	listA.ToUniqueControls()
+
+	oldListA := mockAllListsA()
+
+	assert.Equal(t, len(oldListA.Passed()), len(listA.Passed()))
+
+	listMock := AllLists{}
+
+	listMock.Append(apis.StatusPassed, "a")
+	listMock.ToUniqueControls()
+	assert.Equal(t, 1, listMock.All().Len())
+	assert.Equal(t, listMock.All().Len(), len(listMock.Passed()))
+	assert.Equal(t, 0, len(listMock.Failed()))
+	assert.Equal(t, 0, len(listMock.Excluded()))
+
+	listMock.Append(apis.StatusExcluded, "b")
+	listMock.Append(apis.StatusFailed, "b")
+	listMock.ToUniqueControls()
+
+	assert.Equal(t, 2, listMock.All().Len())
+	assert.Equal(t, 1, len(listMock.Passed()))
+	assert.Equal(t, 0, len(listMock.Excluded()))
 }
 
 func TestAppendSlice(t *testing.T) {

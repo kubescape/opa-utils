@@ -6,7 +6,6 @@ import (
 	"github.com/kubescape/k8s-interface/k8sinterface"
 	"github.com/kubescape/k8s-interface/workloadinterface"
 	"github.com/kubescape/opa-utils/objectsenvelopes/hostsensor"
-	"github.com/kubescape/opa-utils/objectsenvelopes/listworkloads"
 	"github.com/kubescape/opa-utils/objectsenvelopes/localworkload"
 )
 
@@ -26,8 +25,8 @@ func NewObject(object map[string]interface{}) workloadinterface.IMetadata {
 		return localworkload.NewLocalWorkload(object)
 	case workloadinterface.TypeWorkloadObject:
 		return workloadinterface.NewWorkloadObj(object)
-	case listworkloads.TypeListWorkloads:
-		return listworkloads.NewListWorkloadsObj(object)
+	case workloadinterface.TypeListWorkloads:
+		return workloadinterface.NewListWorkloadsObj(object)
 	case workloadinterface.TypeBaseObject: // objects should follow the basic k8s structure
 		return workloadinterface.NewBaseObject(object)
 	default:
@@ -51,8 +50,8 @@ func GetObjectType(object map[string]interface{}) workloadinterface.ObjectType {
 	if k8sinterface.IsTypeWorkload(object) {
 		return workloadinterface.TypeWorkloadObject
 	}
-	if listworkloads.IsTypeListWorkloads(object) {
-		return listworkloads.TypeListWorkloads
+	if workloadinterface.IsTypeListWorkloads(object) {
+		return workloadinterface.TypeListWorkloads
 	}
 
 	// Test if basic object only after testing the rest

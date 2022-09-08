@@ -55,6 +55,7 @@ func (controlSummary *ControlSummary) Append(status apis.IStatus, ids ...string)
 		controlSummary.ResourceIDs.Append(status.Status(), ids[i])
 		controlSummary.increase(status)
 	}
+	controlSummary.ResourceIDs.ToUniqueResources()
 }
 
 // =================================== Score ============================================
@@ -128,29 +129,29 @@ func (controlSummaries *ControlSummaries) ListControlsIDs() *helpersv1.AllLists 
 	for controlID, controlSummary := range *controlSummaries {
 		controls.Append(controlSummary.GetStatus().Status(), controlID)
 	}
-	controls.ToUnique()
+	controls.ToUniqueControls()
 	return controls
 }
 
 // might be redundant
 func (controlSummaries *ControlSummaries) NumberOfControls() ICounters {
-
+	l := controlSummaries.ListControlsIDs()
 	return &PostureCounters{
-		PassedCounter:   len(controlSummaries.ListControlsIDs().Passed()),
-		FailedCounter:   len(controlSummaries.ListControlsIDs().Failed()),
-		ExcludedCounter: len(controlSummaries.ListControlsIDs().Excluded()),
-		SkippedCounter:  len(controlSummaries.ListControlsIDs().Skipped()),
-		UnknownCounter:  len(controlSummaries.ListControlsIDs().Other()),
+		PassedCounter:   len(l.Passed()),
+		FailedCounter:   len(l.Failed()),
+		ExcludedCounter: len(l.Excluded()),
+		SkippedCounter:  len(l.Skipped()),
+		UnknownCounter:  len(l.Other()),
 	}
 }
 
 func (controlSummaries *ControlSummaries) ListResourcesIDs() *helpersv1.AllLists {
 	allList := &helpersv1.AllLists{}
 
-	//I've implemented it like this because i wanted to support future changes and access things only via interfaces(Lior)
-	ctrlIDs := controlSummaries.ListControlsIDs().All()
-	for _, ctrlID := range ctrlIDs {
-		resourcesIDs := controlSummaries.GetControl(EControlCriteriaID, ctrlID).ListResourcesIDs()
+	//I've implemented it like this because i wanted to support future changes and access things only via interfaces
+	ctrlIDsIter := controlSummaries.ListControlsIDs().All()
+	for ctrlIDsIter.HasNext() {
+		resourcesIDs := controlSummaries.GetControl(EControlCriteriaID, ctrlIDsIter.Next()).ListResourcesIDs()
 		allList.Append(apis.StatusFailed, resourcesIDs.Failed()...)
 		allList.Append(apis.StatusExcluded, resourcesIDs.Excluded()...)
 		allList.Append(apis.StatusPassed, resourcesIDs.Passed()...)
@@ -158,8 +159,8 @@ func (controlSummaries *ControlSummaries) ListResourcesIDs() *helpersv1.AllLists
 		allList.Append(apis.StatusUnknown, resourcesIDs.Other()...)
 	}
 
-	// initialize resources IDs
-	allList.ToUnique()
+	// remove resources IDs duplications
+	allList.ToUniqueResources()
 
 	return allList
 }

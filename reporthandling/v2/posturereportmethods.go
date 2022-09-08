@@ -86,7 +86,7 @@ func (postureReport *PostureReport) AppendResourceResultToSummary(resourceResult
 	postureReport.SummaryDetails.AppendResourceResult(resourceResult)
 }
 
-//========IPostureReport implementations =======
+// ========IPostureReport implementations =======
 func (postureReport *PostureReport) GetCustomerGUID() string {
 	return postureReport.CustomerGUID
 }
