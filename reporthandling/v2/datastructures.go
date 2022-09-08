@@ -24,7 +24,7 @@ type PostureReport struct {
 	ReportGenerationTime time.Time                         `json:"generationTime"`
 	SummaryDetails       reportsummary.SummaryDetails      `json:"summaryDetails,omitempty"`
 	Results              []resourcesresults.Result         `json:"results,omitempty"`
-	Resources            []reporthandling.Resource         `json:"resources,omitempty"`
+	Resources            []reporthandling.Resource         `json:"resources,omitempty"` // Deprecated
 	Metadata             Metadata                          `json:"metadata,omitempty"`
 }
 

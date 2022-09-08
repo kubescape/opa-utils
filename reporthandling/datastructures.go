@@ -50,13 +50,14 @@ type PolicyRule struct {
 // Control represents a collection of rules which are combined together to single purpose
 type Control struct {
 	armotypes.PortalBase `json:",inline"`
-	Control_ID           string       `json:"id,omitempty"` // to be Deprecated
-	ControlID            string       `json:"controlID"`
-	CreationTime         string       `json:"creationTime"`
-	Description          string       `json:"description"`
-	Remediation          string       `json:"remediation"`
-	Rules                []PolicyRule `json:"rules"`
-	FrameworkNames       []string     `json:"frameworkNames,omitempty"`
+	Control_ID           string              `json:"id,omitempty"` // to be Deprecated
+	ControlID            string              `json:"controlID"`
+	CreationTime         string              `json:"creationTime"`
+	Description          string              `json:"description"`
+	Remediation          string              `json:"remediation"`
+	Rules                []PolicyRule        `json:"rules"`
+	FrameworkNames       []string            `json:"frameworkNames,omitempty"`
+	FixedInput           map[string][]string `json:"fixedInput,omitempty"`
 	// for new list of  rules in POST/UPADTE requests
 	RulesIDs              *[]string `json:"rulesIDs,omitempty"`
 	BaseScore             float32   `json:"baseScore,omitempty"`
