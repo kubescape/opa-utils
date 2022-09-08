@@ -14,41 +14,49 @@ type ControlSummaries map[string]ControlSummary
 
 // SummaryDetails detailed summary of the scanning. will contain versions, counters, etc.
 type SummaryDetails struct {
-	Score            float32             `json:"score"`              // overall score
+	SeverityCounters ISeverityCounters   `json:"severityCounters,omitempty"`
+	Controls         ControlSummaries    `json:"controls,omitempty"` // mapping of control - map[<control ID>]<control summary>
 	Status           apis.ScanningStatus `json:"status"`             // overall status
 	Frameworks       []FrameworkSummary  `json:"frameworks"`         // list of framework summary
-	Controls         ControlSummaries    `json:"controls,omitempty"` // mapping of control - map[<control ID>]<control summary>
 	ResourceCounters ResourceCounters    `json:",inline"`
+	Score            float32             `json:"score"` // overall score
 }
 
 // FrameworkSummary summary of scanning from a single framework perspective
 type FrameworkSummary struct {
-	Name             string              `json:"name"` // framework name
-	Status           apis.ScanningStatus `json:"status"`
-	Score            float32             `json:"score"`              // framework score
-	Version          string              `json:"version"`            // framework version
 	Controls         ControlSummaries    `json:"controls,omitempty"` // mapping of control - map[<control ID>]<control summary>
+	Name             string              `json:"name"`               // framework name
+	Status           apis.ScanningStatus `json:"status"`
+	Version          string              `json:"version"`
 	ResourceCounters ResourceCounters    `json:",inline"`
+	Score            float32             `json:"score"`
 }
 
 // ControlSummary summary of scanning from a single control perspective
 type ControlSummary struct {
+	StatusInfo       apis.StatusInfo     `json:"statusInfo,omitempty"`
 	ControlID        string              `json:"controlID"`
 	Name             string              `json:"name"`
 	Status           apis.ScanningStatus `json:"status"`
-	StatusInfo       apis.StatusInfo     `json:"statusInfo,omitempty"`
-	Score            float32             `json:"score"`
-	ScoreFactor      float32             `json:"scoreFactor"`
-	ResourceIDs      helpersv1.AllLists  `json:"resourceIDs"`
-	ResourceCounters ResourceCounters    `json:",inline"`
 	Description      string              `json:"-"`
 	Remediation      string              `json:"-"`
+	ResourceIDs      helpersv1.AllLists  `json:"resourceIDs"`
+	ResourceCounters ResourceCounters    `json:",inline"`
+	Score            float32             `json:"score"`
+	ScoreFactor      float32             `json:"scoreFactor"`
 }
 
 type ResourceCounters struct {
 	PassedResources   int `json:"passedResources"`
 	FailedResources   int `json:"failedResources"`
 	ExcludedResources int `json:"excludedResources"`
+}
+
+type SeverityCounters struct {
+	ResourcesWithCriticalSeverityCounter int `json:"criticalSeverity"`
+	ResourcesWithHighSeverityCounter     int `json:"highSeverity"`
+	ResourcesWithMediumSeverityCounter   int `json:"mediumSeverity"`
+	ResourcesWithLowSeverityCounter      int `json:"lowSeverity"`
 }
 
 type PostureCounters struct {
