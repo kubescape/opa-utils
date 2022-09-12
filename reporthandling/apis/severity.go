@@ -16,7 +16,18 @@ func ControlSeverityToString(baseScore float32) string {
 		1-3	Low
 		0 Unknown
 	*/
-	switch ControlSeverityToInt(baseScore) {
+	return SeverityNumberToString(ControlSeverityToInt(baseScore))
+}
+
+func SeverityNumberToString(severityNumber int) string {
+	/*
+		4 Critical
+		3 High
+		2 Medium
+		1 Low
+		0 Unknown
+	*/
+	switch severityNumber {
 	case SeverityCritical:
 		return "Critical"
 	case SeverityHigh:
