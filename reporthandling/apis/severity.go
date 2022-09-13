@@ -7,6 +7,7 @@ const (
 	SeverityHigh     = iota
 	SeverityCritical = iota
 )
+const NumberOfSeverities = 5
 
 func ControlSeverityToString(baseScore float32) string {
 	/*
