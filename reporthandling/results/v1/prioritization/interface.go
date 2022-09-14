@@ -12,6 +12,7 @@ type IPriorityVector interface {
 	SetScore(float64)
 	List() interface{}
 	Add(interface{}) error
+	SetSeverity(int)
 	GetSeverity() int
 	GetIterator() IPriorityVectorIterator
 }

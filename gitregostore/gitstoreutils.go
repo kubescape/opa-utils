@@ -10,16 +10,17 @@ import (
 	"sync"
 	"time"
 
-	// "github.com/armosec/capacketsgo/opapolicy"
 	"github.com/armosec/armoapi-go/armotypes"
 	"github.com/go-gota/gota/dataframe"
 	opapolicy "github.com/kubescape/opa-utils/reporthandling"
+	"github.com/kubescape/opa-utils/reporthandling/attacktrack/v1alpha1"
 	"go.uber.org/zap"
 )
 
 type storeSetter func(*GitRegoStore, string) error
 
 const (
+	attackTracksJsonFileName          = "attack_tracks"
 	frameworksJsonFileName            = "frameworks"
 	controlsJsonFileName              = "controls"
 	rulesJsonFileName                 = "rules"
@@ -33,6 +34,7 @@ const (
 var controlIDRegexCompiled *regexp.Regexp = nil
 
 var storeSetterMapping = map[string]storeSetter{
+	attackTracksJsonFileName:          (*GitRegoStore).setAttackTracks,
 	frameworksJsonFileName:            (*GitRegoStore).setFrameworks,
 	controlsJsonFileName:              (*GitRegoStore).setControls,
 	rulesJsonFileName:                 (*GitRegoStore).setRules,
@@ -152,6 +154,15 @@ func (gs *GitRegoStore) setObjectsFromRepoOnce() error {
 				zap.L().Debug("In setObjectsFromRepoOnce - failed to set framework %s\n", zap.String("path", rawDataPath))
 				return err
 			}
+		} else if strings.HasPrefix(path.PATH, attackTracksJsonFileName+"/") && strings.HasSuffix(path.PATH, ".json") {
+			respStr, err := HttpGetter(gs.httpClient, rawDataPath)
+			if err != nil {
+				return nil
+			}
+			if err := gs.setAttackTrack(respStr); err != nil {
+				zap.L().Debug("In setObjectsFromRepoOnce - failed to set attack track %s\n", zap.String("path", rawDataPath))
+				return nil
+			}
 		} else if strings.HasPrefix(path.PATH, defaultConfigInputsFileName) && strings.HasSuffix(path.PATH, ".json") {
 			respStr, err := HttpGetter(gs.httpClient, rawDataPath)
 			if err != nil {
@@ -184,6 +195,15 @@ func (gs *GitRegoStore) setFramework(respStr string) error {
 		return err
 	}
 	gs.Frameworks = append(gs.Frameworks, *framework)
+	return nil
+}
+
+func (gs *GitRegoStore) setAttackTrack(respStr string) error {
+	attackTrack := &v1alpha1.AttackTrack{}
+	if err := JSONDecoder(respStr).Decode(attackTrack); err != nil {
+		return err
+	}
+	gs.AttackTracks = append(gs.AttackTracks, *attackTrack)
 	return nil
 }
 
@@ -284,6 +304,17 @@ func (gs *GitRegoStore) setFrameworks(respStr string) error {
 	gs.frameworksLock.Lock()
 	defer gs.frameworksLock.Unlock()
 	gs.Frameworks = frameworks
+	return nil
+}
+
+func (gs *GitRegoStore) setAttackTracks(respStr string) error {
+	attacktracks := []v1alpha1.AttackTrack{}
+	if err := JSONDecoder(respStr).Decode(&attacktracks); err != nil {
+		return err
+	}
+	gs.attackTracksLock.Lock()
+	defer gs.attackTracksLock.Unlock()
+	gs.AttackTracks = attacktracks
 	return nil
 }
 

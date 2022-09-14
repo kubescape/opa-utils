@@ -9,31 +9,34 @@ import (
 	// "github.com/armosec/capacketsgo/opapolicy"
 	"github.com/armosec/armoapi-go/armotypes"
 	opapolicy "github.com/kubescape/opa-utils/reporthandling"
+	"github.com/kubescape/opa-utils/reporthandling/attacktrack/v1alpha1"
 
 	"github.com/go-gota/gota/dataframe"
 )
 
 type GitRegoStore struct {
+	frameworksLock              sync.RWMutex
+	DefaultConfigInputsLock     sync.RWMutex
+	rulesLock                   sync.RWMutex
+	controlsLock                sync.RWMutex
+	attackTracksLock            sync.RWMutex
+	ControlRuleRelations        dataframe.DataFrame
+	FrameworkControlRelations   dataframe.DataFrame
+	httpClient                  *http.Client
+	Tag                         string
+	Owner                       string
+	CurGitVersion               string
+	Branch                      string
+	URL                         string
+	Path                        string
+	BaseUrl                     string
+	Repository                  string
+	DefaultConfigInputs         armotypes.CustomerConfig
+	AttackTracks                []v1alpha1.AttackTrack
 	Frameworks                  []opapolicy.Framework
 	Controls                    []opapolicy.Control
 	Rules                       []opapolicy.PolicyRule
-	FrameworkControlRelations   dataframe.DataFrame
-	ControlRuleRelations        dataframe.DataFrame
-	DefaultConfigInputs         armotypes.CustomerConfig
-	frameworksLock              sync.RWMutex
-	controlsLock                sync.RWMutex
-	rulesLock                   sync.RWMutex
-	DefaultConfigInputsLock     sync.RWMutex
-	URL                         string
-	httpClient                  *http.Client
-	BaseUrl                     string
-	Owner                       string
-	Repository                  string
-	Path                        string
-	Tag                         string
-	Branch                      string
 	FrequencyPullFromGitMinutes int
-	CurGitVersion               string
 	Watch                       bool
 }
 
@@ -68,7 +71,7 @@ func (gs *GitRegoStore) SetRegoObjects() error {
 }
 
 func NewDefaultGitRegoStore(frequency int) *GitRegoStore {
-	return NewGitRegoStore("https://github.com", "armosec", "regolibrary", "releases", "latest/download", "", frequency)
+	return NewGitRegoStore("https://github.com", "kubescape", "regolibrary", "releases", "latest/download", "", frequency)
 }
 
 // Deprecated
@@ -87,5 +90,5 @@ func InitGitRegoStore(baseUrl string, owner string, repository string, path stri
 
 // Deprecated
 func InitDefaultGitRegoStore(frequency int) *GitRegoStore {
-	return InitGitRegoStore("https://github.com", "armosec", "regolibrary", "releases", "latest/download", "", frequency)
+	return InitGitRegoStore("https://github.com", "kubescape", "regolibrary", "releases", "latest/download", "", frequency)
 }

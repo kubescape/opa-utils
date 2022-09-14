@@ -4,6 +4,11 @@ import (
 	"github.com/armosec/armoapi-go/armotypes"
 )
 
+const (
+	ControlAttributeKeyTypeTag      = "controlTypeTags"
+	ControlAttributeKeyAttackTracks = "attackTracks"
+)
+
 type RuleLanguages string
 
 const (
@@ -91,4 +96,9 @@ type FrameworkSubSection struct {
 	SubSections          map[string]*FrameworkSubSection `json:"subSections,omitempty"` // inner subsection
 	ControlIDs           []string                        `json:"controlsIDs,omitempty"` // control ids.
 	Controls             []*Control                      `json:"-"`                     // controls list for fast access
+}
+
+type AttackTrackCategories struct {
+	AttackTrack string
+	Categories  []string
 }

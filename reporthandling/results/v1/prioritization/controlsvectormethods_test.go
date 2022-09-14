@@ -15,15 +15,16 @@ func TestNewControlsVector(t *testing.T) {
 		{
 			name: "controls vector initialization",
 			want: &ControlsVector{
-				Score:  0,
-				Type:   ControlPriorityVectorType,
-				Vector: []PriorityVectorControl{},
+				AttackTrackName: "test",
+				Score:           0,
+				Type:            ControlPriorityVectorType,
+				Vector:          []*PriorityVectorControl{},
 			},
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := NewControlsVector(); !reflect.DeepEqual(got, tt.want) {
+			if got := NewControlsVector("test"); !reflect.DeepEqual(got, tt.want) {
 				t.Errorf("NewControlsVector() = %v, want %v", got, tt.want)
 			}
 		})
@@ -33,13 +34,13 @@ func TestNewControlsVector(t *testing.T) {
 func TestGetScore(t *testing.T) {
 	cv := &ControlsVector{
 		Type:   ControlPriorityVectorType,
-		Vector: []PriorityVectorControl{},
+		Vector: []*PriorityVectorControl{},
 	}
 	assert.Equalf(t, float64(0), cv.GetScore(), "ControlsVector.GetScore() = %v, expected %v", cv.GetScore(), float64(0))
 
 	cv1 := &ControlsVector{
 		Type:   ControlPriorityVectorType,
-		Vector: []PriorityVectorControl{},
+		Vector: []*PriorityVectorControl{},
 		Score:  5,
 	}
 	assert.Equalf(t, float64(5), cv1.GetScore(), "ControlsVector.GetScore() = %v, expected %v", cv1.GetScore(), float64(5))
@@ -49,7 +50,7 @@ func TestGetScore(t *testing.T) {
 func TestSetScore(t *testing.T) {
 	cv := &ControlsVector{
 		Type: ControlPriorityVectorType,
-		Vector: []PriorityVectorControl{
+		Vector: []*PriorityVectorControl{
 			{ControlID: "C1", Category: "X"},
 			{ControlID: "C2", Category: "Y"},
 		},
@@ -67,14 +68,14 @@ func TestSetScore(t *testing.T) {
 func TestAdd(t *testing.T) {
 	cv := &ControlsVector{
 		Type: ControlPriorityVectorType,
-		Vector: []PriorityVectorControl{
+		Vector: []*PriorityVectorControl{
 			{ControlID: "C1", Category: "X"},
 			{ControlID: "C2", Category: "Y"},
 		},
 		Score:    3,
 		Severity: 4,
 	}
-	expected := []PriorityVectorControl{
+	expected := []*PriorityVectorControl{
 		{ControlID: "C1", Category: "X"},
 		{ControlID: "C2", Category: "Y"},
 	}
@@ -82,7 +83,7 @@ func TestAdd(t *testing.T) {
 
 	err := cv.Add(PriorityVectorControl{ControlID: "C3"})
 	assert.NoError(t, err)
-	expected = []PriorityVectorControl{
+	expected = []*PriorityVectorControl{
 		{ControlID: "C1", Category: "X"},
 		{ControlID: "C2", Category: "Y"},
 		{ControlID: "C3"},
@@ -97,7 +98,7 @@ func TestAdd(t *testing.T) {
 func TestList(t *testing.T) {
 	cv := &ControlsVector{
 		Type: ControlPriorityVectorType,
-		Vector: []PriorityVectorControl{
+		Vector: []*PriorityVectorControl{
 			{ControlID: "C1", Category: "X"},
 			{ControlID: "C2", Category: "Y"},
 		},
@@ -105,7 +106,7 @@ func TestList(t *testing.T) {
 	}
 
 	result := cv.List()
-	expected := []PriorityVectorControl{
+	expected := []*PriorityVectorControl{
 		{ControlID: "C1", Category: "X"},
 		{ControlID: "C2", Category: "Y"},
 	}
@@ -116,7 +117,7 @@ func TestList(t *testing.T) {
 func TestGetType(t *testing.T) {
 	cv := &ControlsVector{
 		Type: ControlPriorityVectorType,
-		Vector: []PriorityVectorControl{
+		Vector: []*PriorityVectorControl{
 			{ControlID: "C1", Category: "X"},
 			{ControlID: "C2", Category: "Y"},
 		},
@@ -131,7 +132,7 @@ func TestGetType(t *testing.T) {
 func TestGetSeverity(t *testing.T) {
 	cv := &ControlsVector{
 		Type: ControlPriorityVectorType,
-		Vector: []PriorityVectorControl{
+		Vector: []*PriorityVectorControl{
 			{ControlID: "C1", Category: "X"},
 			{ControlID: "C2", Category: "Y"},
 		},
@@ -146,7 +147,7 @@ func TestGetSeverity(t *testing.T) {
 func TestSetSeverity(t *testing.T) {
 	cv := &ControlsVector{
 		Type: ControlPriorityVectorType,
-		Vector: []PriorityVectorControl{
+		Vector: []*PriorityVectorControl{
 			{ControlID: "C1", Category: "X"},
 			{ControlID: "C2", Category: "Y"},
 		},

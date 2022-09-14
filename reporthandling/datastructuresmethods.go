@@ -6,6 +6,8 @@ import (
 
 	"github.com/kubescape/k8s-interface/workloadinterface"
 	"github.com/kubescape/opa-utils/objectsenvelopes"
+	"github.com/kubescape/opa-utils/reporthandling/apis"
+	"github.com/mitchellh/mapstructure"
 )
 
 // ==============================================================================================
@@ -397,4 +399,40 @@ func (ruleResponse *RuleResponse) RemoveData(keepFields, keepMetadataFields []st
 			}
 		}
 	}
+}
+
+func (control *Control) GetAttackTrackCategories(attackTrackName string) []string {
+	if v, exist := control.Attributes[ControlAttributeKeyAttackTracks]; exist {
+		var attackTrackToCategories []AttackTrackCategories
+		if err := mapstructure.Decode(v, &attackTrackToCategories); err == nil {
+			for _, attackTrackToCategory := range attackTrackToCategories {
+				if attackTrackToCategory.AttackTrack == attackTrackName {
+					return attackTrackToCategory.Categories
+				}
+			}
+		}
+	}
+	return []string{}
+}
+
+func (control *Control) GetControlTypeTags() []string {
+	if v, exist := control.Attributes[ControlAttributeKeyTypeTag]; exist {
+		tags := []string{}
+		if err := mapstructure.Decode(v, &tags); err == nil {
+			return tags
+		}
+	}
+	return []string{}
+}
+
+func (control *Control) GetControlId() string {
+	return control.ControlID
+}
+
+func (control *Control) GetScore() float64 {
+	return float64(control.BaseScore)
+}
+
+func (control *Control) GetSeverity() int {
+	return apis.ControlSeverityToInt(control.BaseScore)
 }
