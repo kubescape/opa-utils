@@ -9,6 +9,7 @@ import (
 	"github.com/go-gota/gota/dataframe"
 	"github.com/go-gota/gota/series"
 	opapolicy "github.com/kubescape/opa-utils/reporthandling"
+	"github.com/kubescape/opa-utils/reporthandling/attacktrack/v1alpha1"
 )
 
 // GetOPAPolicies returns all the policies of given customer
@@ -62,6 +63,16 @@ func (gs *GitRegoStore) fillRulesAndRulesIDsInControl(control *opapolicy.Control
 	control.Rules = rulesList
 	control.RulesIDs = &rulesIDList
 	return nil
+}
+
+func (gs *GitRegoStore) GetAttackTracks() ([]v1alpha1.AttackTrack, error) {
+	gs.attackTracksLock.RLock()
+	defer gs.attackTracksLock.RUnlock()
+
+	if gs.AttackTracks == nil {
+		return nil, fmt.Errorf("no attack tracks found in GitRegoStore")
+	}
+	return gs.AttackTracks, nil
 }
 
 // GetOPAControlByName returns specific control by the name

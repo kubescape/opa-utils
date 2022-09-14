@@ -61,7 +61,7 @@ func (pr *PrioritizedResource) ListControlsIDs() []string {
 		if pr.PriorityVector[i].GetType() == ControlPriorityVectorType {
 			iter := pr.PriorityVector[i].GetIterator()
 			for iter.HasNext() {
-				control := iter.Next().(PriorityVectorControl)
+				control := iter.Next().(*PriorityVectorControl)
 				ids = append(ids, control.ControlID)
 			}
 		}

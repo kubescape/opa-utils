@@ -113,3 +113,38 @@ func TestListResourcesIDs(t *testing.T) {
 		}
 	}
 }
+
+func TestControl_GetAttackTrackCategories(t *testing.T) {
+	validControlJson := `{"name":"TEST","attributes":{"armoBuiltin":true,"controlTypeTags":["security","compliance"],"attackTracks":[{"attackTrack": "container","categories": ["Execution","Initial access"]}]},"description":"","remediation":"","rulesNames":["CVE-2022-0185"],"id":"C-0079","long_description":"","test":"","controlID":"C-0079","baseScore":4,"example":""}`
+	var validControl Control
+	err := json.Unmarshal([]byte(validControlJson), &validControl)
+	assert.NoError(t, err, err)
+	assert.Equal(t, []string{"Execution", "Initial access"}, validControl.GetAttackTrackCategories("container"))
+	assert.Equal(t, []string{}, validControl.GetAttackTrackCategories("test"))
+
+	invalidControlJson1 := `{"name":"TEST","attributes":{"armoBuiltin":true,"controlTypeTags":["security","compliance"],"attackTracks":{"container": "x"}},"description":"","remediation":"","rulesNames":["CVE-2022-0185"],"id":"C-0079","long_description":"","test":"","controlID":"C-0079","baseScore":4,"example":""}`
+	var invalidControl1 Control
+	err = json.Unmarshal([]byte(invalidControlJson1), &invalidControl1)
+	assert.NoError(t, err, err)
+	assert.Equal(t, []string{}, invalidControl1.GetAttackTrackCategories("container"))
+
+	invalidControlJson2 := `{"name":"TEST","attributes":{"armoBuiltin":true,"controlTypeTags":["security","compliance"],"attack":{"container": "x"}},"description":"","remediation":"","rulesNames":["CVE-2022-0185"],"id":"C-0079","long_description":"","test":"","controlID":"C-0079","baseScore":4,"example":""}`
+	var invalidControl2 Control
+	err = json.Unmarshal([]byte(invalidControlJson2), &invalidControl2)
+	assert.NoError(t, err, err)
+	assert.Equal(t, []string{}, invalidControl2.GetAttackTrackCategories("container"))
+}
+
+func TestControl_GetControlTypeTags(t *testing.T) {
+	validControlJson := `{"name":"TEST","attributes":{"armoBuiltin":true,"controlTypeTags":["security","compliance"],"attackTracks":{"container":["Privilege escalation"]}},"description":"","remediation":"","rulesNames":["CVE-2022-0185"],"id":"C-0079","long_description":"","test":"","controlID":"C-0079","baseScore":4,"example":""}`
+	var validControl Control
+	err := json.Unmarshal([]byte(validControlJson), &validControl)
+	assert.NoError(t, err, err)
+	assert.Equal(t, []string{"security", "compliance"}, validControl.GetControlTypeTags())
+
+	missingAttributeControlJson := `{"name":"TEST","attributes":{"armoBuiltin":true,"attackTracks":{"container": "x"}},"description":"","remediation":"","rulesNames":["CVE-2022-0185"],"id":"C-0079","long_description":"","test":"","controlID":"C-0079","baseScore":4,"example":""}`
+	var missingAttributeControl Control
+	err = json.Unmarshal([]byte(missingAttributeControlJson), &missingAttributeControl)
+	assert.NoError(t, err, err)
+	assert.Equal(t, []string{}, missingAttributeControl.GetControlTypeTags())
+}
