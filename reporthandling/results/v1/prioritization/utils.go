@@ -3,8 +3,8 @@ package prioritization
 import "github.com/kubescape/opa-utils/reporthandling/attacktrack/v1alpha1"
 
 // ControlsVectorFromAttackTrackPaths creates a list of controls vectors from a list of attack track paths
-func ControlsVectorFromAttackTrackPaths(attackTrack v1alpha1.IAttackTrack, paths [][]v1alpha1.IAttackTrackStep) []*ControlsVector {
-	controlsVectors := make([]*ControlsVector, 0)
+func ControlsVectorFromAttackTrackPaths(attackTrack v1alpha1.IAttackTrack, paths [][]v1alpha1.IAttackTrackStep) []ControlsVector {
+	controlsVectors := make([]ControlsVector, 0)
 	for _, path := range paths {
 		controlsVectors = controlsVectorFromSinglePath(attackTrack, path, controlsVectors)
 	}
@@ -24,7 +24,7 @@ func ControlsVectorFromAttackTrackPaths(attackTrack v1alpha1.IAttackTrack, paths
 //		[1] (1,A) -> (4,B) -> (5,C)
 //		[2] (2,A) -> (3,B) -> (5,C)
 //		[3] (2,A) -> (4,B) -> (5,C)
-func controlsVectorFromSinglePath(attackTrack v1alpha1.IAttackTrack, path []v1alpha1.IAttackTrackStep, result []*ControlsVector) []*ControlsVector {
+func controlsVectorFromSinglePath(attackTrack v1alpha1.IAttackTrack, path []v1alpha1.IAttackTrackStep, result []ControlsVector) []ControlsVector {
 	// number of controls arrays
 	n := len(path)
 
@@ -50,7 +50,7 @@ func controlsVectorFromSinglePath(attackTrack v1alpha1.IAttackTrack, path []v1al
 		}
 
 		if controlsVector.IsValid() {
-			result = append(result, controlsVector)
+			result = append(result, *controlsVector)
 		}
 
 		// find the rightmost array that has more elements

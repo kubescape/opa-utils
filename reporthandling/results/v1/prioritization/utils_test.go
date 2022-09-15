@@ -24,7 +24,7 @@ func TestControlsVectorFromAttackTrackPaths(t *testing.T) {
 		name        string
 		attackTrack *v1alpha1.AttackTrack
 		controlsMap v1alpha1.AttackTrackControlsLookup
-		expected    []*ControlsVector
+		expected    []ControlsVector
 	}{
 		{
 			name: "Valid Attack Graph",
@@ -76,13 +76,13 @@ func TestControlsVectorFromAttackTrackPaths(t *testing.T) {
 					},
 				},
 			},
-			expected: []*ControlsVector{
+			expected: []ControlsVector{
 				{
 					AttackTrackName: "TestAttackTrack",
 					Type:            "control",
 					Score:           0,
 					Severity:        0,
-					Vector: []*PriorityVectorControl{
+					Vector: []PriorityVectorControl{
 						{ControlID: "1", Category: "A", Tags: []string{"security"}},
 						{ControlID: "3", Category: "F", Tags: []string{"security"}},
 					},
@@ -92,7 +92,7 @@ func TestControlsVectorFromAttackTrackPaths(t *testing.T) {
 					Type:            "control",
 					Score:           0,
 					Severity:        0,
-					Vector: []*PriorityVectorControl{
+					Vector: []PriorityVectorControl{
 						{ControlID: "1", Category: "A", Tags: []string{"security"}},
 						{ControlID: "4", Category: "F", Tags: []string{"security"}},
 					},
@@ -102,7 +102,7 @@ func TestControlsVectorFromAttackTrackPaths(t *testing.T) {
 					Type:            "control",
 					Score:           0,
 					Severity:        0,
-					Vector: []*PriorityVectorControl{
+					Vector: []PriorityVectorControl{
 						{ControlID: "2", Category: "A", Tags: []string{"security"}},
 						{ControlID: "3", Category: "F", Tags: []string{"security"}},
 					},
@@ -112,7 +112,7 @@ func TestControlsVectorFromAttackTrackPaths(t *testing.T) {
 					Type:            "control",
 					Score:           0,
 					Severity:        0,
-					Vector: []*PriorityVectorControl{
+					Vector: []PriorityVectorControl{
 						{ControlID: "2", Category: "A", Tags: []string{"security"}},
 						{ControlID: "4", Category: "F", Tags: []string{"security"}},
 					},
@@ -122,7 +122,7 @@ func TestControlsVectorFromAttackTrackPaths(t *testing.T) {
 					Type:            "control",
 					Score:           0,
 					Severity:        0,
-					Vector: []*PriorityVectorControl{
+					Vector: []PriorityVectorControl{
 						{ControlID: "6", Category: "E", Tags: []string{"security-impact"}},
 						{ControlID: "7", Category: "G", Tags: []string{"security"}},
 					},
@@ -132,7 +132,7 @@ func TestControlsVectorFromAttackTrackPaths(t *testing.T) {
 					Type:            "control",
 					Score:           0,
 					Severity:        0,
-					Vector: []*PriorityVectorControl{
+					Vector: []PriorityVectorControl{
 						{ControlID: "5", Category: "D", Tags: []string{"security"}},
 					},
 				},

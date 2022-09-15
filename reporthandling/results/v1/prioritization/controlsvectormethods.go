@@ -11,7 +11,7 @@ func NewControlsVector(attackTrackName string) *ControlsVector {
 		AttackTrackName: attackTrackName,
 		Score:           0,
 		Type:            ControlPriorityVectorType,
-		Vector:          []*PriorityVectorControl{},
+		Vector:          []PriorityVectorControl{},
 	}
 }
 
@@ -52,7 +52,7 @@ func (cv *ControlsVector) CalculateScore(allControls map[string]v1alpha1.IAttack
 // Add adds an item to the priority vector
 func (cv *ControlsVector) Add(item interface{}) error {
 	if control, ok := item.(PriorityVectorControl); ok {
-		cv.Vector = append(cv.Vector, &control)
+		cv.Vector = append(cv.Vector, control)
 		return nil
 	}
 	return fmt.Errorf("failed converting item to PriorityVectorControl")
@@ -65,11 +65,11 @@ func (cv *ControlsVector) List() interface{} {
 
 // Add adds an item (PriorityVectorControl) to the priority vector
 func (cv *ControlsVector) AddControl(control *PriorityVectorControl) {
-	cv.Vector = append(cv.Vector, control)
+	cv.Vector = append(cv.Vector, *control)
 }
 
 // ListControls returns the priority vector
-func (cv *ControlsVector) ListControls() []*PriorityVectorControl {
+func (cv *ControlsVector) ListControls() []PriorityVectorControl {
 	return cv.Vector
 }
 
@@ -133,7 +133,7 @@ func (iter *ControlsVectorIterator) Next() interface{} {
 	if iter.HasNext() {
 		v := (iter.vector)[iter.index]
 		iter.index++
-		return v
+		return &v
 	}
 	return nil
 }
@@ -143,7 +143,7 @@ func (iter *ControlsVectorIterator) NextControl() *PriorityVectorControl {
 	if iter.HasNext() {
 		v := (iter.vector)[iter.index]
 		iter.index++
-		return v
+		return &v
 	}
 	return nil
 }
