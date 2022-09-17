@@ -116,3 +116,54 @@ func TestUpdateControlsSummaryCountersAll(t *testing.T) {
 		assert.Equal(t, 0, v.NumberOfResources().Excluded())
 	}
 }
+
+func TestSummaryDetails_GetResourcesSeverityCounters(t *testing.T) {
+	type fields struct {
+		SeverityCounters SeverityCounters
+	}
+	tests := []struct {
+		name   string
+		fields fields
+		want   fields
+	}{
+		{
+			name: "",
+			fields: fields{
+				SeverityCounters: SeverityCounters{
+					ResourcesWithCriticalSeverityCounter: 1,
+					ResourcesWithHighSeverityCounter:     2,
+					ResourcesWithMediumSeverityCounter:   3,
+					ResourcesWithLowSeverityCounter:      4,
+				},
+			},
+			want: fields{
+				SeverityCounters: SeverityCounters{
+					ResourcesWithCriticalSeverityCounter: 1,
+					ResourcesWithHighSeverityCounter:     2,
+					ResourcesWithMediumSeverityCounter:   3,
+					ResourcesWithLowSeverityCounter:      4,
+				},
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			sc := &SummaryDetails{
+				SeverityCounters: &tt.fields.SeverityCounters,
+			}
+
+			if got := sc.SeverityCounters.NumberOfResourcesWithCriticalSeverity(); got != tt.want.SeverityCounters.ResourcesWithCriticalSeverityCounter {
+				t.Errorf("SeverityCounters.NumberOfResourcesWithCriticalSeverity() = %v, want %v", got, tt.want)
+			}
+			if got := sc.SeverityCounters.NumberOfResourcesWithHighSeverity(); got != tt.want.SeverityCounters.ResourcesWithHighSeverityCounter {
+				t.Errorf("SeverityCounters.NumberOfResourcesWithCriticalSeverity() = %v, want %v", got, tt.want)
+			}
+			if got := sc.SeverityCounters.NumberOfResourcesWithMediumSeverity(); got != tt.want.SeverityCounters.ResourcesWithMediumSeverityCounter {
+				t.Errorf("SeverityCounters.NumberOfResourcesWithCriticalSeverity() = %v, want %v", got, tt.want)
+			}
+			if got := sc.SeverityCounters.NumberOfResourcesWithLowSeverity(); got != tt.want.SeverityCounters.ResourcesWithLowSeverityCounter {
+				t.Errorf("SeverityCounters.NumberOfResourcesWithCriticalSeverity() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}

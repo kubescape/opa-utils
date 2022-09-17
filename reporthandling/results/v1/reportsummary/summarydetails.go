@@ -149,6 +149,11 @@ func (summaryDetails *SummaryDetails) AppendResourceResult(resourceResult *resou
 	}
 }
 
+// updateSummaryWithResource get the result of a single resource. If resource not found will return nil
+func (summaryDetails *SummaryDetails) GetResourcesSeverityCounters() ISeverityCounters {
+	return summaryDetails.SeverityCounters
+}
+
 func updateControlsSummaryCounters(resourceResult *resourcesresults.Result, controls map[string]ControlSummary, f *helpersv1.Filters) {
 	// update controls counters
 	for i := range resourceResult.AssociatedControls {

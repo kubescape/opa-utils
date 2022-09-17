@@ -24,6 +24,7 @@ type Iterator interface {
 }
 
 type AllListsIterator struct {
+	allLists      *AllLists
 	size          int
 	index         int
 	failedIndex   int
@@ -31,7 +32,6 @@ type AllListsIterator struct {
 	passIndex     int
 	skippedIndex  int
 	otherIndex    int
-	allLists      *AllLists
 }
 
 func (all *AllLists) createIterator() Iterator {
