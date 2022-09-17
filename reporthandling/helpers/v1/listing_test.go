@@ -42,10 +42,12 @@ func TestAllLists(t *testing.T) {
 func TestAllListsUpdate(t *testing.T) {
 	listA := mockAllListsA()
 	listB := mockAllListsB()
-	listB.Update(listA)
-	listB.ToUnique()
 
+	// Updating list A to contain list B should contain all resources, even duplicates
+	listB.Update(listA)
 	assert.Equal(t, 24, listB.All().Len())
+
+	// Enforcing unique resources should prune duplicate resources
 	listB.ToUniqueResources()
 	assert.Equal(t, 11, listB.All().Len())
 
