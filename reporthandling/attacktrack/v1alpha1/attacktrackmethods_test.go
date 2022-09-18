@@ -20,8 +20,8 @@ var (
 
 func TestAttackTrack_IsValid(t *testing.T) {
 	tests := []struct {
-		name     string
 		v        *AttackTrack
+		name     string
 		expected bool
 	}{
 		{

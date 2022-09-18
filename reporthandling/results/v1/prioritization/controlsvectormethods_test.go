@@ -9,8 +9,8 @@ import (
 
 func TestNewControlsVector(t *testing.T) {
 	tests := []struct {
-		name string
 		want *ControlsVector
+		name string
 	}{
 		{
 			name: "controls vector initialization",

@@ -148,7 +148,7 @@ func TestControlsVectorFromAttackTrackPaths(t *testing.T) {
 			result := ControlsVectorFromAttackTrackPaths(tt.attackTrack, allPaths)
 
 			if assert.Equalf(t, len(tt.expected), len(result), "ControlsVectorFromAttackTrackPaths should return the correct number of vectors. expected: %v, actual: %v", len(tt.expected), len(result)) {
-				for i, _ := range tt.expected {
+				for i := range tt.expected {
 					if !reflect.DeepEqual(result[i], tt.expected[i]) {
 						t.Errorf("result = %v, expected %v", result[i], tt.expected[i])
 					}
