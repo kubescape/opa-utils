@@ -2,7 +2,7 @@ package v1alpha1
 
 import (
 	"encoding/json"
-	"io/ioutil"
+	"os"
 	"path/filepath"
 	"testing"
 
@@ -11,7 +11,7 @@ import (
 
 func TestAttackTrackUnmarshal(t *testing.T) {
 	var obj AttackTrack
-	file, _ := ioutil.ReadFile(filepath.Join("testdata", "attacktrack.json"))
+	file, _ := os.ReadFile(filepath.Join("testdata", "attacktrack.json"))
 	err := json.Unmarshal([]byte(file), &obj)
 	assert.NoError(t, err)
 }
