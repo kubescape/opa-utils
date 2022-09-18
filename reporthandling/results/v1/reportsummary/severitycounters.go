@@ -44,5 +44,5 @@ func (sc *SeverityCounters) Increase(severity string, amount int) {
 		return
 	}
 
-	*counterToIncrement++
+	*counterToIncrement += amount
 }

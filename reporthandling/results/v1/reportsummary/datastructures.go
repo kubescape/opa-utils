@@ -14,12 +14,12 @@ type ControlSummaries map[string]ControlSummary
 
 // SummaryDetails detailed summary of the scanning. will contain versions, counters, etc.
 type SummaryDetails struct {
-	SeverityCounters SeverityCounters   `json:"severityCounters,omitempty"`
-	Controls         ControlSummaries    `json:"controls,omitempty"` // mapping of control - map[<control ID>]<control summary>
-	Status           apis.ScanningStatus `json:"status"`             // overall status
-	Frameworks       []FrameworkSummary  `json:"frameworks"`         // list of framework summary
+	Controls         ControlSummaries    `json:"controls,omitempty"`
+	Status           apis.ScanningStatus `json:"status"`
+	Frameworks       []FrameworkSummary  `json:"frameworks"`
+	SeverityCounters SeverityCounters    `json:"severityCounters,omitempty"`
 	ResourceCounters ResourceCounters    `json:",inline"`
-	Score            float32             `json:"score"` // overall score
+	Score            float32             `json:"score"`
 }
 
 // FrameworkSummary summary of scanning from a single framework perspective
