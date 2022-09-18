@@ -13,26 +13,26 @@ import (
 
 // PostureReport posture scanning report structure
 type PostureReport struct {
-	Attributes           []reportsummary.PostureAttributes `json:"attributes"` //allow flexible properties for posture reports
+	ReportGenerationTime time.Time                         `json:"generationTime"`
+	Metadata             Metadata                          `json:"metadata,omitempty"`
+	ClusterAPIServerInfo *version.Info                     `json:"clusterAPIServerInfo"`
 	CustomerGUID         string                            `json:"customerGUID"`
 	ClusterName          string                            `json:"clusterName"`
-	ClusterCloudProvider string                            `json:"clusterCloudProvider"` // Deprecated
+	ClusterCloudProvider string                            `json:"clusterCloudProvider"`
 	ReportID             string                            `json:"reportGUID"`
 	JobID                string                            `json:"jobID"`
-	PaginationInfo       armoapi.PaginationMarks           `json:"paginationInfo"`
-	ClusterAPIServerInfo *version.Info                     `json:"clusterAPIServerInfo"`
-	ReportGenerationTime time.Time                         `json:"generationTime"`
-	SummaryDetails       reportsummary.SummaryDetails      `json:"summaryDetails,omitempty"`
+	Resources            []reporthandling.Resource         `json:"resources,omitempty"`
+	Attributes           []reportsummary.PostureAttributes `json:"attributes"`
 	Results              []resourcesresults.Result         `json:"results,omitempty"`
-	Resources            []reporthandling.Resource         `json:"resources,omitempty"` // Deprecated
-	Metadata             Metadata                          `json:"metadata,omitempty"`
+	SummaryDetails       reportsummary.SummaryDetails      `json:"summaryDetails,omitempty"`
+	PaginationInfo       armoapi.PaginationMarks           `json:"paginationInfo"`
 }
 
 type ClusterMetadata struct {
-	NumberOfWorkerNodes             int            `json:"numberOfWorkerNodes,omitempty"`
+	MapNamespaceToNumberOfResources map[string]int `json:"namespaceToNumberOfResources,omitempty"`
 	CloudProvider                   string         `json:"cloudProvider,omitempty"`
 	ContextName                     string         `json:"contextName,omitempty"`
-	MapNamespaceToNumberOfResources map[string]int `json:"namespaceToNumberOfResources,omitempty"`
+	NumberOfWorkerNodes             int            `json:"numberOfWorkerNodes,omitempty"`
 }
 
 type RepoContextMetadata struct {
@@ -66,9 +66,9 @@ type ContextMetadata struct {
 }
 
 type Metadata struct {
-	ScanMetadata    ScanMetadata    `json:"scanMetadata,omitempty"`
 	ContextMetadata ContextMetadata `json:"targetMetadata,omitempty"`
-	ClusterMetadata ClusterMetadata `json:"clusterMetadata,omitempty"` // DEPRECATED
+	ClusterMetadata ClusterMetadata `json:"clusterMetadata,omitempty"`
+	ScanMetadata    ScanMetadata    `json:"scanMetadata,omitempty"`
 }
 
 type ScanningTarget uint16
@@ -82,21 +82,21 @@ const (
 )
 
 type ScanMetadata struct {
-	Format             string         `json:"format,omitempty"`             // Format results (table, json, junit ...)
-	KubescapeVersion   string         `json:"kubescapeVersion,omitempty"`   // Kubescape version
-	FormatVersion      string         `json:"formatVersion,omitempty"`      // Format version (v1, v2)
-	ScanningTarget     ScanningTarget `json:"scanningTarget,omitempty"`     // scanning target
-	ExcludedNamespaces []string       `json:"excludedNamespaces,omitempty"` // used for host sensor namespace
+	TargetType         string         `json:"targetType,omitempty"`
+	KubescapeVersion   string         `json:"kubescapeVersion,omitempty"`
+	FormatVersion      string         `json:"formatVersion,omitempty"`
+	ControlsInputs     string         `json:"controlsInputs,omitempty"`
+	Format             string         `json:"format,omitempty"`
+	UseExceptions      string         `json:"useExceptions,omitempty"`
+	Logger             string         `json:"logger,omitempty"`
+	ExcludedNamespaces []string       `json:"excludedNamespaces,omitempty"`
 	IncludeNamespaces  []string       `json:"includeNamespaces,omitempty"`
-	FailThreshold      float32        `json:"failThreshold,omitempty"`  // Failure score threshold
-	Submit             bool           `json:"submit,omitempty"`         // Submit results to Armo BE
-	HostScanner        bool           `json:"hostScanner,omitempty"`    // Deploy ARMO K8s host sensor to collect data from certain controls
-	Logger             string         `json:"logger,omitempty"`         // logger level - debug/info/error
-	TargetType         string         `json:"targetType,omitempty"`     // framework/control
-	TargetNames        []string       `json:"targetNames,omitempty"`    // list of frameworks/controls
-	UseExceptions      string         `json:"useExceptions,omitempty"`  // Load file with exceptions configuration
-	ControlsInputs     string         `json:"controlsInputs,omitempty"` // Load file with inputs for controls
-	VerboseMode        bool           `json:"verboseMode,omitempty"`    // Display all of the input resources and not only failed resources
+	TargetNames        []string       `json:"targetNames,omitempty"`
+	FailThreshold      float32        `json:"failThreshold,omitempty"`
+	ScanningTarget     ScanningTarget `json:"scanningTarget,omitempty"`
+	HostScanner        bool           `json:"hostScanner,omitempty"`
+	Submit             bool           `json:"submit,omitempty"`
+	VerboseMode        bool           `json:"verboseMode,omitempty"`
 }
 
 const (
