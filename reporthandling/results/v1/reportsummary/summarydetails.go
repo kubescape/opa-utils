@@ -136,11 +136,25 @@ func (summaryDetails *SummaryDetails) ListResourcesIDs() *helpersv1.AllLists {
 	return summaryDetails.Controls.ListResourcesIDs()
 }
 
-// updateSummaryWithResource get the result of a single resource. If resource not found will return nil
+// AppendResourceResult appends the given resource result to the summary
+//
+// Updates any necessary info accordingly
 func (summaryDetails *SummaryDetails) AppendResourceResult(resourceResult *resourcesresults.Result) {
 
 	// update full-summary counter
 	updateControlsSummaryCounters(resourceResult, summaryDetails.Controls, nil)
+
+	// update the summary’s severity counters
+	if resourceResult.GetStatus(nil).IsFailed() {
+		for _, resourceControl := range resourceResult.ListControls() {
+			if resourceControl.GetStatus(nil).IsFailed() {
+				control := summaryDetails.Controls.GetControl(EControlCriteriaID, resourceControl.GetID())
+				severityScore := control.GetScoreFactor()
+				severity := apis.ControlSeverityToString(severityScore)
+				summaryDetails.SeverityCounters.Increase(severity, 1)
+			}
+		}
+	}
 
 	// update frameworks counters
 	for _, framework := range summaryDetails.Frameworks {
@@ -151,7 +165,7 @@ func (summaryDetails *SummaryDetails) AppendResourceResult(resourceResult *resou
 
 // updateSummaryWithResource get the result of a single resource. If resource not found will return nil
 func (summaryDetails *SummaryDetails) GetResourcesSeverityCounters() ISeverityCounters {
-	return summaryDetails.SeverityCounters
+	return &summaryDetails.SeverityCounters
 }
 
 func updateControlsSummaryCounters(resourceResult *resourcesresults.Result, controls map[string]ControlSummary, f *helpersv1.Filters) {

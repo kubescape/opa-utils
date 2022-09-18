@@ -149,7 +149,7 @@ func TestSummaryDetails_GetResourcesSeverityCounters(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			sc := &SummaryDetails{
-				SeverityCounters: &tt.fields.SeverityCounters,
+				SeverityCounters: tt.fields.SeverityCounters,
 			}
 
 			if got := sc.SeverityCounters.NumberOfResourcesWithCriticalSeverity(); got != tt.want.SeverityCounters.ResourcesWithCriticalSeverityCounter {

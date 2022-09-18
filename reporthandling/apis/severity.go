@@ -1,6 +1,14 @@
 package apis
 
 const (
+	SeverityCriticalString = "Critical"
+	SeverityHighString     = "High"
+	SeverityMediumString   = "Medium"
+	SeverityLowString      = "Low"
+	SeverityUnknownString  = "Unknown"
+)
+
+const (
 	SeverityUnknown  = iota
 	SeverityLow      = iota
 	SeverityMedium   = iota
@@ -30,15 +38,15 @@ func SeverityNumberToString(severityNumber int) string {
 	*/
 	switch severityNumber {
 	case SeverityCritical:
-		return "Critical"
+		return SeverityCriticalString
 	case SeverityHigh:
-		return "High"
+		return SeverityHighString
 	case SeverityMedium:
-		return "Medium"
+		return SeverityMediumString
 	case SeverityLow:
-		return "Low"
+		return SeverityLowString
 	default:
-		return "Unknown"
+		return SeverityUnknownString
 	}
 
 }
