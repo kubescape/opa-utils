@@ -17,6 +17,11 @@ const (
 )
 const NumberOfSeverities = 5
 
+// GetSupportedSeverities returns a slice of supported severities
+func GetSupportedSeverities() []string {
+	return []string{SeverityLowString, SeverityMediumString, SeverityHighString, SeverityCriticalString}
+}
+
 func ControlSeverityToString(baseScore float32) string {
 	/*
 		9+	Critical
