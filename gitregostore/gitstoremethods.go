@@ -252,3 +252,9 @@ func (gs *GitRegoStore) GetDefaultConfigInputs() (armotypes.CustomerConfig, erro
 	defer gs.DefaultConfigInputsLock.RUnlock()
 	return gs.DefaultConfigInputs, nil
 }
+
+func (gs *GitRegoStore) GetSystemPostureExceptionPolicies() ([]armotypes.PostureExceptionPolicy, error) {
+	gs.systemPostureExceptionPoliciesLock.RLock()
+	defer gs.systemPostureExceptionPoliciesLock.RUnlock()
+	return gs.SystemPostureExceptionPolicies, nil
+}
