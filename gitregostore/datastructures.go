@@ -15,29 +15,31 @@ import (
 )
 
 type GitRegoStore struct {
-	frameworksLock              sync.RWMutex
-	DefaultConfigInputsLock     sync.RWMutex
-	rulesLock                   sync.RWMutex
-	controlsLock                sync.RWMutex
-	attackTracksLock            sync.RWMutex
-	ControlRuleRelations        dataframe.DataFrame
-	FrameworkControlRelations   dataframe.DataFrame
-	httpClient                  *http.Client
-	Tag                         string
-	Owner                       string
-	CurGitVersion               string
-	Branch                      string
-	URL                         string
-	Path                        string
-	BaseUrl                     string
-	Repository                  string
-	DefaultConfigInputs         armotypes.CustomerConfig
-	AttackTracks                []v1alpha1.AttackTrack
-	Frameworks                  []opapolicy.Framework
-	Controls                    []opapolicy.Control
-	Rules                       []opapolicy.PolicyRule
-	FrequencyPullFromGitMinutes int
-	Watch                       bool
+	frameworksLock                     sync.RWMutex
+	DefaultConfigInputsLock            sync.RWMutex
+	rulesLock                          sync.RWMutex
+	controlsLock                       sync.RWMutex
+	attackTracksLock                   sync.RWMutex
+	systemPostureExceptionPoliciesLock sync.RWMutex
+	ControlRuleRelations               dataframe.DataFrame
+	FrameworkControlRelations          dataframe.DataFrame
+	httpClient                         *http.Client
+	Tag                                string
+	Owner                              string
+	CurGitVersion                      string
+	Branch                             string
+	URL                                string
+	Path                               string
+	BaseUrl                            string
+	Repository                         string
+	DefaultConfigInputs                armotypes.CustomerConfig
+	AttackTracks                       []v1alpha1.AttackTrack
+	Frameworks                         []opapolicy.Framework
+	Controls                           []opapolicy.Control
+	Rules                              []opapolicy.PolicyRule
+	SystemPostureExceptionPolicies     []armotypes.PostureExceptionPolicy
+	FrequencyPullFromGitMinutes        int
+	Watch                              bool
 }
 
 func newGitRegoStore(baseUrl string, owner string, repository string, path string, tag string, branch string, frequency int) *GitRegoStore {
