@@ -178,7 +178,7 @@ func (gs *GitRegoStore) setObjectsFromRepoOnce() error {
 				zap.L().Debug("In setObjectsFromRepoOnce - failed to set DefaultConfigInputs %s\n", zap.String("path", rawDataPath))
 				return err
 			}
-		} else if strings.HasPrefix(path.PATH, systemPostureExceptionFileName+".json") && strings.HasSuffix(path.PATH, ".json") {
+		} else if strings.HasPrefix(path.PATH, systemPostureExceptionFileName+"/") && strings.HasSuffix(path.PATH, ".json") {
 			respStr, err := HttpGetter(gs.httpClient, rawDataPath)
 			if err != nil {
 				return err
@@ -372,7 +372,8 @@ func (gs *GitRegoStore) setSystemPostureExceptionPolicies(respStr string) error 
 	}
 	gs.systemPostureExceptionPoliciesLock.Lock()
 	defer gs.systemPostureExceptionPoliciesLock.Unlock()
-	gs.SystemPostureExceptionPolicies = exceptions
+
+	gs.SystemPostureExceptionPolicies = append(gs.SystemPostureExceptionPolicies, exceptions...)
 	return nil
 }
 
