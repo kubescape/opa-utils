@@ -21,12 +21,14 @@ type storeSetter func(*GitRegoStore, string) error
 
 const (
 	attackTracksJsonFileName          = "attack_tracks"
+	attackTracksPathPrefix            = "attack-tracks"
 	frameworksJsonFileName            = "frameworks"
 	controlsJsonFileName              = "controls"
 	rulesJsonFileName                 = "rules"
 	frameworkControlRelationsFileName = "FWName_CID_CName"
 	ControlRuleRelationsFileName      = "ControlID_RuleName"
 	defaultConfigInputsFileName       = "default_config_inputs"
+	systemPostureExceptionFileName    = "exceptions"
 
 	controlIDRegex = `^(?:[a-z]+|[A-Z]+)(?:[\-][v]?(?:[0-9][\.]?)+)(?:[\-]?[0-9][\.]?)+$`
 )
@@ -41,6 +43,7 @@ var storeSetterMapping = map[string]storeSetter{
 	frameworkControlRelationsFileName: (*GitRegoStore).setFrameworkControlRelations,
 	ControlRuleRelationsFileName:      (*GitRegoStore).setControlRuleRelations,
 	defaultConfigInputsFileName:       (*GitRegoStore).setDefaultConfigInputs,
+	systemPostureExceptionFileName:    (*GitRegoStore).setSystemPostureExceptionPolicies,
 }
 
 type InnerTree []struct {
@@ -116,12 +119,15 @@ func (gs *GitRegoStore) setObjectsFromRepoOnce() error {
 	gs.frameworksLock.Lock()
 	gs.controlsLock.Lock()
 	gs.rulesLock.Lock()
+	gs.attackTracksLock.Lock()
 	defer gs.frameworksLock.Unlock()
 	defer gs.controlsLock.Unlock()
 	defer gs.rulesLock.Unlock()
+	defer gs.attackTracksLock.Unlock()
 	gs.Frameworks = []opapolicy.Framework{}
 	gs.Controls = []opapolicy.Control{}
 	gs.Rules = []opapolicy.PolicyRule{}
+	gs.AttackTracks = []v1alpha1.AttackTrack{}
 
 	// use only json files from relevant dirs
 	for _, path := range trees.TREE {
@@ -154,7 +160,7 @@ func (gs *GitRegoStore) setObjectsFromRepoOnce() error {
 				zap.L().Debug("In setObjectsFromRepoOnce - failed to set framework %s\n", zap.String("path", rawDataPath))
 				return err
 			}
-		} else if strings.HasPrefix(path.PATH, attackTracksJsonFileName+"/") && strings.HasSuffix(path.PATH, ".json") {
+		} else if strings.HasPrefix(path.PATH, attackTracksPathPrefix+"/") && strings.HasSuffix(path.PATH, ".json") {
 			respStr, err := HttpGetter(gs.httpClient, rawDataPath)
 			if err != nil {
 				return nil
@@ -170,6 +176,15 @@ func (gs *GitRegoStore) setObjectsFromRepoOnce() error {
 			}
 			if err := gs.setDefaultConfigInputs(respStr); err != nil {
 				zap.L().Debug("In setObjectsFromRepoOnce - failed to set DefaultConfigInputs %s\n", zap.String("path", rawDataPath))
+				return err
+			}
+		} else if strings.HasPrefix(path.PATH, systemPostureExceptionFileName+"/") && strings.HasSuffix(path.PATH, ".json") {
+			respStr, err := HttpGetter(gs.httpClient, rawDataPath)
+			if err != nil {
+				return err
+			}
+			if err := gs.setSystemPostureExceptionPolicies(respStr); err != nil {
+				zap.L().Debug("In setObjectsFromRepoOnce - failed to set SystemPostureExceptionPolicies %s\n", zap.String("path", rawDataPath))
 				return err
 			}
 		} else if strings.HasSuffix(path.PATH, ControlRuleRelationsFileName+".csv") {
@@ -347,6 +362,18 @@ func (gs *GitRegoStore) setDefaultConfigInputs(respStr string) error {
 	gs.DefaultConfigInputsLock.Lock()
 	defer gs.DefaultConfigInputsLock.Unlock()
 	gs.DefaultConfigInputs = defaultConfigInputs
+	return nil
+}
+
+func (gs *GitRegoStore) setSystemPostureExceptionPolicies(respStr string) error {
+	exceptions := []armotypes.PostureExceptionPolicy{}
+	if err := JSONDecoder(respStr).Decode(&exceptions); err != nil {
+		return err
+	}
+	gs.systemPostureExceptionPoliciesLock.Lock()
+	defer gs.systemPostureExceptionPoliciesLock.Unlock()
+
+	gs.SystemPostureExceptionPolicies = append(gs.SystemPostureExceptionPolicies, exceptions...)
 	return nil
 }
 
