@@ -120,14 +120,17 @@ func (gs *GitRegoStore) setObjectsFromRepoOnce() error {
 	gs.controlsLock.Lock()
 	gs.rulesLock.Lock()
 	gs.attackTracksLock.Lock()
+	gs.systemPostureExceptionPoliciesLock.Lock()
 	defer gs.frameworksLock.Unlock()
 	defer gs.controlsLock.Unlock()
 	defer gs.rulesLock.Unlock()
 	defer gs.attackTracksLock.Unlock()
+	defer gs.systemPostureExceptionPoliciesLock.Unlock()
 	gs.Frameworks = []opapolicy.Framework{}
 	gs.Controls = []opapolicy.Control{}
 	gs.Rules = []opapolicy.PolicyRule{}
 	gs.AttackTracks = []v1alpha1.AttackTrack{}
+	gs.SystemPostureExceptionPolicies = []armotypes.PostureExceptionPolicy{}
 
 	// use only json files from relevant dirs
 	for _, path := range trees.TREE {
@@ -183,8 +186,8 @@ func (gs *GitRegoStore) setObjectsFromRepoOnce() error {
 			if err != nil {
 				return err
 			}
-			if err := gs.setSystemPostureExceptionPolicies(respStr); err != nil {
-				zap.L().Debug("In setObjectsFromRepoOnce - failed to set SystemPostureExceptionPolicies %s\n", zap.String("path", rawDataPath))
+			if err := gs.setSystemPostureExceptionPolicy(respStr); err != nil {
+				zap.L().Debug("In setObjectsFromRepoOnce - failed to set setSystemPostureExceptionPolicy %s\n", zap.String("path", rawDataPath))
 				return err
 			}
 		} else if strings.HasSuffix(path.PATH, ControlRuleRelationsFileName+".csv") {
@@ -219,6 +222,16 @@ func (gs *GitRegoStore) setAttackTrack(respStr string) error {
 		return err
 	}
 	gs.AttackTracks = append(gs.AttackTracks, *attackTrack)
+	return nil
+}
+
+func (gs *GitRegoStore) setSystemPostureExceptionPolicy(respStr string) error {
+	exceptions := []armotypes.PostureExceptionPolicy{}
+	if err := JSONDecoder(respStr).Decode(&exceptions); err != nil {
+		return err
+	}
+
+	gs.SystemPostureExceptionPolicies = append(gs.SystemPostureExceptionPolicies, exceptions...)
 	return nil
 }
 
