@@ -293,7 +293,7 @@ func (gs *GitRegoStore) setObjectsFromReleaseLoop() error {
 			if !gs.Watch {
 				return
 			}
-			time.Sleep(time.Second)
+			time.Sleep(time.Duration(gs.FrequencyPullFromGitMinutes) * time.Minute)
 		}
 	}()
 	wg.Wait()
