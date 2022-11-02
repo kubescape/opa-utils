@@ -3,7 +3,7 @@ module github.com/kubescape/opa-utils
 go 1.18
 
 require (
-	github.com/armosec/armoapi-go v0.0.114
+	github.com/armosec/armoapi-go v0.0.119
 	github.com/armosec/utils-go v0.0.12
 	github.com/francoispqt/gojay v1.2.13
 	github.com/go-gota/gota v0.12.0
