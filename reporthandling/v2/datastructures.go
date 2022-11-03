@@ -43,6 +43,7 @@ type RepoContextMetadata struct {
 	DefaultBranch string                    `json:"defaultBranch,omitempty"`
 	RemoteURL     string                    `json:"remoteURL,omitempty"`
 	LastCommit    reporthandling.LastCommit `json:"lastCommit,omitempty"`
+	LocalRootPath string                    `json:"localRootPath,omitempty"` // repo root path (local)
 }
 
 type FileContextMetadata struct {
