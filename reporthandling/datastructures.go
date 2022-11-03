@@ -23,7 +23,6 @@ type RuleMatchObjects struct {
 	Resources   []string `json:"resources"`   // dep.., pods,
 }
 
-// RuleMatchObjects defines which objects this rule applied on
 type RuleDependency struct {
 	PackageName string `json:"packageName"` // package name
 }
@@ -37,19 +36,19 @@ type ControlConfigInputs struct {
 // PolicyRule represents single rule, the fundamental executable block of policy
 type PolicyRule struct {
 	armotypes.PortalBase   `json:",inline"`
-	CreationTime           string                `json:"creationTime"`
-	Rule                   string                `json:"rule"`               // multiline string!
-	ResourceEnumerator     string                `json:"resourceEnumerator"` // multiline string!
+	CreationTime           string                `json:"creationTime"`       // added by portal upon creation
+	Rule                   string                `json:"rule"`               // multiline string of raw.rego
+	ResourceEnumerator     string                `json:"resourceEnumerator"` // multiline string of filter.rego, if exists
 	RuleLanguage           RuleLanguages         `json:"ruleLanguage"`
-	Match                  []RuleMatchObjects    `json:"match"`
-	DynamicMatch           []RuleMatchObjects    `json:"dynamicMatch,omitempty"` // DEPRECATED - Added for ks version 136
-	RuleDependencies       []RuleDependency      `json:"ruleDependencies"`
-	ConfigInputs           []string              `json:"configInputs"`        // DEPRECATED
-	ControlConfigInputs    []ControlConfigInputs `json:"controlConfigInputs"` // list of inputs from postureControlInputs in customerConfig for this rule
+	Match                  []RuleMatchObjects    `json:"match"`                  // k8s resources this rule needs as inputs
+	DynamicMatch           []RuleMatchObjects    `json:"dynamicMatch,omitempty"` // NON-k8s resources this rule needs as inputs, acquired by host-scanner
+	RuleDependencies       []RuleDependency      `json:"ruleDependencies"`       // packages this rule uses
+	ConfigInputs           []string              `json:"configInputs"`           // DEPRECATED
+	ControlConfigInputs    []ControlConfigInputs `json:"controlConfigInputs"`    // list of inputs from postureControlInputs in customerConfig for this rule
 	Description            string                `json:"description"`
 	Remediation            string                `json:"remediation"`
-	RuleQuery              string                `json:"ruleQuery"` // default "armo_builtins" - DEPRECATED
-	RelevantCloudProviders []string              `json:"relevantCloudProviders"`
+	RuleQuery              string                `json:"ruleQuery"`              // default "armo_builtins" - DEPRECATED
+	RelevantCloudProviders []string              `json:"relevantCloudProviders"` // rule is relevant only to clusters in these cloud providers
 }
 
 // Control represents a collection of rules which are combined together to single purpose
@@ -57,12 +56,12 @@ type Control struct {
 	armotypes.PortalBase `json:",inline"`
 	Control_ID           string              `json:"id,omitempty"` // to be Deprecated
 	ControlID            string              `json:"controlID"`
-	CreationTime         string              `json:"creationTime"`
+	CreationTime         string              `json:"creationTime"` // added by portal upon creation
 	Description          string              `json:"description"`
 	Remediation          string              `json:"remediation"`
-	Rules                []PolicyRule        `json:"rules"`
-	FrameworkNames       []string            `json:"frameworkNames,omitempty"`
-	FixedInput           map[string][]string `json:"fixedInput,omitempty"`
+	Rules                []PolicyRule        `json:"rules"`                    // added according to 'rulesnames' field in regolibrary
+	FrameworkNames       []string            `json:"frameworkNames,omitempty"` // frameworks this control is part of, added by BE
+	FixedInput           map[string][]string `json:"fixedInput,omitempty"`     // DEPRECATED
 	// for new list of  rules in POST/UPADTE requests
 	RulesIDs              *[]string `json:"rulesIDs,omitempty"`
 	BaseScore             float32   `json:"baseScore,omitempty"`
@@ -77,9 +76,9 @@ type UpdatedControl struct {
 // Framework represents a collection of controls which are combined together to expose comprehensive behavior
 type Framework struct {
 	armotypes.PortalBase `json:",inline"`
-	CreationTime         string    `json:"creationTime"`
+	CreationTime         string    `json:"creationTime"` // added by portal upon creation
 	Description          string    `json:"description"`
-	Controls             []Control `json:"controls"`
+	Controls             []Control `json:"controls"` // added according to 'controlsNames' field in regolibrary
 	// for new list of  controls in POST/UPADTE requests
 	ControlsIDs *[]string                       `json:"controlsIDs,omitempty"`
 	SubSections map[string]*FrameworkSubSection `json:"subSections,omitempty"`
