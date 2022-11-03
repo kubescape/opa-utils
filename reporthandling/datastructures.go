@@ -36,7 +36,7 @@ type ControlConfigInputs struct {
 // PolicyRule represents single rule, the fundamental executable block of policy
 type PolicyRule struct {
 	armotypes.PortalBase   `json:",inline"`
-	CreationTime           string                `json:"creationTime"`       // added by portal upon creation
+	CreationTime           string                `json:"creationTime"`
 	Rule                   string                `json:"rule"`               // multiline string of raw.rego
 	ResourceEnumerator     string                `json:"resourceEnumerator"` // multiline string of filter.rego, if exists
 	RuleLanguage           RuleLanguages         `json:"ruleLanguage"`
@@ -56,11 +56,11 @@ type Control struct {
 	armotypes.PortalBase `json:",inline"`
 	Control_ID           string              `json:"id,omitempty"` // to be Deprecated
 	ControlID            string              `json:"controlID"`
-	CreationTime         string              `json:"creationTime"` // added by portal upon creation
+	CreationTime         string              `json:"creationTime"`
 	Description          string              `json:"description"`
 	Remediation          string              `json:"remediation"`
-	Rules                []PolicyRule        `json:"rules"`                    // added according to 'rulesnames' field in regolibrary
-	FrameworkNames       []string            `json:"frameworkNames,omitempty"` // frameworks this control is part of, added by BE
+	Rules                []PolicyRule        `json:"rules"`
+	FrameworkNames       []string            `json:"frameworkNames,omitempty"` // frameworks this control is part of
 	FixedInput           map[string][]string `json:"fixedInput,omitempty"`     // DEPRECATED
 	// for new list of  rules in POST/UPADTE requests
 	RulesIDs              *[]string `json:"rulesIDs,omitempty"`
@@ -76,9 +76,9 @@ type UpdatedControl struct {
 // Framework represents a collection of controls which are combined together to expose comprehensive behavior
 type Framework struct {
 	armotypes.PortalBase `json:",inline"`
-	CreationTime         string    `json:"creationTime"` // added by portal upon creation
+	CreationTime         string    `json:"creationTime"`
 	Description          string    `json:"description"`
-	Controls             []Control `json:"controls"` // added according to 'controlsNames' field in regolibrary
+	Controls             []Control `json:"controls"`
 	// for new list of  controls in POST/UPADTE requests
 	ControlsIDs *[]string                       `json:"controlsIDs,omitempty"`
 	SubSections map[string]*FrameworkSubSection `json:"subSections,omitempty"`
