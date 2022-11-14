@@ -375,8 +375,7 @@ func (gs *GitRegoStore) setSystemPostureExceptionPolicies(respStr string) error 
 	}
 	gs.systemPostureExceptionPoliciesLock.Lock()
 	defer gs.systemPostureExceptionPoliciesLock.Unlock()
-
-	gs.SystemPostureExceptionPolicies = append(gs.SystemPostureExceptionPolicies, exceptions...)
+	gs.SystemPostureExceptionPolicies = exceptions
 	return nil
 }
 
