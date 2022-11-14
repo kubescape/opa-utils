@@ -133,28 +133,31 @@ func GetResourceExceptions(ruleExceptions []armotypes.PostureExceptionPolicy, wo
 
 // compareMetadata - compare namespace and kind
 func hasException(clusterName string, designator *armotypes.PortalDesignator, workload workloadinterface.IMetadata) bool {
-	cluster, namespace, kind, name, labels := designator.DigestPortalDesignator()
+	attributes := designator.DigestPortalDesignator()
 
-	if cluster == "" && namespace == "" && kind == "" && name == "" && len(labels) == 0 {
+	if attributes.GetCluster() == "" && attributes.GetNamespace() == "" && attributes.GetKind() == "" && attributes.GetName() == "" && attributes.GetPath() == "" && len(attributes.GetLabels()) == 0 {
 		return false // if designators are empty
 	}
 
-	if cluster != "" && !compareCluster(cluster, clusterName) { // TODO - where do we receive cluster name from?
+	if attributes.GetCluster() != "" && !compareCluster(attributes.GetCluster(), clusterName) { // TODO - where do we receive cluster name from?
 		return false // cluster name does not match
 	}
 
-	if namespace != "" && !compareNamespace(workload, namespace) {
+	if attributes.GetNamespace() != "" && !compareNamespace(workload, attributes.GetNamespace()) {
 		return false // namespaces do not match
 	}
 
-	if kind != "" && !compareKind(workload, kind) {
+	if attributes.GetKind() != "" && !compareKind(workload, attributes.GetKind()) {
 		return false // kinds do not match
 	}
 
-	if name != "" && !compareName(workload, name) {
+	if attributes.GetName() != "" && !compareName(workload, attributes.GetName()) {
 		return false // names do not match
 	}
-	if len(labels) > 0 && !compareLabels(workload, labels) {
+	if attributes.GetPath() != "" && !comparePath(workload, attributes.GetPath()) {
+		return false // paths do not match
+	}
+	if len(attributes.GetLabels()) > 0 && !compareLabels(workload, attributes.GetLabels()) {
 		return false // labels do not match
 	}
 
@@ -174,6 +177,18 @@ func compareKind(workload workloadinterface.IMetadata, kind string) bool {
 
 func compareName(workload workloadinterface.IMetadata, name string) bool {
 	return regexCompare(name, workload.GetName())
+}
+
+func comparePath(workload workloadinterface.IMetadata, path string) bool {
+	w := workload.GetObject()
+	if k8sinterface.IsTypeWorkload(w) {
+		if val, ok := w["sourcePath"]; ok {
+			if sourcePath, ok := val.(string); ok {
+				return regexCompare(path, sourcePath)
+			}
+		}
+	}
+	return false
 }
 
 func compareLabels(workload workloadinterface.IMetadata, attributes map[string]string) bool {

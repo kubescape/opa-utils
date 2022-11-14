@@ -116,29 +116,20 @@ func (gs *GitRegoStore) setObjectsFromRepoOnce() error {
 	if err != nil {
 		return fmt.Errorf("failed to unmarshal response body from '%s', reason: %s", gs.URL, err.Error())
 	}
-	gs.frameworksLock.Lock()
-	gs.controlsLock.Lock()
-	gs.rulesLock.Lock()
-	gs.attackTracksLock.Lock()
-	defer gs.frameworksLock.Unlock()
-	defer gs.controlsLock.Unlock()
-	defer gs.rulesLock.Unlock()
-	defer gs.attackTracksLock.Unlock()
-	gs.Frameworks = []opapolicy.Framework{}
-	gs.Controls = []opapolicy.Control{}
-	gs.Rules = []opapolicy.PolicyRule{}
-	gs.AttackTracks = []v1alpha1.AttackTrack{}
+
+	//use a clone of the store for the update to avoid long lock time
+	gsClone := newGitRegoStore(gs.BaseUrl, gs.Owner, gs.Repository, gs.Path, gs.Tag, gs.Branch, gs.FrequencyPullFromGitMinutes)
 
 	// use only json files from relevant dirs
 	for _, path := range trees.TREE {
-		rawDataPath := "https://raw.githubusercontent.com/" + gs.Owner + "/" + gs.Repository + "/" + gs.Branch + "/" + path.PATH
+		rawDataPath := "https://raw.githubusercontent.com/" + gsClone.Owner + "/" + gsClone.Repository + "/" + gsClone.Branch + "/" + path.PATH
 
 		if strings.HasPrefix(path.PATH, rulesJsonFileName+"/") && strings.HasSuffix(path.PATH, ".json") {
-			respStr, err := HttpGetter(gs.httpClient, rawDataPath)
+			respStr, err := HttpGetter(gsClone.httpClient, rawDataPath)
 			if err != nil {
 				return err
 			}
-			if err := gs.setRulesWithRawRego(respStr, rawDataPath); err != nil {
+			if err := gsClone.setRulesWithRawRego(respStr, rawDataPath); err != nil {
 				zap.L().Debug("In setObjectsFromRepoOnce - failed to set rule %s\n", zap.String("path", rawDataPath))
 				return err
 			}
@@ -147,7 +138,7 @@ func (gs *GitRegoStore) setObjectsFromRepoOnce() error {
 			if err != nil {
 				return err
 			}
-			if err := gs.setControl(respStr); err != nil {
+			if err := gsClone.setControl(respStr); err != nil {
 				zap.L().Debug("In setObjectsFromRepoOnce - failed to set control %s\n", zap.String("path", rawDataPath))
 				return err
 			}
@@ -156,7 +147,7 @@ func (gs *GitRegoStore) setObjectsFromRepoOnce() error {
 			if err != nil {
 				return err
 			}
-			if err := gs.setFramework(respStr); err != nil {
+			if err := gsClone.setFramework(respStr); err != nil {
 				zap.L().Debug("In setObjectsFromRepoOnce - failed to set framework %s\n", zap.String("path", rawDataPath))
 				return err
 			}
@@ -165,7 +156,7 @@ func (gs *GitRegoStore) setObjectsFromRepoOnce() error {
 			if err != nil {
 				return nil
 			}
-			if err := gs.setAttackTrack(respStr); err != nil {
+			if err := gsClone.setAttackTrack(respStr); err != nil {
 				zap.L().Debug("In setObjectsFromRepoOnce - failed to set attack track %s\n", zap.String("path", rawDataPath))
 				return nil
 			}
@@ -174,7 +165,7 @@ func (gs *GitRegoStore) setObjectsFromRepoOnce() error {
 			if err != nil {
 				return err
 			}
-			if err := gs.setDefaultConfigInputs(respStr); err != nil {
+			if err := gsClone.setDefaultConfigInputs(respStr); err != nil {
 				zap.L().Debug("In setObjectsFromRepoOnce - failed to set DefaultConfigInputs %s\n", zap.String("path", rawDataPath))
 				return err
 			}
@@ -183,8 +174,8 @@ func (gs *GitRegoStore) setObjectsFromRepoOnce() error {
 			if err != nil {
 				return err
 			}
-			if err := gs.setSystemPostureExceptionPolicies(respStr); err != nil {
-				zap.L().Debug("In setObjectsFromRepoOnce - failed to set SystemPostureExceptionPolicies %s\n", zap.String("path", rawDataPath))
+			if err := gsClone.setSystemPostureExceptionPolicy(respStr); err != nil {
+				zap.L().Debug("In setObjectsFromRepoOnce - failed to set setSystemPostureExceptionPolicy %s\n", zap.String("path", rawDataPath))
 				return err
 			}
 		} else if strings.HasSuffix(path.PATH, ControlRuleRelationsFileName+".csv") {
@@ -192,15 +183,17 @@ func (gs *GitRegoStore) setObjectsFromRepoOnce() error {
 			if err != nil {
 				return err
 			}
-			gs.setControlRuleRelations(respStr)
+			gsClone.setControlRuleRelations(respStr)
 		} else if strings.HasSuffix(path.PATH, frameworkControlRelationsFileName+".csv") {
 			respStr, err := HttpGetter(gs.httpClient, rawDataPath)
 			if err != nil {
 				return err
 			}
-			gs.setFrameworkControlRelations(respStr)
+			gsClone.setFrameworkControlRelations(respStr)
 		}
 	}
+
+	gs.copyData(gsClone)
 	return nil
 }
 
@@ -219,6 +212,16 @@ func (gs *GitRegoStore) setAttackTrack(respStr string) error {
 		return err
 	}
 	gs.AttackTracks = append(gs.AttackTracks, *attackTrack)
+	return nil
+}
+
+func (gs *GitRegoStore) setSystemPostureExceptionPolicy(respStr string) error {
+	exceptions := []armotypes.PostureExceptionPolicy{}
+	if err := JSONDecoder(respStr).Decode(&exceptions); err != nil {
+		return err
+	}
+
+	gs.SystemPostureExceptionPolicies = append(gs.SystemPostureExceptionPolicies, exceptions...)
 	return nil
 }
 
@@ -387,6 +390,57 @@ func (gs *GitRegoStore) setControlRuleRelations(respStr string) error {
 	df := dataframe.ReadCSV(strings.NewReader(respStr))
 	gs.ControlRuleRelations = df
 	return nil
+}
+
+func (gs *GitRegoStore) lockAll() {
+	gs.frameworksLock.Lock()
+	gs.controlsLock.Lock()
+	gs.rulesLock.Lock()
+	gs.attackTracksLock.Lock()
+	gs.systemPostureExceptionPoliciesLock.Lock()
+	gs.DefaultConfigInputsLock.Lock()
+}
+
+func (gs *GitRegoStore) rLockAll() {
+	gs.frameworksLock.RLock()
+	gs.controlsLock.RLock()
+	gs.rulesLock.RLock()
+	gs.attackTracksLock.RLock()
+	gs.systemPostureExceptionPoliciesLock.RLock()
+	gs.DefaultConfigInputsLock.RLock()
+}
+
+func (gs *GitRegoStore) unlockAll() {
+	gs.frameworksLock.Unlock()
+	gs.controlsLock.Unlock()
+	gs.rulesLock.Unlock()
+	gs.attackTracksLock.Unlock()
+	gs.systemPostureExceptionPoliciesLock.Unlock()
+	gs.DefaultConfigInputsLock.Unlock()
+}
+
+func (gs *GitRegoStore) rUnlockAll() {
+	gs.frameworksLock.RUnlock()
+	gs.controlsLock.RUnlock()
+	gs.rulesLock.RUnlock()
+	gs.attackTracksLock.RUnlock()
+	gs.systemPostureExceptionPoliciesLock.RUnlock()
+	gs.DefaultConfigInputsLock.RUnlock()
+}
+
+func (gs *GitRegoStore) copyData(other *GitRegoStore) {
+	other.rLockAll()
+	defer other.rUnlockAll()
+	gs.lockAll()
+	defer gs.unlockAll()
+	gs.Frameworks = other.Frameworks
+	gs.Controls = other.Controls
+	gs.Rules = other.Rules
+	gs.AttackTracks = other.AttackTracks
+	gs.SystemPostureExceptionPolicies = other.SystemPostureExceptionPolicies
+	gs.DefaultConfigInputs = other.DefaultConfigInputs
+	gs.ControlRuleRelations = other.ControlRuleRelations
+	gs.FrameworkControlRelations = other.FrameworkControlRelations
 }
 
 // JSONDecoder returns JSON decoder for given string
