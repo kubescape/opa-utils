@@ -130,18 +130,18 @@ func TestSummaryDetails_GetResourcesSeverityCounters(t *testing.T) {
 			name: "",
 			fields: fields{
 				SeverityCounters: SeverityCounters{
-					ResourcesWithCriticalSeverityCounter: 1,
-					ResourcesWithHighSeverityCounter:     2,
-					ResourcesWithMediumSeverityCounter:   3,
-					ResourcesWithLowSeverityCounter:      4,
+					CriticalSeverityCounter: 1,
+					HighSeverityCounter:     2,
+					MediumSeverityCounter:   3,
+					LowSeverityCounter:      4,
 				},
 			},
 			want: fields{
 				SeverityCounters: SeverityCounters{
-					ResourcesWithCriticalSeverityCounter: 1,
-					ResourcesWithHighSeverityCounter:     2,
-					ResourcesWithMediumSeverityCounter:   3,
-					ResourcesWithLowSeverityCounter:      4,
+					CriticalSeverityCounter: 1,
+					HighSeverityCounter:     2,
+					MediumSeverityCounter:   3,
+					LowSeverityCounter:      4,
 				},
 			},
 		},
@@ -149,19 +149,19 @@ func TestSummaryDetails_GetResourcesSeverityCounters(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			sc := &SummaryDetails{
-				SeverityCounters: tt.fields.SeverityCounters,
+				ResourcesSeverityCounters: tt.fields.SeverityCounters,
 			}
 
-			if got := sc.SeverityCounters.NumberOfResourcesWithCriticalSeverity(); got != tt.want.SeverityCounters.ResourcesWithCriticalSeverityCounter {
+			if got := sc.ResourcesSeverityCounters.NumberOfCriticalSeverity(); got != tt.want.SeverityCounters.CriticalSeverityCounter {
 				t.Errorf("SeverityCounters.NumberOfResourcesWithCriticalSeverity() = %v, want %v", got, tt.want)
 			}
-			if got := sc.SeverityCounters.NumberOfResourcesWithHighSeverity(); got != tt.want.SeverityCounters.ResourcesWithHighSeverityCounter {
+			if got := sc.ResourcesSeverityCounters.NumberOfHighSeverity(); got != tt.want.SeverityCounters.HighSeverityCounter {
 				t.Errorf("SeverityCounters.NumberOfResourcesWithCriticalSeverity() = %v, want %v", got, tt.want)
 			}
-			if got := sc.SeverityCounters.NumberOfResourcesWithMediumSeverity(); got != tt.want.SeverityCounters.ResourcesWithMediumSeverityCounter {
+			if got := sc.ResourcesSeverityCounters.NumberOfMediumSeverity(); got != tt.want.SeverityCounters.MediumSeverityCounter {
 				t.Errorf("SeverityCounters.NumberOfResourcesWithCriticalSeverity() = %v, want %v", got, tt.want)
 			}
-			if got := sc.SeverityCounters.NumberOfResourcesWithLowSeverity(); got != tt.want.SeverityCounters.ResourcesWithLowSeverityCounter {
+			if got := sc.ResourcesSeverityCounters.NumberOfLowSeverity(); got != tt.want.SeverityCounters.LowSeverityCounter {
 				t.Errorf("SeverityCounters.NumberOfResourcesWithCriticalSeverity() = %v, want %v", got, tt.want)
 			}
 		})

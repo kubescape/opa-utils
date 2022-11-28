@@ -151,7 +151,7 @@ func (summaryDetails *SummaryDetails) AppendResourceResult(resourceResult *resou
 				control := summaryDetails.Controls.GetControl(EControlCriteriaID, resourceControl.GetID())
 				severityScore := control.GetScoreFactor()
 				severity := apis.ControlSeverityToString(severityScore)
-				summaryDetails.SeverityCounters.Increase(severity, 1)
+				summaryDetails.ResourcesSeverityCounters.Increase(severity, 1)
 			}
 		}
 	}
@@ -163,9 +163,14 @@ func (summaryDetails *SummaryDetails) AppendResourceResult(resourceResult *resou
 	}
 }
 
-// updateSummaryWithResource get the result of a single resource. If resource not found will return nil
+// GetResourcesSeverityCounters get the resources severity counters
 func (summaryDetails *SummaryDetails) GetResourcesSeverityCounters() ISeverityCounters {
-	return &summaryDetails.SeverityCounters
+	return &summaryDetails.ResourcesSeverityCounters
+}
+
+// GetResourcesSeverityCounters get the resources severity counters
+func (summaryDetails *SummaryDetails) GetControlsSeverityCounters() ISeverityCounters {
+	return &summaryDetails.ControlsSeverityCounters
 }
 
 func updateControlsSummaryCounters(resourceResult *resourcesresults.Result, controls map[string]ControlSummary, f *helpersv1.Filters) {
