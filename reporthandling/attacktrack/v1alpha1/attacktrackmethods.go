@@ -2,6 +2,7 @@ package v1alpha1
 
 import (
 	"github.com/kubescape/k8s-interface/workloadinterface"
+	"go.uber.org/zap"
 )
 
 func (at *AttackTrack) GetApiVersion() string {
@@ -179,7 +180,11 @@ func NewAttackTrackControlsLookup(attackTracks []IAttackTrack, failedControlIds 
 
 		lookup[attackTrackName] = make(map[string][]IAttackTrackControl)
 		for _, controlId := range failedControlIds {
-			control := allControls[controlId]
+			control, ok := allControls[controlId]
+			if !ok {
+				zap.L().Error("Failed to find control in all controls map", zap.String("controlId", controlId))
+				continue
+			}
 			for _, category := range control.GetAttackTrackCategories(attackTrackName) {
 				lookup[attackTrackName][category] = append(lookup[attackTrackName][category], control)
 			}
