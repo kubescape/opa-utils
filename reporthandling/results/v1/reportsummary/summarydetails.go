@@ -54,7 +54,7 @@ func (summaryDetails *SummaryDetails) InitResourcesSummary(controlInfoMap map[st
 
 		// Summarize the failed controls severity
 		if control.GetStatus().IsFailed() {
-			summaryDetails.ControlsSeverityCounters.Increase(string(control.GetStatus().Status()), 1)
+			summaryDetails.ControlsSeverityCounters.Increase(apis.ControlSeverityToString(control.GetScoreFactor()), 1)
 		}
 	}
 

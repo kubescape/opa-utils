@@ -167,3 +167,51 @@ func TestSummaryDetails_GetResourcesSeverityCounters(t *testing.T) {
 		})
 	}
 }
+
+func TestSummaryDetails_GetControlsSeverityCounters(t *testing.T) {
+	type fields struct {
+		ControlsSeverityCounters SeverityCounters
+	}
+	tests := []struct {
+		want   ISeverityCounters
+		name   string
+		fields fields
+	}{
+		{
+			name: "Controls severities",
+			want: &SeverityCounters{
+				CriticalSeverityCounter: 1,
+				HighSeverityCounter:     2,
+				MediumSeverityCounter:   3,
+				LowSeverityCounter:      4,
+			},
+			fields: fields{
+				ControlsSeverityCounters: SeverityCounters{
+					CriticalSeverityCounter: 1,
+					HighSeverityCounter:     2,
+					MediumSeverityCounter:   3,
+					LowSeverityCounter:      4,
+				},
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			summaryDetails := &SummaryDetails{
+				ControlsSeverityCounters: tt.fields.ControlsSeverityCounters,
+			}
+			if got := summaryDetails.GetControlsSeverityCounters().NumberOfCriticalSeverity(); got != tt.want.NumberOfCriticalSeverity() {
+				t.Errorf("NumberOfCriticalSeverity() = %v, want %v", got, tt.want.NumberOfCriticalSeverity())
+			}
+			if got := summaryDetails.GetControlsSeverityCounters().NumberOfHighSeverity(); got != tt.want.NumberOfHighSeverity() {
+				t.Errorf("NumberOfHighSeverity() = %v, want %v", got, tt.want)
+			}
+			if got := summaryDetails.GetControlsSeverityCounters().NumberOfMediumSeverity(); got != tt.want.NumberOfMediumSeverity() {
+				t.Errorf("NumberOfMediumSeverity() = %v, want %v", got, tt.want)
+			}
+			if got := summaryDetails.GetControlsSeverityCounters().NumberOfLowSeverity(); got != tt.want.NumberOfLowSeverity() {
+				t.Errorf("NumberOfLowSeverity() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
