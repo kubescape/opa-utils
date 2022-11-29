@@ -14,9 +14,15 @@ import (
 )
 
 type RegoDependenciesData struct {
-	ClusterName          string              `json:"clusterName"`
+	ClusterName string `json:"clusterName"`
+
+	// Configurable control data inputs
 	PostureControlInputs map[string][]string `json:"postureControlInputs"`
-	K8sConfig            RegoK8sConfig       `json:"k8sconfig"`
+
+	// Not Configurable control data inputs (such as cloud provider)
+	DataControlInputs map[string]string `json:"dataControlInputs"`
+
+	K8sConfig RegoK8sConfig `json:"k8sconfig"`
 }
 
 type RegoK8sConfig struct {
@@ -81,6 +87,13 @@ func (data *RegoDependenciesData) GetFilteredPostureControlInputs(settings []str
 	}
 	return jsonObj
 }
+
+// TOStorage - converts rego data inputs to a storage.Store object.
+func (data *RegoDependenciesData) TOStorage() (storage.Store, error) {
+	return inmem.NewFromObject(map[string]interface{}{"postureControlInputs": data.PostureControlInputs,
+		"dataControlInputs": data.DataControlInputs}), nil
+}
+
 func TOStorage(postureControlInputs map[string][]string) (storage.Store, error) {
 	return inmem.NewFromObject(map[string]interface{}{"postureControlInputs": postureControlInputs}), nil
 }
