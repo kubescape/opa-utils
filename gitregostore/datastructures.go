@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 	"runtime/debug"
+	"strings"
 	"sync"
 
 	// "github.com/armosec/capacketsgo/opapolicy"
@@ -64,7 +65,12 @@ func newGitRegoStore(baseUrl string, owner string, repository string, path strin
 func NewGitRegoStore(baseUrl string, owner string, repository string, path string, tag string, branch string, frequency int) *GitRegoStore {
 	gs := newGitRegoStore(baseUrl, owner, repository, path, tag, branch, frequency)
 	gs.setURL()
-	gs.StripFilesExtention = false
+	if strings.Contains(tag, "latest") {
+		gs.StripFilesExtention = true
+	} else {
+		gs.StripFilesExtention = false
+	}
+
 	return gs
 }
 
@@ -78,7 +84,6 @@ func (gs *GitRegoStore) SetRegoObjects() error {
 // Release files source: "https://github.com/kubescape/regolibrary/releases/latest/download"
 func NewDefaultGitRegoStore(frequency int) *GitRegoStore {
 	gs := NewGitRegoStore("https://github.com", "kubescape", "regolibrary", "releases", "latest/download", "", frequency)
-	gs.StripFilesExtention = true
 	return gs
 }
 
