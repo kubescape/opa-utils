@@ -34,7 +34,7 @@ const (
 	controlIDRegex = `^(?:[a-z]+|[A-Z]+)(?:[\-][v]?(?:[0-9][\.]?)+)(?:[\-]?[0-9][\.]?)+$`
 
 	productionReleaseURL = "https://github.com/kubescape/regolibrary/releases/latest/download"
-	devReleaseURL        = "https://raw.githubusercontent.com/kubescape/regolibrary/dev/releasesDev"
+	devReleaseURL        = "https://raw.githubusercontent.com/kubescape/regolibrary/dev/releaseDev"
 )
 
 var controlIDRegexCompiled *regexp.Regexp = nil
