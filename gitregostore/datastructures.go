@@ -40,6 +40,7 @@ type GitRegoStore struct {
 	SystemPostureExceptionPolicies     []armotypes.PostureExceptionPolicy
 	FrequencyPullFromGitMinutes        int
 	Watch                              bool
+	StripFilesExtention                bool
 }
 
 func newGitRegoStore(baseUrl string, owner string, repository string, path string, tag string, branch string, frequency int) *GitRegoStore {
@@ -63,6 +64,7 @@ func newGitRegoStore(baseUrl string, owner string, repository string, path strin
 func NewGitRegoStore(baseUrl string, owner string, repository string, path string, tag string, branch string, frequency int) *GitRegoStore {
 	gs := newGitRegoStore(baseUrl, owner, repository, path, tag, branch, frequency)
 	gs.setURL()
+	gs.StripFilesExtention = false
 	return gs
 }
 
@@ -72,8 +74,19 @@ func (gs *GitRegoStore) SetRegoObjects() error {
 	return err
 }
 
+// NewDefaultGitRegoStore - generates git store object for production regolibrary release files.
+// Release files source: "https://github.com/kubescape/regolibrary/releases/latest/download"
 func NewDefaultGitRegoStore(frequency int) *GitRegoStore {
-	return NewGitRegoStore("https://github.com", "kubescape", "regolibrary", "releases", "latest/download", "", frequency)
+	gs := NewGitRegoStore("https://github.com", "kubescape", "regolibrary", "releases", "latest/download", "", frequency)
+	gs.StripFilesExtention = true
+	return gs
+}
+
+// NewDevGitRegoStore - generates git store object for dev regolibrary release files
+// Release files source: "https://raw.githubusercontent.com/kubescape/regolibrary/dev/releasesDev"
+func NewDevGitRegoStore(frequency int) *GitRegoStore {
+	gs := NewGitRegoStore("https://raw.githubusercontent.com", "kubescape", "regolibrary", "releasesDev", "", "dev", frequency)
+	return gs
 }
 
 // Deprecated

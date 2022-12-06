@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"path/filepath"
 	"regexp"
 	"strings"
 	"sync"
@@ -20,17 +21,20 @@ import (
 type storeSetter func(*GitRegoStore, string) error
 
 const (
-	attackTracksJsonFileName          = "attack_tracks"
+	attackTracksJsonFileName          = "attack_tracks.json"
 	attackTracksPathPrefix            = "attack-tracks"
-	frameworksJsonFileName            = "frameworks"
-	controlsJsonFileName              = "controls"
-	rulesJsonFileName                 = "rules"
-	frameworkControlRelationsFileName = "FWName_CID_CName"
-	ControlRuleRelationsFileName      = "ControlID_RuleName"
-	defaultConfigInputsFileName       = "default_config_inputs"
-	systemPostureExceptionFileName    = "exceptions"
+	frameworksJsonFileName            = "frameworks.json"
+	controlsJsonFileName              = "controls.json"
+	rulesJsonFileName                 = "rules.json"
+	frameworkControlRelationsFileName = "FWName_CID_CName.csv"
+	ControlRuleRelationsFileName      = "ControlID_RuleName.csv"
+	defaultConfigInputsFileName       = "default_config_inputs.json"
+	systemPostureExceptionFileName    = "exceptions.json"
 
 	controlIDRegex = `^(?:[a-z]+|[A-Z]+)(?:[\-][v]?(?:[0-9][\.]?)+)(?:[\-]?[0-9][\.]?)+$`
+
+	productionReleaseURL = "https://github.com/kubescape/regolibrary/releases/latest/download"
+	devReleaseURL        = "https://raw.githubusercontent.com/kubescape/regolibrary/dev/releasesDev"
 )
 
 var controlIDRegexCompiled *regexp.Regexp = nil
@@ -53,34 +57,29 @@ type Tree struct {
 	TREE InnerTree `json:"tree"`
 }
 
+func (gs *GitRegoStore) stripExtention(filename string) string {
+	if gs.StripFilesExtention {
+		return strings.Split(filename, ".")[0]
+	}
+	return filename
+}
+
 // func setURL()
 func (gs *GitRegoStore) setURL() {
-	var url string
-
-	if isUrlRelease(gs.Path) {
-		url = gs.BaseUrl + "/" + gs.Owner + "/" + gs.Repository + "/" + gs.Path + "/" + gs.Tag
-	} else {
-		url = gs.BaseUrl + "/" + gs.Owner + "/" + gs.Repository + "/" + gs.Path + "/" + gs.Branch + "?recursive=1"
-	}
-	gs.URL = url
+	gs.URL = gs.BaseUrl + "/" + filepath.Join(gs.Owner, gs.Repository, gs.Branch, gs.Path, gs.Tag)
 }
 
 func (gs *GitRegoStore) setObjects() error {
-	var err error
-	if isUrlRelease(gs.URL) {
-		err = gs.setObjectsFromReleaseLoop()
-	} else {
-		err = gs.setObjectsFromRepoLoop()
-	}
-	return err
+	return gs.setObjectsFromReleaseLoop()
 }
 
+// DEPRECATED
 func isUrlRelease(u string) bool {
 	return strings.Contains(u, "releases")
 }
 
 // ========================== set Objects From Repo =====================================
-
+// DEPRECATED
 func (gs *GitRegoStore) setObjectsFromRepoLoop() error {
 	var wg sync.WaitGroup
 	wg.Add(1)
@@ -106,6 +105,7 @@ func (gs *GitRegoStore) setObjectsFromRepoLoop() error {
 	return e
 }
 
+// DEPRECATED
 func (gs *GitRegoStore) setObjectsFromRepoOnce() error {
 	body, err := HttpGetter(gs.httpClient, gs.URL)
 	if err != nil {
@@ -303,7 +303,7 @@ func (gs *GitRegoStore) setObjectsFromReleaseLoop() error {
 func (gs *GitRegoStore) setObjectsFromReleaseOnce() error {
 
 	for kind, storeSetterMappingFunc := range storeSetterMapping {
-		respStr, err := HttpGetter(gs.httpClient, fmt.Sprintf("%s/%s", gs.URL, kind))
+		respStr, err := HttpGetter(gs.httpClient, fmt.Sprintf("%s/%s", gs.URL, gs.stripExtention(kind)))
 		if err != nil {
 			return fmt.Errorf("error getting: %s from: '%s' ,error: %s", kind, gs.URL, err)
 		}
