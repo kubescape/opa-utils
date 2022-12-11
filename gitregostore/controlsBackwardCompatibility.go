@@ -135,3 +135,12 @@ func getNewControlID(controlID string) string {
 		return controlID
 	}
 }
+
+// getNewControlNamw - build new control name "[cis_id] [controlName]" if it is a cis id, otherwise return control name
+func getNewControlName(controlID string, controlName string) string {
+	if strings.Contains(strings.ToLower(controlID), "cis-") {
+		return strings.ToUpper(controlID) + " " + controlName
+	} else {
+		return controlName
+	}
+}
