@@ -3,6 +3,7 @@ module github.com/kubescape/opa-utils
 go 1.18
 
 require (
+	github.com/alecthomas/assert/v2 v2.2.0
 	github.com/armosec/armoapi-go v0.0.119
 	github.com/armosec/utils-go v0.0.12
 	github.com/francoispqt/gojay v1.2.13
@@ -36,6 +37,7 @@ require (
 	github.com/PuerkitoBio/purell v1.1.1 // indirect
 	github.com/PuerkitoBio/urlesc v0.0.0-20170810143723-de5bf2ad4578 // indirect
 	github.com/agnivade/levenshtein v1.0.1 // indirect
+	github.com/alecthomas/repr v0.1.0 // indirect
 	github.com/armosec/utils-k8s-go v0.0.12 // indirect
 	github.com/aws/aws-sdk-go-v2 v1.16.7 // indirect
 	github.com/aws/aws-sdk-go-v2/config v1.15.13 // indirect
@@ -72,6 +74,7 @@ require (
 	github.com/google/uuid v1.3.0 // indirect
 	github.com/googleapis/enterprise-certificate-proxy v0.0.0-20220520183353-fd19c99a87aa // indirect
 	github.com/googleapis/gax-go/v2 v2.4.0 // indirect
+	github.com/hexops/gotextdiff v1.0.3 // indirect
 	github.com/imdario/mergo v0.3.12 // indirect
 	github.com/jmespath/go-jmespath v0.4.0 // indirect
 	github.com/josharian/intern v1.0.0 // indirect

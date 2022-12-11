@@ -96,7 +96,7 @@ func (gs *GitRegoStore) GetOPAControlByID(controlID string) (*opapolicy.Control,
 	gs.controlsLock.RLock()
 	defer gs.controlsLock.RUnlock()
 	for _, control := range gs.Controls {
-		if strings.EqualFold(control.ControlID, controlID) {
+		if strings.EqualFold(control.ControlID, getNewControlID(controlID)) {
 			err := gs.fillRulesAndRulesIDsInControl(&control)
 			if err != nil {
 				return nil, err
