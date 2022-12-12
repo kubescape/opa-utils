@@ -37,6 +37,41 @@ func TestGetNewControlID(t *testing.T) {
 	}
 }
 
+func TestRealControlName(t *testing.T) {
+	controlIDS_tests := []struct {
+		name        string
+		controlID   string
+		controlName string
+		expectedRes string
+	}{
+		{
+			name:        "ControlID_cis_uppercase",
+			controlID:   "C-0091",
+			controlName: "CIS-1.1.1 Control Name A",
+			expectedRes: "Control Name A",
+		},
+		{
+			name:        "ControlID_cis_lowercase",
+			controlID:   "c-0091",
+			controlName: "CIS-1.1.1 Control Name B",
+			expectedRes: "Control Name B",
+		},
+		{
+			name:        "ControlID_not_cis",
+			controlID:   "NotRelevant",
+			controlName: "NotCIS name",
+			expectedRes: "NotCIS name",
+		},
+	}
+
+	for _, tt := range controlIDS_tests {
+		t.Run(tt.name, func(t *testing.T) {
+			res := realControlName(tt.controlID, tt.controlName)
+			assert.Equal(t, tt.expectedRes, res)
+		})
+	}
+}
+
 // func TestGetNewControlName(t *testing.T) {
 // 	controlIDS_tests := []struct {
 // 		name        string

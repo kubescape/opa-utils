@@ -135,20 +135,20 @@ const (
 	cisFrameworkNewName = "cis-v1.23-t1.0.1"
 )
 
-// // reverseMap - get a map[string]string typed struct and invert key and values.
-// func reverseMap(in map[string]string) map[string]string {
+// reverseMap - get a map[string]string typed struct and invert key and values.
+func reverseMap(in map[string]string) map[string]string {
 
-// 	n := make(map[string]string, len(oldControlIdsMapping))
-// 	for k, v := range oldControlIdsMapping {
-// 		n[v] = k
-// 	}
+	n := make(map[string]string, len(oldControlIdsMapping))
+	for k, v := range oldControlIdsMapping {
+		n[v] = k
+	}
 
-// 	return n
-// }
+	return n
+}
 
-// // Hold inverted control ids.
-// // key = new id. value = old id.
-// var invertedOldControlIdsMapping = reverseMap(oldControlIdsMapping)
+// Hold inverted control ids.
+// key = new id. value = old id.
+var invertedOldControlIdsMapping = reverseMap(oldControlIdsMapping)
 
 // newControlID - look for new controlID in oldControlIdsMapping. If doesn't exist, return the sent controlID.
 func newControlID(controlID string) string {
@@ -167,6 +167,17 @@ func newFrameworkName(frameworkName string) string {
 	}
 
 	return frameworkName
+}
+
+// realControlName - get control name from cis control name structure "[old_cis_id] [controlName]".
+func realControlName(controlID string, controlName string) string {
+
+	if oldControlID, exist := invertedOldControlIdsMapping[strings.ToUpper(controlID)]; exist {
+		return strings.Replace(controlName, strings.ToUpper(oldControlID)+" ", "", -1)
+	}
+
+	return controlName
+
 }
 
 // // getNewControlName - build new control name "[old_cis_id] [controlName]" if the controlID is new and was originally a cis id, otherwise return controlName

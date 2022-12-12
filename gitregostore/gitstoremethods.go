@@ -84,7 +84,9 @@ func (gs *GitRegoStore) GetOPAControlByName(controlName string) (*opapolicy.Cont
 	gs.controlsLock.RLock()
 	defer gs.controlsLock.RUnlock()
 	for _, control := range gs.Controls {
-		if strings.EqualFold(control.Name, controlName) {
+		if strings.EqualFold(control.Name, controlName) ||
+			// If backward compatibility is supported, extract from patched control name the new name.
+			(supportBackwardCompatibility && strings.EqualFold(control.Name, realControlName(control.ControlID, controlName))) {
 			err := gs.fillRulesAndRulesIDsInControl(&control)
 			if err != nil {
 				return nil, err
