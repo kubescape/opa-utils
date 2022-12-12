@@ -170,8 +170,10 @@ func (gs *GitRegoStore) fillControlsAndControlIDsInFramework(fw *opapolicy.Frame
 	var controlsIDList []string
 
 	for row := 0; row < fil.Nrow(); row++ {
-		controlName := fil.Elem(row, 2)
-		control, err := gs.GetOPAControlByName(controlName.String())
+		// controlName := fil.Elem(row, 2)
+		// control, err := gs.GetOPAControlByName(controlName.String())
+		controlID := fil.Elem(row, 1)
+		control, err := gs.GetOPAControlByID(controlID.String())
 		if err != nil {
 			return err
 		}
