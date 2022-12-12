@@ -1,8 +1,11 @@
 package gitregostore
 
-import "strings"
+import (
+	"strings"
+)
 
-// oldControlIdsMapping - maps old cis ids to new generated ids for backward compatibility
+// oldControlIdsMapping - maps old cis ids to new generated ids for backward compatibility.
+// key = old id. value = new id.
 var oldControlIdsMapping = map[string]string{
 	"CIS-1.1.1":  "C-0091",
 	"CIS-1.1.2":  "C-0092",
@@ -127,20 +130,53 @@ var oldControlIdsMapping = map[string]string{
 	"CIS-5.7.4":  "C-0211",
 }
 
-// getNewControlID - look for new controlID in oldControlIdsMapping. If doesn't exist, return the sent controlID.
-func getNewControlID(controlID string) string {
-	if value, exist := oldControlIdsMapping[strings.ToUpper(controlID)]; exist {
-		return value
-	} else {
-		return controlID
+const (
+	cisFrameworkOldName = "CIS"
+	cisFrameworkNewName = "cis-v1.23-t1.0.1"
+)
+
+// // reverseMap - get a map[string]string typed struct and invert key and values.
+// func reverseMap(in map[string]string) map[string]string {
+
+// 	n := make(map[string]string, len(oldControlIdsMapping))
+// 	for k, v := range oldControlIdsMapping {
+// 		n[v] = k
+// 	}
+
+// 	return n
+// }
+
+// // Hold inverted control ids.
+// // key = new id. value = old id.
+// var invertedOldControlIdsMapping = reverseMap(oldControlIdsMapping)
+
+// newControlID - look for new controlID in oldControlIdsMapping. If doesn't exist, return the sent controlID.
+func newControlID(controlID string) string {
+	if newControlID, exist := oldControlIdsMapping[strings.ToUpper(controlID)]; exist {
+		return newControlID
 	}
+
+	return controlID
+
 }
 
-// getNewControlNamw - build new control name "[cis_id] [controlName]" if it is a cis id, otherwise return control name
-func getNewControlName(controlID string, controlName string) string {
-	if strings.Contains(strings.ToLower(controlID), "cis-") {
-		return strings.ToUpper(controlID) + " " + controlName
-	} else {
-		return controlName
+// newFrameworkName - convert old cis name to new one, if exist, otherwise return frameworkName
+func newFrameworkName(frameworkName string) string {
+	if strings.ToLower(frameworkName) == cisFrameworkOldName {
+		return cisFrameworkNewName
 	}
+
+	return frameworkName
 }
+
+// // getNewControlName - build new control name "[old_cis_id] [controlName]" if the controlID is new and was originally a cis id, otherwise return controlName
+// func newControlName(controlID string, controlName string) string {
+
+// 	if value, exist := invertedOldControlIdsMapping[strings.ToUpper(controlID)]; exist {
+
+// 		// if new control id was found, construct new name.
+// 		return strings.ToUpper(value) + " " + controlName
+//
+// 	return controlName
+//
+// }
