@@ -65,7 +65,7 @@ func newGitRegoStore(baseUrl string, owner string, repository string, path strin
 // NewGitRegoStore return gitregostore obj with basic fields, before pulling from git
 func NewGitRegoStore(baseUrl string, owner string, repository string, path string, tag string, branch string, frequency int) *GitRegoStore {
 	var stripFilesExtention bool
-	if strings.Contains(tag, "latest") {
+	if strings.Contains(tag, "latest") || strings.Contains(tag, "download") {
 		// TODO - This condition was added to avoid dependency on updating productions configs on deployment.
 		// Once production configs are updated (branch set to ""), this condition can be removed.
 		if strings.ToLower(branch) == "master" {
