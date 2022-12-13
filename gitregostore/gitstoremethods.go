@@ -79,6 +79,7 @@ func (gs *GitRegoStore) GetAttackTracks() ([]v1alpha1.AttackTrack, error) {
 	return gs.AttackTracks, nil
 }
 
+// DEPECATED
 // GetOPAControlByName returns specific BaseControl by the name
 func (gs *GitRegoStore) GetOPAControlByName(controlName string) (*opapolicy.Control, error) {
 	gs.controlsLock.RLock()
