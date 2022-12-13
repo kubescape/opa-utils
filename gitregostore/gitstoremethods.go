@@ -12,6 +12,10 @@ import (
 	"github.com/kubescape/opa-utils/reporthandling/attacktrack/v1alpha1"
 )
 
+const (
+	supportBackwardCompatibility = true
+)
+
 // GetOPAPolicies returns all the policies of given customer
 func (gs *GitRegoStore) GetOPAPolicies() ([]opapolicy.PolicyRule, error) {
 	if gs.Rules == nil {
@@ -75,12 +79,15 @@ func (gs *GitRegoStore) GetAttackTracks() ([]v1alpha1.AttackTrack, error) {
 	return gs.AttackTracks, nil
 }
 
-// GetOPAControlByName returns specific control by the name
+// DEPECATED
+// GetOPAControlByName returns specific BaseControl by the name
 func (gs *GitRegoStore) GetOPAControlByName(controlName string) (*opapolicy.Control, error) {
 	gs.controlsLock.RLock()
 	defer gs.controlsLock.RUnlock()
 	for _, control := range gs.Controls {
-		if strings.EqualFold(control.Name, controlName) {
+		if strings.EqualFold(control.Name, controlName) ||
+			// If backward compatibility is supported, extract from patched control name the new name.
+			(supportBackwardCompatibility && strings.EqualFold(control.Name, realControlName(control.ControlID, controlName))) {
 			err := gs.fillRulesAndRulesIDsInControl(&control)
 			if err != nil {
 				return nil, err
@@ -91,12 +98,14 @@ func (gs *GitRegoStore) GetOPAControlByName(controlName string) (*opapolicy.Cont
 	return nil, fmt.Errorf("control '%s' not found", controlName)
 }
 
-// GetOPAControlByID returns specific control by the ID
+// GetOPAControlByID returns specific BaseControl by the ID
 func (gs *GitRegoStore) GetOPAControlByID(controlID string) (*opapolicy.Control, error) {
 	gs.controlsLock.RLock()
 	defer gs.controlsLock.RUnlock()
 	for _, control := range gs.Controls {
-		if strings.EqualFold(control.ControlID, controlID) {
+		if strings.EqualFold(control.ControlID, controlID) ||
+			// If backward compatibility is supported,try to find if the controlID sent has a new controlID
+			(supportBackwardCompatibility && strings.EqualFold(control.ControlID, newControlID(controlID))) {
 			err := gs.fillRulesAndRulesIDsInControl(&control)
 			if err != nil {
 				return nil, err
@@ -162,8 +171,10 @@ func (gs *GitRegoStore) fillControlsAndControlIDsInFramework(fw *opapolicy.Frame
 	var controlsIDList []string
 
 	for row := 0; row < fil.Nrow(); row++ {
-		controlName := fil.Elem(row, 2)
-		control, err := gs.GetOPAControlByName(controlName.String())
+		// controlName := fil.Elem(row, 2)
+		// control, err := gs.GetOPAControlByName(controlName.String())
+		controlID := fil.Elem(row, 1)
+		control, err := gs.GetOPAControlByID(controlID.String())
 		if err != nil {
 			return err
 		}
@@ -236,7 +247,9 @@ func (gs *GitRegoStore) GetOPAFrameworkByName(frameworkName string) (*opapolicy.
 	gs.frameworksLock.RLock()
 	defer gs.frameworksLock.RUnlock()
 	for _, fw := range gs.Frameworks {
-		if strings.EqualFold(fw.Name, frameworkName) {
+		if strings.EqualFold(fw.Name, frameworkName) ||
+			// If backward compatibility is supported,try to compare the new CIS name.
+			(supportBackwardCompatibility && strings.EqualFold(fw.Name, newFrameworkName(frameworkName))) {
 			err := gs.fillControlsAndControlIDsInFramework(&fw)
 			if err != nil {
 				return nil, err
