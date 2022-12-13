@@ -112,6 +112,8 @@ func (controlSummaries *ControlSummaries) GetControl(criteria ControlCriteria, v
 			return nil
 		}
 		return &tmp
+
+	// TODO: remove the section once confirmed all system are not using EControlCriteriaName
 	case EControlCriteriaName:
 		for ctrlID := range *controlSummaries {
 			if strings.Contains((*controlSummaries)[ctrlID].Name, value) {
