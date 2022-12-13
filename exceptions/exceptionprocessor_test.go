@@ -3,7 +3,9 @@ package exceptions
 import (
 	"testing"
 
+	"github.com/kubescape/k8s-interface/workloadinterface"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 
 	"github.com/armosec/armoapi-go/armotypes"
 )
@@ -25,6 +27,29 @@ func postureExceptionPolicyAlertOnlyMock() *armotypes.PostureExceptionPolicy {
 				Attributes: map[string]string{
 					armotypes.AttributeNamespace: "default",
 					armotypes.AttributeCluster:   "unittest",
+				},
+			},
+		},
+		PosturePolicies: []armotypes.PosturePolicy{
+			{
+				FrameworkName: "MIT.*",
+			},
+		},
+	}
+}
+
+func postureLabelsRegexExceptionPolicyAlertOnlyMock() *armotypes.PostureExceptionPolicy {
+	return &armotypes.PostureExceptionPolicy{
+		PortalBase: armotypes.PortalBase{
+			Name: "postureLabelsRegexExceptionPolicyAlertOnlyMock",
+		},
+		PolicyType: "postureExceptionPolicy",
+		Actions:    []armotypes.PostureExceptionPolicyActions{armotypes.AlertOnly},
+		Resources: []armotypes.PortalDesignator{
+			{
+				DesignatorType: armotypes.DesignatorAttributes,
+				Attributes: map[string]string{
+					"myLabelOrAnnotation": "static_test",
 				},
 			},
 		},
@@ -113,6 +138,76 @@ func TestListRuleExceptionsRegex(t *testing.T) {
 	res3 = ListRuleExceptions([]armotypes.PostureExceptionPolicy{*exceptionPolicy}, "MITRE", "control-my", "", "rulebla -bla")
 	assert.Equal(t, 0, len(res3))
 }
+
+func TestGetResourceExceptions(t *testing.T) {
+	emptyObj, err := workloadinterface.NewBaseObjBytes([]byte(`{"apiVersion": "v1", "kind":"Deployment", "metadata": {"name": "test"}}`))
+	require.NoError(t, err)
+
+	withLabelObj, err := workloadinterface.NewBaseObjBytes([]byte(`{"apiVersion": "v1", "kind":"Deployment", "metadata": {"name": "test", "labels": {"myLabelOrAnnotation" : "static_test"}}}`))
+	require.NoError(t, err)
+
+	withAnnotationObj, err := workloadinterface.NewBaseObjBytes([]byte(`{"apiVersion": "v1", "kind":"Deployment", "metadata": {"name": "test", "annotations": {"myLabelOrAnnotation" : "static_test"}}}`))
+	require.NoError(t, err)
+
+	exceptionPolicy := postureLabelsRegexExceptionPolicyAlertOnlyMock()
+	exceptionPolicyRegex := postureLabelsRegexExceptionPolicyAlertOnlyMock()
+	exceptionPolicyRegex.Resources[0].Attributes["myLabelOrAnnotation"] = "static_.*"
+
+	testCases := []struct {
+		desc                    string
+		exceptionPolicy         *armotypes.PostureExceptionPolicy
+		workloadObj             workloadinterface.IMetadata
+		expectedExceptionsCount int
+	}{
+		{
+			desc:                    "no label nor annotation",
+			exceptionPolicy:         exceptionPolicy,
+			workloadObj:             emptyObj,
+			expectedExceptionsCount: 0,
+		},
+		{
+			desc:                    "no label nor annotation (regexp)",
+			exceptionPolicy:         exceptionPolicyRegex,
+			workloadObj:             emptyObj,
+			expectedExceptionsCount: 0,
+		},
+		{
+			desc:                    "static label",
+			exceptionPolicy:         exceptionPolicy,
+			workloadObj:             withLabelObj,
+			expectedExceptionsCount: 1,
+		},
+		{
+			desc:                    "static annotation",
+			exceptionPolicy:         exceptionPolicy,
+			workloadObj:             withAnnotationObj,
+			expectedExceptionsCount: 1,
+		},
+		{
+			desc:                    "regex label",
+			exceptionPolicy:         exceptionPolicyRegex,
+			workloadObj:             withLabelObj,
+			expectedExceptionsCount: 1,
+		},
+		{
+			desc:                    "regex annotation",
+			exceptionPolicy:         exceptionPolicyRegex,
+			workloadObj:             withAnnotationObj,
+			expectedExceptionsCount: 1,
+		},
+	}
+
+	for _, test := range testCases {
+		test := test
+		t.Run(test.desc, func(t *testing.T) {
+			t.Parallel()
+
+			res := GetResourceExceptions([]armotypes.PostureExceptionPolicy{*exceptionPolicy}, test.workloadObj, "")
+			assert.Equal(t, test.expectedExceptionsCount, len(res))
+		})
+	}
+}
+
 func TestRegexCompare(t *testing.T) {
 	assert.True(t, compareCluster(".*minikube.*", "bez-minikube-25-10"))
 	assert.True(t, compareCluster("bez-minikube-25-10", "bez-minikube-25-10"))
