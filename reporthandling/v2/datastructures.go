@@ -97,7 +97,7 @@ type ScanMetadata struct {
 	KubescapeVersion   string         `json:"kubescapeVersion,omitempty"`
 	FormatVersion      string         `json:"formatVersion,omitempty"`
 	ControlsInputs     string         `json:"controlsInputs,omitempty"`
-	Format             string         `json:"format,omitempty"`
+	Format             []string       `json:"format,omitempty"`
 	UseExceptions      string         `json:"useExceptions,omitempty"`
 	Logger             string         `json:"logger,omitempty"`
 	ExcludedNamespaces []string       `json:"excludedNamespaces,omitempty"`

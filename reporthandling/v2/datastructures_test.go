@@ -94,7 +94,7 @@ func GetPostureReportMock() *PostureReport {
 				ContextName:         "minikube",
 			},
 			ScanMetadata: ScanMetadata{
-				Format:             "json",
+				Format:             []string{"json"},
 				ExcludedNamespaces: []string{"exclude-namespace"},
 				IncludeNamespaces:  []string{"include-namespace"},
 				FailThreshold:      23.54,
@@ -117,7 +117,7 @@ func TestPostureReportMock(t *testing.T) {
 	// t.Error(p.ToString())
 }
 
-//this test validates the unmarshaller that used to validate the posture object in e.r and other places
+// this test validates the unmarshaller that used to validate the posture object in e.r and other places
 func TestPostureReportGojayUnmarshal(t *testing.T) {
 	postureReport := &PostureReport{}
 	original := GetPostureReportMock()
