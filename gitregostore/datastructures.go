@@ -45,26 +45,13 @@ type GitRegoStore struct {
 }
 
 func newGitRegoStore(baseUrl string, owner string, repository string, path string, tag string, branch string, frequency int) *GitRegoStore {
+	var stripFilesExtention bool
+
 	watch := false
 	if frequency > 0 {
 		watch = true
 	}
 
-	return &GitRegoStore{httpClient: &http.Client{},
-		BaseUrl:                     baseUrl,
-		Owner:                       owner,
-		Repository:                  repository,
-		Path:                        path,
-		Tag:                         tag,
-		Branch:                      branch,
-		FrequencyPullFromGitMinutes: frequency,
-		Watch:                       watch,
-	}
-}
-
-// NewGitRegoStore return gitregostore obj with basic fields, before pulling from git
-func NewGitRegoStore(baseUrl string, owner string, repository string, path string, tag string, branch string, frequency int) *GitRegoStore {
-	var stripFilesExtention bool
 	if strings.Contains(tag, "latest") || strings.Contains(tag, "download") {
 		// TODO - This condition was added to avoid dependency on updating productions configs on deployment.
 		// Once production configs are updated (branch set to ""), this condition can be removed.
@@ -76,9 +63,27 @@ func NewGitRegoStore(baseUrl string, owner string, repository string, path strin
 		stripFilesExtention = false
 	}
 
+	gs := &GitRegoStore{httpClient: &http.Client{},
+		BaseUrl:                     baseUrl,
+		Owner:                       owner,
+		Repository:                  repository,
+		Path:                        path,
+		Tag:                         tag,
+		Branch:                      branch,
+		FrequencyPullFromGitMinutes: frequency,
+		Watch:                       watch,
+	}
+
+	gs.StripFilesExtention = stripFilesExtention
+
+	return gs
+}
+
+// NewGitRegoStore return gitregostore obj with basic fields, before pulling from git
+func NewGitRegoStore(baseUrl string, owner string, repository string, path string, tag string, branch string, frequency int) *GitRegoStore {
+
 	gs := newGitRegoStore(baseUrl, owner, repository, path, tag, branch, frequency)
 	gs.setURL()
-	gs.StripFilesExtention = stripFilesExtention
 
 	return gs
 }
