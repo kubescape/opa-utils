@@ -345,8 +345,9 @@ func TestGetPoliciesMethodsDevNew(t *testing.T) {
 	}
 }
 
+// DEPRECATED - Test old release files from regolibrary repo.
 func TestGetPoliciesMethodsDevOld(t *testing.T) {
-	gs := NewGitRegoStore("https://github.com", "kubescape", "regolibrary", "releases", "download/v1.0.202", "", -1)
+	gs := NewGitRegoStore("https://api.github.com/repos", "kubescape", "regolibrary", "git/trees", "", "dev", 2880)
 	err := gs.SetRegoObjects()
 	if err != nil {
 		t.Errorf("error in SetRegoObjects: %v", err)
