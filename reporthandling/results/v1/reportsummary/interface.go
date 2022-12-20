@@ -11,7 +11,7 @@ type ControlCriteria string
 
 const (
 	EControlCriteriaID   ControlCriteria = "ID"
-	EControlCriteriaName ControlCriteria = "name"
+	EControlCriteriaName ControlCriteria = "name" // DEPRECATED
 )
 
 type IBasicPostureReport interface {

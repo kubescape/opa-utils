@@ -21,10 +21,10 @@ const (
 
 // RegoResponse the expected response of single run of rego policy
 type RuleResponse struct {
-	FixCommand   string                            `json:"fixCommand,omitempty"`
 	AlertMessage string                            `json:"alertMessage"`
-	FailedPaths  []string                          `json:"failedPaths"`
-	FixPaths     []armotypes.FixPath               `json:"fixPaths"`
+	FailedPaths  []string                          `json:"failedPaths"`          // path in yaml that led to failure of this resource
+	FixPaths     []armotypes.FixPath               `json:"fixPaths"`             // path in yaml to be added to fix this resource
+	FixCommand   string                            `json:"fixCommand,omitempty"` // command to fix this resource
 	RuleStatus   string                            `json:"ruleStatus"`
 	PackageName  string                            `json:"packagename"`
 	AlertScore   AlertScore                        `json:"alertScore"`

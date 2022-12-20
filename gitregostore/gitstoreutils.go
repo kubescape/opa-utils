@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"path/filepath"
 	"regexp"
 	"strings"
 	"sync"
@@ -20,15 +21,15 @@ import (
 type storeSetter func(*GitRegoStore, string) error
 
 const (
-	attackTracksJsonFileName          = "attack_tracks"
+	attackTracksJsonFileName          = "attack_tracks.json"
 	attackTracksPathPrefix            = "attack-tracks"
-	frameworksJsonFileName            = "frameworks"
-	controlsJsonFileName              = "controls"
-	rulesJsonFileName                 = "rules"
-	frameworkControlRelationsFileName = "FWName_CID_CName"
-	ControlRuleRelationsFileName      = "ControlID_RuleName"
-	defaultConfigInputsFileName       = "default_config_inputs"
-	systemPostureExceptionFileName    = "exceptions"
+	frameworksJsonFileName            = "frameworks.json"
+	controlsJsonFileName              = "controls.json"
+	rulesJsonFileName                 = "rules.json"
+	frameworkControlRelationsFileName = "FWName_CID_CName.csv"
+	ControlRuleRelationsFileName      = "ControlID_RuleName.csv"
+	defaultConfigInputsFileName       = "default_config_inputs.json"
+	systemPostureExceptionFileName    = "exceptions.json"
 
 	controlIDRegex = `^(?:[a-z]+|[A-Z]+)(?:[\-][v]?(?:[0-9][\.]?)+)(?:[\-]?[0-9][\.]?)+$`
 )
@@ -53,34 +54,34 @@ type Tree struct {
 	TREE InnerTree `json:"tree"`
 }
 
+func (gs *GitRegoStore) stripExtention(filename string) string {
+	if gs.StripFilesExtention {
+		return strings.Split(filename, ".")[0]
+	}
+	return filename
+}
+
 // func setURL()
 func (gs *GitRegoStore) setURL() {
-	var url string
-
-	if isUrlRelease(gs.Path) {
-		url = gs.BaseUrl + "/" + gs.Owner + "/" + gs.Repository + "/" + gs.Path + "/" + gs.Tag
-	} else {
-		url = gs.BaseUrl + "/" + gs.Owner + "/" + gs.Repository + "/" + gs.Path + "/" + gs.Branch + "?recursive=1"
-	}
-	gs.URL = url
+	gs.URL = gs.BaseUrl + "/" + filepath.Join(gs.Owner, gs.Repository, gs.Branch, gs.Path, gs.Tag)
 }
 
 func (gs *GitRegoStore) setObjects() error {
-	var err error
-	if isUrlRelease(gs.URL) {
-		err = gs.setObjectsFromReleaseLoop()
-	} else {
-		err = gs.setObjectsFromRepoLoop()
+	// This condition to support old reading files from repo.
+	// Once dev helm parameters are updated to new releaseDev folder, this condition should be removed.
+	if gs.Path == "git/trees" {
+		return gs.setObjectsFromRepoOnce()
 	}
-	return err
+	return gs.setObjectsFromReleaseLoop()
 }
 
+// DEPRECATED
 func isUrlRelease(u string) bool {
 	return strings.Contains(u, "releases")
 }
 
 // ========================== set Objects From Repo =====================================
-
+// DEPRECATED
 func (gs *GitRegoStore) setObjectsFromRepoLoop() error {
 	var wg sync.WaitGroup
 	wg.Add(1)
@@ -106,8 +107,12 @@ func (gs *GitRegoStore) setObjectsFromRepoLoop() error {
 	return e
 }
 
+// DEPRECATED
 func (gs *GitRegoStore) setObjectsFromRepoOnce() error {
-	body, err := HttpGetter(gs.httpClient, gs.URL)
+
+	url := gs.BaseUrl + "/" + gs.Owner + "/" + gs.Repository + "/" + gs.Path + "/" + gs.Branch + "?recursive=1"
+
+	body, err := HttpGetter(gs.httpClient, url)
 	if err != nil {
 		return err
 	}
@@ -124,7 +129,7 @@ func (gs *GitRegoStore) setObjectsFromRepoOnce() error {
 	for _, path := range trees.TREE {
 		rawDataPath := "https://raw.githubusercontent.com/" + gsClone.Owner + "/" + gsClone.Repository + "/" + gsClone.Branch + "/" + path.PATH
 
-		if strings.HasPrefix(path.PATH, rulesJsonFileName+"/") && strings.HasSuffix(path.PATH, ".json") {
+		if strings.HasPrefix(path.PATH, strings.Replace(rulesJsonFileName, ".json", "/", -1)) && strings.HasSuffix(path.PATH, ".json") {
 			respStr, err := HttpGetter(gsClone.httpClient, rawDataPath)
 			if err != nil {
 				return err
@@ -133,7 +138,7 @@ func (gs *GitRegoStore) setObjectsFromRepoOnce() error {
 				zap.L().Debug("In setObjectsFromRepoOnce - failed to set rule %s\n", zap.String("path", rawDataPath))
 				return err
 			}
-		} else if strings.HasPrefix(path.PATH, controlsJsonFileName+"/") && strings.HasSuffix(path.PATH, ".json") {
+		} else if strings.HasPrefix(path.PATH, strings.Replace(controlsJsonFileName, ".json", "/", -1)) && strings.HasSuffix(path.PATH, ".json") {
 			respStr, err := HttpGetter(gs.httpClient, rawDataPath)
 			if err != nil {
 				return err
@@ -142,7 +147,7 @@ func (gs *GitRegoStore) setObjectsFromRepoOnce() error {
 				zap.L().Debug("In setObjectsFromRepoOnce - failed to set control %s\n", zap.String("path", rawDataPath))
 				return err
 			}
-		} else if strings.HasPrefix(path.PATH, frameworksJsonFileName+"/") && strings.HasSuffix(path.PATH, ".json") {
+		} else if strings.HasPrefix(path.PATH, strings.Replace(frameworksJsonFileName, ".json", "/", -1)) && strings.HasSuffix(path.PATH, ".json") {
 			respStr, err := HttpGetter(gs.httpClient, rawDataPath)
 			if err != nil {
 				return err
@@ -178,13 +183,13 @@ func (gs *GitRegoStore) setObjectsFromRepoOnce() error {
 				zap.L().Debug("In setObjectsFromRepoOnce - failed to set setSystemPostureExceptionPolicy %s\n", zap.String("path", rawDataPath))
 				return err
 			}
-		} else if strings.HasSuffix(path.PATH, ControlRuleRelationsFileName+".csv") {
+		} else if strings.HasSuffix(path.PATH, ControlRuleRelationsFileName) {
 			respStr, err := HttpGetter(gs.httpClient, rawDataPath)
 			if err != nil {
 				return err
 			}
 			gsClone.setControlRuleRelations(respStr)
-		} else if strings.HasSuffix(path.PATH, frameworkControlRelationsFileName+".csv") {
+		} else if strings.HasSuffix(path.PATH, frameworkControlRelationsFileName) {
 			respStr, err := HttpGetter(gs.httpClient, rawDataPath)
 			if err != nil {
 				return err
@@ -303,7 +308,7 @@ func (gs *GitRegoStore) setObjectsFromReleaseLoop() error {
 func (gs *GitRegoStore) setObjectsFromReleaseOnce() error {
 
 	for kind, storeSetterMappingFunc := range storeSetterMapping {
-		respStr, err := HttpGetter(gs.httpClient, fmt.Sprintf("%s/%s", gs.URL, kind))
+		respStr, err := HttpGetter(gs.httpClient, fmt.Sprintf("%s/%s", gs.URL, gs.stripExtention(kind)))
 		if err != nil {
 			return fmt.Errorf("error getting: %s from: '%s' ,error: %s", kind, gs.URL, err)
 		}

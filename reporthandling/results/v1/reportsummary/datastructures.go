@@ -14,12 +14,13 @@ type ControlSummaries map[string]ControlSummary
 
 // SummaryDetails detailed summary of the scanning. will contain versions, counters, etc.
 type SummaryDetails struct {
-	Controls         ControlSummaries    `json:"controls,omitempty"`
-	Status           apis.ScanningStatus `json:"status"`
-	Frameworks       []FrameworkSummary  `json:"frameworks"`
-	SeverityCounters SeverityCounters    `json:"severityCounters,omitempty"`
-	ResourceCounters ResourceCounters    `json:",inline"`
-	Score            float32             `json:"score"`
+	Controls                  ControlSummaries    `json:"controls,omitempty"`
+	Status                    apis.ScanningStatus `json:"status"`
+	Frameworks                []FrameworkSummary  `json:"frameworks"`
+	ResourcesSeverityCounters SeverityCounters    `json:"resourcesSeverityCounters,omitempty"`
+	ControlsSeverityCounters  SeverityCounters    `json:"controlsSeverityCounters,omitempty"`
+	ResourceCounters          ResourceCounters    `json:",inline"`
+	Score                     float32             `json:"score"`
 }
 
 // FrameworkSummary summary of scanning from a single framework perspective
@@ -53,10 +54,10 @@ type ResourceCounters struct {
 }
 
 type SeverityCounters struct {
-	ResourcesWithCriticalSeverityCounter int `json:"criticalSeverity"`
-	ResourcesWithHighSeverityCounter     int `json:"highSeverity"`
-	ResourcesWithMediumSeverityCounter   int `json:"mediumSeverity"`
-	ResourcesWithLowSeverityCounter      int `json:"lowSeverity"`
+	CriticalSeverityCounter int `json:"criticalSeverity"`
+	HighSeverityCounter     int `json:"highSeverity"`
+	MediumSeverityCounter   int `json:"mediumSeverity"`
+	LowSeverityCounter      int `json:"lowSeverity"`
 }
 
 type PostureCounters struct {

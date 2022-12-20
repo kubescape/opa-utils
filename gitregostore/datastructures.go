@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/http"
 	"runtime/debug"
+	"strings"
 	"sync"
 
 	// "github.com/armosec/capacketsgo/opapolicy"
@@ -40,14 +41,29 @@ type GitRegoStore struct {
 	SystemPostureExceptionPolicies     []armotypes.PostureExceptionPolicy
 	FrequencyPullFromGitMinutes        int
 	Watch                              bool
+	StripFilesExtention                bool
 }
 
 func newGitRegoStore(baseUrl string, owner string, repository string, path string, tag string, branch string, frequency int) *GitRegoStore {
+	var stripFilesExtention bool
+
 	watch := false
 	if frequency > 0 {
 		watch = true
 	}
-	return &GitRegoStore{httpClient: &http.Client{},
+
+	if strings.Contains(tag, "latest") || strings.Contains(tag, "download") {
+		// TODO - This condition was added to avoid dependency on updating productions configs on deployment.
+		// Once production configs are updated (branch set to ""), this condition can be removed.
+		if strings.ToLower(branch) == "master" {
+			branch = ""
+		}
+		stripFilesExtention = true
+	} else {
+		stripFilesExtention = false
+	}
+
+	gs := &GitRegoStore{httpClient: &http.Client{},
 		BaseUrl:                     baseUrl,
 		Owner:                       owner,
 		Repository:                  repository,
@@ -57,12 +73,18 @@ func newGitRegoStore(baseUrl string, owner string, repository string, path strin
 		FrequencyPullFromGitMinutes: frequency,
 		Watch:                       watch,
 	}
+
+	gs.StripFilesExtention = stripFilesExtention
+
+	return gs
 }
 
 // NewGitRegoStore return gitregostore obj with basic fields, before pulling from git
 func NewGitRegoStore(baseUrl string, owner string, repository string, path string, tag string, branch string, frequency int) *GitRegoStore {
+
 	gs := newGitRegoStore(baseUrl, owner, repository, path, tag, branch, frequency)
 	gs.setURL()
+
 	return gs
 }
 
@@ -72,8 +94,18 @@ func (gs *GitRegoStore) SetRegoObjects() error {
 	return err
 }
 
+// NewDefaultGitRegoStore - generates git store object for production regolibrary release files.
+// Release files source: "https://github.com/kubescape/regolibrary/releases/latest/download"
 func NewDefaultGitRegoStore(frequency int) *GitRegoStore {
-	return NewGitRegoStore("https://github.com", "kubescape", "regolibrary", "releases", "latest/download", "", frequency)
+	gs := NewGitRegoStore("https://github.com", "kubescape", "regolibrary", "releases", "latest/download", "", frequency)
+	return gs
+}
+
+// NewDevGitRegoStore - generates git store object for dev regolibrary release files
+// Release files source: "https://raw.githubusercontent.com/kubescape/regolibrary/dev/releaseDev"
+func NewDevGitRegoStore(frequency int) *GitRegoStore {
+	gs := NewGitRegoStore("https://raw.githubusercontent.com", "kubescape", "regolibrary", "releaseDev", "", "dev", frequency)
+	return gs
 }
 
 // Deprecated

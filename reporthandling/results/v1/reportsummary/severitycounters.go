@@ -3,27 +3,27 @@ package reportsummary
 import "github.com/kubescape/opa-utils/reporthandling/apis"
 
 type ISeverityCounters interface {
-	NumberOfResourcesWithCriticalSeverity() int
-	NumberOfResourcesWithHighSeverity() int
-	NumberOfResourcesWithMediumSeverity() int
-	NumberOfResourcesWithLowSeverity() int
+	NumberOfCriticalSeverity() int
+	NumberOfHighSeverity() int
+	NumberOfMediumSeverity() int
+	NumberOfLowSeverity() int
 	Increase(severity string, amount int)
 }
 
-func (sc *SeverityCounters) NumberOfResourcesWithCriticalSeverity() int {
-	return sc.ResourcesWithCriticalSeverityCounter
+func (sc *SeverityCounters) NumberOfCriticalSeverity() int {
+	return sc.CriticalSeverityCounter
 }
 
-func (sc *SeverityCounters) NumberOfResourcesWithHighSeverity() int {
-	return sc.ResourcesWithHighSeverityCounter
+func (sc *SeverityCounters) NumberOfHighSeverity() int {
+	return sc.HighSeverityCounter
 }
 
-func (sc *SeverityCounters) NumberOfResourcesWithMediumSeverity() int {
-	return sc.ResourcesWithMediumSeverityCounter
+func (sc *SeverityCounters) NumberOfMediumSeverity() int {
+	return sc.MediumSeverityCounter
 }
 
-func (sc *SeverityCounters) NumberOfResourcesWithLowSeverity() int {
-	return sc.ResourcesWithLowSeverityCounter
+func (sc *SeverityCounters) NumberOfLowSeverity() int {
+	return sc.LowSeverityCounter
 }
 
 // Increase increments the counter of a given severity by a given amount
@@ -32,13 +32,13 @@ func (sc *SeverityCounters) Increase(severity string, amount int) {
 
 	switch severity {
 	case apis.SeverityCriticalString:
-		counterToIncrement = &sc.ResourcesWithCriticalSeverityCounter
+		counterToIncrement = &sc.CriticalSeverityCounter
 	case apis.SeverityHighString:
-		counterToIncrement = &sc.ResourcesWithHighSeverityCounter
+		counterToIncrement = &sc.HighSeverityCounter
 	case apis.SeverityMediumString:
-		counterToIncrement = &sc.ResourcesWithMediumSeverityCounter
+		counterToIncrement = &sc.MediumSeverityCounter
 	case apis.SeverityLowString:
-		counterToIncrement = &sc.ResourcesWithLowSeverityCounter
+		counterToIncrement = &sc.LowSeverityCounter
 	// Return without incrementing on unrecognized severities
 	default:
 		return

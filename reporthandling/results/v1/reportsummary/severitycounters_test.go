@@ -37,21 +37,21 @@ func TestSeverityCounters_NumberOfResourcesWithCriticalSeverity(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			sc := &SeverityCounters{
-				ResourcesWithCriticalSeverityCounter: tt.fields.ResourcesWithCriticalSeverityCounter,
-				ResourcesWithHighSeverityCounter:     tt.fields.ResourcesWithHighSeverityCounter,
-				ResourcesWithMediumSeverityCounter:   tt.fields.ResourcesWithMediumSeverityCounter,
-				ResourcesWithLowSeverityCounter:      tt.fields.ResourcesWithLowSeverityCounter,
+				CriticalSeverityCounter: tt.fields.ResourcesWithCriticalSeverityCounter,
+				HighSeverityCounter:     tt.fields.ResourcesWithHighSeverityCounter,
+				MediumSeverityCounter:   tt.fields.ResourcesWithMediumSeverityCounter,
+				LowSeverityCounter:      tt.fields.ResourcesWithLowSeverityCounter,
 			}
-			if got := sc.NumberOfResourcesWithCriticalSeverity(); got != tt.want.ResourcesWithCriticalSeverityCounter {
+			if got := sc.NumberOfCriticalSeverity(); got != tt.want.ResourcesWithCriticalSeverityCounter {
 				t.Errorf("SeverityCounters.NumberOfResourcesWithCriticalSeverity() = %v, want %v", got, tt.want)
 			}
-			if got := sc.NumberOfResourcesWithHighSeverity(); got != tt.want.ResourcesWithHighSeverityCounter {
+			if got := sc.NumberOfHighSeverity(); got != tt.want.ResourcesWithHighSeverityCounter {
 				t.Errorf("SeverityCounters.NumberOfResourcesWithCriticalSeverity() = %v, want %v", got, tt.want)
 			}
-			if got := sc.NumberOfResourcesWithMediumSeverity(); got != tt.want.ResourcesWithMediumSeverityCounter {
+			if got := sc.NumberOfMediumSeverity(); got != tt.want.ResourcesWithMediumSeverityCounter {
 				t.Errorf("SeverityCounters.NumberOfResourcesWithCriticalSeverity() = %v, want %v", got, tt.want)
 			}
-			if got := sc.NumberOfResourcesWithLowSeverity(); got != tt.want.ResourcesWithLowSeverityCounter {
+			if got := sc.NumberOfLowSeverity(); got != tt.want.ResourcesWithLowSeverityCounter {
 				t.Errorf("SeverityCounters.NumberOfResourcesWithCriticalSeverity() = %v, want %v", got, tt.want)
 			}
 		})
@@ -132,23 +132,23 @@ func TestSeverityCounters_Increase(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			sc := &SeverityCounters{
-				ResourcesWithCriticalSeverityCounter: tt.fields.ResourcesWithCriticalSeverityCounter,
-				ResourcesWithHighSeverityCounter:     tt.fields.ResourcesWithHighSeverityCounter,
-				ResourcesWithMediumSeverityCounter:   tt.fields.ResourcesWithMediumSeverityCounter,
-				ResourcesWithLowSeverityCounter:      tt.fields.ResourcesWithLowSeverityCounter,
+				CriticalSeverityCounter: tt.fields.ResourcesWithCriticalSeverityCounter,
+				HighSeverityCounter:     tt.fields.ResourcesWithHighSeverityCounter,
+				MediumSeverityCounter:   tt.fields.ResourcesWithMediumSeverityCounter,
+				LowSeverityCounter:      tt.fields.ResourcesWithLowSeverityCounter,
 			}
 			sc.Increase(tt.args.severity, tt.args.amount)
 
 			severityCounter := 0
 			switch tt.args.severity {
 			case apis.SeverityCriticalString:
-				severityCounter = sc.ResourcesWithCriticalSeverityCounter
+				severityCounter = sc.CriticalSeverityCounter
 			case apis.SeverityHighString:
-				severityCounter = sc.ResourcesWithHighSeverityCounter
+				severityCounter = sc.HighSeverityCounter
 			case apis.SeverityMediumString:
-				severityCounter = sc.ResourcesWithMediumSeverityCounter
+				severityCounter = sc.MediumSeverityCounter
 			case apis.SeverityLowString:
-				severityCounter = sc.ResourcesWithLowSeverityCounter
+				severityCounter = sc.LowSeverityCounter
 			}
 
 			if tt.expected != severityCounter {
