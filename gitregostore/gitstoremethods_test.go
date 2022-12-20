@@ -219,6 +219,20 @@ func TestGetPoliciesMethodsNew(t *testing.T) {
 	}
 }
 
+func TestGetOPAFrameworkByName(t *testing.T) {
+	gs := NewDevGitRegoStore(-1)
+	err := gs.SetRegoObjects()
+	if err != nil {
+		t.Errorf("error in SetRegoObjects: %v", err)
+	}
+
+	_, err = gs.GetOPAFrameworkByName("CIS")
+
+	if err != nil {
+		t.Errorf("failed to get framework object: %v", err)
+	}
+}
+
 func TestGetPoliciesMethodsOld(t *testing.T) {
 	gs := InitGitRegoStore("https://github.com", "kubescape", "regolibrary", "releases", "latest/download", "", 15)
 	err := gs.SetRegoObjects()

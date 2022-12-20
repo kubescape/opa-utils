@@ -162,7 +162,7 @@ func newControlID(controlID string) string {
 
 // newFrameworkName - convert old cis name to new one, if exist, otherwise return frameworkName
 func newFrameworkName(frameworkName string) string {
-	if strings.ToLower(frameworkName) == cisFrameworkOldName {
+	if strings.ToLower(frameworkName) == strings.ToLower(cisFrameworkOldName) {
 		return cisFrameworkNewName
 	}
 
