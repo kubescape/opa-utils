@@ -30,9 +30,17 @@ type PostureReport struct {
 
 type ClusterMetadata struct {
 	MapNamespaceToNumberOfResources map[string]int `json:"namespaceToNumberOfResources,omitempty"`
-	CloudProvider                   string         `json:"cloudProvider,omitempty"`
+	CloudMetadata                   *CloudMetadata `json:"cloudMetadata,omitempty"`
+	CloudProvider                   string         `json:"cloudProvider,omitempty"` // Deprecated - info should be in cloudMetadata
 	ContextName                     string         `json:"contextName,omitempty"`
 	NumberOfWorkerNodes             int            `json:"numberOfWorkerNodes,omitempty"`
+}
+
+type CloudMetadata struct {
+	CloudProvider string `json:"cloudProvider,omitempty"`
+	ShortName     string `json:"shortName,omitempty"`
+	FullName      string `json:"fullName,omitempty"`
+	PrefixName    string `json:"prefixName,omitempty"`
 }
 
 type RepoContextMetadata struct {
