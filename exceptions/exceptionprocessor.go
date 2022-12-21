@@ -157,8 +157,8 @@ func hasException(clusterName string, designator *armotypes.PortalDesignator, wo
 	if attributes.GetPath() != "" && !comparePath(workload, attributes.GetPath()) {
 		return false // paths do not match
 	}
-	if len(attributes.GetLabels()) > 0 && !compareLabels(workload, attributes.GetLabels()) {
-		return false // labels do not match
+	if len(attributes.GetLabels()) > 0 && !compareLabels(workload, attributes.GetLabels()) && !compareAnnotations(workload, attributes.GetLabels()) {
+		return false // labels nor annotations do not match
 	}
 
 	return true // no mismatch found -> the workload has an exception
@@ -195,11 +195,46 @@ func compareLabels(workload workloadinterface.IMetadata, attributes map[string]s
 	w := workload.GetObject()
 	if k8sinterface.IsTypeWorkload(w) {
 		workloadLabels := labels.Set(workloadinterface.NewWorkloadObj(w).GetLabels())
-		designators := labels.Set(attributes).AsSelector()
 
-		return designators.Matches(workloadLabels)
+		if len(workloadLabels) == 0 {
+			return false
+		}
+
+		for key, val := range attributes {
+			for _, annotation := range workloadLabels {
+				if !workloadLabels.Has(key) {
+					return false
+				}
+				if !regexCompare(val, annotation) {
+					return false
+				}
+			}
+		}
 	}
 	return true // ignore labels
+}
+
+func compareAnnotations(workload workloadinterface.IMetadata, attributes map[string]string) bool {
+	w := workload.GetObject()
+	if k8sinterface.IsTypeWorkload(w) {
+		workloadAnnotations := labels.Set(workloadinterface.NewWorkloadObj(w).GetAnnotations())
+
+		if len(workloadAnnotations) == 0 {
+			return false
+		}
+
+		for key, val := range attributes {
+			for _, annotation := range workloadAnnotations {
+				if !workloadAnnotations.Has(key) {
+					return false
+				}
+				if !regexCompare(val, annotation) {
+					return false
+				}
+			}
+		}
+	}
+	return true // ignore annotations
 }
 
 func compareCluster(designatorCluster, clusterName string) bool {
