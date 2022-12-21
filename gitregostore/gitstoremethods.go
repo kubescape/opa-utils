@@ -13,7 +13,7 @@ import (
 )
 
 const (
-	supportBackwardCompatibility = true
+	supportBackwardCompatibility = false
 )
 
 // GetOPAPolicies returns all the policies of given customer
@@ -249,7 +249,7 @@ func (gs *GitRegoStore) GetOPAFrameworkByName(frameworkName string) (*opapolicy.
 	for _, fw := range gs.Frameworks {
 		if strings.EqualFold(fw.Name, frameworkName) ||
 			// If backward compatibility is supported,try to compare the new CIS name.
-			(supportBackwardCompatibility && strings.EqualFold(fw.Name, newFrameworkName(frameworkName))) {
+			(true && strings.EqualFold(fw.Name, newFrameworkName(frameworkName))) {
 			err := gs.fillControlsAndControlIDsInFramework(&fw)
 			if err != nil {
 				return nil, err
