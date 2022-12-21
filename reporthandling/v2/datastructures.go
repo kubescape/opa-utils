@@ -5,6 +5,7 @@ import (
 
 	armoapi "github.com/armosec/armoapi-go/apis"
 	"github.com/kubescape/opa-utils/reporthandling"
+	"github.com/kubescape/opa-utils/reporthandling/apis"
 	"github.com/kubescape/opa-utils/reporthandling/results/v1/reportsummary"
 	"github.com/kubescape/opa-utils/reporthandling/results/v1/resourcesresults"
 
@@ -30,9 +31,18 @@ type PostureReport struct {
 
 type ClusterMetadata struct {
 	MapNamespaceToNumberOfResources map[string]int `json:"namespaceToNumberOfResources,omitempty"`
-	CloudProvider                   string         `json:"cloudProvider,omitempty"`
+	CloudMetadata                   *CloudMetadata `json:"cloudMetadata,omitempty"`
+	CloudProvider                   string         `json:"cloudProvider,omitempty"` // Deprecated - info should be in cloudMetadata
 	ContextName                     string         `json:"contextName,omitempty"`
 	NumberOfWorkerNodes             int            `json:"numberOfWorkerNodes,omitempty"`
+}
+
+// CloudMetadata metadata of the cloud the cluster is running on. Compatible with the reporthandling.ICloudMetadata interface
+type CloudMetadata struct {
+	CloudProvider apis.CloudProviderName `json:"cloudProvider,omitempty"`
+	ShortName     string                 `json:"shortName,omitempty"`
+	FullName      string                 `json:"fullName,omitempty"`
+	PrefixName    string                 `json:"prefixName,omitempty"`
 }
 
 type RepoContextMetadata struct {
@@ -100,11 +110,12 @@ type ScanMetadata struct {
 	VerboseMode        bool           `json:"verboseMode,omitempty"`
 }
 
-const (
-	GKE = "GKE"
-	GCP = "GCP"
-	EKS = "EKS"
-)
+// Moved to apis/cloudmetadata.go
+// const (
+// 	GKE = "GKE"
+// 	GCP = "GCP"
+// 	EKS = "EKS"
+// )
 
 func (st *ScanningTarget) String() string {
 	switch *st {
