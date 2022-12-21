@@ -5,6 +5,7 @@ import (
 
 	armoapi "github.com/armosec/armoapi-go/apis"
 	"github.com/kubescape/opa-utils/reporthandling"
+	"github.com/kubescape/opa-utils/reporthandling/apis"
 	"github.com/kubescape/opa-utils/reporthandling/results/v1/reportsummary"
 	"github.com/kubescape/opa-utils/reporthandling/results/v1/resourcesresults"
 
@@ -36,11 +37,12 @@ type ClusterMetadata struct {
 	NumberOfWorkerNodes             int            `json:"numberOfWorkerNodes,omitempty"`
 }
 
+// CloudMetadata metadata of the cloud the cluster is running on. Compatible with the reporthandling.ICloudMetadata interface
 type CloudMetadata struct {
-	CloudProvider string `json:"cloudProvider,omitempty"`
-	ShortName     string `json:"shortName,omitempty"`
-	FullName      string `json:"fullName,omitempty"`
-	PrefixName    string `json:"prefixName,omitempty"`
+	CloudProvider apis.CloudProviderName `json:"cloudProvider,omitempty"`
+	ShortName     string                 `json:"shortName,omitempty"`
+	FullName      string                 `json:"fullName,omitempty"`
+	PrefixName    string                 `json:"prefixName,omitempty"`
 }
 
 type RepoContextMetadata struct {
@@ -108,11 +110,12 @@ type ScanMetadata struct {
 	VerboseMode        bool           `json:"verboseMode,omitempty"`
 }
 
-const (
-	GKE = "GKE"
-	GCP = "GCP"
-	EKS = "EKS"
-)
+// Moved to apis/cloudmetadata.go
+// const (
+// 	GKE = "GKE"
+// 	GCP = "GCP"
+// 	EKS = "EKS"
+// )
 
 func (st *ScanningTarget) String() string {
 	switch *st {
