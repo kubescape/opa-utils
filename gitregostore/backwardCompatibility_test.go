@@ -15,12 +15,12 @@ func TestGetNewControlID(t *testing.T) {
 		{
 			name:        "ControlID_exists_in_mapping_uppercase",
 			controlID:   "CIS-1.1.1",
-			expectedRes: "C-0091",
+			expectedRes: "C-0092",
 		},
 		{
 			name:        "ControlID_exists_in_mapping_lowercase",
 			controlID:   "cis-1.1.1",
-			expectedRes: "C-0091",
+			expectedRes: "C-0092",
 		},
 		{
 			name:        "ControlID_doestexists_in_mapping",
@@ -37,7 +37,7 @@ func TestGetNewControlID(t *testing.T) {
 	}
 }
 
-func TestRealControlName(t *testing.T) {
+func TestBaseControlName(t *testing.T) {
 	controlIDS_tests := []struct {
 		name        string
 		controlID   string
@@ -46,13 +46,13 @@ func TestRealControlName(t *testing.T) {
 	}{
 		{
 			name:        "ControlID_cis_uppercase",
-			controlID:   "C-0091",
+			controlID:   "C-0092",
 			controlName: "CIS-1.1.1 Control Name A",
 			expectedRes: "Control Name A",
 		},
 		{
 			name:        "ControlID_cis_lowercase",
-			controlID:   "c-0091",
+			controlID:   "c-0092",
 			controlName: "CIS-1.1.1 Control Name B",
 			expectedRes: "Control Name B",
 		},
@@ -66,43 +66,8 @@ func TestRealControlName(t *testing.T) {
 
 	for _, tt := range controlIDS_tests {
 		t.Run(tt.name, func(t *testing.T) {
-			res := realControlName(tt.controlID, tt.controlName)
+			res := baseControlName(tt.controlID, tt.controlName)
 			assert.Equal(t, tt.expectedRes, res)
 		})
 	}
 }
-
-// func TestGetNewControlName(t *testing.T) {
-// 	controlIDS_tests := []struct {
-// 		name        string
-// 		controlID   string
-// 		controlName string
-// 		expectedRes string
-// 	}{
-// 		{
-// 			name:        "ControlID_cis_uppercase",
-// 			controlID:   "C-0091",
-// 			controlName: "Control Name A",
-// 			expectedRes: "CIS-1.1.1 Control Name A",
-// 		},
-// 		{
-// 			name:        "ControlID_cis_lowercase",
-// 			controlID:   "c-0091",
-// 			controlName: "Control Name B",
-// 			expectedRes: "CIS-1.1.1 Control Name B",
-// 		},
-// 		{
-// 			name:        "ControlID_not_cis",
-// 			controlID:   "NotRelevant",
-// 			controlName: "NotCIS name",
-// 			expectedRes: "NotCIS name",
-// 		},
-// 	}
-
-// 	for _, tt := range controlIDS_tests {
-// 		t.Run(tt.name, func(t *testing.T) {
-// 			res := newControlName(tt.controlID, tt.controlName)
-// 			assert.Equal(t, tt.expectedRes, res)
-// 		})
-// 	}
-// }
