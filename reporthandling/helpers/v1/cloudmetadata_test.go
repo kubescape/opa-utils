@@ -259,3 +259,119 @@ func TestEKSMetadata_Parse(t *testing.T) {
 		})
 	}
 }
+
+func TestNewAKSMetadata(t *testing.T) {
+	type args struct {
+		name string
+	}
+	tests := []struct {
+		want *AKSMetadata
+		name string
+		args args
+	}{
+		{
+			name: "TestNewAKSMetadata",
+			args: args{name: "aksName"},
+			want: &AKSMetadata{name: "aksName"},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := NewAKSMetadata(tt.args.name); !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("NewAKSMetadata() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestAKSMetadata_GetName(t *testing.T) {
+	type fields struct {
+		name string
+	}
+	tests := []struct {
+		name   string
+		fields fields
+		want   string
+	}{
+		{
+			name:   "TestAKSMetadata_GetName",
+			fields: fields{name: "aksName"},
+			want:   "aksName",
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			aks := &AKSMetadata{
+				name: tt.fields.name,
+			}
+			if got := aks.GetName(); got != tt.want {
+				t.Errorf("AKSMetadata.GetName() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestAKSMetadata_Provider(t *testing.T) {
+	type fields struct {
+		name string
+	}
+	tests := []struct {
+		name   string
+		fields fields
+		want   apis.CloudProviderName
+	}{
+		{
+			name:   "TestAKSMetadata_Provider",
+			fields: fields{name: ""},
+			want:   apis.AKS,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			aks := AKSMetadata{
+				name: tt.fields.name,
+			}
+			if got := aks.Provider(); !reflect.DeepEqual(got, tt.want) {
+				t.Errorf("AKSMetadata.Provider() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func TestAKSMetadata_Parse(t *testing.T) {
+	type fields struct {
+		name string
+	}
+	tests := []struct {
+		name    string
+		fields  fields
+		want    string
+		want1   string
+		wantErr bool
+	}{
+		{
+			name:   "TestAKSMetadata_Parse",
+			fields: fields{name: "aksName"},
+			want:   "",
+			want1:  "aksName",
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			aks := &AKSMetadata{
+				name: tt.fields.name,
+			}
+			got, got1, err := aks.Parse()
+			if (err != nil) != tt.wantErr {
+				t.Errorf("AKSMetadata.Parse() error = %v, wantErr %v", err, tt.wantErr)
+				return
+			}
+			if got != tt.want {
+				t.Errorf("AKSMetadata.Parse() got = %v, want %v", got, tt.want)
+			}
+			if got1 != tt.want1 {
+				t.Errorf("AKSMetadata.Parse() got1 = %v, want %v", got1, tt.want1)
+			}
+		})
+	}
+}

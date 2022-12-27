@@ -41,7 +41,7 @@ func NewGKEMetadata(name string) *GKEMetadata {
 }
 
 // GetName returns the full name of the cluster
-func (gke GKEMetadata) GetName() string {
+func (gke *GKEMetadata) GetName() string {
 	return gke.name
 }
 
@@ -76,7 +76,7 @@ func NewEKSMetadata(name string) *EKSMetadata {
 }
 
 // GetName returns the full name of the cluster
-func (eks EKSMetadata) GetName() string {
+func (eks *EKSMetadata) GetName() string {
 	return eks.name
 }
 
@@ -106,16 +106,18 @@ func (eks EKSMetadata) join(s []string) string {
 // TODO: implement AKS parser support
 
 type AKSMetadata struct {
-	// name string
+	name string
 }
 
-func NewAKSMetadata() *AKSMetadata {
-	return &AKSMetadata{}
+func NewAKSMetadata(name string) *AKSMetadata {
+	return &AKSMetadata{
+		name: name,
+	}
 }
 
 // GetName returns the full name of the cluster
-func (aks AKSMetadata) GetName() string {
-	return ""
+func (aks *AKSMetadata) GetName() string {
+	return aks.name
 }
 
 func (aks AKSMetadata) Provider() apis.CloudProviderName {
@@ -123,5 +125,5 @@ func (aks AKSMetadata) Provider() apis.CloudProviderName {
 }
 
 func (aks *AKSMetadata) Parse() (string, string, error) {
-	return "", "", nil
+	return "", aks.name, nil
 }
