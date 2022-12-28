@@ -39,3 +39,8 @@ type ICloudParser interface {
 func (c CloudProviderName) Compare(other string) bool {
 	return strings.ToUpper(other) == string(c)
 }
+
+// Convert the cloud provider name to string
+func (c CloudProviderName) ToString() string {
+	return string(c)
+}
