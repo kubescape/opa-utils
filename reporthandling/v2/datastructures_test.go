@@ -67,9 +67,14 @@ func GetPostureReportMock() *PostureReport {
 						"C-0045": {
 							Score: 68,
 							ResourceCounters: reportsummary.ResourceCounters{
-								PassedResources:   17,
-								FailedResources:   5,
-								ExcludedResources: 0,
+								PassedResources:                17,
+								PassedExceptionResources:       0,
+								PassedIrrelevantResources:      0,
+								FailedResources:                5,
+								SkippedConfigurationResources:  0,
+								SkippedIntegrationResources:    0,
+								SkippedRequiresReviewResources: 0,
+								SkippedManualReviewResources:   0,
 							},
 						},
 					},
@@ -79,9 +84,14 @@ func GetPostureReportMock() *PostureReport {
 				"C-0045": {
 					Score: 68,
 					ResourceCounters: reportsummary.ResourceCounters{
-						PassedResources:   17,
-						FailedResources:   5,
-						ExcludedResources: 0,
+						PassedResources:                17,
+						PassedExceptionResources:       0,
+						PassedIrrelevantResources:      0,
+						FailedResources:                5,
+						SkippedConfigurationResources:  0,
+						SkippedIntegrationResources:    0,
+						SkippedRequiresReviewResources: 0,
+						SkippedManualReviewResources:   0,
 					},
 				},
 			},
@@ -117,7 +127,7 @@ func TestPostureReportMock(t *testing.T) {
 	// t.Error(p.ToString())
 }
 
-//this test validates the unmarshaller that used to validate the posture object in e.r and other places
+// this test validates the unmarshaller that used to validate the posture object in e.r and other places
 func TestPostureReportGojayUnmarshal(t *testing.T) {
 	postureReport := &PostureReport{}
 	original := GetPostureReportMock()

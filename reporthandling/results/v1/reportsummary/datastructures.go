@@ -39,6 +39,7 @@ type ControlSummary struct {
 	ControlID        string              `json:"controlID"`
 	Name             string              `json:"name"`
 	Status           apis.ScanningStatus `json:"status"`
+	SubStatus        apis.ScanningStatus `json:"subStatus"`
 	Description      string              `json:"-"`
 	Remediation      string              `json:"-"`
 	ResourceIDs      helpersv1.AllLists  `json:"resourceIDs"`
@@ -48,9 +49,14 @@ type ControlSummary struct {
 }
 
 type ResourceCounters struct {
-	PassedResources   int `json:"passedResources"`
-	FailedResources   int `json:"failedResources"`
-	ExcludedResources int `json:"excludedResources"`
+	PassedResources                int `json:"passedResources"`
+	PassedExceptionResources       int `json:"passedExceptionResources"`
+	PassedIrrelevantResources      int `json:"passedIrrelevantResources"`
+	FailedResources                int `json:"failedResources"`
+	SkippedConfigurationResources  int `json:"skippedConfigurationResources"`
+	SkippedIntegrationResources    int `json:"skippedIntegrationResources"`
+	SkippedRequiresReviewResources int `json:"skippedRequiresReviewResources"`
+	SkippedManualReviewResources   int `json:"skippedManualReviewResources"`
 }
 
 type SeverityCounters struct {
@@ -61,10 +67,12 @@ type SeverityCounters struct {
 }
 
 type PostureCounters struct {
-	PassedCounter   int `json:"passed"`
-	FailedCounter   int `json:"failed"`
-	ExcludedCounter int `json:"excluded"`
-	SkippedCounter  int `json:"skipped"`
-	IgnoredCounter  int `json:"ignored"`
-	UnknownCounter  int `json:"unknown"`
+	PassedCounter                int `json:"passed"`
+	PassedExceptionCounter       int `json:"passedException"`
+	PassedIrrelevantCounter      int `json:"passedIrrelevant"`
+	FailedCounter                int `json:"failed"`
+	SkippedConfigurationCounter  int `json:"skippedConfiguration"`
+	SkippedIntegrationCounter    int `json:"skippedIntegration"`
+	SkippedRequiresReviewCounter int `json:"skippedRequiresReview"`
+	SkippedManualReviewCounter   int `json:"skippedManualReview"`
 }

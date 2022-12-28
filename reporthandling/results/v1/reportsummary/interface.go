@@ -42,6 +42,9 @@ type IControlSummary interface {
 
 	// GetDescription get control description
 	GetDescription() string
+
+	// Get SubStatus() get control sub status
+	GetSubStatus() apis.IStatus
 }
 
 type IControlsSummaries interface {
@@ -64,52 +67,4 @@ type IPolicies interface {
 
 	// Name
 	GetName() string
-}
-
-type ListPolicies struct {
-	passed   []IPolicies
-	excluded []IPolicies
-	failed   []IPolicies
-	skipped  []IPolicies
-	other    []IPolicies
-}
-
-func (all *ListPolicies) Failed() []IPolicies   { return all.failed }
-func (all *ListPolicies) Passed() []IPolicies   { return all.passed }
-func (all *ListPolicies) Excluded() []IPolicies { return all.excluded }
-func (all *ListPolicies) Skipped() []IPolicies  { return all.skipped }
-func (all *ListPolicies) Other() []IPolicies    { return all.other }
-func (all *ListPolicies) All() []IPolicies {
-	l := []IPolicies{}
-	l = append(l, all.failed...)
-	l = append(l, all.excluded...)
-	l = append(l, all.passed...)
-	l = append(l, all.skipped...)
-	l = append(l, all.other...)
-	return l
-}
-
-// Append append single string to matching status list
-func (all *ListPolicies) Append(status apis.ScanningStatus, policy IPolicies) {
-	switch status {
-	case apis.StatusPassed:
-		all.passed = append(all.passed, policy)
-	case apis.StatusFailed:
-		all.failed = append(all.failed, policy)
-	case apis.StatusExcluded:
-		all.excluded = append(all.excluded, policy)
-	case apis.StatusSkipped:
-		all.skipped = append(all.skipped, policy)
-	default:
-		all.other = append(all.other, policy)
-	}
-}
-
-// Update AllLists objects with
-func (all *ListPolicies) Update(all2 *ListPolicies) {
-	all.passed = append(all.passed, all2.passed...)
-	all.failed = append(all.failed, all2.failed...)
-	all.excluded = append(all.excluded, all2.excluded...)
-	all.skipped = append(all.skipped, all2.skipped...)
-	all.other = append(all.other, all2.other...)
 }
