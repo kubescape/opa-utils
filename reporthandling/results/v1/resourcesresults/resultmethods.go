@@ -37,7 +37,10 @@ func (result *Result) ListControls() []ResourceAssociatedControl {
 func (result *Result) ListControlsIDs(f *helpersv1.Filters) *helpersv1.AllLists {
 	controls := &helpersv1.AllLists{}
 	for i := range result.AssociatedControls {
-		s := result.AssociatedControls[i].GetStatus(f).Status()
+		s := result.AssociatedControls[i].GetSubStatus().Status()
+		if s == apis.StatusUnknown {
+			s = result.AssociatedControls[i].GetStatus(f).Status()
+		}
 		controls.Append(s, result.AssociatedControls[i].GetID())
 	}
 	controls.ToUniqueControls()
@@ -48,7 +51,10 @@ func (result *Result) ListControlsIDs(f *helpersv1.Filters) *helpersv1.AllLists 
 func (result *Result) ListControlsNames(f *helpersv1.Filters) *helpersv1.AllLists {
 	controls := &helpersv1.AllLists{}
 	for i := range result.AssociatedControls {
-		s := result.AssociatedControls[i].GetStatus(f).Status()
+		s := result.AssociatedControls[i].GetSubStatus().Status()
+		if s == apis.StatusUnknown {
+			s = result.AssociatedControls[i].GetStatus(f).Status()
+		}
 		controls.Append(s, result.AssociatedControls[i].GetName())
 	}
 	controls.ToUniqueControls()

@@ -14,9 +14,9 @@ func mockSummaryDetailsStatusIrrelevant() *SummaryDetails {
 			*mockFrameworkSummaryFailPass(),
 		},
 		Controls: map[string]ControlSummary{
-			"C-0001": *mockControlSummaryStatusIrelevant(),
+			"C-0001": *mockControlSummaryStatusIrrelevant(),
 		},
-		ResourceCounters: *mockResourceCountersExcludeFailPass(),
+		ResourceCounters: *mockResourceCountersExceptionFailPass(),
 		Status:           apis.StatusFailed,
 	}
 }
@@ -29,7 +29,7 @@ func mockSummaryDetailsNoInnerStatus() *SummaryDetails {
 		Controls: map[string]ControlSummary{
 			"C-0001": *mockControlSummaryNoInnerStatus(),
 		},
-		ResourceCounters: *mockResourceCountersExcludeFailPass(),
+		ResourceCounters: *mockResourceCountersExceptionFailPass(),
 		Status:           apis.StatusFailed,
 	}
 }
@@ -42,7 +42,7 @@ func mockSummaryDetailsStatusEmpty() *SummaryDetails {
 		Controls: map[string]ControlSummary{
 			"C-0001": *mockControlSummaryStatusEmpty(),
 		},
-		ResourceCounters: *mockResourceCountersExcludeFailPass(),
+		ResourceCounters: *mockResourceCountersExceptionFailPass(),
 		Status:           apis.StatusFailed,
 	}
 }
@@ -55,7 +55,7 @@ func mockSummaryDetailsStatusSkipped() *SummaryDetails {
 		Controls: map[string]ControlSummary{
 			"C-0001": *mockControlSummaryStatusSkipped(),
 		},
-		ResourceCounters: *mockResourceCountersExcludeFailPass(),
+		ResourceCounters: *mockResourceCountersExceptionFailPass(),
 		Status:           apis.StatusFailed,
 	}
 }
@@ -64,16 +64,16 @@ func mockSummaryDetailsFailed() *SummaryDetails {
 	return &SummaryDetails{
 		Frameworks: []FrameworkSummary{
 			*mockFrameworkSummaryFailPass(),
-			*mockFrameworkSummaryFailExclude(),
-			*mockFrameworkSummaryPassExclude(),
+			*mockFrameworkSummaryFailException(),
+			*mockFrameworkSummaryPassException(),
 		},
 		Controls: map[string]ControlSummary{
 			"C-0001": *mockControlSummaryFailPass(),
-			"C-0002": *mockControlSummaryFailPassExclude(),
-			"C-0003": *mockControlSummaryExcludePass(),
+			"C-0002": *mockControlSummaryFailPassException(),
+			"C-0003": *mockControlSummaryExceptionPass(),
 			"C-0004": *mockControlSummaryPass(),
 		},
-		ResourceCounters: *mockResourceCountersExcludeFailPass(),
+		ResourceCounters: *mockResourceCountersExceptionFailPass(),
 		Status:           apis.StatusFailed,
 	}
 }
@@ -85,39 +85,39 @@ func mockSummaryDetailsPassed() *SummaryDetails {
 		ResourceCounters: *mockResourceCountersPass(),
 	}
 }
-func mockSummaryDetailsExcluded() *SummaryDetails {
+func mockSummaryDetailsException() *SummaryDetails {
 	return &SummaryDetails{
 		Frameworks: []FrameworkSummary{
-			*mockFrameworkSummaryPassExclude(),
+			*mockFrameworkSummaryPassException(),
 		},
 		Controls: map[string]ControlSummary{
-			"C-0003": *mockControlSummaryExcludePass(),
+			"C-0003": *mockControlSummaryExceptionPass(),
 		},
-		ResourceCounters: *mockResourceCountersExclude(),
+		ResourceCounters: *mockResourceCountersExceptions(),
 	}
 }
-func mockFrameworkSummaryPassExclude() *FrameworkSummary {
+func mockFrameworkSummaryPassException() *FrameworkSummary {
 	return &FrameworkSummary{
 		Name:             "fw-pass-exclude",
 		Score:            0,
-		Status:           apis.StatusExcluded,
+		Status:           apis.StatusPassed,
 		Version:          "utnitest",
-		ResourceCounters: *mockResourceCountersExcludePass(),
+		ResourceCounters: *mockResourceCountersExceptionPass(),
 		Controls: map[string]ControlSummary{
-			"C-0003": *mockControlSummaryExcludePass(),
+			"C-0003": *mockControlSummaryExceptionPass(),
 		},
 	}
 }
-func mockFrameworkSummaryFailExclude() *FrameworkSummary {
+func mockFrameworkSummaryFailException() *FrameworkSummary {
 	return &FrameworkSummary{
 		Name:             "fw-failed",
 		Score:            0,
 		Status:           apis.StatusFailed,
 		Version:          "utnitest",
-		ResourceCounters: *mockResourceCountersExcludeFailPass(),
+		ResourceCounters: *mockResourceCountersExceptionFailPass(),
 		Controls: map[string]ControlSummary{
 			"C-0001": *mockControlSummaryFailPass(),
-			"C-0002": *mockControlSummaryFailPassExclude(),
+			"C-0002": *mockControlSummaryFailPassException(),
 		},
 	}
 }
@@ -130,17 +130,18 @@ func mockFrameworkSummaryFailPass() *FrameworkSummary {
 		ResourceCounters: *mockResourceCountersFailPass(),
 		Controls: map[string]ControlSummary{
 			"C-0001": *mockControlSummaryFailPass(),
-			"C-0003": *mockControlSummaryExcludePass(),
+			"C-0003": *mockControlSummaryExceptionPass(),
 			"C-0004": *mockControlSummaryPass(),
 		},
 	}
 }
-func mockControlSummaryExcludePass() *ControlSummary {
+func mockControlSummaryExceptionPass() *ControlSummary {
 	return &ControlSummary{
 		Name:             "control-exclude-pass",
 		Score:            0,
-		Status:           apis.StatusExcluded,
-		ResourceCounters: *mockResourceCountersExcludePass(),
+		Status:           apis.StatusPassed,
+		SubStatus:        apis.SubStatusException,
+		ResourceCounters: *mockResourceCountersExceptionPass(),
 		ResourceIDs:      *helpersv1.MockAllListsForIntegration(),
 	}
 }
@@ -164,12 +165,12 @@ func mockControlSummaryFailPass() *ControlSummary {
 		ResourceIDs:      *helpersv1.MockAllListsForIntegration(),
 	}
 }
-func mockControlSummaryFailPassExclude() *ControlSummary {
+func mockControlSummaryFailPassException() *ControlSummary {
 	return &ControlSummary{
 		Name:             "control-fail-pass-exclude",
 		Status:           apis.StatusFailed,
 		Score:            0,
-		ResourceCounters: *mockResourceCountersExcludeFailPass(),
+		ResourceCounters: *mockResourceCountersExceptionFailPass(),
 		ResourceIDs:      *helpersv1.MockAllListsForIntegration(),
 	}
 }
@@ -178,7 +179,7 @@ func mockControlSummaryStatusSkipped() *ControlSummary {
 		Name:   "control-skipped",
 		Status: apis.StatusSkipped,
 		StatusInfo: apis.StatusInfo{
-			InnerStatus: apis.InfoStatusSkipped,
+			InnerStatus: apis.StatusSkipped,
 			InnerInfo:   "no host sensor flag",
 		},
 		Score: 0,
@@ -189,6 +190,7 @@ func mockControlSummaryNoInnerStatus() *ControlSummary {
 	return &ControlSummary{
 		Name:       "control-irrelevant",
 		Status:     apis.StatusSkipped,
+		SubStatus:  apis.SubStatusIntegration,
 		StatusInfo: apis.StatusInfo{},
 		Score:      0,
 	}
@@ -201,12 +203,13 @@ func mockControlSummaryStatusEmpty() *ControlSummary {
 	}
 }
 
-func mockControlSummaryStatusIrelevant() *ControlSummary {
+func mockControlSummaryStatusIrrelevant() *ControlSummary {
 	return &ControlSummary{
-		Name:   "control-irrelevant",
-		Status: apis.StatusSkipped,
+		Name:      "control-irrelevant",
+		Status:    apis.StatusPassed,
+		SubStatus: apis.SubStatusIrrelevant,
 		StatusInfo: apis.StatusInfo{
-			InnerStatus: apis.StatusIrrelevant,
+			InnerStatus: apis.StatusPassed,
 			InnerInfo:   "no k8s dashboard in cluster",
 		},
 		Score: 0,
@@ -220,18 +223,18 @@ func mockResourceCountersFailPass() *ResourceCounters {
 	}
 }
 
-func mockResourceCountersExcludePass() *ResourceCounters {
+func mockResourceCountersExceptionPass() *ResourceCounters {
 	return &ResourceCounters{
-		PassedResources:   4,
-		ExcludedResources: 3,
+		PassedResources:          4,
+		PassedExceptionResources: 3,
 	}
 }
 
-func mockResourceCountersExcludeFailPass() *ResourceCounters {
+func mockResourceCountersExceptionFailPass() *ResourceCounters {
 	return &ResourceCounters{
-		PassedResources:   4,
-		ExcludedResources: 3,
-		FailedResources:   5,
+		PassedResources:          4,
+		PassedExceptionResources: 3,
+		FailedResources:          5,
 	}
 }
 
@@ -242,11 +245,13 @@ func mockResourceCountersPass() *ResourceCounters {
 }
 
 func mockResourceCountersSkipped() *ResourceCounters {
-	return &ResourceCounters{}
+	return &ResourceCounters{
+		SkippedIntegrationResources: 4,
+	}
 }
 
-func mockResourceCountersExclude() *ResourceCounters {
+func mockResourceCountersExceptions() *ResourceCounters {
 	return &ResourceCounters{
-		ExcludedResources: 4,
+		PassedExceptionResources: 4,
 	}
 }

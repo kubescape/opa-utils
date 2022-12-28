@@ -17,21 +17,38 @@ func (rule *ResourceAssociatedRule) SetName(n string) {
 
 // =============================== Status ====================================
 
-// SetName set rule name
+// GetStatus get rule status
 func (rule *ResourceAssociatedRule) GetStatus(f *helpersv1.Filters) apis.IStatus {
-	if rule.Status == apis.StatusFailed || rule.Status == apis.StatusExcluded {
+	return helpersv1.NewStatus(rule.Status)
+}
+
+// GetSubStatus get rule sub status
+func (rule *ResourceAssociatedRule) GetSubStatus() apis.IStatus {
+	return helpersv1.NewStatus(rule.SubStatus)
+}
+
+// SetStatus set rule status and sub status
+func (rule *ResourceAssociatedRule) SetStatus(s apis.ScanningStatus, f *helpersv1.Filters) {
+	if s == apis.StatusFailed || s == apis.SubStatusException {
 		if f != nil {
 			if len(f.FilterExceptions(rule.Exception)) > 0 {
-				return helpersv1.NewStatus(apis.StatusExcluded)
+				rule.Status = apis.StatusPassed
+				rule.SubStatus = apis.SubStatusException
+				return
+			} else {
+				rule.Status = apis.StatusFailed
+				return
 			}
 		} else {
 			if len(rule.Exception) > 0 {
-				return helpersv1.NewStatus(apis.StatusExcluded)
+				rule.Status = apis.StatusPassed
+				rule.SubStatus = apis.SubStatusException
+				return
+			} else {
+				rule.Status = apis.StatusFailed
+				return
 			}
 		}
 	}
-	if rule.Status == apis.StatusUnknown {
-		return helpersv1.NewStatus(apis.StatusIgnored)
-	}
-	return helpersv1.NewStatus(rule.Status)
+	rule.Status = apis.StatusPassed
 }

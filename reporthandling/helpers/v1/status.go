@@ -35,11 +35,6 @@ func (s *Status) IsFailed() bool {
 	return s.status == apis.StatusFailed
 }
 
-// IsExcluded is the status excluded
-func (s *Status) IsExcluded() bool {
-	return s.status == apis.StatusExcluded
-}
-
 // IsSkipped is the status skipped
 func (s *Status) IsSkipped() bool {
 	return s.status == apis.StatusSkipped

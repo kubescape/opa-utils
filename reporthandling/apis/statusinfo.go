@@ -23,12 +23,7 @@ func (s *StatusInfo) IsFailed() bool {
 	return s.InnerStatus == StatusFailed
 }
 
-// IsExcluded is the status excluded
-func (s *StatusInfo) IsExcluded() bool {
-	return s.InnerStatus == StatusExcluded
-}
-
 // IsSkipped is the status skipped
 func (s *StatusInfo) IsSkipped() bool {
-	return !s.IsExcluded() && !s.IsPassed() && !s.IsFailed()
+	return !s.IsPassed() && !s.IsFailed() && s.InnerStatus != StatusUnknown
 }

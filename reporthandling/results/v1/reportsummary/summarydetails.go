@@ -89,7 +89,11 @@ func (summaryDetails *SummaryDetails) ListFrameworks() []IFrameworkSummary {
 func (summaryDetails *SummaryDetails) ListControlsNames() *helpersv1.AllLists {
 	controls := &helpersv1.AllLists{}
 	for _, controlSummary := range summaryDetails.Controls {
-		controls.Append(controlSummary.GetStatus().Status(), controlSummary.Name)
+		status := controlSummary.GetSubStatus().Status()
+		if status == apis.StatusUnknown {
+			status = controlSummary.GetStatus().Status()
+		}
+		controls.Append(status, controlSummary.Name)
 	}
 	controls.ToUniqueControls()
 	return controls
@@ -98,7 +102,11 @@ func (summaryDetails *SummaryDetails) ListControlsNames() *helpersv1.AllLists {
 func (summaryDetails *SummaryDetails) ListControlsIDs() *helpersv1.AllLists {
 	controls := &helpersv1.AllLists{}
 	for controlID, controlSummary := range summaryDetails.Controls {
-		controls.Append(controlSummary.GetStatus().Status(), controlID)
+		status := controlSummary.GetSubStatus().Status()
+		if status == apis.StatusUnknown {
+			status = controlSummary.GetStatus().Status()
+		}
+		controls.Append(status, controlID)
 	}
 	controls.ToUniqueControls()
 	return controls
@@ -120,11 +128,14 @@ func (summaryDetails *SummaryDetails) ListControls() []IControlSummary {
 func (summaryDetails *SummaryDetails) NumberOfControls() ICounters {
 	controlsIds := summaryDetails.ListControlsIDs()
 	return &PostureCounters{
-		PassedCounter:   len(controlsIds.Passed()),
-		FailedCounter:   len(controlsIds.Failed()),
-		ExcludedCounter: len(controlsIds.Excluded()),
-		SkippedCounter:  len(controlsIds.Skipped()),
-		UnknownCounter:  len(controlsIds.Other()),
+		PassedCounter:                len(controlsIds.Passed()),
+		PassedExceptionCounter:       len(controlsIds.PassedExceptions()),
+		PassedIrrelevantCounter:      len(controlsIds.PassedIrrelevant()),
+		FailedCounter:                len(controlsIds.Failed()),
+		SkippedConfigurationCounter:  len(controlsIds.SkippedConfiguration()),
+		SkippedIntegrationCounter:    len(controlsIds.SkippedIntegration()),
+		SkippedRequiresReviewCounter: len(controlsIds.SkippedRequiresReview()),
+		SkippedManualReviewCounter:   len(controlsIds.SkippedManualReview()),
 	}
 }
 
@@ -183,7 +194,11 @@ func updateControlsSummaryCounters(resourceResult *resourcesresults.Result, cont
 	for i := range resourceResult.AssociatedControls {
 		controlID := resourceResult.AssociatedControls[i].ControlID
 		if controlSummary, ok := controls[controlID]; ok {
-			controlSummary.Append(resourceResult.AssociatedControls[i].GetStatus(f), resourceResult.ResourceID)
+			status := resourceResult.AssociatedControls[i].GetSubStatus()
+			if status.Status() == apis.StatusUnknown {
+				status = resourceResult.AssociatedControls[i].GetStatus(f)
+			}
+			controlSummary.Append(status, resourceResult.ResourceID)
 			controlSummary.CalculateStatus()
 			controls[controlID] = controlSummary
 		}
