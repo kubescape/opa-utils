@@ -122,7 +122,7 @@ func (gs *GitRegoStore) GetOPAControlByID(controlID string) (*opapolicy.Control,
 	return nil, fmt.Errorf("control '%s' not found", controlID)
 }
 
-// GetControlByFrameworkAndControlName - get framework name and control name and return the relevant control object
+// GetOPAControlByFrameworkNameAndControlName - get framework name and control name and return the relevant control object
 func (gs *GitRegoStore) GetOPAControlByFrameworkNameAndControlName(frameworkName string, controlName string) (*opapolicy.Control, error) {
 	fw, err := gs.GetOPAFrameworkByName(frameworkName)
 
