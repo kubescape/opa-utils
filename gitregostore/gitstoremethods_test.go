@@ -82,7 +82,7 @@ func gs_tests(t *testing.T, gs *GitRegoStore) {
 
 	}
 
-	control, err = gs.GetControlByFrameworkAndControlName("NSA", "Allow privilege escalation")
+	control, err = gs.GetOPAControlByFrameworkNameAndControlName("NSA", "Allow privilege escalation")
 
 	if err != nil || control == nil {
 		t.Errorf("failed to get control by framework name 'NSA' and control name 'Allow privilege escalation': %v", err)

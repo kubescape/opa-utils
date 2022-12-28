@@ -122,9 +122,14 @@ func (gs *GitRegoStore) GetOPAControlByID(controlID string) (*opapolicy.Control,
 	return nil, fmt.Errorf("control '%s' not found", controlID)
 }
 
-// getFrameworkControlByControlName - get opapolicy.Framework and control name and return the relevant control object
+// GetControlByFrameworkAndControlName - get framework name and control name and return the relevant control object
+func (gs *GitRegoStore) GetOPAControlByFrameworkNameAndControlName(frameworkName string, controlName string) (*opapolicy.Control, error) {
+	fw, err := gs.GetOPAFrameworkByName(frameworkName)
 
-func (gs *GitRegoStore) getFrameworkControlByControlName(fw *opapolicy.Framework, controlName string) (*opapolicy.Control, error) {
+	if err != nil {
+		return nil, err
+	}
+
 	for _, control := range fw.Controls {
 
 		if strings.EqualFold(control.Name, controlName) ||
@@ -141,18 +146,6 @@ func (gs *GitRegoStore) getFrameworkControlByControlName(fw *opapolicy.Framework
 	}
 
 	return nil, fmt.Errorf("control  name '%s' not found in framework '%s'", controlName, fw.Name)
-
-}
-
-// GetControlByFrameworkAndControlName - get framework name and control name and return the relevant control object
-func (gs *GitRegoStore) GetControlByFrameworkAndControlName(frameworkName string, controlName string) (*opapolicy.Control, error) {
-	fw, err := gs.GetOPAFrameworkByName(frameworkName)
-
-	if err != nil {
-		return nil, err
-	}
-
-	return gs.getFrameworkControlByControlName(fw, controlName)
 
 }
 
