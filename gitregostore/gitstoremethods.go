@@ -88,9 +88,11 @@ func (gs *GitRegoStore) GetOPAControlByName(controlName string) (*opapolicy.Cont
 		if strings.EqualFold(control.Name, controlName) ||
 			// If backward compatibility is supported, extract from patched control name the new name.
 			(supportBackwardCompatibility && strings.EqualFold(control.Name, baseControlName(control.ControlID, controlName))) {
-			err := gs.fillRulesAndRulesIDsInControl(&control)
-			if err != nil {
-				return nil, err
+			if len(control.Rules) == 0 {
+				err := gs.fillRulesAndRulesIDsInControl(&control)
+				if err != nil {
+					return nil, err
+				}
 			}
 			return &control, nil
 		}
@@ -106,14 +108,52 @@ func (gs *GitRegoStore) GetOPAControlByID(controlID string) (*opapolicy.Control,
 		if strings.EqualFold(control.ControlID, controlID) ||
 			// If backward compatibility is supported,try to find if the controlID sent has a new controlID
 			(supportBackwardCompatibility && strings.EqualFold(control.ControlID, newControlID(controlID))) {
-			err := gs.fillRulesAndRulesIDsInControl(&control)
-			if err != nil {
-				return nil, err
+
+			if len(control.Rules) == 0 {
+				err := gs.fillRulesAndRulesIDsInControl(&control)
+				if err != nil {
+					return nil, err
+				}
 			}
+
 			return &control, nil
 		}
 	}
 	return nil, fmt.Errorf("control '%s' not found", controlID)
+}
+
+// getFrameworkControlByControlName - get opapolicy.Framework and control name and return the relevant control object
+
+func (gs *GitRegoStore) getFrameworkControlByControlName(fw *opapolicy.Framework, controlName string) (*opapolicy.Control, error) {
+	for _, control := range fw.Controls {
+
+		if strings.EqualFold(control.Name, controlName) ||
+			// If backward compatibility is supported, extract from patched control name the new name.
+			(supportBackwardCompatibility && strings.EqualFold(control.Name, baseControlName(control.ControlID, controlName))) {
+			if len(control.Rules) == 0 {
+				err := gs.fillRulesAndRulesIDsInControl(&control)
+				if err != nil {
+					return nil, err
+				}
+			}
+			return &control, nil
+		}
+	}
+
+	return nil, fmt.Errorf("control  name '%s' not found in framework '%s'", controlName, fw.Name)
+
+}
+
+// GetControlByFrameworkAndControlName - get framework name and control name and return the relevant control object
+func (gs *GitRegoStore) GetControlByFrameworkAndControlName(frameworkName string, controlName string) (*opapolicy.Control, error) {
+	fw, err := gs.GetOPAFrameworkByName(frameworkName)
+
+	if err != nil {
+		return nil, err
+	}
+
+	return gs.getFrameworkControlByControlName(fw, controlName)
+
 }
 
 // GetOPAControl returns specific control by the name or ID
@@ -170,21 +210,40 @@ func (gs *GitRegoStore) fillControlsAndControlIDsInFramework(fw *opapolicy.Frame
 	var controlsList []opapolicy.Control
 	var controlsIDList []string
 
-	for row := 0; row < fil.Nrow(); row++ {
-		// controlName := fil.Elem(row, 2)
-		// control, err := gs.GetOPAControlByName(controlName.String())
-		controlID := fil.Elem(row, 1)
-		control, err := gs.GetOPAControlByID(controlID.String())
-		if err != nil {
-			return err
+	// if there are no controls in framework, need to populate them all from base controls.
+	if len(fw.Controls) == 0 {
+		for row := 0; row < fil.Nrow(); row++ {
+			controlID := fil.Elem(row, 1)
+			control, err := gs.GetOPAControlByID(controlID.String())
+			if err != nil {
+				return err
+			}
+			// add control to controlsList
+			controlsList = append(controlsList, *control)
+			// add controlID to controlsIDList
+			controlsIDList = append(controlsIDList, control.ControlID)
+
 		}
-		// add rule to control.rules
-		controlsList = append(controlsList, *control)
-		// add ruleId ro control.ruleIds
-		controlsIDList = append(controlsIDList, control.ControlID)
+		fw.Controls = controlsList
+		fw.ControlsIDs = &controlsIDList
+	} else {
+		// if there are controls, need to populate only the rules.
+		for i := range fw.Controls {
+			if len(fw.Controls[i].Rules) == 0 {
+
+				// getting the control object using GetOPAControlByID as it handles backward compatibility
+				tmpControl, err := gs.GetOPAControlByID(fw.Controls[i].ControlID)
+				if err != nil {
+					return err
+				}
+				fw.Controls[i].Rules = tmpControl.Rules
+				fw.Controls[i].RulesIDs = tmpControl.RulesIDs
+			}
+
+		}
+
 	}
-	fw.Controls = controlsList
-	fw.ControlsIDs = &controlsIDList
+
 	return nil
 }
 
