@@ -60,12 +60,7 @@ func TestUpdateControlsSummaryCountersFailed(t *testing.T) {
 		assert.Equal(t, 1, v.NumberOfResources().All())
 		assert.Equal(t, 1, v.NumberOfResources().Failed())
 		assert.Equal(t, 0, v.NumberOfResources().Passed())
-		assert.Equal(t, 0, v.NumberOfResources().PassedExceptions())
-		assert.Equal(t, 0, v.NumberOfResources().PassedIrrelevant())
-		assert.Equal(t, 0, v.NumberOfResources().SkippedIntegration())
-		assert.Equal(t, 0, v.NumberOfResources().SkippedConfiguration())
-		assert.Equal(t, 0, v.NumberOfResources().SkippedRequiresReview())
-		assert.Equal(t, 0, v.NumberOfResources().SkippedManualReview())
+		assert.Equal(t, 0, v.NumberOfResources().Skipped())
 	}
 
 }
@@ -83,12 +78,7 @@ func TestUpdateControlsSummaryCountersPassed(t *testing.T) {
 		assert.Equal(t, 1, v.NumberOfResources().All())
 		assert.Equal(t, 0, v.NumberOfResources().Failed())
 		assert.Equal(t, 1, v.NumberOfResources().Passed())
-		assert.Equal(t, 0, v.NumberOfResources().PassedExceptions())
-		assert.Equal(t, 0, v.NumberOfResources().PassedIrrelevant())
-		assert.Equal(t, 0, v.NumberOfResources().SkippedIntegration())
-		assert.Equal(t, 0, v.NumberOfResources().SkippedConfiguration())
-		assert.Equal(t, 0, v.NumberOfResources().SkippedRequiresReview())
-		assert.Equal(t, 0, v.NumberOfResources().SkippedManualReview())
+		assert.Equal(t, 0, v.NumberOfResources().Skipped())
 
 	}
 }
@@ -109,12 +99,7 @@ func TestUpdateControlsSummaryCountersAll(t *testing.T) {
 		assert.NotEqual(t, 0, v.NumberOfResources().All())
 		assert.NotEqual(t, 0, v.NumberOfResources().Failed())
 		assert.Equal(t, 0, v.NumberOfResources().Passed())
-		assert.Equal(t, 0, v.NumberOfResources().PassedExceptions())
-		assert.Equal(t, 0, v.NumberOfResources().PassedIrrelevant())
-		assert.Equal(t, 0, v.NumberOfResources().SkippedIntegration())
-		assert.Equal(t, 0, v.NumberOfResources().SkippedConfiguration())
-		assert.Equal(t, 0, v.NumberOfResources().SkippedRequiresReview())
-		assert.Equal(t, 0, v.NumberOfResources().SkippedManualReview())
+		assert.Equal(t, 0, v.NumberOfResources().Skipped())
 
 	}
 	for _, i := range allControls.Passed() {
@@ -123,12 +108,7 @@ func TestUpdateControlsSummaryCountersAll(t *testing.T) {
 		assert.NotEqual(t, 0, v.NumberOfResources().All())
 		assert.NotEqual(t, 0, v.NumberOfResources().Passed())
 		assert.Equal(t, 0, v.NumberOfResources().Failed())
-		assert.Equal(t, 0, v.NumberOfResources().PassedExceptions())
-		assert.Equal(t, 0, v.NumberOfResources().PassedIrrelevant())
-		assert.Equal(t, 0, v.NumberOfResources().SkippedIntegration())
-		assert.Equal(t, 0, v.NumberOfResources().SkippedConfiguration())
-		assert.Equal(t, 0, v.NumberOfResources().SkippedRequiresReview())
-		assert.Equal(t, 0, v.NumberOfResources().SkippedManualReview())
+		assert.Equal(t, 0, v.NumberOfResources().Skipped())
 
 	}
 }

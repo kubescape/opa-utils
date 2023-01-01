@@ -81,11 +81,7 @@ func (frameworkSummary *FrameworkSummary) GetName() string {
 func (frameworkSummary *FrameworkSummary) ListControlsNames() *helpersv1.AllLists {
 	controls := &helpersv1.AllLists{}
 	for _, controlSummary := range frameworkSummary.Controls {
-		status := controlSummary.GetSubStatus().Status()
-		if status == apis.StatusUnknown {
-			status = controlSummary.GetStatus().Status()
-		}
-		controls.Append(status, controlSummary.Name)
+		controls.Append(controlSummary.GetStatus().Status(), controlSummary.Name)
 	}
 	controls.ToUniqueControls()
 	return controls
@@ -94,11 +90,7 @@ func (frameworkSummary *FrameworkSummary) ListControlsNames() *helpersv1.AllList
 func (frameworkSummary *FrameworkSummary) ListControlsIDs() *helpersv1.AllLists {
 	controls := &helpersv1.AllLists{}
 	for controlID, controlSummary := range frameworkSummary.Controls {
-		status := controlSummary.GetSubStatus().Status()
-		if status == apis.StatusUnknown {
-			status = controlSummary.GetStatus().Status()
-		}
-		controls.Append(status, controlID)
+		controls.Append(controlSummary.GetStatus().Status(), controlID)
 	}
 	controls.ToUniqueControls()
 	return controls

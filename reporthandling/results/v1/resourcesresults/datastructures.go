@@ -20,7 +20,7 @@ type ResourceAssociatedControl struct {
 	ControlID               string                   `json:"controlID"`
 	Name                    string                   `json:"name"`
 	Status                  apis.StatusInfo          `json:"status"`
-	SubStatus               apis.StatusInfo          `json:"subStatus"`
+	SubStatus               apis.ScanningSubStatus   `json:"subStatus"`
 	ResourceAssociatedRules []ResourceAssociatedRule `json:"rules,omitempty"`
 }
 
@@ -29,7 +29,7 @@ type ResourceAssociatedRule struct {
 	ControlConfigurations map[string][]string                `json:"controlConfigurations,omitempty"`
 	Name                  string                             `json:"name"`
 	Status                apis.ScanningStatus                `json:"status"`
-	SubStatus             apis.ScanningStatus                `json:"subStatus"`
+	SubStatus             apis.ScanningSubStatus             `json:"subStatus"`
 	Paths                 []armotypes.PosturePaths           `json:"paths,omitempty"`
 	Exception             []armotypes.PostureExceptionPolicy `json:"exception,omitempty"`
 }
