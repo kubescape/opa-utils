@@ -51,15 +51,6 @@ func (controlSummary *ControlSummary) calculateStatus(subStatus apis.ScanningSub
 
 // CalculateSubStatus set the control sub status based on the resource associated control sub status
 func (controlSummary *ControlSummary) CalculateSubStatus(subStatus apis.ScanningSubStatus) {
-	// If the ResourceCounter empty and the subStatus is unknown then it should be irrelevant,
-	// For it to be something else, (for example configuration), the subStatus should be different from unknown
-	if subStatus == apis.SubStatusUnknown {
-		if controlSummary.ResourceCounters.All() == 0 {
-			controlSummary.SubStatus = apis.SubStatusIrrelevant
-			controlSummary.StatusInfo.InnerInfo = ""
-		}
-		return
-	}
 	switch controlSummary.Status {
 	case apis.StatusPassed:
 		if subStatus == apis.SubStatusIrrelevant || controlSummary.SubStatus == apis.SubStatusIrrelevant || controlSummary.ResourceCounters.All() == 0 {
@@ -80,6 +71,9 @@ func (controlSummary *ControlSummary) CalculateSubStatus(subStatus apis.Scanning
 			controlSummary.SubStatus = apis.SubStatusRequiresReview
 			controlSummary.StatusInfo.InnerInfo = apis.SubStatusRequiresReviewInfo
 		}
+	case apis.StatusFailed:
+		controlSummary.SubStatus = apis.SubStatusUnknown
+		controlSummary.StatusInfo.InnerInfo = ""
 	}
 }
 
