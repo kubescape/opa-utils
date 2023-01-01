@@ -1,19 +1,26 @@
 package apis
 
 type ScanningStatus string
+type ScanningSubStatus string
 
 const (
-	StatusPassed            ScanningStatus = "passed"
-	StatusFailed            ScanningStatus = "failed"
-	StatusSkipped           ScanningStatus = "skipped"
-	SubStatusException      ScanningStatus = "w/exceptions"
-	SubStatusIrrelevant     ScanningStatus = "irrelevant"
-	SubStatusConfiguration  ScanningStatus = "configuration"
-	SubStatusIntegration    ScanningStatus = "integration"
-	SubStatusRequiresReview ScanningStatus = "requires review"
-	SubStatusManualReview   ScanningStatus = "manual review"
-	StatusUnknown           ScanningStatus = "" // keep this empty
+	StatusPassed            ScanningStatus    = "passed"
+	StatusFailed            ScanningStatus    = "failed"
+	StatusSkipped           ScanningStatus    = "skipped"
+	SubStatusException      ScanningSubStatus = "w/exceptions"
+	SubStatusIrrelevant     ScanningSubStatus = "irrelevant"
+	SubStatusConfiguration  ScanningSubStatus = "configuration"
+	SubStatusIntegration    ScanningSubStatus = "integration"
+	SubStatusRequiresReview ScanningSubStatus = "requires review"
+	SubStatusManualReview   ScanningSubStatus = "manual review"
+	SubStatusUnknown        ScanningSubStatus = "" // keep this empty
+	StatusUnknown           ScanningStatus    = "" // keep this empty
 
+)
+const (
+	SubStatusConfigurationInfo  string = "Control missing configuration"
+	SubStatusRequiresReviewInfo string = "Control type is requires-review"
+	SubStatusManualReviewInfo   string = "Control type is manual-review"
 )
 
 // IStatus interface handling status
@@ -68,35 +75,33 @@ func Compare(a, b ScanningStatus) ScanningStatus {
 			else:
 				sub status = status=unknown
 */
-func CompareStatusAndSubStatus(a, aSub, b, bSub ScanningStatus) (ScanningStatus, ScanningStatus) {
+func CompareStatusAndSubStatus(a, b ScanningStatus, aSub, bSub ScanningSubStatus) (ScanningStatus, ScanningSubStatus) {
 	status := Compare(a, b)
-	if status == StatusFailed || status == StatusUnknown {
-		return status, ScanningStatus(StatusUnknown)
-	}
+	switch status {
+	case StatusFailed, StatusUnknown:
+		return status, SubStatusUnknown
+	case StatusPassed:
+		if aSub == SubStatusException || bSub == SubStatusException {
+			return status, SubStatusException
+		}
+		if aSub == SubStatusIrrelevant || bSub == SubStatusIrrelevant {
+			return status, SubStatusIrrelevant
+		}
 
-	if status == StatusPassed {
-		if aSub == ScanningStatus(SubStatusException) || bSub == ScanningStatus(SubStatusException) {
-			return status, ScanningStatus(SubStatusException)
+	case StatusSkipped:
+		if aSub == SubStatusConfiguration || bSub == SubStatusConfiguration {
+			return status, SubStatusConfiguration
 		}
-		if aSub == ScanningStatus(SubStatusIrrelevant) || bSub == ScanningStatus(SubStatusIrrelevant) {
-			return status, ScanningStatus(SubStatusIrrelevant)
+		if aSub == SubStatusIntegration || bSub == SubStatusIntegration {
+			return status, SubStatusIntegration
 		}
-	}
-
-	if status == StatusSkipped {
-		if aSub == ScanningStatus(SubStatusConfiguration) || bSub == ScanningStatus(SubStatusConfiguration) {
-			return status, ScanningStatus(SubStatusConfiguration)
+		if aSub == SubStatusRequiresReview || bSub == SubStatusRequiresReview {
+			return status, SubStatusRequiresReview
 		}
-		if aSub == ScanningStatus(SubStatusIntegration) || bSub == ScanningStatus(SubStatusIntegration) {
-			return status, ScanningStatus(SubStatusIntegration)
-		}
-		if aSub == ScanningStatus(SubStatusRequiresReview) || bSub == ScanningStatus(SubStatusRequiresReview) {
-			return status, ScanningStatus(SubStatusRequiresReview)
-		}
-		if aSub == ScanningStatus(SubStatusManualReview) || bSub == ScanningStatus(SubStatusManualReview) {
-			return status, ScanningStatus(SubStatusManualReview)
+		if aSub == SubStatusManualReview || bSub == SubStatusManualReview {
+			return status, SubStatusManualReview
 		}
 
 	}
-	return status, ScanningStatus(StatusUnknown)
+	return status, SubStatusUnknown
 }

@@ -44,7 +44,7 @@ type IControlSummary interface {
 	GetDescription() string
 
 	// Get SubStatus() get control sub status
-	GetSubStatus() apis.IStatus
+	GetSubStatus() apis.ScanningSubStatus
 }
 
 type IControlsSummaries interface {

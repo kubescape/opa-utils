@@ -27,36 +27,58 @@ func (controlSummary *ControlSummary) SetStatus(statusInfo *apis.StatusInfo) {
 	}
 }
 
-// GetSubStatus get the control sub status. returns an apis.StatusInfo object
-func (controlSummary *ControlSummary) GetSubStatus() apis.IStatus {
-	return &apis.StatusInfo{InnerStatus: controlSummary.SubStatus}
+func (controlSummary *ControlSummary) SetSubStatus(subStatus apis.ScanningSubStatus) {
+	controlSummary.SubStatus = subStatus
 }
 
-// CalculateStatus set the control status and subStatus based on the resource counters
+// GetSubStatus get the control sub status. returns an apis.StatusInfo object
+func (controlSummary *ControlSummary) GetSubStatus() apis.ScanningSubStatus {
+	return controlSummary.SubStatus
+}
+
 func (controlSummary *ControlSummary) CalculateStatus() {
+	controlSummary.calculateStatus(apis.SubStatusUnknown)
+}
+
+// calculateStatus set the control status based on the resource counters and the sub status based on the subStatus parameter
+func (controlSummary *ControlSummary) calculateStatus(subStatus apis.ScanningSubStatus) {
 	controlSummary.StatusInfo.InnerStatus = calculateStatus(&controlSummary.ResourceCounters)
 	// Statuses should be the same
 	controlSummary.Status = controlSummary.StatusInfo.Status()
 
-	controlSummary.SubStatus = calculateSubStatus(&controlSummary.ResourceCounters)
+	controlSummary.CalculateSubStatus(subStatus)
 }
 
 // CalculateSubStatus set the control sub status based on the resource associated control sub status
-func (controlSummary *ControlSummary) CalculateSubStatus(subStatus apis.ScanningStatus) {
+func (controlSummary *ControlSummary) CalculateSubStatus(subStatus apis.ScanningSubStatus) {
+	// If the ResourceCounter empty and the subStatus is unknown then it should be irrelevant,
+	// For it to be something else, (for example configuration), the subStatus should be different from unknown
+	if subStatus == apis.SubStatusUnknown {
+		if controlSummary.ResourceCounters.All() == 0 {
+			controlSummary.SubStatus = apis.SubStatusIrrelevant
+			controlSummary.StatusInfo.InnerInfo = ""
+		}
+		return
+	}
 	switch controlSummary.Status {
 	case apis.StatusPassed:
 		if subStatus == apis.SubStatusIrrelevant || controlSummary.SubStatus == apis.SubStatusIrrelevant || controlSummary.ResourceCounters.All() == 0 {
 			controlSummary.SubStatus = apis.SubStatusIrrelevant
+			controlSummary.StatusInfo.InnerInfo = ""
 		} else if subStatus == apis.SubStatusException || controlSummary.SubStatus == apis.SubStatusException {
 			controlSummary.SubStatus = apis.SubStatusException
+			controlSummary.StatusInfo.InnerInfo = ""
 		}
 	case apis.StatusSkipped:
 		if subStatus == apis.SubStatusConfiguration || controlSummary.SubStatus == apis.SubStatusConfiguration {
 			controlSummary.SubStatus = apis.SubStatusConfiguration
+			controlSummary.StatusInfo.InnerInfo = apis.SubStatusConfigurationInfo
 		} else if subStatus == apis.SubStatusManualReview || controlSummary.SubStatus == apis.SubStatusManualReview {
 			controlSummary.SubStatus = apis.SubStatusManualReview
+			controlSummary.StatusInfo.InnerInfo = apis.SubStatusManualReviewInfo
 		} else if subStatus == apis.SubStatusRequiresReview || controlSummary.SubStatus == apis.SubStatusRequiresReview {
 			controlSummary.SubStatus = apis.SubStatusRequiresReview
+			controlSummary.StatusInfo.InnerInfo = apis.SubStatusRequiresReviewInfo
 		}
 	}
 }
@@ -156,11 +178,7 @@ func (controlSummaries *ControlSummaries) GetControl(criteria ControlCriteria, v
 func (controlSummaries *ControlSummaries) ListControlsIDs() *helpersv1.AllLists {
 	controls := &helpersv1.AllLists{}
 	for controlID, controlSummary := range *controlSummaries {
-		status := controlSummary.GetSubStatus().Status()
-		if status == apis.StatusUnknown {
-			status = controlSummary.GetStatus().Status()
-		}
-		controls.Append(status, controlID)
+		controls.Append(controlSummary.GetStatus().Status(), controlID)
 	}
 	controls.ToUniqueControls()
 	return controls
@@ -170,14 +188,9 @@ func (controlSummaries *ControlSummaries) ListControlsIDs() *helpersv1.AllLists 
 func (controlSummaries *ControlSummaries) NumberOfControls() ICounters {
 	l := controlSummaries.ListControlsIDs()
 	return &PostureCounters{
-		PassedCounter:                len(l.Passed()),
-		PassedExceptionCounter:       len(l.PassedExceptions()),
-		PassedIrrelevantCounter:      len(l.PassedIrrelevant()),
-		FailedCounter:                len(l.Failed()),
-		SkippedConfigurationCounter:  len(l.SkippedConfiguration()),
-		SkippedManualReviewCounter:   len(l.SkippedManualReview()),
-		SkippedRequiresReviewCounter: len(l.SkippedRequiresReview()),
-		SkippedIntegrationCounter:    len(l.SkippedIntegration()),
+		PassedCounter:  len(l.Passed()),
+		FailedCounter:  len(l.Failed()),
+		SkippedCounter: len(l.Skipped()),
 	}
 }
 
@@ -190,12 +203,7 @@ func (controlSummaries *ControlSummaries) ListResourcesIDs() *helpersv1.AllLists
 		resourcesIDs := controlSummaries.GetControl(EControlCriteriaID, ctrlIDsIter.Next()).ListResourcesIDs()
 		allList.Append(apis.StatusFailed, resourcesIDs.Failed()...)
 		allList.Append(apis.StatusPassed, resourcesIDs.Passed()...)
-		allList.Append(apis.SubStatusException, resourcesIDs.PassedExceptions()...)
-		allList.Append(apis.SubStatusIrrelevant, resourcesIDs.PassedIrrelevant()...)
-		allList.Append(apis.SubStatusConfiguration, resourcesIDs.SkippedConfiguration()...)
-		allList.Append(apis.SubStatusManualReview, resourcesIDs.SkippedManualReview()...)
-		allList.Append(apis.SubStatusRequiresReview, resourcesIDs.SkippedRequiresReview()...)
-		allList.Append(apis.SubStatusIntegration, resourcesIDs.SkippedIntegration()...)
+		allList.Append(apis.StatusSkipped, resourcesIDs.Skipped()...)
 		allList.Append(apis.StatusUnknown, resourcesIDs.Other()...)
 	}
 

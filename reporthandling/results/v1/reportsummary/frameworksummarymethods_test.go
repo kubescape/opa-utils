@@ -45,10 +45,14 @@ func TestStatusEmpty(t *testing.T) {
 
 	f := mockSummaryDetailsStatusEmpty()
 	for _, v := range f.Controls {
-		v.Status = apis.SubStatusIrrelevant
+		v.Status = apis.StatusPassed
+		v.SubStatus = apis.SubStatusIrrelevant
 		status := v.GetStatus()
+		subStatus := v.GetSubStatus()
 		assert.Equal(t, reflect.TypeOf(status), reflect.TypeOf(&apis.StatusInfo{}))
-		assert.Equal(t, status.Status(), apis.SubStatusIrrelevant)
+		assert.Equal(t, reflect.TypeOf(subStatus), reflect.TypeOf(apis.SubStatusIrrelevant))
+		assert.Equal(t, status.Status(), apis.StatusPassed)
+		assert.Equal(t, subStatus, apis.SubStatusIrrelevant)
 		assert.Equal(t, status.Info(), "")
 	}
 
@@ -71,13 +75,13 @@ func TestStatusInfoSkipped(t *testing.T) {
 
 func TestStatusIrrelevant(t *testing.T) {
 	var status apis.ScanningStatus
-	var subStatus apis.ScanningStatus
+	var subStatus apis.ScanningSubStatus
 
 	f := mockSummaryDetailsStatusIrrelevant() // control -> status: "passed", subStatus: "irrelevant"
 
 	for _, v := range f.Controls {
 		status = v.GetStatus().Status()
-		subStatus = v.GetSubStatus().Status()
+		subStatus = v.GetSubStatus()
 		assert.Equal(t, status, apis.StatusPassed)
 		assert.Equal(t, subStatus, apis.SubStatusIrrelevant)
 	}
@@ -86,18 +90,10 @@ func TestStatusIrrelevant(t *testing.T) {
 
 func TestFrameworkControlsSummariesCounters(t *testing.T) {
 	f := mockFrameworkSummaryFailPass()
-	// f.ListControlsIDs().Skipped()
 	assert.Equal(t, len(f.Controls), f.GetControls().NumberOfControls().All(), "invalid total control count")
 	assert.Equal(t, len(f.GetControls().ListControlsIDs().Failed()), f.GetControls().NumberOfControls().Failed(), "invalid total failed control count")
 	assert.Equal(t, len(f.GetControls().ListControlsIDs().Passed()), f.GetControls().NumberOfControls().Passed(), "invalid total passed control count")
-	assert.Equal(t, len(f.GetControls().ListControlsIDs().PassedExceptions()), f.GetControls().NumberOfControls().PassedExceptions(), "invalid total w/exception control count")
-	assert.Equal(t, len(f.GetControls().ListControlsIDs().PassedIrrelevant()), f.GetControls().NumberOfControls().PassedIrrelevant(), "invalid total irrelevant control count")
-	assert.Equal(t, len(f.GetControls().ListControlsIDs().SkippedConfiguration()), f.GetControls().NumberOfControls().SkippedConfiguration(), "invalid total configuration control count")
-	assert.Equal(t, len(f.GetControls().ListControlsIDs().SkippedIntegration()), f.GetControls().NumberOfControls().SkippedIntegration(), "invalid total integration control count")
-	assert.Equal(t, len(f.GetControls().ListControlsIDs().SkippedManualReview()), f.GetControls().NumberOfControls().SkippedManualReview(), "invalid total ManualReview control count")
-	assert.Equal(t, len(f.GetControls().ListControlsIDs().SkippedRequiresReview()), f.GetControls().NumberOfControls().SkippedRequiresReview(), "invalid total RequiresReview control count")
-	// assert.Equal(t, len(f.GetControls().ListControlsIDs().Excluded()), f.GetControls().NumberOfControls().Excluded(), "invalid total excluded/warning control count")
-	// assert.Equal(t, len(f.GetControls().ListControlsIDs().Skipped()), f.GetControls().NumberOfControls().Skipped(), "invalid total skipped control count")
+	assert.Equal(t, len(f.GetControls().ListControlsIDs().Skipped()), f.GetControls().NumberOfControls().Skipped(), "invalid total skipped control count")
 }
 
 func TestFrameworkGettingSpecificControl(t *testing.T) {

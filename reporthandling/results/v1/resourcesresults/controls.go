@@ -34,8 +34,8 @@ func (control *ResourceAssociatedControl) GetStatus(f *helpersv1.Filters) apis.I
 }
 
 // GetSubStatus get control sub status
-func (control *ResourceAssociatedControl) GetSubStatus() apis.IStatus {
-	return &control.SubStatus
+func (control *ResourceAssociatedControl) GetSubStatus() apis.ScanningSubStatus {
+	return control.SubStatus
 }
 
 // SetStatus set control status and sub status
@@ -50,32 +50,43 @@ func (control *ResourceAssociatedControl) GetSubStatus() apis.IStatus {
 func (control *ResourceAssociatedControl) SetStatus(c reporthandling.Control) {
 	// calculate the status with all the resource associated rules
 	status := apis.StatusPassed
-	subStatus := apis.ScanningStatus(apis.StatusUnknown)
+	subStatus := apis.SubStatusUnknown
+	statusInfo := ""
 	for i := range control.ResourceAssociatedRules {
-		status, subStatus = apis.CompareStatusAndSubStatus(status, subStatus, control.ResourceAssociatedRules[i].GetStatus(nil).Status(), control.ResourceAssociatedRules[i].GetSubStatus().Status())
+		status, subStatus = apis.CompareStatusAndSubStatus(status, control.ResourceAssociatedRules[i].GetStatus(nil).Status(), subStatus, control.ResourceAssociatedRules[i].GetSubStatus())
 	}
 	actionRequiredStr := c.GetActionRequiredAttribute()
 	if actionRequiredStr == "" {
 		control.Status.InnerStatus = status
-		control.SubStatus.InnerStatus = subStatus
+		control.SubStatus = subStatus
 		return
 	}
 
-	// If the control type is requires/manual review, the status is skipped and the sub status is requires/manual review
-	actionRequired := apis.ScanningStatus(actionRequiredStr)
-	if status == apis.StatusFailed && actionRequired == apis.SubStatusManualReview || actionRequired == apis.SubStatusRequiresReview {
+	// If the control type is requires review, the status is skipped and the sub status is requires review
+	actionRequired := apis.ScanningSubStatus(actionRequiredStr)
+	if status == apis.StatusFailed && actionRequired == apis.SubStatusRequiresReview {
 		status = apis.StatusSkipped
-		subStatus = actionRequired
+		subStatus = apis.SubStatusRequiresReview
+		statusInfo = apis.SubStatusRequiresReviewInfo
+	}
+
+	// If the control type is manual review, the status is skipped and the sub status is manual review
+	if status == apis.StatusFailed && actionRequired == apis.SubStatusManualReview {
+		status = apis.StatusSkipped
+		subStatus = apis.SubStatusManualReview
+		statusInfo = apis.SubStatusManualReviewInfo
 	}
 
 	// If the control type is configuration and the configuration is not set, the status is skipped and the sub status is configuration
 	if actionRequired == apis.SubStatusConfiguration && controlMissingConfiguration(control) {
 		status = apis.StatusSkipped
 		subStatus = apis.SubStatusConfiguration
+		statusInfo = apis.SubStatusConfigurationInfo
 	}
 
 	control.Status.InnerStatus = status
-	control.SubStatus.InnerStatus = subStatus
+	control.Status.InnerInfo = statusInfo
+	control.SubStatus = subStatus
 
 }
 

@@ -20,12 +20,12 @@ func TestCompare(t *testing.T) {
 }
 
 func TestCompareStatusAndSubStatus(t *testing.T) {
-	assert.Equal(t, makeIS(StatusFailed, StatusUnknown), makeIS(CompareStatusAndSubStatus(StatusFailed, StatusUnknown, StatusPassed, StatusUnknown)))
-	assert.Equal(t, makeIS(StatusFailed, StatusUnknown), makeIS(CompareStatusAndSubStatus(StatusFailed, StatusUnknown, StatusSkipped, SubStatusConfiguration)))
-	assert.Equal(t, makeIS(StatusPassed, SubStatusIrrelevant), makeIS(CompareStatusAndSubStatus(StatusPassed, StatusUnknown, StatusPassed, SubStatusIrrelevant)))
-	assert.Equal(t, makeIS(StatusPassed, SubStatusException), makeIS(CompareStatusAndSubStatus(StatusPassed, SubStatusException, StatusPassed, StatusUnknown)))
-	assert.Equal(t, makeIS(StatusSkipped, SubStatusConfiguration), makeIS(CompareStatusAndSubStatus(StatusSkipped, SubStatusConfiguration, StatusPassed, StatusUnknown)))
-	assert.Equal(t, makeIS(StatusSkipped, SubStatusIntegration), makeIS(CompareStatusAndSubStatus(StatusSkipped, SubStatusIntegration, StatusPassed, StatusUnknown)))
-	assert.Equal(t, makeIS(StatusSkipped, SubStatusManualReview), makeIS(CompareStatusAndSubStatus(StatusPassed, StatusUnknown, StatusSkipped, SubStatusManualReview)))
-	assert.Equal(t, makeIS(StatusSkipped, SubStatusRequiresReview), makeIS(CompareStatusAndSubStatus(StatusPassed, StatusUnknown, StatusSkipped, SubStatusRequiresReview)))
+	assert.Equal(t, makeIS(StatusFailed, SubStatusUnknown), makeIS(CompareStatusAndSubStatus(StatusFailed, StatusPassed, SubStatusUnknown, SubStatusUnknown)))
+	assert.Equal(t, makeIS(StatusFailed, SubStatusUnknown), makeIS(CompareStatusAndSubStatus(StatusFailed, StatusSkipped, SubStatusUnknown, SubStatusConfiguration)))
+	assert.Equal(t, makeIS(StatusPassed, SubStatusIrrelevant), makeIS(CompareStatusAndSubStatus(StatusPassed, StatusPassed, SubStatusUnknown, SubStatusIrrelevant)))
+	assert.Equal(t, makeIS(StatusPassed, SubStatusException), makeIS(CompareStatusAndSubStatus(StatusPassed, StatusPassed, SubStatusException, SubStatusUnknown)))
+	assert.Equal(t, makeIS(StatusSkipped, SubStatusConfiguration), makeIS(CompareStatusAndSubStatus(StatusSkipped, StatusPassed, SubStatusConfiguration, SubStatusUnknown)))
+	assert.Equal(t, makeIS(StatusSkipped, SubStatusIntegration), makeIS(CompareStatusAndSubStatus(StatusSkipped, StatusPassed, SubStatusIntegration, SubStatusUnknown)))
+	assert.Equal(t, makeIS(StatusSkipped, SubStatusManualReview), makeIS(CompareStatusAndSubStatus(StatusPassed, StatusSkipped, SubStatusUnknown, SubStatusManualReview)))
+	assert.Equal(t, makeIS(StatusSkipped, SubStatusRequiresReview), makeIS(CompareStatusAndSubStatus(StatusPassed, StatusSkipped, SubStatusUnknown, SubStatusRequiresReview)))
 }

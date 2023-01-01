@@ -8,12 +8,10 @@ import (
 )
 
 func TestCalculateStatus(t *testing.T) {
-	exclude := mockResourceCountersExceptionPass()
 	passed := mockResourceCountersPass()
-	failed := mockResourceCountersExceptionFailPass()
+	failed := mockResourceCountersFailPass()
 	skipped := mockResourceCountersSkipped()
 
-	assert.Equal(t, apis.StatusPassed, calculateStatus(exclude))
 	assert.Equal(t, apis.StatusPassed, calculateStatus(passed))
 	assert.Equal(t, apis.StatusFailed, calculateStatus(failed))
 	assert.Equal(t, apis.StatusSkipped, calculateStatus(skipped))

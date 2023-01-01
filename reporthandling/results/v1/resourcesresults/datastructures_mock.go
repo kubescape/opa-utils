@@ -66,7 +66,7 @@ func mockResourceAssociatedControl0087Failed() *ResourceAssociatedControl {
 		ControlID: "C-0087",
 		Name:      "0087",
 		Status:    apis.StatusInfo{InnerStatus: apis.StatusFailed},
-		SubStatus: apis.StatusInfo{InnerStatus: apis.StatusUnknown},
+		SubStatus: apis.SubStatusUnknown,
 		ResourceAssociatedRules: []ResourceAssociatedRule{
 			*mockResourceAssociatedRuleA(),
 			*mockResourceAssociatedRuleB(),
@@ -89,7 +89,7 @@ func mockResourceAssociatedControl0088Failed() *ResourceAssociatedControl {
 		ControlID: "C-0088",
 		Name:      "0088",
 		Status:    apis.StatusInfo{InnerStatus: apis.StatusFailed},
-		SubStatus: apis.StatusInfo{InnerStatus: apis.StatusUnknown},
+		SubStatus: apis.SubStatusUnknown,
 		ResourceAssociatedRules: []ResourceAssociatedRule{
 			*mockResourceAssociatedRuleB(),
 		},
@@ -101,7 +101,7 @@ func mockResourceAssociatedControl0089Passed() *ResourceAssociatedControl {
 		ControlID: "C-0089",
 		Name:      "0089",
 		Status:    apis.StatusInfo{InnerStatus: apis.StatusPassed},
-		SubStatus: apis.StatusInfo{InnerStatus: apis.StatusUnknown},
+		SubStatus: apis.SubStatusUnknown,
 		ResourceAssociatedRules: []ResourceAssociatedRule{
 			*mockResourceAssociatedRulePassed(),
 		},
@@ -120,7 +120,7 @@ func mockResourceAssociatedRuleA() *ResourceAssociatedRule {
 	return &ResourceAssociatedRule{
 		Name:                  "ruleA",
 		Status:                apis.StatusFailed,
-		SubStatus:             apis.StatusUnknown,
+		SubStatus:             apis.SubStatusUnknown,
 		Paths:                 []armotypes.PosturePaths{{FailedPath: "path/to/fail/A"}},
 		Exception:             []armotypes.PostureExceptionPolicy{},
 		ControlConfigurations: nil,
@@ -131,7 +131,7 @@ func mockResourceAssociatedRuleB() *ResourceAssociatedRule {
 	return &ResourceAssociatedRule{
 		Name:                  "ruleB",
 		Status:                apis.StatusFailed,
-		SubStatus:             apis.StatusUnknown,
+		SubStatus:             apis.SubStatusUnknown,
 		Paths:                 []armotypes.PosturePaths{{FailedPath: "path/to/fail/B"}},
 		Exception:             []armotypes.PostureExceptionPolicy{},
 		ControlConfigurations: nil,
@@ -142,7 +142,7 @@ func mockResourceAssociatedRulePassed() *ResourceAssociatedRule {
 	return &ResourceAssociatedRule{
 		Name:      "rulePassed",
 		Status:    apis.StatusPassed,
-		SubStatus: apis.StatusUnknown,
+		SubStatus: apis.SubStatusUnknown,
 	}
 }
 
@@ -158,7 +158,7 @@ func mockResourceAssociatedRuleMissedConfiguration() *ResourceAssociatedRule {
 	return &ResourceAssociatedRule{
 		Name:                  "ruleMissedConfiguration",
 		Status:                apis.StatusFailed,
-		SubStatus:             apis.StatusUnknown,
+		SubStatus:             apis.SubStatusUnknown,
 		Paths:                 []armotypes.PosturePaths{{FailedPath: "path/to/fail/B"}},
 		Exception:             []armotypes.PostureExceptionPolicy{},
 		ControlConfigurations: nil,

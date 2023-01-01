@@ -440,6 +440,9 @@ func (control *Control) GetSeverity() int {
 }
 
 func (control *Control) GetActionRequiredAttribute() string {
+	if control.Attributes == nil {
+		return ""
+	}
 	if v, ok := control.Attributes[ActionRequiredAttribute]; ok {
 		if actionRequired, ok := v.(string); ok {
 			return actionRequired

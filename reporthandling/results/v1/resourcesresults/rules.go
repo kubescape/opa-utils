@@ -23,13 +23,13 @@ func (rule *ResourceAssociatedRule) GetStatus(f *helpersv1.Filters) apis.IStatus
 }
 
 // GetSubStatus get rule sub status
-func (rule *ResourceAssociatedRule) GetSubStatus() apis.IStatus {
-	return helpersv1.NewStatus(rule.SubStatus)
+func (rule *ResourceAssociatedRule) GetSubStatus() apis.ScanningSubStatus {
+	return rule.SubStatus
 }
 
 // SetStatus set rule status and sub status
 func (rule *ResourceAssociatedRule) SetStatus(s apis.ScanningStatus, f *helpersv1.Filters) {
-	if s == apis.StatusFailed || s == apis.SubStatusException {
+	if s == apis.StatusFailed || apis.ScanningSubStatus(s) == apis.SubStatusException {
 		if f != nil {
 			if len(f.FilterExceptions(rule.Exception)) > 0 {
 				rule.Status = apis.StatusPassed

@@ -25,5 +25,5 @@ func (s *StatusInfo) IsFailed() bool {
 
 // IsSkipped is the status skipped
 func (s *StatusInfo) IsSkipped() bool {
-	return !s.IsPassed() && !s.IsFailed() && s.InnerStatus != StatusUnknown
+	return s.InnerStatus == StatusSkipped
 }
