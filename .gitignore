@@ -1,3 +1,5 @@
 *.vscode*
 go.work
 go.work.*
+ck
+ca.srl

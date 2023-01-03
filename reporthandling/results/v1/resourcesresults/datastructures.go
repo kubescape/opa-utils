@@ -9,11 +9,10 @@ import (
 
 // Result - resource result resourceID and the controls that where tested against the resource, along with the raw resource and prioritization information
 type Result struct {
-	ResourceID string `json:"resourceID"` // <apigroup>/<namespace>/<kind>/<name>
-
-	AssociatedControls  []ResourceAssociatedControl         `json:"controls,omitempty"`
 	RawResource         *reporthandling.Resource            `json:"rawResource,omitempty"`
 	PrioritizedResource *prioritization.PrioritizedResource `json:"prioritizedResource,omitempty"`
+	ResourceID          string                              `json:"resourceID"` // <apigroup>/<namespace>/<kind>/<name>
+	AssociatedControls  []ResourceAssociatedControl         `json:"controls,omitempty"`
 }
 
 // ResourceAssociatedControl control that is associated to a resource
@@ -27,10 +26,10 @@ type ResourceAssociatedControl struct {
 
 // ResourceAssociatedRule failed rule that is associated to a resource
 type ResourceAssociatedRule struct {
-	Name                  string                             `json:"name"` // rule name
+	ControlConfigurations map[string][]string                `json:"controlConfigurations,omitempty"`
+	Name                  string                             `json:"name"`
 	Status                apis.ScanningStatus                `json:"status"`
 	SubStatus             apis.ScanningSubStatus             `json:"subStatus"`
 	Paths                 []armotypes.PosturePaths           `json:"paths,omitempty"`
 	Exception             []armotypes.PostureExceptionPolicy `json:"exception,omitempty"`
-	ControlConfigurations map[string][]string                `json:"controlConfigurations,omitempty"`
 }

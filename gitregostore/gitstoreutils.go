@@ -129,7 +129,7 @@ func (gs *GitRegoStore) setObjectsFromRepoOnce() error {
 	for _, path := range trees.TREE {
 		rawDataPath := "https://raw.githubusercontent.com/" + gsClone.Owner + "/" + gsClone.Repository + "/" + gsClone.Branch + "/" + path.PATH
 
-		if strings.HasPrefix(path.PATH, strings.Replace(rulesJsonFileName, ".json", "/", -1)) && strings.HasSuffix(path.PATH, ".json") {
+		if strings.HasPrefix(path.PATH, strings.Replace(rulesJsonFileName, ".json", "/", -1)) && strings.HasSuffix(path.PATH, ".json") && !strings.Contains(path.PATH, "/test/") {
 			respStr, err := HttpGetter(gsClone.httpClient, rawDataPath)
 			if err != nil {
 				return err
