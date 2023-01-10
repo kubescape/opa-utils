@@ -94,7 +94,8 @@ func GetPostureReportMock() *PostureReport {
 				ContextName:         "minikube",
 			},
 			ScanMetadata: ScanMetadata{
-				Format:             []string{"json"},
+				Format:             "json,pdf,pretty-printer",
+				Formats:            []string{"json", "pdf", "pretty-printer"},
 				ExcludedNamespaces: []string{"exclude-namespace"},
 				IncludeNamespaces:  []string{"include-namespace"},
 				FailThreshold:      23.54,
@@ -117,7 +118,7 @@ func TestPostureReportMock(t *testing.T) {
 	// t.Error(p.ToString())
 }
 
-// this test validates the unmarshaller that used to validate the posture object in e.r and other places
+// TestPostureReportGojayUnmarshal validates the unmarshaller that is used to validate the posture object in e.r and other places
 func TestPostureReportGojayUnmarshal(t *testing.T) {
 	postureReport := &PostureReport{}
 	original := GetPostureReportMock()
@@ -136,6 +137,7 @@ func TestPostureReportGojayUnmarshal(t *testing.T) {
 	assert.Equal(t, original.Metadata.ClusterMetadata.NumberOfWorkerNodes, postureReport.Metadata.ClusterMetadata.NumberOfWorkerNodes)
 	assert.Equal(t, original.Metadata.ClusterMetadata.ContextName, postureReport.Metadata.ClusterMetadata.ContextName)
 	assert.Equal(t, original.Metadata.ScanMetadata.Format, postureReport.Metadata.ScanMetadata.Format)
+	assert.Equal(t, original.Metadata.ScanMetadata.Formats, postureReport.Metadata.ScanMetadata.Formats)
 	assert.Equal(t, original.Metadata.ScanMetadata.ExcludedNamespaces, postureReport.Metadata.ScanMetadata.ExcludedNamespaces)
 	assert.Equal(t, original.Metadata.ScanMetadata.IncludeNamespaces, postureReport.Metadata.ScanMetadata.IncludeNamespaces)
 	assert.Equal(t, original.Metadata.ScanMetadata.FailThreshold, postureReport.Metadata.ScanMetadata.FailThreshold)
