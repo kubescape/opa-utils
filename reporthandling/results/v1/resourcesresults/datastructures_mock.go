@@ -24,12 +24,12 @@ func mockResultPassed() *Result {
 	}
 }
 
-// func mockResultSkipped() *Result {
-// 	return &Result{
-// 		ResourceID:         "resource/passed",
-// 		AssociatedControls: []ResourceAssociatedControl{},
-// 	}
-// }
+//	func mockResultSkipped() *Result {
+//		return &Result{
+//			ResourceID:         "resource/passed",
+//			AssociatedControls: []ResourceAssociatedControl{},
+//		}
+//	}
 func mockResultFailed() *Result {
 	w := workloadinterface.NewWorkloadMock(nil)
 	return &Result{
