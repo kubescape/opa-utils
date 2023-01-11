@@ -6,6 +6,7 @@ require (
 	github.com/armosec/armoapi-go v0.0.151
 	github.com/armosec/utils-go v0.0.12
 	github.com/francoispqt/gojay v1.2.13
+	github.com/go-faker/faker/v4 v4.0.0-beta.4
 	github.com/kubescape/k8s-interface v0.0.99
 	github.com/kubescape/rbac-utils v0.0.20
 	github.com/mitchellh/mapstructure v1.1.2
