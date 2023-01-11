@@ -48,7 +48,7 @@ func (file *PostureReport) NKeys() int {
 	return 0
 }
 
-// Metadata unmarshaller
+// UnmarshalJSONObject unmarshals incoming JSON data into a Metadata object
 func (m *Metadata) UnmarshalJSONObject(dec *gojay.Decoder, key string) (err error) {
 
 	switch key {
@@ -66,12 +66,14 @@ func (file *Metadata) NKeys() int {
 	return 0
 }
 
-// ScanMetadata unmarshaler
+// UnmarshalJSONObject unmarshals incoming JSON data into a ScanMetadata object
 func (m *ScanMetadata) UnmarshalJSONObject(dec *gojay.Decoder, key string) (err error) {
 
 	switch key {
 	case "format": // string
 		err = dec.String(&(m.Format))
+	case "formats":
+		err = dec.SliceString(&(m.Formats))
 	case "excludedNamespaces": // []string
 		err = dec.SliceString(&(m.ExcludedNamespaces))
 	case "includeNamespaces": // []string
@@ -103,7 +105,7 @@ func (file *ScanMetadata) NKeys() int {
 	return 0
 }
 
-// ScanMetadata unmarshaller
+// UnmarshalJSONObject unmarshals incoming JSON data into a ClusterMetadata object
 func (m *ClusterMetadata) UnmarshalJSONObject(dec *gojay.Decoder, key string) (err error) {
 
 	switch key {
@@ -125,5 +127,3 @@ func (m *ClusterMetadata) UnmarshalJSONObject(dec *gojay.Decoder, key string) (e
 func (file *ClusterMetadata) NKeys() int {
 	return 0
 }
-
-//------------------------
