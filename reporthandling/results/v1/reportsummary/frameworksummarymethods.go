@@ -51,6 +51,7 @@ func (frameworkSummary *FrameworkSummary) initResourcesSummary(controlInfoMap ma
 	for k, control := range frameworkSummary.Controls {
 		if statusInfo, ok := controlInfoMap[control.ControlID]; ok && statusInfo.InnerStatus != apis.StatusUnknown {
 			control.SetStatus(&statusInfo)
+			control.SetSubStatus(apis.SubStatusIntegration)
 		} else if control.GetStatus().Status() == apis.StatusUnknown {
 			control.CalculateStatus()
 		}

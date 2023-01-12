@@ -16,6 +16,9 @@ const (
 	SubStatusUnknown        ScanningSubStatus = "" // keep this empty
 	StatusUnknown           ScanningStatus    = "" // keep this empty
 
+	StatusExcluded   ScanningStatus = "excluded"   // Deprecated
+	StatusIrrelevant ScanningStatus = "irrelevant" // Deprecated
+	StatusError      ScanningStatus = "error"      // Deprecated
 )
 const (
 	SubStatusConfigurationInfo  string = "Control missing configuration"
@@ -102,6 +105,17 @@ func CompareStatusAndSubStatus(a, b ScanningStatus, aSub, bSub ScanningSubStatus
 			return status, SubStatusManualReview
 		}
 
+	}
+	return status, SubStatusUnknown
+}
+
+// ConvertStatusToNewStatus convert old status (exclude, irrelevant) to new status and sub status
+func ConvertStatusToNewStatus(status ScanningStatus) (ScanningStatus, ScanningSubStatus) {
+	switch status {
+	case StatusExcluded:
+		return StatusPassed, SubStatusException
+	case StatusIrrelevant:
+		return StatusPassed, SubStatusIrrelevant
 	}
 	return status, SubStatusUnknown
 }

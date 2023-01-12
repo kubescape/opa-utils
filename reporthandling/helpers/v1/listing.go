@@ -10,9 +10,10 @@ type ReportObject map[string]interface{}
 
 // AllLists lists of resources/policies grouped by the status, this structure is meant for internal use of report handling and not an API
 type AllLists struct {
-	passed  []string
-	failed  []string
-	skipped []string
+	passed   []string
+	failed   []string
+	skipped  []string
+	excluded []string
 
 	other []string
 }
@@ -72,7 +73,7 @@ func (iter *AllListsIterator) Next() string {
 // GetAllResources
 
 func (all *AllLists) Failed() []string  { return all.failed }
-func (all *AllLists) Passed() []string  { return all.passed }
+func (all *AllLists) Passed() []string  { return append(all.passed, all.excluded...) }
 func (all *AllLists) Skipped() []string { return all.skipped }
 func (all *AllLists) Other() []string   { return all.other }
 func (all *AllLists) All() Iterator {
