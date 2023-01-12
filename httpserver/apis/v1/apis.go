@@ -19,15 +19,15 @@ type ScanResponseType string
 
 const (
 	// Deprecated: will return busy / notBusy instead
-	IDScanResponseType        ScanResponseType = "id"
+	IDScanResponseType ScanResponseType = "id"
 	// ErrorScanResponseType indicates a response that reports an error
-	ErrorScanResponseType     ScanResponseType = "error"
+	ErrorScanResponseType ScanResponseType = "error"
 	// ResultsV1ScanResponseType indicates a response that carries a v1 Results object as payload
 	ResultsV1ScanResponseType ScanResponseType = "v1results"
 	// BusyScanResponseType indicates that a server is busy with a previous request
-	BusyScanResponseType      ScanResponseType = "busy"
+	BusyScanResponseType ScanResponseType = "busy"
 	// NotBusyScanResponseType indicates that a server is not busy with a previous request
-	NotBusyScanResponseType   ScanResponseType = "notBusy"
+	NotBusyScanResponseType ScanResponseType = "notBusy"
 	// ReadyScanResponseType indicates that a server has successfully completed a request
-	ReadyScanResponseType     ScanResponseType = "ready"
+	ReadyScanResponseType ScanResponseType = "ready"
 )
