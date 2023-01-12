@@ -93,11 +93,22 @@ const (
 )
 
 type ScanMetadata struct {
-	TargetType         string         `json:"targetType,omitempty"`
-	KubescapeVersion   string         `json:"kubescapeVersion,omitempty"`
-	FormatVersion      string         `json:"formatVersion,omitempty"`
-	ControlsInputs     string         `json:"controlsInputs,omitempty"`
-	Format             string         `json:"format,omitempty"`
+	TargetType       string `json:"targetType,omitempty"`
+	KubescapeVersion string `json:"kubescapeVersion,omitempty"`
+	FormatVersion    string `json:"formatVersion,omitempty"`
+	ControlsInputs   string `json:"controlsInputs,omitempty"`
+	// Format that has been requested for the output results.
+	//
+	// Since Kubescape added support for multiple outputs, might be not a
+	// single format, but a comma-separated string of the multiple
+	// requested formats.
+	//
+	// Deprecated: Since Kubescape added support for multiple outputs,
+	// `Format` exists only for backward compatibility. Please use the
+	// `Formats` field instead.
+	Format string `json:"format,omitempty"`
+	// Formats that have been requested for the output results.
+	Formats            []string       `json:"formats,omitempty"`
 	UseExceptions      string         `json:"useExceptions,omitempty"`
 	Logger             string         `json:"logger,omitempty"`
 	ExcludedNamespaces []string       `json:"excludedNamespaces,omitempty"`
