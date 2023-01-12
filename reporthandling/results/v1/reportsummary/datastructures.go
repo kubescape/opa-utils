@@ -49,9 +49,10 @@ type ControlSummary struct {
 }
 
 type ResourceCounters struct {
-	PassedResources  int `json:"passedResources"`
-	FailedResources  int `json:"failedResources"`
-	SkippedResources int `json:"skippedResources"`
+	PassedResources   int `json:"passedResources"`
+	FailedResources   int `json:"failedResources"`
+	SkippedResources  int `json:"skippedResources"`
+	ExcludedResources int `json:"excludedResources"` // Deprecated
 }
 
 type SeverityCounters struct {
@@ -62,7 +63,8 @@ type SeverityCounters struct {
 }
 
 type PostureCounters struct {
-	PassedCounter  int `json:"passed"`
-	FailedCounter  int `json:"failed"`
-	SkippedCounter int `json:"skipped"`
+	PassedCounter   int `json:"passed"`
+	FailedCounter   int `json:"failed"`
+	SkippedCounter  int `json:"skipped"`
+	ExcludedCounter int `json:"excluded"` // Deprecated
 }

@@ -23,7 +23,7 @@ func (resourceCounters *ResourceCounters) Set(allLists *helpersv1.AllLists) {
 
 // NumberOfPassed get the number of passed resources
 func (resourceCounters *ResourceCounters) Passed() int {
-	return resourceCounters.PassedResources
+	return resourceCounters.PassedResources + resourceCounters.ExcludedResources
 }
 
 // NumberOfSkipped get the number of skipped resources
