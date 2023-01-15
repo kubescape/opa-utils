@@ -2,6 +2,7 @@ package apis
 
 type ScanningStatus string
 type ScanningSubStatus string
+type StatusMsg string
 
 const (
 	StatusPassed            ScanningStatus    = "passed"
@@ -21,9 +22,9 @@ const (
 	StatusError      ScanningStatus = "error"      // Deprecated
 )
 const (
-	SubStatusConfigurationInfo  string = "Control missing configuration"
-	SubStatusRequiresReviewInfo string = "Control type is requires-review"
-	SubStatusManualReviewInfo   string = "Control type is manual-review"
+	SubStatusConfigurationInfo  StatusMsg = "Control missing configuration"
+	SubStatusRequiresReviewInfo StatusMsg = "Control type is requires-review"
+	SubStatusManualReviewInfo   StatusMsg = "Control type is manual-review"
 )
 
 // IStatus interface handling status

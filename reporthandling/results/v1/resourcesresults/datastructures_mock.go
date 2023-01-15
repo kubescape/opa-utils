@@ -11,7 +11,10 @@ func MockResults() []Result {
 	return []Result{
 		*mockResultPassed(),
 		*mockResultFailed(),
-		// *mockResultSkipped(),
+		*mockResultException(),
+		*mockResultConfiguration(),
+		*mockResultRequiresReview(),
+		*mockResultManualReview(),
 	}
 }
 
@@ -21,6 +24,52 @@ func mockResultPassed() *Result {
 		ResourceID: w.GetID(),
 		AssociatedControls: []ResourceAssociatedControl{
 			*mockResourceAssociatedControl0089Passed(),
+		},
+	}
+}
+
+func mockResultException() *Result {
+	w := workloadinterface.NewWorkloadMock(nil)
+	return &Result{
+		ResourceID: w.GetID(),
+		AssociatedControls: []ResourceAssociatedControl{
+			*mockResourceAssociatedControlException(),
+		},
+	}
+}
+
+func mockResultConfiguration() *Result {
+	w := workloadinterface.NewWorkloadMock(nil)
+	r := mockResourceAssociatedControlConfiguration()
+	r.SetStatus(*mockControlWithActionRequiredConfiguration())
+	return &Result{
+		ResourceID: w.GetID(),
+		AssociatedControls: []ResourceAssociatedControl{
+			*r,
+		},
+	}
+}
+
+func mockResultRequiresReview() *Result {
+	w := workloadinterface.NewWorkloadMock(nil)
+	r := mockResourceAssociatedControlRequiresReview()
+	r.SetStatus(*mockControlWithActionRequiredRequiresReview())
+	return &Result{
+		ResourceID: w.GetID(),
+		AssociatedControls: []ResourceAssociatedControl{
+			*r,
+		},
+	}
+}
+
+func mockResultManualReview() *Result {
+	w := workloadinterface.NewWorkloadMock(nil)
+	r := mockResourceAssociatedControlManualReview()
+	r.SetStatus(*mockControlWithActionRequiredManualReview())
+	return &Result{
+		ResourceID: w.GetID(),
+		AssociatedControls: []ResourceAssociatedControl{
+			*r,
 		},
 	}
 }
@@ -46,6 +95,8 @@ func mockResourceAssociatedControlException() *ResourceAssociatedControl {
 	return &ResourceAssociatedControl{
 		ControlID: "C-0089",
 		Name:      "0089",
+		Status:    apis.StatusInfo{InnerStatus: apis.StatusPassed},
+		SubStatus: apis.SubStatusException,
 		ResourceAssociatedRules: []ResourceAssociatedRule{
 			*mockResourceAssociatedRuleException(),
 		},
@@ -57,6 +108,26 @@ func mockResourceAssociatedControlConfiguration() *ResourceAssociatedControl {
 		Name:      "0089",
 		ResourceAssociatedRules: []ResourceAssociatedRule{
 			*mockResourceAssociatedRuleMissedConfiguration(),
+		},
+	}
+}
+
+func mockResourceAssociatedControlRequiresReview() *ResourceAssociatedControl {
+	return &ResourceAssociatedControl{
+		ControlID: "C-0089",
+		Name:      "0089",
+		ResourceAssociatedRules: []ResourceAssociatedRule{
+			*mockResourceAssociatedRuleRequiresReview(),
+		},
+	}
+}
+
+func mockResourceAssociatedControlManualReview() *ResourceAssociatedControl {
+	return &ResourceAssociatedControl{
+		ControlID: "C-0089",
+		Name:      "0089",
+		ResourceAssociatedRules: []ResourceAssociatedRule{
+			*mockResourceAssociatedRuleManualReview(),
 		},
 	}
 }
@@ -157,6 +228,28 @@ func mockResourceAssociatedRuleException() *ResourceAssociatedRule {
 func mockResourceAssociatedRuleMissedConfiguration() *ResourceAssociatedRule {
 	return &ResourceAssociatedRule{
 		Name:                  "ruleMissedConfiguration",
+		Status:                apis.StatusFailed,
+		SubStatus:             apis.SubStatusUnknown,
+		Paths:                 []armotypes.PosturePaths{{FailedPath: "path/to/fail/B"}},
+		Exception:             []armotypes.PostureExceptionPolicy{},
+		ControlConfigurations: nil,
+	}
+}
+
+func mockResourceAssociatedRuleRequiresReview() *ResourceAssociatedRule {
+	return &ResourceAssociatedRule{
+		Name:                  "ruleRequiresReview",
+		Status:                apis.StatusFailed,
+		SubStatus:             apis.SubStatusUnknown,
+		Paths:                 []armotypes.PosturePaths{{FailedPath: "path/to/fail/B"}},
+		Exception:             []armotypes.PostureExceptionPolicy{},
+		ControlConfigurations: nil,
+	}
+}
+
+func mockResourceAssociatedRuleManualReview() *ResourceAssociatedRule {
+	return &ResourceAssociatedRule{
+		Name:                  "ruleManualReview",
 		Status:                apis.StatusFailed,
 		SubStatus:             apis.SubStatusUnknown,
 		Paths:                 []armotypes.PosturePaths{{FailedPath: "path/to/fail/B"}},

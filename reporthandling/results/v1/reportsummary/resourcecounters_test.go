@@ -16,6 +16,15 @@ func setResourcesCountersMock() {
 	resourcesCounter.SkippedResources = 5
 }
 
+func TestSet(t *testing.T) {
+	rc := ResourceCounters{}
+	summaryDetails := MockSummaryDetails()
+	rc.Set(summaryDetails.ListResourcesIDs())
+	assert.Equal(t, 1, rc.SkippedResources)
+	assert.Equal(t, 1, rc.PassedResources)
+	assert.Equal(t, 2, rc.FailedResources)
+}
+
 // Excluded get the number of skipped resources
 func TestExcluded(t *testing.T) {
 	setResourcesCountersMock()

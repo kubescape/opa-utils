@@ -14,8 +14,7 @@ type AllLists struct {
 	failed   []string
 	skipped  []string
 	excluded []string
-
-	other []string
+	other    []string
 }
 
 type Iterator interface {
