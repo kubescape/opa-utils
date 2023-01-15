@@ -5,7 +5,6 @@ import (
 	"github.com/kubescape/k8s-interface/workloadinterface"
 	"github.com/kubescape/opa-utils/exceptions"
 	"github.com/kubescape/opa-utils/reporthandling"
-	"github.com/kubescape/opa-utils/reporthandling/apis"
 )
 
 // SetExceptions add exceptions to result
@@ -20,8 +19,8 @@ func (result *Result) SetExceptions(workload workloadinterface.IMetadata, except
 
 // SetExceptions add exceptions to result
 func (control *ResourceAssociatedControl) setExceptions(workload workloadinterface.IMetadata, exceptionsPolicies []armotypes.PostureExceptionPolicy, clusterName string, c reporthandling.Control) {
-	// add exceptions only to failed controls
-	if !control.GetStatus(nil).IsFailed() {
+	// don't add exceptions to passed controls
+	if control.GetStatus(nil).IsPassed() {
 		return
 	}
 
@@ -29,7 +28,7 @@ func (control *ResourceAssociatedControl) setExceptions(workload workloadinterfa
 		exceptionsPolicies = exceptions.ListRuleExceptions(exceptionsPolicies, "", control.GetName(), control.GetID(), "")
 		control.ResourceAssociatedRules[i].setExceptions(workload, exceptionsPolicies, clusterName)
 		// Update rule status according to exceptions
-		control.ResourceAssociatedRules[i].SetStatus(apis.StatusFailed, nil)
+		control.ResourceAssociatedRules[i].SetStatus(control.Status.Status(), nil)
 	}
 	// Update control status according to rules status
 	control.SetStatus(c)

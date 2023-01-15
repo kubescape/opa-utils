@@ -63,13 +63,13 @@ func (controlSummary *ControlSummary) CalculateSubStatus(subStatus apis.Scanning
 	case apis.StatusSkipped:
 		if subStatus == apis.SubStatusConfiguration || controlSummary.SubStatus == apis.SubStatusConfiguration {
 			controlSummary.SubStatus = apis.SubStatusConfiguration
-			controlSummary.StatusInfo.InnerInfo = apis.SubStatusConfigurationInfo
+			controlSummary.StatusInfo.InnerInfo = string(apis.SubStatusConfigurationInfo)
 		} else if subStatus == apis.SubStatusManualReview || controlSummary.SubStatus == apis.SubStatusManualReview {
 			controlSummary.SubStatus = apis.SubStatusManualReview
-			controlSummary.StatusInfo.InnerInfo = apis.SubStatusManualReviewInfo
+			controlSummary.StatusInfo.InnerInfo = string(apis.SubStatusManualReviewInfo)
 		} else if subStatus == apis.SubStatusRequiresReview || controlSummary.SubStatus == apis.SubStatusRequiresReview {
 			controlSummary.SubStatus = apis.SubStatusRequiresReview
-			controlSummary.StatusInfo.InnerInfo = apis.SubStatusRequiresReviewInfo
+			controlSummary.StatusInfo.InnerInfo = string(apis.SubStatusRequiresReviewInfo)
 		}
 	case apis.StatusFailed:
 		controlSummary.SubStatus = apis.SubStatusUnknown

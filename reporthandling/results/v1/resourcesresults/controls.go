@@ -67,21 +67,21 @@ func (control *ResourceAssociatedControl) SetStatus(c reporthandling.Control) {
 	if status == apis.StatusFailed && actionRequired == apis.SubStatusRequiresReview {
 		status = apis.StatusSkipped
 		subStatus = apis.SubStatusRequiresReview
-		statusInfo = apis.SubStatusRequiresReviewInfo
+		statusInfo = string(apis.SubStatusRequiresReviewInfo)
 	}
 
 	// If the control type is manual review, the status is skipped and the sub status is manual review
 	if status == apis.StatusFailed && actionRequired == apis.SubStatusManualReview {
 		status = apis.StatusSkipped
 		subStatus = apis.SubStatusManualReview
-		statusInfo = apis.SubStatusManualReviewInfo
+		statusInfo = string(apis.SubStatusManualReviewInfo)
 	}
 
 	// If the control type is configuration and the configuration is not set, the status is skipped and the sub status is configuration
 	if actionRequired == apis.SubStatusConfiguration && controlMissingConfiguration(control) {
 		status = apis.StatusSkipped
 		subStatus = apis.SubStatusConfiguration
-		statusInfo = apis.SubStatusConfigurationInfo
+		statusInfo = string(apis.SubStatusConfigurationInfo)
 	}
 
 	control.Status.InnerStatus = status
