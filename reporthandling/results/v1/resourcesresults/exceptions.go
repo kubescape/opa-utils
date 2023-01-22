@@ -11,6 +11,7 @@ func (result *Result) SetExceptions(workload workloadinterface.IMetadata, except
 	if len(exceptionsPolicies) == 0 {
 		return
 	}
+
 	for i := range result.AssociatedControls {
 		result.AssociatedControls[i].setExceptions(workload, exceptionsPolicies, clusterName)
 	}
@@ -35,6 +36,7 @@ func (rule *ResourceAssociatedRule) setExceptions(workload workloadinterface.IMe
 	if !rule.GetStatus(nil).IsFailed() {
 		return
 	}
+
 	ruleExceptions := exceptions.ListRuleExceptions(exceptionsPolicies, "", "", "", rule.GetName())
 	rule.Exception = exceptions.GetResourceExceptions(ruleExceptions, workload, clusterName)
 }

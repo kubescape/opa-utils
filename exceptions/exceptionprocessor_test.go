@@ -209,10 +209,11 @@ func TestGetResourceExceptions(t *testing.T) {
 }
 
 func TestRegexCompare(t *testing.T) {
-	assert.True(t, compareCluster(".*minikube.*", "bez-minikube-25-10"))
-	assert.True(t, compareCluster("bez-minikube-25-10", "bez-minikube-25-10"))
-	assert.False(t, compareCluster("minikube", "bez-minikube-25-10"))
-	assert.False(t, compareCluster("bla", "bez-minikube-25-10"))
+	c := newComparator()
+	assert.True(t, c.compareCluster(".*minikube.*", "bez-minikube-25-10"))
+	assert.True(t, c.compareCluster("bez-minikube-25-10", "bez-minikube-25-10"))
+	assert.False(t, c.compareCluster("minikube", "bez-minikube-25-10"))
+	assert.False(t, c.compareCluster("bla", "bez-minikube-25-10"))
 }
 
 // func TestGetException(t *testing.T) {
