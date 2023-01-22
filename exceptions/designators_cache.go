@@ -1,7 +1,7 @@
 package exceptions
 
 import (
-	"hash/fnv"
+	"hash/maphash"
 	"sync"
 
 	"github.com/armosec/armoapi-go/armotypes"
@@ -30,6 +30,7 @@ type (
 	// designatorCache knows how to cache designators.
 	designatorCache struct {
 		innerMap sync.Map
+		seed     maphash.Seed
 	}
 
 	portalDesignatorKey struct {
@@ -46,7 +47,9 @@ type (
 // This builds a single global instance only on the first call.
 func newDesignatorCache() *designatorCache {
 	setGlobalCacheOnce.Do(func() {
-		globalDesignatorCache = &designatorCache{}
+		globalDesignatorCache = &designatorCache{
+			seed: maphash.MakeSeed(),
+		}
 	})
 
 	return globalDesignatorCache
@@ -76,14 +79,16 @@ func (c *designatorCache) toDesignatorKey(designator *armotypes.PortalDesignator
 }
 
 func (c *designatorCache) hashMap(input map[string]string) uint64 {
-	var sum uint64
-	h := fnv.New64a()
+	var (
+		sum uint64
+		h   maphash.Hash
+	)
 
 	for k, v := range input {
 		// NOTE: the hash is case sensitive. This shouldn't have any significant impact on performances
-		h.Write([]byte(k))
-		h.Write([]byte{0})
-		h.Write([]byte(v))
+		h.WriteString(k)
+		h.WriteByte(0)
+		h.WriteString(v)
 
 		// final hash has to be insensitive to the ordering of the map
 		sum += h.Sum64()
