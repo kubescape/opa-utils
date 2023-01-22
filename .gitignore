@@ -3,3 +3,4 @@ go.work
 go.work.*
 ck
 ca.srl
+*.out

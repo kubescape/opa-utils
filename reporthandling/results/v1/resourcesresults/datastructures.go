@@ -13,6 +13,8 @@ type Result struct {
 	PrioritizedResource *prioritization.PrioritizedResource `json:"prioritizedResource,omitempty"`
 	ResourceID          string                              `json:"resourceID"` // <apigroup>/<namespace>/<kind>/<name>
 	AssociatedControls  []ResourceAssociatedControl         `json:"controls,omitempty"`
+
+	*resultOptions
 }
 
 // ResourceAssociatedControl control that is associated to a resource
