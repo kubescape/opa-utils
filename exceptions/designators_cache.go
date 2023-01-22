@@ -29,7 +29,8 @@ type (
 
 	// designatorCache knows how to cache designators.
 	designatorCache struct {
-		innerMap sync.Map
+		mx       sync.RWMutex
+		innerMap map[portalDesignatorKey]designable
 		seed     maphash.Seed
 	}
 
@@ -48,7 +49,8 @@ type (
 func newDesignatorCache() *designatorCache {
 	setGlobalCacheOnce.Do(func() {
 		globalDesignatorCache = &designatorCache{
-			seed: maphash.MakeSeed(),
+			innerMap: make(map[portalDesignatorKey]designable, 1000),
+			seed:     maphash.MakeSeed(),
 		}
 	})
 
@@ -56,16 +58,19 @@ func newDesignatorCache() *designatorCache {
 }
 
 func (c *designatorCache) Get(designator *armotypes.PortalDesignator) (designable, bool) {
-	val, ok := c.innerMap.Load(c.toDesignatorKey(designator))
-	if ok {
-		return val.(designable), true
-	}
+	c.mx.RLock()
+	defer c.mx.RUnlock()
 
-	return nil, false
+	val, ok := c.innerMap[c.toDesignatorKey(designator)]
+
+	return val, ok
 }
 
 func (c *designatorCache) Set(designator *armotypes.PortalDesignator, value designable) {
-	c.innerMap.Store(c.toDesignatorKey(designator), value)
+	c.mx.Lock()
+	defer c.mx.Unlock()
+
+	c.innerMap[c.toDesignatorKey(designator)] = value
 }
 
 func (c *designatorCache) toDesignatorKey(designator *armotypes.PortalDesignator) portalDesignatorKey {
