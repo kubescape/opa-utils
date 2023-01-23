@@ -10,9 +10,11 @@ import (
 	"github.com/armosec/armoapi-go/armotypes"
 )
 
+/* unused for now
 func postureExceptionPolicyDisableMock() *armotypes.PostureExceptionPolicy {
 	return &armotypes.PostureExceptionPolicy{}
 }
+*/
 
 func postureExceptionPolicyAlertOnlyMock() *armotypes.PostureExceptionPolicy {
 	return &armotypes.PostureExceptionPolicy{
