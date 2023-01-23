@@ -13,24 +13,10 @@ var (
 )
 
 type (
-	// designable knows how to identify the attributes from a Designator.
-	//
-	// TODO(fred): perf - this interface circumvents the unexported nature
-	// of armotypes.attributesDesignator.
-	// We could avoid this extra level of indirection by exporting that type.
-	designable interface {
-		GetCluster() string
-		GetNamespace() string
-		GetKind() string
-		GetName() string
-		GetPath() string
-		GetLabels() map[string]string
-	}
-
 	// designatorCache knows how to cache designators.
 	designatorCache struct {
 		mx       sync.RWMutex
-		innerMap map[portalDesignatorKey]designable
+		innerMap map[portalDesignatorKey]armotypes.AttributesDesignators
 		seed     maphash.Seed
 	}
 
@@ -49,7 +35,7 @@ type (
 func newDesignatorCache() *designatorCache {
 	setGlobalCacheOnce.Do(func() {
 		globalDesignatorCache = &designatorCache{
-			innerMap: make(map[portalDesignatorKey]designable, 1000),
+			innerMap: make(map[portalDesignatorKey]armotypes.AttributesDesignators, 1000),
 			seed:     maphash.MakeSeed(),
 		}
 	})
@@ -57,7 +43,7 @@ func newDesignatorCache() *designatorCache {
 	return globalDesignatorCache
 }
 
-func (c *designatorCache) Get(designator *armotypes.PortalDesignator) (designable, bool) {
+func (c *designatorCache) Get(designator *armotypes.PortalDesignator) (armotypes.AttributesDesignators, bool) {
 	c.mx.RLock()
 	defer c.mx.RUnlock()
 
@@ -66,7 +52,7 @@ func (c *designatorCache) Get(designator *armotypes.PortalDesignator) (designabl
 	return val, ok
 }
 
-func (c *designatorCache) Set(designator *armotypes.PortalDesignator, value designable) {
+func (c *designatorCache) Set(designator *armotypes.PortalDesignator, value armotypes.AttributesDesignators) {
 	c.mx.Lock()
 	defer c.mx.Unlock()
 

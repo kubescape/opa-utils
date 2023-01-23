@@ -143,13 +143,13 @@ func GetResourceExceptions(ruleExceptions []armotypes.PostureExceptionPolicy, wo
 
 // compareMetadata - compare namespace and kind
 func hasException(clusterName string, designator *armotypes.PortalDesignator, workload workloadinterface.IMetadata) bool {
-	var attributes designable
+	var attributes armotypes.AttributesDesignators
 	designators := newDesignatorCache()
 	if attrs, ok := designators.Get(designator); ok {
 		attributes = attrs
 	} else {
 		attrs := designator.DigestPortalDesignator()
-		attributes = &attrs
+		attributes = attrs
 		designators.Set(designator, attributes)
 	}
 
