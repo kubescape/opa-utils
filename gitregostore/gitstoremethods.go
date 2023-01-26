@@ -302,6 +302,9 @@ func (gs *GitRegoStore) GetSystemPostureExceptionPolicies() ([]armotypes.Posture
 }
 
 func (gs *GitRegoStore) fillRulesAndRulesIDsInControl(control *opapolicy.Control) error {
+	gs.controlEscalatedLock.Lock() // this locks all concurrent attempts to fill any control
+	defer gs.controlEscalatedLock.Unlock()
+
 	gs.rulesLock.RLock()
 	defer gs.rulesLock.RUnlock()
 
@@ -326,15 +329,16 @@ func (gs *GitRegoStore) fillRulesAndRulesIDsInControl(control *opapolicy.Control
 		rulesIDList = append(rulesIDList, rule.GUID)
 	}
 
-	gs.controlEscalatedLock.Lock() // this locks all concurrent attempts to fill any control
 	control.Rules = rulesList
 	control.RulesIDs = &rulesIDList
-	gs.controlEscalatedLock.Unlock()
 
 	return nil
 }
 
 func (gs *GitRegoStore) fillControlsAndControlIDsInFramework(fw *opapolicy.Framework) error {
+	gs.frameworkEscalatedLock.Lock()
+	defer gs.frameworkEscalatedLock.Unlock()
+
 	gs.rulesLock.RLock()
 	defer gs.rulesLock.RUnlock()
 
@@ -362,10 +366,8 @@ func (gs *GitRegoStore) fillControlsAndControlIDsInFramework(fw *opapolicy.Frame
 
 		}
 
-		gs.frameworkEscalatedLock.Lock()
 		fw.Controls = controlsList
 		fw.ControlsIDs = &controlsIDList
-		gs.frameworkEscalatedLock.Unlock()
 	} else {
 		// if there are controls, need to populate only the rules.
 		for i := range fw.Controls {
@@ -377,10 +379,8 @@ func (gs *GitRegoStore) fillControlsAndControlIDsInFramework(fw *opapolicy.Frame
 					return err
 				}
 
-				gs.frameworkEscalatedLock.Lock()
 				fw.Controls[i].Rules = tmpControl.Rules
 				fw.Controls[i].RulesIDs = tmpControl.RulesIDs
-				gs.frameworkEscalatedLock.Unlock()
 			}
 
 		}
