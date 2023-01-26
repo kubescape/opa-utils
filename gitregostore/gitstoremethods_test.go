@@ -157,47 +157,58 @@ func gs_tests(t *testing.T, gs *GitRegoStore) {
 }
 
 func TestGetPoliciesMethodsNew(t *testing.T) {
+	t.Parallel()
+
 	gs := NewDefaultGitRegoStore(-1)
-	err := gs.SetRegoObjects()
-	if err != nil {
-		t.Errorf("error in SetRegoObjects: %v", err)
-	}
+	t.Run("shoud set objects in rego store", func(t *testing.T) {
+		require.NoError(t, gs.SetRegoObjects())
+	})
+
 	gs_tests(t, gs)
 
 }
 
 func TestGetOPAFrameworkByName(t *testing.T) {
+	t.Parallel()
+
 	gs := NewDevGitRegoStore(-1)
-	err := gs.SetRegoObjects()
-	if err != nil {
-		t.Errorf("error in SetRegoObjects: %v", err)
-	}
 
-	_, err = gs.GetOPAFrameworkByName("CIS")
+	t.Run("shoud set objects in rego store", func(t *testing.T) {
+		require.NoError(t, gs.SetRegoObjects())
+	})
 
-	if err != nil {
-		t.Errorf("failed to get framework object: %v", err)
-	}
+	t.Run("shoud retrieve CIS framework", func(t *testing.T) {
+		_, err := gs.GetOPAFrameworkByName("CIS")
+		require.NoErrorf(t, err,
+			"failed to get framework object: %v", err,
+		)
+	})
 }
 
 func TestGetPoliciesMethodsOld(t *testing.T) {
+	t.Parallel()
+
 	gs := InitGitRegoStore("https://github.com", "kubescape", "regolibrary", "releases", "latest/download", "", 15)
 
 	gs_tests(t, gs)
 }
 
 func TestGetPoliciesMethodsDevNewParams(t *testing.T) {
+	t.Parallel()
+
 	gs := InitGitRegoStore("https://raw.githubusercontent.com", "kubescape", "regolibrary", "releaseDev", "/", "dev", -1)
 
 	gs_tests(t, gs)
-
 }
 
 func TestGetPoliciesMethodsDevNew(t *testing.T) {
+	t.Parallel()
+
 	gs := NewDevGitRegoStore(-1)
-	err := gs.SetRegoObjects()
-	if err != nil {
-		t.Errorf("error in SetRegoObjects: %v", err)
-	}
+
+	t.Run("should set the rego store", func(t *testing.T) {
+		require.NoError(t, gs.SetRegoObjects())
+	})
+
 	gs_tests(t, gs)
 }

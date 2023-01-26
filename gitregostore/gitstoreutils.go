@@ -397,19 +397,29 @@ func (gs *GitRegoStore) setSystemPostureExceptionPolicies(respStr string) error 
 
 func (gs *GitRegoStore) setFrameworkControlRelations(respStr string) error {
 	df := dataframe.ReadCSV(strings.NewReader(respStr))
+
+	gs.frameworkRelationsLock.Lock()
 	gs.FrameworkControlRelations = df
+	gs.frameworkRelationsLock.Unlock()
+
 	return nil
 }
 
 func (gs *GitRegoStore) setControlRuleRelations(respStr string) error {
 	df := dataframe.ReadCSV(strings.NewReader(respStr))
+
+	gs.controlRelationsLock.Lock()
 	gs.ControlRuleRelations = df
+	gs.controlRelationsLock.Unlock()
+
 	return nil
 }
 
 func (gs *GitRegoStore) lockAll() {
 	gs.frameworksLock.Lock()
 	gs.controlsLock.Lock()
+	gs.controlRelationsLock.Lock()
+	gs.frameworkRelationsLock.Lock()
 	gs.rulesLock.Lock()
 	gs.attackTracksLock.Lock()
 	gs.systemPostureExceptionPoliciesLock.Lock()
@@ -419,6 +429,8 @@ func (gs *GitRegoStore) lockAll() {
 func (gs *GitRegoStore) rLockAll() {
 	gs.frameworksLock.RLock()
 	gs.controlsLock.RLock()
+	gs.controlRelationsLock.RLock()
+	gs.frameworkRelationsLock.RLock()
 	gs.rulesLock.RLock()
 	gs.attackTracksLock.RLock()
 	gs.systemPostureExceptionPoliciesLock.RLock()
@@ -426,21 +438,27 @@ func (gs *GitRegoStore) rLockAll() {
 }
 
 func (gs *GitRegoStore) unlockAll() {
-	gs.frameworksLock.Unlock()
-	gs.controlsLock.Unlock()
-	gs.rulesLock.Unlock()
-	gs.attackTracksLock.Unlock()
-	gs.systemPostureExceptionPoliciesLock.Unlock()
+	// unlock acquired mutexes in the reverse order of locking
 	gs.DefaultConfigInputsLock.Unlock()
+	gs.systemPostureExceptionPoliciesLock.Unlock()
+	gs.attackTracksLock.Unlock()
+	gs.rulesLock.Unlock()
+	gs.frameworkRelationsLock.Unlock()
+	gs.controlRelationsLock.Unlock()
+	gs.controlsLock.Unlock()
+	gs.frameworksLock.Unlock()
 }
 
 func (gs *GitRegoStore) rUnlockAll() {
-	gs.frameworksLock.RUnlock()
-	gs.controlsLock.RUnlock()
-	gs.rulesLock.RUnlock()
-	gs.attackTracksLock.RUnlock()
-	gs.systemPostureExceptionPoliciesLock.RUnlock()
+	// unlock acquired mutexes in the reverse order of locking
 	gs.DefaultConfigInputsLock.RUnlock()
+	gs.systemPostureExceptionPoliciesLock.RUnlock()
+	gs.frameworkRelationsLock.RUnlock()
+	gs.attackTracksLock.RUnlock()
+	gs.rulesLock.RUnlock()
+	gs.controlRelationsLock.RUnlock()
+	gs.controlsLock.RUnlock()
+	gs.frameworksLock.RUnlock()
 }
 
 func (gs *GitRegoStore) copyData(other *GitRegoStore) {
