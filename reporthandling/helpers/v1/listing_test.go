@@ -1,4 +1,4 @@
-package v1
+package helpers
 
 import (
 	"testing"
@@ -122,6 +122,7 @@ func TestAllListsUniqueControls(t *testing.T) {
 	assert.Equal(t, 1, len(listMock.Skipped()))
 }
 
+/* appendSlice and intToPointer are unused for now
 func TestAppendSlice(t *testing.T) {
 	type args struct {
 		origin   []string
@@ -160,81 +161,16 @@ func TestAppendSlice(t *testing.T) {
 		})
 	}
 }
+
 func intToPointer(i int) *int {
 	return &i
 }
 
-func TestTrimUnique(t *testing.T) {
-	type args struct {
-		origin   []string
-		trimFrom []string
-		expected []string
-	}
-	tests := []struct {
-		name string
-		args args
-	}{
-		{
-			name: "trim from begging of slice",
-			args: args{
-				origin:   []string{"a", "b", "c"},
-				trimFrom: []string{"a"},
-				expected: []string{"c", "b"},
-			},
-		},
-		{
-			name: "trim from middle of slice",
-			args: args{
-				origin:   []string{"a", "b", "c"},
-				trimFrom: []string{"b"},
-				expected: []string{"a", "c"},
-			},
-		},
-		{
-			name: "trim from end of slice",
-			args: args{
-				origin:   []string{"a", "b", "c"},
-				trimFrom: []string{"c"},
-				expected: []string{"a", "b"},
-			},
-		},
-		{
-			name: "do nothing",
-			args: args{
-				origin:   []string{"a", "b", "c"},
-				trimFrom: []string{"d"},
-				expected: []string{"a", "b", "c"},
-			},
-		},
-		{
-			name: "trim all",
-			args: args{
-				origin:   []string{"a", "b", "c"},
-				trimFrom: []string{"a", "b", "c"},
-				expected: []string{},
-			},
-		},
-		{
-			name: "trimFrom larger",
-			args: args{
-				origin:   []string{"a", "b", "c"},
-				trimFrom: []string{"a", "b", "e", "d"},
-				expected: []string{"c"},
-			},
-		},
-		{
-			name: "trim all not sorted",
-			args: args{
-				origin:   []string{"c", "a", "b"},
-				trimFrom: []string{"a", "b", "c"},
-				expected: []string{},
-			},
-		},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			dd := trimUnique(tt.args.origin, tt.args.trimFrom)
-			assert.Equal(t, tt.args.expected, dd)
-		})
+// appendSlice append a slice to a slice the index indicates the position of the slice
+func appendSlice(origin, appendTo []string, index *int) {
+	for i := range appendTo {
+		origin[*index] = appendTo[i]
+		*index++
 	}
 }
+*/
