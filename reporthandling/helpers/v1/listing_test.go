@@ -5,25 +5,26 @@ import (
 
 	"github.com/kubescape/opa-utils/reporthandling/apis"
 	"github.com/stretchr/testify/assert"
+	"k8s.io/apimachinery/pkg/util/sets"
 )
 
 // mockAllListsA - DO NOT CHANGE MOCK FUNCTION RETURN
 func mockAllListsA() *AllLists {
 	return &AllLists{
-		passed:  []string{"a", "b"},
-		failed:  []string{"e", "g"},
-		skipped: []string{"h"},
-		other:   []string{"i", "l", "m", "n"},
+		passed:   sets.New("a", "b"),
+		failed:   sets.New("e", "g"),
+		skipped:  sets.New("h"),
+		other:    sets.New("i", "l", "m", "n"),
 	}
 }
 
 // mockAllListsB - DO NOT CHANGE MOCK FUNCTION RETURN
 func mockAllListsB() *AllLists {
 	return &AllLists{
-		passed:  []string{"c", "d", "e"},
-		other:   []string{"e", "g"},
-		failed:  []string{"h"},
-		skipped: []string{"i", "l", "m", "n"},
+		passed:   sets.New("c", "d", "e"),
+		other:    sets.New("e", "g"),
+		failed:   sets.New("h"),
+		skipped:  sets.New("i", "l", "m", "n"),
 	}
 }
 

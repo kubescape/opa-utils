@@ -98,7 +98,8 @@ func (controlSummary *ControlSummary) Append(status apis.IStatus, ids ...string)
 		controlSummary.ResourceIDs.Append(status.Status(), ids[i])
 		controlSummary.increase(status)
 	}
-	controlSummary.ResourceIDs.ToUniqueResources()
+	// FIXME - Matthias thinks this one is useless
+	//controlSummary.ResourceIDs.ToUniqueResources()
 }
 
 // =================================== Score ============================================

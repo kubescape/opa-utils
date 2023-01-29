@@ -3,6 +3,7 @@ package v1
 import (
 	"github.com/armosec/utils-go/str"
 	"github.com/kubescape/opa-utils/reporthandling/apis"
+	"k8s.io/apimachinery/pkg/util/sets"
 )
 
 // ReportObject any report object must be compliment with a map[string]interface{} structures
@@ -10,11 +11,11 @@ type ReportObject map[string]interface{}
 
 // AllLists lists of resources/policies grouped by the status, this structure is meant for internal use of report handling and not an API
 type AllLists struct {
-	passed   []string
-	failed   []string
-	skipped  []string
-	excluded []string
-	other    []string
+	passed   sets.Set[string]
+	failed   sets.Set[string]
+	skipped  sets.Set[string]
+	excluded sets.Set[string]
+	other    sets.Set[string]
 }
 
 type Iterator interface {
@@ -24,19 +25,26 @@ type Iterator interface {
 }
 
 type AllListsIterator struct {
-	allLists     *AllLists
-	size         int
-	index        int
-	failedIndex  int
-	passIndex    int
-	skippedIndex int
-	otherIndex   int
+	passed        []string
+	failed        []string
+	skipped       []string
+	other         []string
+	size          int
+	index         int
+	failedIndex   int
+	excludedIndex int
+	passIndex     int
+	skippedIndex  int
+	otherIndex    int
 }
 
 func (all *AllLists) createIterator() Iterator {
 	return &AllListsIterator{
-		size:     len(all.failed) + len(all.passed) + len(all.skipped) + len(all.other),
-		allLists: all,
+		size:    len(all.failed) + len(all.excluded) + len(all.passed) + len(all.skipped) + len(all.other),
+		passed:  all.Passed(),
+		failed:  all.Failed(),
+		skipped: all.Skipped(),
+		other:   all.Other(),
 	}
 }
 
@@ -51,17 +59,17 @@ func (iter *AllListsIterator) HasNext() bool {
 func (iter *AllListsIterator) Next() string {
 	var item string
 	if iter.HasNext() {
-		if iter.failedIndex < len(iter.allLists.failed) {
-			item = iter.allLists.failed[iter.failedIndex]
+		if iter.failedIndex < len(iter.failed) {
+			item = iter.failed[iter.failedIndex]
 			iter.failedIndex++
-		} else if iter.passIndex < len(iter.allLists.passed) {
-			item = iter.allLists.passed[iter.passIndex]
+		} else if iter.passIndex < len(iter.passed) {
+			item = iter.passed[iter.passIndex]
 			iter.passIndex++
-		} else if iter.skippedIndex < len(iter.allLists.skipped) {
-			item = iter.allLists.skipped[iter.skippedIndex]
+		} else if iter.skippedIndex < len(iter.skipped) {
+			item = iter.skipped[iter.skippedIndex]
 			iter.skippedIndex++
-		} else if iter.otherIndex < len(iter.allLists.other) {
-			item = iter.allLists.other[iter.otherIndex]
+		} else if iter.otherIndex < len(iter.other) {
+			item = iter.other[iter.otherIndex]
 			iter.otherIndex++
 		}
 		iter.index++
@@ -71,61 +79,64 @@ func (iter *AllListsIterator) Next() string {
 
 // GetAllResources
 
-func (all *AllLists) Failed() []string  { return all.failed }
-func (all *AllLists) Passed() []string  { return append(all.passed, all.excluded...) }
-func (all *AllLists) Skipped() []string { return all.skipped }
-func (all *AllLists) Other() []string   { return all.other }
+func (all *AllLists) Failed() []string  { return all.failed.UnsortedList() }
+func (all *AllLists) Passed() []string  { return all.passed.UnsortedList() }
+func (all *AllLists) Skipped() []string { return all.skipped.UnsortedList() }
+func (all *AllLists) Other() []string   { return all.other.UnsortedList() }
 func (all *AllLists) All() Iterator {
 	return all.createIterator()
 }
 
-// Append append single string to matching status list
+// Append appends strings to matching status list
 func (all *AllLists) Append(status apis.ScanningStatus, str ...string) {
 	switch status {
 	case apis.StatusPassed:
-		all.passed = append(all.passed, str...)
+		if all.passed == nil {
+			all.passed = sets.New(str...)
+		} else {
+			all.passed.Insert(str...)
+		}
 	case apis.StatusSkipped:
-		all.skipped = append(all.skipped, str...)
+		if all.skipped == nil {
+			all.skipped = sets.New(str...)
+		} else {
+			all.skipped.Insert(str...)
+		}
 	case apis.StatusFailed:
-		all.failed = append(all.failed, str...)
+		if all.failed == nil {
+			all.failed = sets.New(str...)
+		} else {
+			all.failed.Insert(str...)
+		}
 	default:
-		all.other = append(all.other, str...)
+		if all.other == nil {
+			all.other = sets.New(str...)
+		} else {
+			all.other.Insert(str...)
+		}
 	}
 }
 
 // Update AllLists objects with
 func (all *AllLists) Update(all2 *AllLists) {
-	all.passed = append(all.passed, all2.passed...)
-	all.skipped = append(all.skipped, all2.skipped...)
-	all.failed = append(all.failed, all2.failed...)
-	all.other = append(all.other, all2.other...)
-}
-
-// ToUnique - Call this function only when setting the List
-func (all *AllLists) toUniqueBase() {
-	// remove duplications from each resource list
-	all.failed = str.SliceStringToUnique(all.failed)
-	all.passed = str.SliceStringToUnique(all.passed)
-	all.skipped = str.SliceStringToUnique(all.skipped)
-	all.other = str.SliceStringToUnique(all.other)
+	all.passed.Insert(all2.Passed()...)
+	all.skipped.Insert(all2.Skipped()...)
+	all.failed.Insert(all2.Failed()...)
+	all.other.Insert(all2.Other()...)
 }
 
 // ToUnique - Call this function only when setting the List
 func (all *AllLists) ToUniqueControls() {
-	all.toUniqueBase()
 }
 
 // ToUnique - Call this function only when setting the List
 func (all *AllLists) ToUniqueResources() {
-	all.toUniqueBase()
 	// remove failed from passed list
-	all.passed = trimUnique(all.passed, all.failed)
-	// remove failed, and passed from skipped list
-	trimmed := append(all.failed, all.passed...)
-	all.skipped = trimUnique(all.skipped, trimmed)
+	all.passed = all.passed.Difference(all.failed)
+	// remove failed and passed from skipped list
+	all.skipped = all.skipped.Difference(all.failed).Difference(all.passed)
 	// remove failed, passed and skipped from other list
-	trimmed = append(trimmed, all.skipped...)
-	all.other = trimUnique(all.other, trimmed)
+	all.other = all.other.Difference(all.failed).Difference(all.passed).Difference(all.skipped)
 }
 
 // trimUnique trim the list, return original list without the "trimFrom" list. the list is trimmed in place, so the original list is modified. Also, the list is not sorted
