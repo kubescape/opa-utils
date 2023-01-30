@@ -18,9 +18,6 @@ const (
 
 // GetOPAPolicies returns all the policies of given customer
 func (gs *GitRegoStore) GetOPAPolicies() ([]opapolicy.PolicyRule, error) {
-	gs.rulesLock.RLock()
-	defer gs.rulesLock.RUnlock()
-
 	if gs.Rules == nil {
 		return nil, fmt.Errorf("no rules found in GitRegoStore")
 	}
@@ -30,7 +27,6 @@ func (gs *GitRegoStore) GetOPAPolicies() ([]opapolicy.PolicyRule, error) {
 func (gs *GitRegoStore) GetOPAPoliciesNamesList() ([]string, error) {
 	gs.rulesLock.RLock()
 	defer gs.rulesLock.RUnlock()
-
 	var policiesNameList []string
 	for _, rule := range gs.Rules {
 		policiesNameList = append(policiesNameList, rule.Name)
@@ -42,17 +38,11 @@ func (gs *GitRegoStore) GetOPAPoliciesNamesList() ([]string, error) {
 func (gs *GitRegoStore) GetOPAPolicyByName(ruleName string) (*opapolicy.PolicyRule, error) {
 	gs.rulesLock.RLock()
 	defer gs.rulesLock.RUnlock()
-
-	return gs.getOPAPolicyByName(ruleName)
-}
-
-func (gs *GitRegoStore) getOPAPolicyByName(ruleName string) (*opapolicy.PolicyRule, error) {
 	for _, rule := range gs.Rules {
 		if strings.EqualFold(rule.Name, ruleName) {
 			return &rule, nil
 		}
 	}
-
 	return nil, fmt.Errorf("rule '%s' not found", ruleName)
 }
 
@@ -65,7 +55,7 @@ func (gs *GitRegoStore) fillRulesAndRulesIDsInControl(control *opapolicy.Control
 
 	for row := 0; row < fil.Nrow(); row++ {
 		ruleName := fil.Elem(row, 1)
-		rule, err := gs.getOPAPolicyByName(ruleName.String())
+		rule, err := gs.GetOPAPolicyByName(ruleName.String())
 		if err != nil {
 			return err
 		}
@@ -94,13 +84,11 @@ func (gs *GitRegoStore) GetAttackTracks() ([]v1alpha1.AttackTrack, error) {
 func (gs *GitRegoStore) GetOPAControlByName(controlName string) (*opapolicy.Control, error) {
 	gs.controlsLock.RLock()
 	defer gs.controlsLock.RUnlock()
-
 	for _, control := range gs.Controls {
 		if strings.EqualFold(control.Name, controlName) ||
 			// If backward compatibility is supported, extract from patched control name the new name.
 			(supportBackwardCompatibility && strings.EqualFold(control.Name, baseControlName(control.ControlID, controlName))) {
 			if len(control.Rules) == 0 {
-				// TODO(fred): MUTATE control
 				err := gs.fillRulesAndRulesIDsInControl(&control)
 				if err != nil {
 					return nil, err
@@ -116,18 +104,12 @@ func (gs *GitRegoStore) GetOPAControlByName(controlName string) (*opapolicy.Cont
 func (gs *GitRegoStore) GetOPAControlByID(controlID string) (*opapolicy.Control, error) {
 	gs.controlsLock.RLock()
 	defer gs.controlsLock.RUnlock()
-
-	return gs.getOPAControlByID(controlID)
-}
-
-func (gs *GitRegoStore) getOPAControlByID(controlID string) (*opapolicy.Control, error) {
 	for _, control := range gs.Controls {
 		if strings.EqualFold(control.ControlID, controlID) ||
 			// If backward compatibility is supported,try to find if the controlID sent has a new controlID
 			(supportBackwardCompatibility && strings.EqualFold(control.ControlID, newControlID(controlID))) {
 
 			if len(control.Rules) == 0 {
-				// TODO(fred): MUTATE control
 				err := gs.fillRulesAndRulesIDsInControl(&control)
 				if err != nil {
 					return nil, err
@@ -142,13 +124,11 @@ func (gs *GitRegoStore) getOPAControlByID(controlID string) (*opapolicy.Control,
 
 // GetOPAControlByFrameworkNameAndControlName - get framework name and control name and return the relevant control object
 func (gs *GitRegoStore) GetOPAControlByFrameworkNameAndControlName(frameworkName string, controlName string) (*opapolicy.Control, error) {
-	fw, err := gs.GetOPAFrameworkByName(frameworkName) // locks framework
+	fw, err := gs.GetOPAFrameworkByName(frameworkName)
+
 	if err != nil {
 		return nil, err
 	}
-
-	gs.controlsLock.RLock()
-	defer gs.controlsLock.RUnlock()
 
 	for _, control := range fw.Controls {
 
@@ -156,7 +136,6 @@ func (gs *GitRegoStore) GetOPAControlByFrameworkNameAndControlName(frameworkName
 			// If backward compatibility is supported, extract from patched control name the new name.
 			(supportBackwardCompatibility && strings.EqualFold(control.Name, baseControlName(control.ControlID, controlName))) {
 			if len(control.Rules) == 0 {
-				// TODO(fred): MUTATE control
 				err := gs.fillRulesAndRulesIDsInControl(&control)
 				if err != nil {
 					return nil, err
@@ -188,7 +167,6 @@ func (gs *GitRegoStore) GetOPAControls() ([]opapolicy.Control, error) {
 		return nil, fmt.Errorf("no controls found in GitRegoStore")
 	}
 	for _, control := range gs.Controls {
-		// TODO(fred): MUTATE control
 		err := gs.fillRulesAndRulesIDsInControl(&control)
 		if err != nil {
 			return nil, err
@@ -229,7 +207,7 @@ func (gs *GitRegoStore) fillControlsAndControlIDsInFramework(fw *opapolicy.Frame
 	if len(fw.Controls) == 0 {
 		for row := 0; row < fil.Nrow(); row++ {
 			controlID := fil.Elem(row, 1)
-			control, err := gs.getOPAControlByID(controlID.String())
+			control, err := gs.GetOPAControlByID(controlID.String())
 			if err != nil {
 				return err
 			}
@@ -247,7 +225,7 @@ func (gs *GitRegoStore) fillControlsAndControlIDsInFramework(fw *opapolicy.Frame
 			if len(fw.Controls[i].Rules) == 0 {
 
 				// getting the control object using GetOPAControlByID as it handles backward compatibility
-				tmpControl, err := gs.getOPAControlByID(fw.Controls[i].ControlID)
+				tmpControl, err := gs.GetOPAControlByID(fw.Controls[i].ControlID)
 				if err != nil {
 					return err
 				}
@@ -292,13 +270,11 @@ func (gs *GitRegoStore) GetOpaFrameworkListByControlID(controlID string) []strin
 func (gs *GitRegoStore) GetOPAFrameworks() ([]opapolicy.Framework, error) {
 	gs.frameworksLock.RLock()
 	defer gs.frameworksLock.RUnlock()
-
 	var frameworksList []opapolicy.Framework
 	if gs.Frameworks == nil {
 		return nil, fmt.Errorf("no frameworks found in GitRegoStore")
 	}
 	for _, fw := range gs.Frameworks {
-		// TODO(fred): MUTATE framework
 		err := gs.fillControlsAndControlIDsInFramework(&fw)
 		if err != nil {
 			return nil, err
@@ -311,7 +287,6 @@ func (gs *GitRegoStore) GetOPAFrameworks() ([]opapolicy.Framework, error) {
 func (gs *GitRegoStore) GetOPAFrameworksNamesList() ([]string, error) {
 	gs.frameworksLock.RLock()
 	defer gs.frameworksLock.RUnlock()
-
 	var frameworksNameList []string
 	for _, framework := range gs.Frameworks {
 		frameworksNameList = append(frameworksNameList, framework.Name)
@@ -323,7 +298,6 @@ func (gs *GitRegoStore) GetOPAFrameworksNamesList() ([]string, error) {
 func (gs *GitRegoStore) GetOPAFrameworkByName(frameworkName string) (*opapolicy.Framework, error) {
 	gs.frameworksLock.RLock()
 	defer gs.frameworksLock.RUnlock()
-
 	for _, fw := range gs.Frameworks {
 		if strings.EqualFold(fw.Name, frameworkName) ||
 			// If backward compatibility is supported,try to compare the new CIS name.
@@ -341,13 +315,11 @@ func (gs *GitRegoStore) GetOPAFrameworkByName(frameworkName string) (*opapolicy.
 func (gs *GitRegoStore) GetDefaultConfigInputs() (armotypes.CustomerConfig, error) {
 	gs.DefaultConfigInputsLock.RLock()
 	defer gs.DefaultConfigInputsLock.RUnlock()
-
 	return gs.DefaultConfigInputs, nil
 }
 
 func (gs *GitRegoStore) GetSystemPostureExceptionPolicies() ([]armotypes.PostureExceptionPolicy, error) {
 	gs.systemPostureExceptionPoliciesLock.RLock()
 	defer gs.systemPostureExceptionPoliciesLock.RUnlock()
-
 	return gs.SystemPostureExceptionPolicies, nil
 }
