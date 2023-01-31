@@ -204,7 +204,7 @@ func TestGetResourceExceptions(t *testing.T) {
 	for _, test := range testCases {
 		test := test
 		t.Run(test.desc, func(t *testing.T) {
-			t.Parallel()
+			// t.Parallel()
 
 			res := p.GetResourceExceptions([]armotypes.PostureExceptionPolicy{*exceptionPolicy}, test.workloadObj, "")
 			assert.Equal(t, test.expectedExceptionsCount, len(res))
