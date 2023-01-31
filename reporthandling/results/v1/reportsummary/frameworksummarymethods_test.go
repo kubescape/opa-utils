@@ -11,7 +11,7 @@ import (
 func TestSetStatus(t *testing.T) {
 	status := []apis.ScanningStatus{}
 
-	f := mockFrameworkSummaryFailExclude()
+	f := mockFrameworkSummaryFailException()
 	status = append(status, f.GetStatus().Status())
 
 	f.Status = apis.StatusUnknown
@@ -35,7 +35,7 @@ func TestStatusInfoNotPresent(t *testing.T) {
 	for _, v := range f.Controls {
 		status := v.GetStatus()
 		assert.Equal(t, reflect.TypeOf(status), reflect.TypeOf(&apis.StatusInfo{}))
-		assert.Equal(t, status.Status(), apis.InfoStatusSkipped)
+		assert.Equal(t, status.Status(), apis.StatusSkipped)
 		assert.Equal(t, status.Info(), "")
 	}
 
@@ -45,10 +45,14 @@ func TestStatusEmpty(t *testing.T) {
 
 	f := mockSummaryDetailsStatusEmpty()
 	for _, v := range f.Controls {
-		v.Status = apis.StatusIrrelevant
+		v.Status = apis.StatusPassed
+		v.SubStatus = apis.SubStatusIrrelevant
 		status := v.GetStatus()
+		subStatus := v.GetSubStatus()
 		assert.Equal(t, reflect.TypeOf(status), reflect.TypeOf(&apis.StatusInfo{}))
-		assert.Equal(t, status.Status(), apis.StatusIrrelevant)
+		assert.Equal(t, reflect.TypeOf(subStatus), reflect.TypeOf(apis.SubStatusIrrelevant))
+		assert.Equal(t, status.Status(), apis.StatusPassed)
+		assert.Equal(t, subStatus, apis.SubStatusIrrelevant)
 		assert.Equal(t, status.Info(), "")
 	}
 
@@ -63,34 +67,32 @@ func TestStatusInfoSkipped(t *testing.T) {
 	for _, v := range f.Controls {
 		status = v.GetStatus().Status()
 		info = v.GetStatus().Info()
-		assert.Equal(t, status, apis.InfoStatusSkipped)
+		assert.Equal(t, status, apis.StatusSkipped)
 		assert.Equal(t, info, "no host sensor flag")
 	}
 
 }
 
-func TestStatusInfoIrelevant(t *testing.T) {
+func TestStatusIrrelevant(t *testing.T) {
 	var status apis.ScanningStatus
-	var info string
+	var subStatus apis.ScanningSubStatus
 
-	f := mockSummaryDetailsStatusIrrelevant() // control -> status: "irrelevant", info: "no k8s dashboard in cluster"
+	f := mockSummaryDetailsStatusIrrelevant() // control -> status: "passed", subStatus: "irrelevant"
 
 	for _, v := range f.Controls {
 		status = v.GetStatus().Status()
-		info = v.GetStatus().Info()
-		assert.Equal(t, status, apis.StatusIrrelevant)
-		assert.Equal(t, info, "no k8s dashboard in cluster")
+		subStatus = v.GetSubStatus()
+		assert.Equal(t, status, apis.StatusPassed)
+		assert.Equal(t, subStatus, apis.SubStatusIrrelevant)
 	}
 
 }
 
 func TestFrameworkControlsSummariesCounters(t *testing.T) {
 	f := mockFrameworkSummaryFailPass()
-	f.ListControlsIDs().Skipped()
 	assert.Equal(t, len(f.Controls), f.GetControls().NumberOfControls().All(), "invalid total control count")
 	assert.Equal(t, len(f.GetControls().ListControlsIDs().Failed()), f.GetControls().NumberOfControls().Failed(), "invalid total failed control count")
 	assert.Equal(t, len(f.GetControls().ListControlsIDs().Passed()), f.GetControls().NumberOfControls().Passed(), "invalid total passed control count")
-	assert.Equal(t, len(f.GetControls().ListControlsIDs().Excluded()), f.GetControls().NumberOfControls().Excluded(), "invalid total excluded/warning control count")
 	assert.Equal(t, len(f.GetControls().ListControlsIDs().Skipped()), f.GetControls().NumberOfControls().Skipped(), "invalid total skipped control count")
 }
 

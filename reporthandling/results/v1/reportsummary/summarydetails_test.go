@@ -10,6 +10,10 @@ import (
 
 var mockResultsPassed = resourcesresults.MockResults()[0]
 var mockResultsFailed = resourcesresults.MockResults()[1]
+var mockResultsException = resourcesresults.MockResults()[2]
+var mockResultsConfigurqation = resourcesresults.MockResults()[3]
+var mockResultRequiresReview = resourcesresults.MockResults()[4]
+var mockResultManualReview = resourcesresults.MockResults()[5]
 
 func TestRuleStatus(t *testing.T) {
 	r := mockSummaryDetailsFailed()
@@ -18,16 +22,14 @@ func TestRuleStatus(t *testing.T) {
 	assert.Equal(t, apis.StatusFailed, r.GetStatus().Status())
 	assert.True(t, r.GetStatus().IsFailed())
 	assert.False(t, r.GetStatus().IsPassed())
-	assert.False(t, r.GetStatus().IsExcluded())
 	assert.False(t, r.GetStatus().IsSkipped())
 
-	r1 := mockSummaryDetailsExcluded()
+	r1 := mockSummaryDetailsException()
 	r1.CalculateStatus()
 
-	assert.Equal(t, apis.StatusExcluded, r1.GetStatus().Status())
-	assert.True(t, r1.GetStatus().IsExcluded())
+	assert.Equal(t, apis.StatusPassed, r1.GetStatus().Status())
 	assert.False(t, r1.GetStatus().IsFailed())
-	assert.False(t, r1.GetStatus().IsPassed())
+	assert.True(t, r1.GetStatus().IsPassed())
 	assert.False(t, r1.GetStatus().IsSkipped())
 
 	r2 := mockSummaryDetailsPassed()
@@ -36,7 +38,6 @@ func TestRuleStatus(t *testing.T) {
 	assert.Equal(t, apis.StatusPassed, r2.GetStatus().Status())
 	assert.True(t, r2.GetStatus().IsPassed())
 	assert.False(t, r2.GetStatus().IsFailed())
-	assert.False(t, r2.GetStatus().IsExcluded())
 	assert.False(t, r2.GetStatus().IsSkipped())
 
 }
@@ -64,7 +65,6 @@ func TestUpdateControlsSummaryCountersFailed(t *testing.T) {
 		assert.Equal(t, 1, v.NumberOfResources().Failed())
 		assert.Equal(t, 0, v.NumberOfResources().Passed())
 		assert.Equal(t, 0, v.NumberOfResources().Skipped())
-		assert.Equal(t, 0, v.NumberOfResources().Excluded())
 	}
 
 }
@@ -80,10 +80,90 @@ func TestUpdateControlsSummaryCountersPassed(t *testing.T) {
 	updateControlsSummaryCounters(&mockResultsPassed, controls, nil)
 	for _, v := range controls {
 		assert.Equal(t, 1, v.NumberOfResources().All())
-		assert.Equal(t, 1, v.NumberOfResources().Passed())
 		assert.Equal(t, 0, v.NumberOfResources().Failed())
+		assert.Equal(t, 1, v.NumberOfResources().Passed())
 		assert.Equal(t, 0, v.NumberOfResources().Skipped())
-		assert.Equal(t, 0, v.NumberOfResources().Excluded())
+
+	}
+}
+
+func TestUpdateControlsSummaryCountersException(t *testing.T) {
+	controls := map[string]ControlSummary{}
+
+	allControls := mockResultsException.ListControlsIDs(nil)
+	tt := allControls.All()
+	for tt.HasNext() {
+		controls[tt.Next()] = ControlSummary{}
+	}
+
+	// New control
+	updateControlsSummaryCounters(&mockResultsException, controls, nil)
+	for _, v := range controls {
+		assert.Equal(t, 1, v.NumberOfResources().All())
+		assert.Equal(t, 0, v.NumberOfResources().Failed())
+		assert.Equal(t, 1, v.NumberOfResources().Passed())
+		assert.Equal(t, 0, v.NumberOfResources().Skipped())
+		assert.Equal(t, apis.SubStatusException, v.GetSubStatus())
+	}
+}
+
+func TestUpdateControlsSummaryCountersConfiguration(t *testing.T) {
+	controls := map[string]ControlSummary{}
+
+	allControls := mockResultsConfigurqation.ListControlsIDs(nil)
+	tt := allControls.All()
+	for tt.HasNext() {
+		controls[tt.Next()] = ControlSummary{}
+	}
+
+	// New control
+	updateControlsSummaryCounters(&mockResultsConfigurqation, controls, nil)
+	for _, v := range controls {
+		assert.Equal(t, 1, v.NumberOfResources().All())
+		assert.Equal(t, 0, v.NumberOfResources().Failed())
+		assert.Equal(t, 0, v.NumberOfResources().Passed())
+		assert.Equal(t, 1, v.NumberOfResources().Skipped())
+		assert.Equal(t, apis.SubStatusConfiguration, v.GetSubStatus())
+	}
+}
+
+func TestUpdateControlsSummaryCountersRequiresReview(t *testing.T) {
+	controls := map[string]ControlSummary{}
+
+	allControls := mockResultRequiresReview.ListControlsIDs(nil)
+	tt := allControls.All()
+	for tt.HasNext() {
+		controls[tt.Next()] = ControlSummary{}
+	}
+
+	// New control
+	updateControlsSummaryCounters(&mockResultRequiresReview, controls, nil)
+	for _, v := range controls {
+		assert.Equal(t, 1, v.NumberOfResources().All())
+		assert.Equal(t, 0, v.NumberOfResources().Failed())
+		assert.Equal(t, 0, v.NumberOfResources().Passed())
+		assert.Equal(t, 1, v.NumberOfResources().Skipped())
+		assert.Equal(t, apis.SubStatusRequiresReview, v.GetSubStatus())
+	}
+}
+
+func TestUpdateControlsSummaryCountersManualReview(t *testing.T) {
+	controls := map[string]ControlSummary{}
+
+	allControls := mockResultManualReview.ListControlsIDs(nil)
+	tt := allControls.All()
+	for tt.HasNext() {
+		controls[tt.Next()] = ControlSummary{}
+	}
+
+	// New control
+	updateControlsSummaryCounters(&mockResultManualReview, controls, nil)
+	for _, v := range controls {
+		assert.Equal(t, 1, v.NumberOfResources().All())
+		assert.Equal(t, 0, v.NumberOfResources().Failed())
+		assert.Equal(t, 0, v.NumberOfResources().Passed())
+		assert.Equal(t, 1, v.NumberOfResources().Skipped())
+		assert.Equal(t, apis.SubStatusManualReview, v.GetSubStatus())
 	}
 }
 
@@ -104,7 +184,7 @@ func TestUpdateControlsSummaryCountersAll(t *testing.T) {
 		assert.NotEqual(t, 0, v.NumberOfResources().Failed())
 		assert.Equal(t, 0, v.NumberOfResources().Passed())
 		assert.Equal(t, 0, v.NumberOfResources().Skipped())
-		assert.Equal(t, 0, v.NumberOfResources().Excluded())
+
 	}
 	for _, i := range allControls.Passed() {
 		v, k := controls[i]
@@ -113,7 +193,7 @@ func TestUpdateControlsSummaryCountersAll(t *testing.T) {
 		assert.NotEqual(t, 0, v.NumberOfResources().Passed())
 		assert.Equal(t, 0, v.NumberOfResources().Failed())
 		assert.Equal(t, 0, v.NumberOfResources().Skipped())
-		assert.Equal(t, 0, v.NumberOfResources().Excluded())
+
 	}
 }
 

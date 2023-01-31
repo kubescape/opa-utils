@@ -6,7 +6,6 @@ import (
 )
 
 type ICounters interface {
-	Excluded() int
 	Passed() int
 	Skipped() int
 	Failed() int
@@ -17,24 +16,19 @@ type ICounters interface {
 
 // NumberOfExcluded get the number of excluded resources
 func (resourceCounters *ResourceCounters) Set(allLists *helpersv1.AllLists) {
-	resourceCounters.ExcludedResources = len(allLists.Excluded())
 	resourceCounters.FailedResources = len(allLists.Failed())
 	resourceCounters.PassedResources = len(allLists.Passed())
-}
-
-// NumberOfExcluded get the number of excluded resources
-func (resourceCounters *ResourceCounters) Excluded() int {
-	return resourceCounters.ExcludedResources
+	resourceCounters.SkippedResources = len(allLists.Skipped())
 }
 
 // NumberOfPassed get the number of passed resources
 func (resourceCounters *ResourceCounters) Passed() int {
-	return resourceCounters.PassedResources
+	return resourceCounters.PassedResources + resourceCounters.ExcludedResources
 }
 
 // NumberOfSkipped get the number of skipped resources
 func (resourceCounters *ResourceCounters) Skipped() int {
-	return 0
+	return resourceCounters.SkippedResources
 }
 
 // NumberOfFailed get the number of failed resources
@@ -44,7 +38,7 @@ func (resourceCounters *ResourceCounters) Failed() int {
 
 // NumberOfAll get the number of all resources
 func (resourceCounters *ResourceCounters) All() int {
-	return resourceCounters.Excluded() + resourceCounters.Failed() + resourceCounters.Skipped() + resourceCounters.Passed()
+	return resourceCounters.Failed() + resourceCounters.Passed() + resourceCounters.Skipped()
 }
 
 // =================================== Setters ============================================
@@ -52,11 +46,11 @@ func (resourceCounters *ResourceCounters) All() int {
 // Increase increases the counter based on the status
 func (resourceCounters *ResourceCounters) Increase(status apis.IStatus) {
 	switch status.Status() {
-	case apis.StatusExcluded:
-		resourceCounters.ExcludedResources++
 	case apis.StatusFailed:
 		resourceCounters.FailedResources++
 	case apis.StatusPassed:
 		resourceCounters.PassedResources++
+	case apis.StatusSkipped:
+		resourceCounters.SkippedResources++
 	}
 }

@@ -67,9 +67,9 @@ func GetPostureReportMock() *PostureReport {
 						"C-0045": {
 							Score: 68,
 							ResourceCounters: reportsummary.ResourceCounters{
-								PassedResources:   17,
-								FailedResources:   5,
-								ExcludedResources: 0,
+								PassedResources:  17,
+								FailedResources:  5,
+								SkippedResources: 0,
 							},
 						},
 					},
@@ -79,9 +79,9 @@ func GetPostureReportMock() *PostureReport {
 				"C-0045": {
 					Score: 68,
 					ResourceCounters: reportsummary.ResourceCounters{
-						PassedResources:   17,
-						FailedResources:   5,
-						ExcludedResources: 0,
+						PassedResources:  17,
+						FailedResources:  5,
+						SkippedResources: 0,
 					},
 				},
 			},

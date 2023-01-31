@@ -47,6 +47,7 @@ func (summaryDetails *SummaryDetails) InitResourcesSummary(controlInfoMap map[st
 	for k, control := range summaryDetails.Controls {
 		if statusInfo, ok := controlInfoMap[control.ControlID]; ok && statusInfo.InnerStatus != apis.StatusUnknown {
 			control.SetStatus(&statusInfo)
+			control.SetSubStatus(apis.SubStatusIntegration)
 		} else if control.GetStatus().Status() == apis.StatusUnknown {
 			control.CalculateStatus()
 		}
@@ -120,11 +121,9 @@ func (summaryDetails *SummaryDetails) ListControls() []IControlSummary {
 func (summaryDetails *SummaryDetails) NumberOfControls() ICounters {
 	controlsIds := summaryDetails.ListControlsIDs()
 	return &PostureCounters{
-		PassedCounter:   len(controlsIds.Passed()),
-		FailedCounter:   len(controlsIds.Failed()),
-		ExcludedCounter: len(controlsIds.Excluded()),
-		SkippedCounter:  len(controlsIds.Skipped()),
-		UnknownCounter:  len(controlsIds.Other()),
+		PassedCounter:  len(controlsIds.Passed()),
+		FailedCounter:  len(controlsIds.Failed()),
+		SkippedCounter: len(controlsIds.Skipped()),
 	}
 }
 
@@ -183,8 +182,10 @@ func updateControlsSummaryCounters(resourceResult *resourcesresults.Result, cont
 	for i := range resourceResult.AssociatedControls {
 		controlID := resourceResult.AssociatedControls[i].ControlID
 		if controlSummary, ok := controls[controlID]; ok {
-			controlSummary.Append(resourceResult.AssociatedControls[i].GetStatus(f), resourceResult.ResourceID)
-			controlSummary.CalculateStatus()
+			subStatus := resourceResult.AssociatedControls[i].GetSubStatus()
+			status := resourceResult.AssociatedControls[i].GetStatus(f)
+			controlSummary.Append(status, resourceResult.ResourceID)
+			controlSummary.calculateStatus(subStatus)
 			controls[controlID] = controlSummary
 		}
 	}

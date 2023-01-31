@@ -9,9 +9,9 @@ import (
 
 // =================================== Status ============================================
 
-// GetStatus get the control status. returns an apis.ScanningStatus object
+// GetStatus get the control status. returns an apis.StatusInfo object
 func (controlSummary *ControlSummary) GetStatus() apis.IStatus {
-	// Backward compability
+	// Backward compatibility
 	if controlSummary.StatusInfo.Status() == apis.StatusUnknown {
 		controlSummary.StatusInfo.InnerStatus = controlSummary.Status
 	}
@@ -27,11 +27,54 @@ func (controlSummary *ControlSummary) SetStatus(statusInfo *apis.StatusInfo) {
 	}
 }
 
-// CalculateStatus set the control status based on the resource counters
+func (controlSummary *ControlSummary) SetSubStatus(subStatus apis.ScanningSubStatus) {
+	controlSummary.SubStatus = subStatus
+}
+
+// GetSubStatus get the control sub status. returns an apis.StatusInfo object
+func (controlSummary *ControlSummary) GetSubStatus() apis.ScanningSubStatus {
+	return controlSummary.SubStatus
+}
+
 func (controlSummary *ControlSummary) CalculateStatus() {
+	controlSummary.calculateStatus(apis.SubStatusUnknown)
+}
+
+// calculateStatus set the control status based on the resource counters and the sub status based on the subStatus parameter
+func (controlSummary *ControlSummary) calculateStatus(subStatus apis.ScanningSubStatus) {
 	controlSummary.StatusInfo.InnerStatus = calculateStatus(&controlSummary.ResourceCounters)
 	// Statuses should be the same
 	controlSummary.Status = controlSummary.StatusInfo.Status()
+
+	controlSummary.CalculateSubStatus(subStatus)
+}
+
+// CalculateSubStatus set the control sub status based on the resource associated control sub status
+func (controlSummary *ControlSummary) CalculateSubStatus(subStatus apis.ScanningSubStatus) {
+	switch controlSummary.Status {
+	case apis.StatusPassed:
+		if subStatus == apis.SubStatusIrrelevant || controlSummary.SubStatus == apis.SubStatusIrrelevant || controlSummary.ResourceCounters.All() == 0 {
+			controlSummary.SubStatus = apis.SubStatusIrrelevant
+			controlSummary.StatusInfo.InnerInfo = ""
+		} else if subStatus == apis.SubStatusException || controlSummary.SubStatus == apis.SubStatusException {
+			controlSummary.SubStatus = apis.SubStatusException
+			controlSummary.StatusInfo.InnerInfo = ""
+		}
+	case apis.StatusSkipped:
+		if subStatus == apis.SubStatusConfiguration || controlSummary.SubStatus == apis.SubStatusConfiguration {
+			controlSummary.SubStatus = apis.SubStatusConfiguration
+			controlSummary.StatusInfo.InnerInfo = string(apis.SubStatusConfigurationInfo)
+		} else if subStatus == apis.SubStatusManualReview || controlSummary.SubStatus == apis.SubStatusManualReview {
+			controlSummary.SubStatus = apis.SubStatusManualReview
+			controlSummary.StatusInfo.InnerInfo = string(apis.SubStatusManualReviewInfo)
+		} else if subStatus == apis.SubStatusRequiresReview || controlSummary.SubStatus == apis.SubStatusRequiresReview {
+			controlSummary.SubStatus = apis.SubStatusRequiresReview
+			controlSummary.StatusInfo.InnerInfo = string(apis.SubStatusRequiresReviewInfo)
+		}
+	case apis.StatusFailed:
+		controlSummary.SubStatus = apis.SubStatusUnknown
+		controlSummary.StatusInfo.InnerInfo = ""
+	}
 }
 
 // =================================== Counters ============================================
@@ -139,11 +182,9 @@ func (controlSummaries *ControlSummaries) ListControlsIDs() *helpersv1.AllLists 
 func (controlSummaries *ControlSummaries) NumberOfControls() ICounters {
 	l := controlSummaries.ListControlsIDs()
 	return &PostureCounters{
-		PassedCounter:   len(l.Passed()),
-		FailedCounter:   len(l.Failed()),
-		ExcludedCounter: len(l.Excluded()),
-		SkippedCounter:  len(l.Skipped()),
-		UnknownCounter:  len(l.Other()),
+		PassedCounter:  len(l.Passed()),
+		FailedCounter:  len(l.Failed()),
+		SkippedCounter: len(l.Skipped()),
 	}
 }
 
@@ -155,7 +196,6 @@ func (controlSummaries *ControlSummaries) ListResourcesIDs() *helpersv1.AllLists
 	for ctrlIDsIter.HasNext() {
 		resourcesIDs := controlSummaries.GetControl(EControlCriteriaID, ctrlIDsIter.Next()).ListResourcesIDs()
 		allList.Append(apis.StatusFailed, resourcesIDs.Failed()...)
-		allList.Append(apis.StatusExcluded, resourcesIDs.Excluded()...)
 		allList.Append(apis.StatusPassed, resourcesIDs.Passed()...)
 		allList.Append(apis.StatusSkipped, resourcesIDs.Skipped()...)
 		allList.Append(apis.StatusUnknown, resourcesIDs.Other()...)

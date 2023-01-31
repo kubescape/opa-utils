@@ -4,11 +4,6 @@ import (
 	"github.com/kubescape/opa-utils/reporthandling/apis"
 )
 
-// NumberOfExcluded get the number of excluded posture object
-func (pcounter *PostureCounters) Excluded() int {
-	return pcounter.ExcludedCounter
-}
-
 // NumberOfPassed get the number of passed posture object
 func (pcounter *PostureCounters) Passed() int {
 	return pcounter.PassedCounter
@@ -24,27 +19,17 @@ func (pcounter *PostureCounters) Failed() int {
 	return pcounter.FailedCounter
 }
 
-func (pcounter *PostureCounters) Ignored() int {
-	return pcounter.IgnoredCounter
-}
-
-func (pcounter *PostureCounters) Unknown() int {
-	return pcounter.UnknownCounter
-}
-
 func (pcounter *PostureCounters) All() int {
-	return pcounter.Passed() + pcounter.Excluded() + pcounter.Failed() + pcounter.Ignored() + pcounter.Skipped()
+	return pcounter.Passed() + pcounter.Skipped() + pcounter.Failed()
 }
 
 func (pcounter *PostureCounters) Increase(status apis.IStatus) {
 	switch status.Status() {
-	case apis.StatusExcluded:
-		pcounter.ExcludedCounter++
 	case apis.StatusFailed:
 		pcounter.FailedCounter++
 	case apis.StatusPassed:
 		pcounter.PassedCounter++
-	case apis.StatusSkipped, apis.StatusIrrelevant, apis.StatusError:
+	case apis.StatusSkipped:
 		pcounter.SkippedCounter++
 	}
 }

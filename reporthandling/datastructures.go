@@ -37,7 +37,7 @@ type ControlConfigInputs struct {
 type PolicyRule struct {
 	armotypes.PortalBase   `json:",inline" bson:"inline"`
 	CreationTime           string                `json:"creationTime" bson:"creationTime"`
-	Rule                   string                `json:"rule" bson:"rule`                                      // multiline string of raw.rego
+	Rule                   string                `json:"rule" bson:"rule"`                                     // multiline string of raw.rego
 	ResourceEnumerator     string                `json:"resourceEnumerator" bson:"resourceEnumerator"`         // multiline string of filter.rego, if exists
 	RuleLanguage           RuleLanguages         `json:"ruleLanguage" bson:"ruleLanguage"`                     // default "rego"
 	Match                  []RuleMatchObjects    `json:"match" bson:"match"`                                   // k8s resources this rule needs as inputs

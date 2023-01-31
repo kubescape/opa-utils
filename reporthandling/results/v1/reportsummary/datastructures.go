@@ -35,22 +35,24 @@ type FrameworkSummary struct {
 
 // ControlSummary summary of scanning from a single control perspective
 type ControlSummary struct {
-	StatusInfo       apis.StatusInfo     `json:"statusInfo,omitempty"`
-	ControlID        string              `json:"controlID"`
-	Name             string              `json:"name"`
-	Status           apis.ScanningStatus `json:"status"`
-	Description      string              `json:"-"`
-	Remediation      string              `json:"-"`
-	ResourceIDs      helpersv1.AllLists  `json:"resourceIDs"`
-	ResourceCounters ResourceCounters    `json:",inline"`
-	Score            float32             `json:"score"`
-	ScoreFactor      float32             `json:"scoreFactor"`
+	StatusInfo       apis.StatusInfo        `json:"statusInfo,omitempty"`
+	ControlID        string                 `json:"controlID"`
+	Name             string                 `json:"name"`
+	Status           apis.ScanningStatus    `json:"status"`
+	SubStatus        apis.ScanningSubStatus `json:"subStatus"`
+	Description      string                 `json:"-"`
+	Remediation      string                 `json:"-"`
+	ResourceIDs      helpersv1.AllLists     `json:"resourceIDs"`
+	ResourceCounters ResourceCounters       `json:",inline"`
+	Score            float32                `json:"score"`
+	ScoreFactor      float32                `json:"scoreFactor"`
 }
 
 type ResourceCounters struct {
 	PassedResources   int `json:"passedResources"`
 	FailedResources   int `json:"failedResources"`
-	ExcludedResources int `json:"excludedResources"`
+	SkippedResources  int `json:"skippedResources"`
+	ExcludedResources int `json:"excludedResources"` // Deprecated
 }
 
 type SeverityCounters struct {
@@ -63,8 +65,6 @@ type SeverityCounters struct {
 type PostureCounters struct {
 	PassedCounter   int `json:"passed"`
 	FailedCounter   int `json:"failed"`
-	ExcludedCounter int `json:"excluded"`
 	SkippedCounter  int `json:"skipped"`
-	IgnoredCounter  int `json:"ignored"`
-	UnknownCounter  int `json:"unknown"`
+	ExcludedCounter int `json:"excluded"` // Deprecated
 }

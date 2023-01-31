@@ -4,6 +4,7 @@ import (
 	"github.com/armosec/armoapi-go/armotypes"
 	"github.com/kubescape/k8s-interface/workloadinterface"
 	"github.com/kubescape/opa-utils/exceptions"
+	"github.com/kubescape/opa-utils/reporthandling"
 )
 
 type (
@@ -34,7 +35,7 @@ func WithExceptionsProcessor(processor *exceptions.Processor) ResultOption {
 // SetExceptions add exceptions to result.
 //
 // If the caller has already instanciated an exceptions processor, the latter may be reused with option "WithExceptionsProcessor(processor)".
-func (result *Result) SetExceptions(workload workloadinterface.IMetadata, exceptionsPolicies []armotypes.PostureExceptionPolicy, clusterName string, opts ...ResultOption) {
+func (result *Result) SetExceptions(workload workloadinterface.IMetadata, exceptionsPolicies []armotypes.PostureExceptionPolicy, clusterName string, controls map[string]reporthandling.Control, opts ...ResultOption) {
 	if len(exceptionsPolicies) == 0 {
 		return
 	}
@@ -46,21 +47,26 @@ func (result *Result) SetExceptions(workload workloadinterface.IMetadata, except
 	}
 
 	for i := range result.AssociatedControls {
-		result.AssociatedControls[i].setExceptions(workload, exceptionsPolicies, clusterName, result.processor)
+		result.AssociatedControls[i].setExceptions(workload, exceptionsPolicies, clusterName, controls[result.AssociatedControls[i].GetID()], result.processor)
 	}
 }
 
 // SetExceptions add exceptions to result
-func (control *ResourceAssociatedControl) setExceptions(workload workloadinterface.IMetadata, exceptionsPolicies []armotypes.PostureExceptionPolicy, clusterName string, processor *exceptions.Processor) {
+func (control *ResourceAssociatedControl) setExceptions(workload workloadinterface.IMetadata, exceptionsPolicies []armotypes.PostureExceptionPolicy, clusterName string, c reporthandling.Control, processor *exceptions.Processor) {
 	// add exceptions only to failed controls
-	if !control.GetStatus(nil).IsFailed() {
+	// don't add exceptions to passed controls
+	if control.GetStatus(nil).IsPassed() {
 		return
 	}
 
 	for i := range control.ResourceAssociatedRules {
 		exceptionsPolicies = processor.ListRuleExceptions(exceptionsPolicies, "", control.GetName(), control.GetID(), "")
 		control.ResourceAssociatedRules[i].setExceptions(workload, exceptionsPolicies, clusterName, processor)
+		// Update rule status according to exceptions
+		control.ResourceAssociatedRules[i].SetStatus(control.Status.Status(), nil)
 	}
+	// Update control status according to rules status
+	control.SetStatus(c)
 }
 
 // SetExceptions add exceptions to result

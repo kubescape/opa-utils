@@ -10,6 +10,8 @@ import (
 	"github.com/mitchellh/mapstructure"
 )
 
+const ActionRequiredAttribute string = "actionRequired"
+
 // ==============================================================================================
 // ========================== PostureReport =====================================================
 // ==============================================================================================
@@ -435,4 +437,16 @@ func (control *Control) GetScore() float64 {
 
 func (control *Control) GetSeverity() int {
 	return apis.ControlSeverityToInt(control.BaseScore)
+}
+
+func (control *Control) GetActionRequiredAttribute() string {
+	if control.Attributes == nil {
+		return ""
+	}
+	if v, ok := control.Attributes[ActionRequiredAttribute]; ok {
+		if actionRequired, ok := v.(string); ok {
+			return actionRequired
+		}
+	}
+	return ""
 }
