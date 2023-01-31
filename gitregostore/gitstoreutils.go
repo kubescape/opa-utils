@@ -34,18 +34,21 @@ const (
 	controlIDRegex = `^(?:[a-z]+|[A-Z]+)(?:[\-][v]?(?:[0-9][\.]?)+)(?:[\-]?[0-9][\.]?)+$`
 )
 
-var controlIDRegexCompiled *regexp.Regexp = nil
+var (
+	controlIDRegexCompiled *regexp.Regexp
+	compileRexOnce         sync.Once
 
-var storeSetterMapping = map[string]storeSetter{
-	attackTracksJsonFileName:          (*GitRegoStore).setAttackTracks,
-	frameworksJsonFileName:            (*GitRegoStore).setFrameworks,
-	controlsJsonFileName:              (*GitRegoStore).setControls,
-	rulesJsonFileName:                 (*GitRegoStore).setRules,
-	frameworkControlRelationsFileName: (*GitRegoStore).setFrameworkControlRelations,
-	ControlRuleRelationsFileName:      (*GitRegoStore).setControlRuleRelations,
-	defaultConfigInputsFileName:       (*GitRegoStore).setDefaultConfigInputs,
-	systemPostureExceptionFileName:    (*GitRegoStore).setSystemPostureExceptionPolicies,
-}
+	storeSetterMapping = map[string]storeSetter{
+		attackTracksJsonFileName:          (*GitRegoStore).setAttackTracks,
+		frameworksJsonFileName:            (*GitRegoStore).setFrameworks,
+		controlsJsonFileName:              (*GitRegoStore).setControls,
+		rulesJsonFileName:                 (*GitRegoStore).setRules,
+		frameworkControlRelationsFileName: (*GitRegoStore).setFrameworkControlRelations,
+		ControlRuleRelationsFileName:      (*GitRegoStore).setControlRuleRelations,
+		defaultConfigInputsFileName:       (*GitRegoStore).setDefaultConfigInputs,
+		systemPostureExceptionFileName:    (*GitRegoStore).setSystemPostureExceptionPolicies,
+	}
+)
 
 type InnerTree []struct {
 	PATH string `json:"path"`
@@ -328,6 +331,7 @@ func (gs *GitRegoStore) setFrameworks(respStr string) error {
 	}
 	gs.frameworksLock.Lock()
 	defer gs.frameworksLock.Unlock()
+
 	gs.Frameworks = frameworks
 	return nil
 }
@@ -339,6 +343,7 @@ func (gs *GitRegoStore) setAttackTracks(respStr string) error {
 	}
 	gs.attackTracksLock.Lock()
 	defer gs.attackTracksLock.Unlock()
+
 	gs.AttackTracks = attacktracks
 	return nil
 }
@@ -350,6 +355,7 @@ func (gs *GitRegoStore) setControls(respStr string) error {
 	}
 	gs.controlsLock.Lock()
 	defer gs.controlsLock.Unlock()
+
 	gs.Controls = controls
 	return nil
 }
@@ -361,6 +367,7 @@ func (gs *GitRegoStore) setRules(respStr string) error {
 	}
 	gs.rulesLock.Lock()
 	defer gs.rulesLock.Unlock()
+
 	gs.Rules = *rules
 	return nil
 }
@@ -371,6 +378,7 @@ func (gs *GitRegoStore) setDefaultConfigInputs(respStr string) error {
 	}
 	gs.DefaultConfigInputsLock.Lock()
 	defer gs.DefaultConfigInputsLock.Unlock()
+
 	gs.DefaultConfigInputs = defaultConfigInputs
 	return nil
 }
@@ -382,6 +390,7 @@ func (gs *GitRegoStore) setSystemPostureExceptionPolicies(respStr string) error 
 	}
 	gs.systemPostureExceptionPoliciesLock.Lock()
 	defer gs.systemPostureExceptionPoliciesLock.Unlock()
+
 	gs.SystemPostureExceptionPolicies = exceptions
 	return nil
 }
@@ -439,6 +448,7 @@ func (gs *GitRegoStore) copyData(other *GitRegoStore) {
 	defer other.rUnlockAll()
 	gs.lockAll()
 	defer gs.unlockAll()
+
 	gs.Frameworks = other.Frameworks
 	gs.Controls = other.Controls
 	gs.Rules = other.Rules
@@ -506,16 +516,10 @@ func HTTPRespToString(resp *http.Response) (string, error) {
 }
 
 func isControlID(c string) bool {
+	compileRexOnce.Do(func() {
+		// compile regex only once
+		controlIDRegexCompiled = regexp.MustCompile(controlIDRegex)
+	})
 
-	// Compile regex only once
-	if controlIDRegexCompiled == nil {
-		compiled, err := regexp.Compile(controlIDRegex)
-		if err != nil {
-			return false
-		}
-		controlIDRegexCompiled = compiled
-	}
-
-	// Match
 	return controlIDRegexCompiled.MatchString(c)
 }

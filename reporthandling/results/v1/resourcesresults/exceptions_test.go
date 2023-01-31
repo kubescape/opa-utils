@@ -5,6 +5,7 @@ import (
 
 	"github.com/armosec/armoapi-go/armotypes"
 	"github.com/kubescape/k8s-interface/workloadinterface"
+	"github.com/kubescape/opa-utils/exceptions"
 	"github.com/kubescape/opa-utils/reporthandling"
 	"github.com/stretchr/testify/assert"
 )
@@ -108,6 +109,7 @@ func mockControlsList() map[string]reporthandling.Control {
 
 func TestSetExceptions(t *testing.T) {
 	w := workloadinterface.NewWorkloadMock(nil)
+	processor := exceptions.NewProcessor()
 
 	exceptions := []armotypes.PostureExceptionPolicy{}
 	exceptions = append(exceptions, *mockExceptionDeploymentC0087())
@@ -117,19 +119,24 @@ func TestSetExceptions(t *testing.T) {
 	c := mockControlsList()
 	// simple test
 	result1 := mockResultFailed()
+	result1.SetExceptions(w, exceptions, "", c, WithExceptionsProcessor(processor))
+	assert.Equal(t, 2, len(result1.ListControlsIDs(nil).Passed()))
+	assert.Equal(t, 1, len(result1.ListControlsIDs(nil).Failed()))
+
+	// without option to reuse the processor
 	result1.SetExceptions(w, exceptions, "", c)
 	assert.Equal(t, 2, len(result1.ListControlsIDs(nil).Passed()))
 	assert.Equal(t, 1, len(result1.ListControlsIDs(nil).Failed()))
 
 	// test cluster name
 	result2 := mockResultFailed()
-	result2.SetExceptions(w, exceptions, "unitest", c)
+	result2.SetExceptions(w, exceptions, "unitest", c, WithExceptionsProcessor(processor))
 	assert.Equal(t, 3, len(result2.ListControlsIDs(nil).Passed()))
 	assert.Equal(t, 0, len(result2.ListControlsIDs(nil).Failed()))
 
 	// test wrong cluster name
 	result3 := mockResultFailed()
-	result3.SetExceptions(w, exceptions, "unitest2", c)
+	result3.SetExceptions(w, exceptions, "unitest2", c, WithExceptionsProcessor(processor))
 	assert.Equal(t, 2, len(result3.ListControlsIDs(nil).Passed()))
 	assert.Equal(t, 1, len(result3.ListControlsIDs(nil).Failed()))
 }
