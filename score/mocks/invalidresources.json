@@ -1,0 +1,79 @@
+[
+ {
+  "apiVersion": "rbac.authorization.k8s.io/v1",
+  "metadata": {
+   "creationTimestamp": "2021-07-12T07:33:19Z",
+   "managedFields": [
+    {
+     "apiVersion": "rbac.authorization.k8s.io/v1",
+     "fieldsType": "FieldsV1",
+     "fieldsV1": {
+      "f:rules": {}
+     },
+     "manager": "kubeadm",
+     "operation": "Update",
+     "time": "2021-07-12T07:33:19Z"
+    }
+   ],
+   "name": "kubeadm:bootstrap-signer-clusterinfo",
+   "namespace": "kube-public",
+   "resourceVersion": "230",
+   "uid": "142ff891-0d98-4a53-aa0c-5d302faa73ce"
+  },
+  "rules": [
+   {
+    "apiGroups": [
+     ""
+    ],
+    "resourceNames": [
+     "cluster-info"
+    ],
+    "resources": [
+     "configmaps"
+    ],
+    "verbs": [
+     "get"
+    ]
+   }
+  ]
+ },
+ {
+  "data": {
+   "password": "dm13YXJlMSE="
+  },
+  "kind": "Secret",
+  "metadata": {
+   "annotations": {
+    "kubectl.kubernetes.io/last-applied-configuration": "{\"apiVersion\":\"v1\",\"data\":{\"password\":\"dm13YXJlMSE=\"},\"kind\":\"Secret\",\"metadata\":{\"annotations\":{},\"name\":\"cart-redis-pass\",\"namespace\":\"default\"},\"type\":\"Opaque\"}\n"
+   },
+   "creationTimestamp": "2021-08-17T12:02:19Z",
+   "managedFields": [
+    {
+     "apiVersion": "v1",
+     "fieldsType": "FieldsV1",
+     "fieldsV1": {
+      "f:data": {
+       ".": {},
+       "f:password": {}
+      },
+      "f:metadata": {
+       "f:annotations": {
+        ".": {},
+        "f:kubectl.kubernetes.io/last-applied-configuration": {}
+       }
+      },
+      "f:type": {}
+     },
+     "manager": "kubectl-client-side-apply",
+     "operation": "Update",
+     "time": "2021-08-17T12:02:19Z"
+    }
+   ],
+   "name": "cart-redis-pass",
+   "namespace": "default",
+   "resourceVersion": "378526",
+   "uid": "265b3499-3380-4f49-80f6-7b912c37d32b"
+  },
+  "type": "Opaque"
+ }
+]
