@@ -28,13 +28,38 @@ func (control *ResourceAssociatedControl) SetName(name string) {
 
 // =============================== Status ====================================
 
+// isOldControl checks if a control has no status set - this is for backward compatibility with old reports
+func (control *ResourceAssociatedControl) isOldControl() bool {
+	return control.Status.InnerStatus == "" && control.Status.InnerInfo == ""
+}
+
 // Status get control status
 func (control *ResourceAssociatedControl) GetStatus(f *helpersv1.Filters) apis.IStatus {
+	if control.isOldControl() {
+		status := apis.StatusPassed
+		for i := range control.ResourceAssociatedRules {
+			// we must set the status since this is an old flow and the calculation of the status wasn't done
+			control.ResourceAssociatedRules[i].SetStatus(control.ResourceAssociatedRules[i].GetStatus(f).Status(), f)
+			status = apis.Compare(status, control.ResourceAssociatedRules[i].GetStatus(f).Status())
+		}
+		return helpersv1.NewStatus(status)
+	}
+
 	return &control.Status
 }
 
 // GetSubStatus get control sub status
 func (control *ResourceAssociatedControl) GetSubStatus() apis.ScanningSubStatus {
+	if control.isOldControl() {
+		status := apis.StatusPassed
+		subStatus := apis.SubStatusUnknown
+
+		for i := range control.ResourceAssociatedRules {
+			control.ResourceAssociatedRules[i].SetStatus(control.ResourceAssociatedRules[i].GetStatus(nil).Status(), nil)
+			status, subStatus = apis.CompareStatusAndSubStatus(status, control.ResourceAssociatedRules[i].GetStatus(nil).Status(), subStatus, control.ResourceAssociatedRules[i].GetSubStatus())
+		}
+		return subStatus
+	}
 	return control.SubStatus
 }
 

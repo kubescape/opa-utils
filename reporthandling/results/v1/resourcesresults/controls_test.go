@@ -1,7 +1,10 @@
 package resourcesresults
 
 import (
+	"encoding/json"
 	"testing"
+
+	_ "embed"
 
 	"github.com/kubescape/opa-utils/reporthandling"
 	"github.com/kubescape/opa-utils/reporthandling/apis"
@@ -103,5 +106,59 @@ func TestResourceAssociatedControl_SetName(t *testing.T) {
 			}
 			control.SetName(tt.args.name)
 		})
+	}
+}
+
+//go:embed testdata/old_resource_associated_controls.json
+var oldResourceAssociatedControlsTestData []byte
+
+func Test_GetStatusAndSubStatus_OldResourceAssociatedControls(t *testing.T) {
+	controls := []ResourceAssociatedControl{}
+	err := json.Unmarshal([]byte(oldResourceAssociatedControlsTestData), &controls)
+	assert.NoError(t, err)
+
+	controlIdToExpectedStatus := map[string]string{
+		"C-0054": "passed", // passed w/ exception
+		"C-0067": "failed", // failed
+		"C-0002": "passed", // passed
+	}
+
+	controlIdToExpectedSubStatus := map[string]string{
+		"C-0054": "w/exceptions", // passed w/ exception
+		"C-0067": "",             // failed
+		"C-0002": "",             // passed
+	}
+
+	for _, control := range controls {
+		assert.True(t, control.isOldControl())
+		assert.Equal(t, controlIdToExpectedStatus[control.ControlID], string(control.GetStatus(nil).Status()))
+		assert.Equal(t, controlIdToExpectedSubStatus[control.ControlID], string(control.GetSubStatus()))
+	}
+}
+
+//go:embed testdata/new_resource_associated_controls.json
+var newResourceAssociatedControlsTestData []byte
+
+func Test_GetStatusAndSubStatus_NewResourceAssociatedControls(t *testing.T) {
+	controls := []ResourceAssociatedControl{}
+	err := json.Unmarshal([]byte(newResourceAssociatedControlsTestData), &controls)
+	assert.NoError(t, err)
+
+	controlIdToExpectedStatus := map[string]string{
+		"C-0053": "passed", // passed w/ exception
+		"C-0014": "passed", // passed
+		"C-0212": "failed", // failed
+	}
+
+	controlIdToExpectedSubStatus := map[string]string{
+		"C-0053": "w/exceptions", // passed w/ exception
+		"C-0014": "",             // passed
+		"C-0212": "",             // failed
+	}
+
+	for _, control := range controls {
+		assert.False(t, control.isOldControl())
+		assert.Equal(t, controlIdToExpectedStatus[control.ControlID], string(control.GetStatus(nil).Status()))
+		assert.Equal(t, controlIdToExpectedSubStatus[control.ControlID], string(control.GetSubStatus()))
 	}
 }
