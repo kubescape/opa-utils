@@ -1,0 +1,85 @@
+[
+    {
+        "controlID": "C-0053",
+        "name": "Access container service account",
+        "status": {
+            "status": "passed"
+        },
+        "subStatus": "w/exceptions",
+        "rules": [
+            {
+                "name": "access-container-service-account-v1",
+                "status": "passed",
+                "subStatus": "w/exceptions",
+                "exception": [
+                    {
+                        "guid": "",
+                        "name": "exclude-kube-system-service-accounts-20",
+                        "attributes": {
+                            "systemException": true
+                        },
+                        "policyType": "postureExceptionPolicy",
+                        "creationTime": "",
+                        "actions": [
+                            "alertOnly"
+                        ],
+                        "resources": [
+                            {
+                                "designatorType": "Attributes",
+                                "attributes": {
+                                    "kind": "ServiceAccount",
+                                    "name": "ephemeral-volume-controller",
+                                    "namespace": "kube-system"
+                                }
+                            }
+                        ],
+                        "posturePolicies": [
+                            {
+                                "frameworkName": ""
+                            }
+                        ]
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "controlID": "C-0014",
+        "name": "Access Kubernetes dashboard",
+        "status": {
+            "status": "passed"
+        },
+        "subStatus": "",
+        "rules": [
+            {
+                "name": "rule-access-dashboard-subject-v1",
+                "status": "passed",
+                "subStatus": ""
+            }
+        ]
+    },
+    {
+        "controlID": "C-0212",
+        "name": "CIS-5.7.4 The default namespace should not be used",
+        "status": {
+            "status": "failed"
+        },
+        "subStatus": "",
+        "rules": [
+            {
+                "name": "resources-notpods-in-default-namespace",
+                "status": "failed",
+                "subStatus": "",
+                "paths": [
+                    {
+                        "failedPath": "metadata.namespace",
+                        "fixPath": {
+                            "path": "",
+                            "value": ""
+                        }
+                    }
+                ]
+            }
+        ]
+    }
+]

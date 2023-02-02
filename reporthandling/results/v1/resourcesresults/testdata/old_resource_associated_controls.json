@@ -1,0 +1,96 @@
+[
+    {
+        "controlID": "C-0054",
+        "name": "Cluster internal networking",
+        "rules": [
+            {
+                "name": "internal-networking",
+                "status": "failed",
+                "exception": [
+                    {
+                        "guid": "",
+                        "name": "exclude-minikube-kube-system-resources-6",
+                        "attributes": {
+                            "systemException": true
+                        },
+                        "policyType": "postureExceptionPolicy",
+                        "creationTime": "",
+                        "actions": [
+                            "alertOnly"
+                        ],
+                        "resources": [
+                            {
+                                "designatorType": "Attributes",
+                                "attributes": {
+                                    "kind": "Namespace",
+                                    "name": "kube-system"
+                                }
+                            }
+                        ],
+                        "posturePolicies": [
+                            {
+                                "frameworkName": "",
+                                "controlID": "C-.*"
+                            }
+                        ]
+                    },
+                    {
+                        "guid": "",
+                        "name": "exclude-aks-kube-system-namespaces-1",
+                        "attributes": {
+                            "systemException": true
+                        },
+                        "policyType": "postureExceptionPolicy",
+                        "creationTime": "",
+                        "actions": [
+                            "alertOnly"
+                        ],
+                        "resources": [
+                            {
+                                "designatorType": "Attributes",
+                                "attributes": {
+                                    "kind": "Namespace",
+                                    "name": "kube-system"
+                                }
+                            }
+                        ],
+                        "posturePolicies": [
+                            {
+                                "frameworkName": ""
+                            }
+                        ]
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "controlID": "C-0067",
+        "name": "Audit logs enabled",
+        "rules": [
+            {
+                "name": "k8s-audit-logs-enabled-native",
+                "status": "failed",
+                "paths": [
+                    {
+                        "failedPath": "spec.containers[0].command",
+                        "fixPath": {
+                            "path": "",
+                            "value": ""
+                        }
+                    }
+                ]
+            }
+        ]
+    },
+    {
+        "controlID": "C-0002",
+        "name": "Exec into container",
+        "rules": [
+            {
+                "name": "exec-into-container-v1",
+                "status": "passed"
+            }
+        ]
+    }
+]
