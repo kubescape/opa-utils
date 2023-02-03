@@ -11,7 +11,6 @@ import (
 )
 
 func TestPostureReportWithK8SResource(t *testing.T) {
-
 	expectedID := "apps/v1/default/Deployment/demoservice-server"
 	report := MockPostureReportA()
 	report.Resources = append(report.Resources, Resource{
@@ -87,11 +86,8 @@ const randomizedTests = 25
 func TestMarshalStruct(t *testing.T) {
 	t.Parallel()
 
-t.Run("should marshal/unmarshal JSON",testMarshalDataStructure[PolicyRule]()
-	t.Parallel()
-
 	for n := 0; n < randomizedTests; n++ {
-		testMarshalDataStructure[PolicyRule](t)
+		testMarshalDataStructure[PolicyRule]()(t)
 	}
 }
 
@@ -99,7 +95,7 @@ func TestMarshalControl(t *testing.T) {
 	t.Parallel()
 
 	for n := 0; n < randomizedTests; n++ {
-		testMarshalDataStructure[Control](t)
+		testMarshalDataStructure[Control]()(t)
 	}
 }
 
@@ -107,7 +103,7 @@ func TestMarshalFramework(t *testing.T) {
 	t.Parallel()
 
 	for n := 0; n < randomizedTests; n++ {
-		testMarshalDataStructure[Control](t)
+		testMarshalDataStructure[Control]()(t)
 	}
 }
 
@@ -115,7 +111,7 @@ func TestMarshalAttackTrackCategories(t *testing.T) {
 	t.Parallel()
 
 	for n := 0; n < randomizedTests; n++ {
-		testMarshalDataStructure[AttackTrackCategories](t)
+		testMarshalDataStructure[AttackTrackCategories]()(t)
 	}
 }
 
@@ -129,5 +125,5 @@ func testMarshalDataStructure[T any]() func ( *testing.T) {
 	var target T
 	require.NoError(t, json.Unmarshal(buf, &target))
 	require.EqualValues(t, m, target)
-	}
+}
 }

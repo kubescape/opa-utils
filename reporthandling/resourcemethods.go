@@ -25,6 +25,8 @@ type IResource interface {
 	SetSource(s *Source)
 }
 
+var _ workloadinterface.IMetadata = &Resource{}
+
 func NewResource(obj map[string]interface{}) *Resource {
 	return &Resource{
 		Object: obj,
