@@ -28,12 +28,12 @@ func (controlSummary *ControlSummary) SetStatus(statusInfo *apis.StatusInfo) {
 }
 
 func (controlSummary *ControlSummary) SetSubStatus(subStatus apis.ScanningSubStatus) {
-	controlSummary.SubStatus = subStatus
+	controlSummary.StatusInfo.SubStatus = subStatus
 }
 
 // GetSubStatus get the control sub status. returns an apis.StatusInfo object
 func (controlSummary *ControlSummary) GetSubStatus() apis.ScanningSubStatus {
-	return controlSummary.SubStatus
+	return controlSummary.StatusInfo.SubStatus
 }
 
 func (controlSummary *ControlSummary) CalculateStatus() {
@@ -42,37 +42,38 @@ func (controlSummary *ControlSummary) CalculateStatus() {
 
 // calculateStatus set the control status based on the resource counters and the sub status based on the subStatus parameter
 func (controlSummary *ControlSummary) calculateStatus(subStatus apis.ScanningSubStatus) {
-	controlSummary.StatusInfo.InnerStatus = calculateStatus(&controlSummary.ResourceCounters)
-	// Statuses should be the same
-	controlSummary.Status = controlSummary.StatusInfo.Status()
+	controlSummary.StatusInfo.InnerStatus = calculateStatus(&controlSummary.StatusCounters)
 
-	controlSummary.CalculateSubStatus(subStatus)
+	// Statuses should be the same
+	controlSummary.Status = controlSummary.StatusInfo.Status() // backward compatibility
+
+	controlSummary.calculateNSetSubStatus(subStatus)
 }
 
 // CalculateSubStatus set the control sub status based on the resource associated control sub status
-func (controlSummary *ControlSummary) CalculateSubStatus(subStatus apis.ScanningSubStatus) {
+func (controlSummary *ControlSummary) calculateNSetSubStatus(subStatus apis.ScanningSubStatus) {
 	switch controlSummary.Status {
 	case apis.StatusPassed:
-		if subStatus == apis.SubStatusIrrelevant || controlSummary.SubStatus == apis.SubStatusIrrelevant || controlSummary.ResourceCounters.All() == 0 {
-			controlSummary.SubStatus = apis.SubStatusIrrelevant
+		if subStatus == apis.SubStatusIrrelevant || controlSummary.StatusInfo.SubStatus == apis.SubStatusIrrelevant || controlSummary.StatusCounters.All() == 0 {
+			controlSummary.StatusInfo.SubStatus = apis.SubStatusIrrelevant
 			controlSummary.StatusInfo.InnerInfo = ""
-		} else if subStatus == apis.SubStatusException || controlSummary.SubStatus == apis.SubStatusException {
-			controlSummary.SubStatus = apis.SubStatusException
+		} else if subStatus == apis.SubStatusException || controlSummary.StatusInfo.SubStatus == apis.SubStatusException {
+			controlSummary.StatusInfo.SubStatus = apis.SubStatusException
 			controlSummary.StatusInfo.InnerInfo = ""
 		}
 	case apis.StatusSkipped:
-		if subStatus == apis.SubStatusConfiguration || controlSummary.SubStatus == apis.SubStatusConfiguration {
-			controlSummary.SubStatus = apis.SubStatusConfiguration
+		if subStatus == apis.SubStatusConfiguration || controlSummary.StatusInfo.SubStatus == apis.SubStatusConfiguration {
+			controlSummary.StatusInfo.SubStatus = apis.SubStatusConfiguration
 			controlSummary.StatusInfo.InnerInfo = string(apis.SubStatusConfigurationInfo)
-		} else if subStatus == apis.SubStatusManualReview || controlSummary.SubStatus == apis.SubStatusManualReview {
-			controlSummary.SubStatus = apis.SubStatusManualReview
+		} else if subStatus == apis.SubStatusManualReview || controlSummary.StatusInfo.SubStatus == apis.SubStatusManualReview {
+			controlSummary.StatusInfo.SubStatus = apis.SubStatusManualReview
 			controlSummary.StatusInfo.InnerInfo = string(apis.SubStatusManualReviewInfo)
-		} else if subStatus == apis.SubStatusRequiresReview || controlSummary.SubStatus == apis.SubStatusRequiresReview {
-			controlSummary.SubStatus = apis.SubStatusRequiresReview
+		} else if subStatus == apis.SubStatusRequiresReview || controlSummary.StatusInfo.SubStatus == apis.SubStatusRequiresReview {
+			controlSummary.StatusInfo.SubStatus = apis.SubStatusRequiresReview
 			controlSummary.StatusInfo.InnerInfo = string(apis.SubStatusRequiresReviewInfo)
 		}
 	case apis.StatusFailed:
-		controlSummary.SubStatus = apis.SubStatusUnknown
+		controlSummary.StatusInfo.SubStatus = apis.SubStatusUnknown
 		controlSummary.StatusInfo.InnerInfo = ""
 	}
 }
@@ -82,14 +83,21 @@ func (controlSummary *ControlSummary) ListResourcesIDs() *helpersv1.AllLists {
 	return &controlSummary.ResourceIDs
 }
 
-// NumberOf get the number of resources
+// Deprecated use 'ResourcesCounters' instead
+// NumberOfResources get the status counters
 func (controlSummary *ControlSummary) NumberOfResources() ICounters {
-	return &controlSummary.ResourceCounters
+	return &controlSummary.StatusCounters
+}
+
+// NumberOfResources get the status counters
+func (controlSummary *ControlSummary) ResourcesCounters() (ICounters, ISubCounters) {
+	return &controlSummary.StatusCounters, &controlSummary.SubStatusCounters
 }
 
 // Increase increases the counter based on the status
 func (controlSummary *ControlSummary) increase(status apis.IStatus) {
-	controlSummary.ResourceCounters.Increase(status)
+	controlSummary.StatusCounters.Increase(status)
+	controlSummary.SubStatusCounters.Increase(status)
 }
 
 // Append increases the counter based on the status
@@ -98,7 +106,7 @@ func (controlSummary *ControlSummary) Append(status apis.IStatus, ids ...string)
 		controlSummary.ResourceIDs.Append(status.Status(), ids[i])
 		controlSummary.increase(status)
 	}
-	controlSummary.ResourceIDs.ToUniqueResources()
+	controlSummary.ResourceIDs.ToUniqueResources() // TODO: check if it is needed
 }
 
 // =================================== Score ============================================

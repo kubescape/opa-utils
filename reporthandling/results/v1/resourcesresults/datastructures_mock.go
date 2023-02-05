@@ -95,8 +95,7 @@ func mockResourceAssociatedControlException() *ResourceAssociatedControl {
 	return &ResourceAssociatedControl{
 		ControlID: "C-0089",
 		Name:      "0089",
-		Status:    apis.StatusInfo{InnerStatus: apis.StatusPassed},
-		SubStatus: apis.SubStatusException,
+		Status:    apis.StatusInfo{InnerStatus: apis.StatusPassed, SubStatus: apis.SubStatusException},
 		ResourceAssociatedRules: []ResourceAssociatedRule{
 			*mockResourceAssociatedRuleException(),
 		},
@@ -136,8 +135,7 @@ func mockResourceAssociatedControl0087Failed() *ResourceAssociatedControl {
 	return &ResourceAssociatedControl{
 		ControlID: "C-0087",
 		Name:      "0087",
-		Status:    apis.StatusInfo{InnerStatus: apis.StatusFailed},
-		SubStatus: apis.SubStatusUnknown,
+		Status:    apis.StatusInfo{InnerStatus: apis.StatusFailed, SubStatus: apis.SubStatusUnknown},
 		ResourceAssociatedRules: []ResourceAssociatedRule{
 			*mockResourceAssociatedRuleA(),
 			*mockResourceAssociatedRuleB(),
@@ -159,8 +157,7 @@ func mockResourceAssociatedControl0088Failed() *ResourceAssociatedControl {
 	return &ResourceAssociatedControl{
 		ControlID: "C-0088",
 		Name:      "0088",
-		Status:    apis.StatusInfo{InnerStatus: apis.StatusFailed},
-		SubStatus: apis.SubStatusUnknown,
+		Status:    apis.StatusInfo{InnerStatus: apis.StatusFailed, SubStatus: apis.SubStatusUnknown},
 		ResourceAssociatedRules: []ResourceAssociatedRule{
 			*mockResourceAssociatedRuleB(),
 		},
@@ -171,8 +168,7 @@ func mockResourceAssociatedControl0089Passed() *ResourceAssociatedControl {
 	return &ResourceAssociatedControl{
 		ControlID: "C-0089",
 		Name:      "0089",
-		Status:    apis.StatusInfo{InnerStatus: apis.StatusPassed},
-		SubStatus: apis.SubStatusUnknown,
+		Status:    apis.StatusInfo{InnerStatus: apis.StatusPassed, SubStatus: apis.SubStatusUnknown},
 		ResourceAssociatedRules: []ResourceAssociatedRule{
 			*mockResourceAssociatedRulePassed(),
 		},

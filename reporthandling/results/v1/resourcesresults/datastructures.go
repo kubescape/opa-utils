@@ -13,7 +13,6 @@ type Result struct {
 	PrioritizedResource *prioritization.PrioritizedResource `json:"prioritizedResource,omitempty"`
 	ResourceID          string                              `json:"resourceID"` // <apigroup>/<namespace>/<kind>/<name>
 	AssociatedControls  []ResourceAssociatedControl         `json:"controls,omitempty"`
-
 	*resultOptions
 }
 
@@ -22,7 +21,6 @@ type ResourceAssociatedControl struct {
 	ControlID               string                   `json:"controlID"`
 	Name                    string                   `json:"name"`
 	Status                  apis.StatusInfo          `json:"status"`
-	SubStatus               apis.ScanningSubStatus   `json:"subStatus"`
 	ResourceAssociatedRules []ResourceAssociatedRule `json:"rules,omitempty"`
 }
 

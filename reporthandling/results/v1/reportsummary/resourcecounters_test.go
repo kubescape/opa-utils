@@ -6,7 +6,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-var resourcesCounter = ResourceCounters{}
+var resourcesCounter = StatusCounters{}
 
 // =================================== Counters ============================================
 
@@ -17,7 +17,7 @@ func setResourcesCountersMock() {
 }
 
 func TestSet(t *testing.T) {
-	rc := ResourceCounters{}
+	rc := StatusCounters{}
 	summaryDetails := MockSummaryDetails()
 	rc.Set(summaryDetails.ListResourcesIDs())
 	assert.Equal(t, 1, rc.SkippedResources)

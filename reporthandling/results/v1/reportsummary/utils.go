@@ -4,7 +4,7 @@ import (
 	"github.com/kubescape/opa-utils/reporthandling/apis"
 )
 
-func calculateStatus(counters *ResourceCounters) apis.ScanningStatus {
+func calculateStatus(counters *StatusCounters) apis.ScanningStatus {
 
 	if counters.Failed() != 0 {
 		return apis.StatusFailed

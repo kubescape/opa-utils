@@ -12,39 +12,54 @@ type ICounters interface {
 	All() int
 }
 
+type ISubCounters interface {
+	All() int
+	Ignored() int
+}
+
 // =================================== Counters ============================================
 
 // NumberOfExcluded get the number of excluded resources
-func (resourceCounters *ResourceCounters) Set(allLists *helpersv1.AllLists) {
+func (resourceCounters *StatusCounters) Set(allLists *helpersv1.AllLists) {
 	resourceCounters.FailedResources = len(allLists.Failed())
 	resourceCounters.PassedResources = len(allLists.Passed())
 	resourceCounters.SkippedResources = len(allLists.Skipped())
 }
 
 // NumberOfPassed get the number of passed resources
-func (resourceCounters *ResourceCounters) Passed() int {
+func (resourceCounters *StatusCounters) Passed() int {
 	return resourceCounters.PassedResources + resourceCounters.ExcludedResources
 }
 
 // NumberOfSkipped get the number of skipped resources
-func (resourceCounters *ResourceCounters) Skipped() int {
+func (resourceCounters *StatusCounters) Skipped() int {
 	return resourceCounters.SkippedResources
 }
 
 // NumberOfFailed get the number of failed resources
-func (resourceCounters *ResourceCounters) Failed() int {
+func (resourceCounters *StatusCounters) Failed() int {
 	return resourceCounters.FailedResources
 }
 
 // NumberOfAll get the number of all resources
-func (resourceCounters *ResourceCounters) All() int {
+func (resourceCounters *StatusCounters) All() int {
 	return resourceCounters.Failed() + resourceCounters.Passed() + resourceCounters.Skipped()
+}
+
+// =================================== SubCounters ============================================
+
+func (subStatusCounters *SubStatusCounters) All() int {
+	return subStatusCounters.Ignored()
+}
+
+func (subStatusCounters *SubStatusCounters) Ignored() int {
+	return subStatusCounters.IgnoredResources
 }
 
 // =================================== Setters ============================================
 
 // Increase increases the counter based on the status
-func (resourceCounters *ResourceCounters) Increase(status apis.IStatus) {
+func (resourceCounters *StatusCounters) Increase(status apis.IStatus) {
 	switch status.Status() {
 	case apis.StatusFailed:
 		resourceCounters.FailedResources++
@@ -52,5 +67,12 @@ func (resourceCounters *ResourceCounters) Increase(status apis.IStatus) {
 		resourceCounters.PassedResources++
 	case apis.StatusSkipped:
 		resourceCounters.SkippedResources++
+	}
+}
+
+// Increase increases the counter based on the status
+func (subStatusCounters *SubStatusCounters) Increase(status apis.IStatus) {
+	if status.IsPassed() && status.GetSubStatus() == apis.SubStatusException {
+		subStatusCounters.IgnoredResources++
 	}
 }

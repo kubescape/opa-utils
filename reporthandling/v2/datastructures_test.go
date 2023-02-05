@@ -66,7 +66,7 @@ func GetPostureReportMock() *PostureReport {
 					Controls: map[string]reportsummary.ControlSummary{
 						"C-0045": {
 							Score: 68,
-							ResourceCounters: reportsummary.ResourceCounters{
+							StatusCounters: reportsummary.StatusCounters{
 								PassedResources:  17,
 								FailedResources:  5,
 								SkippedResources: 0,
@@ -78,7 +78,7 @@ func GetPostureReportMock() *PostureReport {
 			Controls: map[string]reportsummary.ControlSummary{
 				"C-0045": {
 					Score: 68,
-					ResourceCounters: reportsummary.ResourceCounters{
+					StatusCounters: reportsummary.StatusCounters{
 						PassedResources:  17,
 						FailedResources:  5,
 						SkippedResources: 0,

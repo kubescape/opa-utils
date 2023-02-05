@@ -60,7 +60,7 @@ func (control *ResourceAssociatedControl) GetSubStatus() apis.ScanningSubStatus 
 		}
 		return subStatus
 	}
-	return control.SubStatus
+	return control.Status.SubStatus
 }
 
 // SetStatus set control status and sub status
@@ -83,7 +83,7 @@ func (control *ResourceAssociatedControl) SetStatus(c reporthandling.Control) {
 	actionRequiredStr := c.GetActionRequiredAttribute()
 	if actionRequiredStr == "" {
 		control.Status.InnerStatus = status
-		control.SubStatus = subStatus
+		control.Status.SubStatus = subStatus
 		return
 	}
 
@@ -111,7 +111,7 @@ func (control *ResourceAssociatedControl) SetStatus(c reporthandling.Control) {
 
 	control.Status.InnerStatus = status
 	control.Status.InnerInfo = statusInfo
-	control.SubStatus = subStatus
+	control.Status.SubStatus = subStatus
 
 }
 
