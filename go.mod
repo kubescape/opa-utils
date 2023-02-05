@@ -3,11 +3,9 @@ module github.com/kubescape/opa-utils
 go 1.19
 
 require (
-	github.com/alecthomas/assert/v2 v2.2.0
 	github.com/armosec/armoapi-go v0.0.151
 	github.com/armosec/utils-go v0.0.12
 	github.com/francoispqt/gojay v1.2.13
-	github.com/go-gota/gota v0.12.0
 	github.com/kubescape/k8s-interface v0.0.99
 	github.com/kubescape/rbac-utils v0.0.17
 	github.com/mitchellh/mapstructure v1.1.2
@@ -36,7 +34,6 @@ require (
 	github.com/AzureAD/microsoft-authentication-library-for-go v0.7.0 // indirect
 	github.com/OneOfOne/xxhash v1.2.8 // indirect
 	github.com/agnivade/levenshtein v1.0.1 // indirect
-	github.com/alecthomas/repr v0.1.0 // indirect
 	github.com/armosec/utils-k8s-go v0.0.12 // indirect
 	github.com/aws/aws-sdk-go-v2 v1.17.3 // indirect
 	github.com/aws/aws-sdk-go-v2/config v1.15.13 // indirect
@@ -74,7 +71,6 @@ require (
 	github.com/google/uuid v1.3.0 // indirect
 	github.com/googleapis/enterprise-certificate-proxy v0.0.0-20220520183353-fd19c99a87aa // indirect
 	github.com/googleapis/gax-go/v2 v2.4.0 // indirect
-	github.com/hexops/gotextdiff v1.0.3 // indirect
 	github.com/imdario/mergo v0.3.12 // indirect
 	github.com/jmespath/go-jmespath v0.4.0 // indirect
 	github.com/josharian/intern v1.0.0 // indirect
@@ -107,7 +103,6 @@ require (
 	golang.org/x/term v0.3.0 // indirect
 	golang.org/x/text v0.5.0 // indirect
 	golang.org/x/time v0.0.0-20220210224613-90d013bbcef8 // indirect
-	gonum.org/v1/gonum v0.9.1 // indirect
 	google.golang.org/api v0.84.0 // indirect
 	google.golang.org/appengine v1.6.7 // indirect
 	google.golang.org/genproto v0.0.0-20220708155623-50e5f4832e73 // indirect
