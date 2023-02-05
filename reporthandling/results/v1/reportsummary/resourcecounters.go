@@ -9,6 +9,7 @@ type ICounters interface {
 	Passed() int
 	Skipped() int
 	Failed() int
+	Excluded() int // deprecated
 	All() int
 }
 
@@ -39,6 +40,11 @@ func (resourceCounters *StatusCounters) Skipped() int {
 // NumberOfFailed get the number of failed resources
 func (resourceCounters *StatusCounters) Failed() int {
 	return resourceCounters.FailedResources
+}
+
+// deprecated
+func (resourceCounters *StatusCounters) Excluded() int {
+	return resourceCounters.ExcludedResources
 }
 
 // NumberOfAll get the number of all resources
