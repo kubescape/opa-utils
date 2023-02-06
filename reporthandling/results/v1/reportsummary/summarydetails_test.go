@@ -68,7 +68,7 @@ func TestUpdateControlsSummaryCountersFailed(t *testing.T) {
 	}
 
 	for _, v := range controls {
-		statuses, subStatuses := v.ResourcesCounters()
+		statuses, subStatuses := v.StatusesCounters()
 		assert.Equal(t, 1, statuses.All())
 		assert.Equal(t, 1, statuses.Failed())
 		assert.Equal(t, 0, statuses.Passed())
@@ -89,7 +89,7 @@ func TestUpdateControlsSummaryCountersExcluded(t *testing.T) {
 
 	updateControlsSummaryCounters(&mockResultsException, controls, nil)
 	for _, v := range controls {
-		statuses, subStatuses := v.ResourcesCounters()
+		statuses, subStatuses := v.StatusesCounters()
 		assert.Equal(t, 1, statuses.All())
 		assert.Equal(t, 0, statuses.Failed())
 		assert.Equal(t, 1, statuses.Passed())

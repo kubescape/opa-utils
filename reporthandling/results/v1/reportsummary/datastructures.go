@@ -46,7 +46,6 @@ type ControlSummary struct {
 	SubStatusCounters SubStatusCounters   `json:",inline"`
 	Score             float32             `json:"score"`
 	ScoreFactor       float32             `json:"scoreFactor"`
-	// SubStatus         apis.ScanningSubStatus `json:"subStatus"`
 }
 
 type StatusCounters struct {

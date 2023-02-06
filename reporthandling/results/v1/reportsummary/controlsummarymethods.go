@@ -90,7 +90,7 @@ func (controlSummary *ControlSummary) NumberOfResources() ICounters {
 }
 
 // NumberOfResources get the status counters
-func (controlSummary *ControlSummary) ResourcesCounters() (ICounters, ISubCounters) {
+func (controlSummary *ControlSummary) StatusesCounters() (ICounters, ISubCounters) {
 	return &controlSummary.StatusCounters, &controlSummary.SubStatusCounters
 }
 

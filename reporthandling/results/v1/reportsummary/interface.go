@@ -46,7 +46,7 @@ type IControlSummary interface {
 	// Get SubStatus() get control sub status
 	GetSubStatus() apis.ScanningSubStatus
 
-	ResourcesCounters() (ICounters, ISubCounters)
+	StatusesCounters() (ICounters, ISubCounters)
 }
 
 type IControlsSummaries interface {
