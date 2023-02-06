@@ -23,19 +23,19 @@ func (summaryDetails *SummaryDetails) GetScore() float32 {
 
 // SetStatus set the framework status based on the resource counters
 func (summaryDetails *SummaryDetails) CalculateStatus() {
-	summaryDetails.Status = calculateStatus(&summaryDetails.ResourceCounters)
+	summaryDetails.Status = calculateStatus(&summaryDetails.StatusCounters)
 }
 
 // =================================== Counters ============================================
 
 // NumberOfExcluded get the number of excluded resources
 func (summaryDetails *SummaryDetails) NumberOfResources() ICounters {
-	return &summaryDetails.ResourceCounters
+	return &summaryDetails.StatusCounters
 }
 
 // Increase increases the counter based on the status
 func (summaryDetails *SummaryDetails) Increase(status apis.IStatus) {
-	summaryDetails.ResourceCounters.Increase(status)
+	summaryDetails.StatusCounters.Increase(status)
 }
 
 // InitResourcesSummary must run this AFTER initializing the controls
@@ -59,7 +59,7 @@ func (summaryDetails *SummaryDetails) InitResourcesSummary(controlInfoMap map[st
 		}
 	}
 
-	summaryDetails.ResourceCounters.Set(summaryDetails.ListResourcesIDs())
+	summaryDetails.StatusCounters.Set(summaryDetails.ListResourcesIDs())
 	summaryDetails.CalculateStatus()
 }
 

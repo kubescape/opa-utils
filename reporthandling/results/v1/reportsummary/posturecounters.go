@@ -19,6 +19,11 @@ func (pcounter *PostureCounters) Failed() int {
 	return pcounter.FailedCounter
 }
 
+// deprecated
+func (pcounter *PostureCounters) Excluded() int {
+	return pcounter.ExcludedCounter
+}
+
 func (pcounter *PostureCounters) All() int {
 	return pcounter.Passed() + pcounter.Skipped() + pcounter.Failed()
 }

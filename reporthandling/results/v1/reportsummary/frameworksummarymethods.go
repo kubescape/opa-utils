@@ -17,19 +17,19 @@ func (frameworkSummary *FrameworkSummary) GetStatus() apis.IStatus {
 
 // SetStatus set the framework status based on the resource counters
 func (frameworkSummary *FrameworkSummary) CalculateStatus() {
-	frameworkSummary.Status = calculateStatus(&frameworkSummary.ResourceCounters)
+	frameworkSummary.Status = calculateStatus(&frameworkSummary.StatusCounters)
 }
 
 // =================================== Counters ============================================
 
 // NumberOfExcluded get the number of excluded resources
 func (frameworkSummary *FrameworkSummary) NumberOfResources() ICounters {
-	return &frameworkSummary.ResourceCounters
+	return &frameworkSummary.StatusCounters
 }
 
 // Increase increases the counter based on the status
 func (frameworkSummary *FrameworkSummary) Increase(status apis.IStatus) {
-	frameworkSummary.ResourceCounters.Increase(status)
+	frameworkSummary.StatusCounters.Increase(status)
 }
 
 // List resources IDs
@@ -58,7 +58,7 @@ func (frameworkSummary *FrameworkSummary) initResourcesSummary(controlInfoMap ma
 		frameworkSummary.Controls[k] = control
 	}
 
-	frameworkSummary.ResourceCounters.Set(frameworkSummary.ListResourcesIDs())
+	frameworkSummary.StatusCounters.Set(frameworkSummary.ListResourcesIDs())
 	frameworkSummary.CalculateStatus()
 }
 

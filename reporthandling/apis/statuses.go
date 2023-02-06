@@ -30,6 +30,7 @@ const (
 // IStatus interface handling status
 type IStatus interface {
 	Status() ScanningStatus
+	GetSubStatus() ScanningSubStatus
 	Info() string
 	IsPassed() bool
 	IsFailed() bool
