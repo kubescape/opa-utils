@@ -1,0 +1,232 @@
+{
+ "developer_framework": {
+  "Writable hostPath mount": {
+   "baseScore": 1,
+   "improvementRatio": 1
+  },
+  "Compromised images in registry": {
+   "baseScore": 1,
+   "improvementRatio": 1
+  },
+  "Exposed dashboard": {
+   "baseScore": 1,
+   "improvementRatio": 1
+  },
+  "Network mapping": {
+   "baseScore": 1,
+   "improvementRatio": 1
+  },
+  "Access container service account": {
+   "baseScore": 1,
+   "improvementRatio": 1
+  },
+  "Access Kubelet API": {
+   "baseScore": 1,
+   "improvementRatio": 1
+  },
+  "Cluster-admin binding": {
+   "baseScore": 1,
+   "improvementRatio": 1
+  },
+  "Kubernetes CronJob": {
+   "baseScore": 1,
+   "improvementRatio": 1
+  },
+  "SSH server running inside container": {
+   "baseScore": 1,
+   "improvementRatio": 1
+  },
+  "Pod / container name similarity": {
+   "baseScore": 1,
+   "improvementRatio": 1
+  },
+  "Cluster internal networking": {
+   "baseScore": 1,
+   "improvementRatio": 1
+  },
+  "Access Kubernetes dashboard": {
+   "baseScore": 1,
+   "improvementRatio": 1
+  },
+  "Privileged container": {
+   "baseScore": 1,
+   "improvementRatio": 1
+  },
+  "hostPath mount": {
+   "baseScore": 1,
+   "improvementRatio": 1
+  },
+  "Instance Metadata API": {
+   "baseScore": 1,
+   "improvementRatio": 1
+  },
+  "Applications credentials in configuration files": {
+   "baseScore": 1,
+   "improvementRatio": 1
+  }
+ },
+ "MITRE": {
+  "Writable hostPath mount": {
+   "baseScore": 8,
+   "improvementRatio": 0.5
+  },
+  "Sidecar injection": {
+   "baseScore": 1,
+   "improvementRatio": 1
+  },
+  "Compromised images in registry": {
+   "baseScore": 1,
+   "improvementRatio": 1
+  },
+  "Access tiller endpoint": {
+   "baseScore": 1,
+   "improvementRatio": 1
+  },
+  "Data Destruction": {
+   "baseScore": 1,
+   "improvementRatio": 1
+  },
+  "Resource Hijacking": {
+   "baseScore": 1,
+   "improvementRatio": 1
+  },
+  "Access the Kubernetes API server": {
+   "baseScore": 1,
+   "improvementRatio": 1
+  },
+  "Exposed dashboard": {
+   "baseScore": 1,
+   "improvementRatio": 1
+  },
+  "Backdoor container": {
+   "baseScore": 1,
+   "improvementRatio": 1
+  },
+  "Network mapping": {
+   "baseScore": 1,
+   "improvementRatio": 1
+  },
+  "Images from private registry": {
+   "baseScore": 1,
+   "improvementRatio": 1
+  },
+  "Mount service principal": {
+   "baseScore": 1,
+   "improvementRatio": 1
+  },
+  "Access container service account": {
+   "baseScore": 1,
+   "improvementRatio": 1
+  },
+  "Malicious admission controller (validating)": {
+   "baseScore": 1,
+   "improvementRatio": 1
+  },
+  "Access Kubelet API": {
+   "baseScore": 1,
+   "improvementRatio": 1
+  },
+  "Vulnerable application": {
+   "baseScore": 1,
+   "improvementRatio": 1
+  },
+  "Application exploit (RCE)": {
+   "baseScore": 1,
+   "improvementRatio": 1
+  },
+  "Cluster-admin binding": {
+   "baseScore": 1,
+   "improvementRatio": 1
+  },
+  "Kubernetes CronJob": {
+   "baseScore": 1,
+   "improvementRatio": 1
+  },
+  "SSH server running inside container": {
+   "baseScore": 1,
+   "improvementRatio": 1
+  },
+  "List Kubernetes secrets": {
+   "baseScore": 1,
+   "improvementRatio": 1
+  },
+  "Pod / container name similarity": {
+   "baseScore": 1,
+   "improvementRatio": 1
+  },
+  "Cluster internal networking": {
+   "baseScore": 1,
+   "improvementRatio": 1
+  },
+  "Exposed sensitive interfaces": {
+   "baseScore": 1,
+   "improvementRatio": 1
+  },
+  "Bash/cmd inside container": {
+   "baseScore": 1,
+   "improvementRatio": 1
+  },
+  "Clear container logs": {
+   "baseScore": 1,
+   "improvementRatio": 1
+  },
+  "Access Kubernetes dashboard": {
+   "baseScore": 1,
+   "improvementRatio": 1
+  },
+  "New container": {
+   "baseScore": 1,
+   "improvementRatio": 1
+  },
+  "Privileged container": {
+   "baseScore": 1,
+   "improvementRatio": 1
+  },
+  "CoreDNS poisoning": {
+   "baseScore": 1,
+   "improvementRatio": 1
+  },
+  "hostPath mount": {
+   "baseScore": 1,
+   "improvementRatio": 1
+  },
+  "Instance Metadata API": {
+   "baseScore": 1,
+   "improvementRatio": 1
+  },
+  "Malicious admission controller (mutating)": {
+   "baseScore": 1,
+   "improvementRatio": 1
+  },
+  "Exec into container": {
+   "baseScore": 1,
+   "improvementRatio": 1
+  },
+  "Delete Kubernetes events": {
+   "baseScore": 1,
+   "improvementRatio": 1
+  },
+  "Applications credentials in configuration files": {
+   "baseScore": 1,
+   "improvementRatio": 1
+  }
+ },
+ "NSA": {
+  "Control plane hardening": {
+   "baseScore": 1,
+   "improvementRatio": 1
+  },
+  "Immutable container filesystem": {
+   "baseScore": 1,
+   "improvementRatio": 1
+  },
+  "Non-root containers": {
+   "baseScore": 1,
+   "improvementRatio": 1
+  },
+  "Host PID/IPC privileges": {
+   "baseScore": 1,
+   "improvementRatio": 1
+  }
+ }
+}
