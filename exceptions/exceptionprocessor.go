@@ -118,8 +118,8 @@ func alertObjectToWorkloads(obj *reporthandling.AlertObject) []workloadinterface
 		}
 
 		resources = append(resources, r)
-		_ /*ns*/ = r.GetNamespace()
 		/*
+			ns : = r.GetNamespace()
 			if ns != "" {
 				// TODO - handle empty namespace
 			}

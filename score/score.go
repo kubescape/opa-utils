@@ -34,7 +34,7 @@ type ScoreUtil struct {
 	K8SApoObj   *k8sinterface.KubernetesApi
 	resources   map[string]workloadinterface.IMetadata
 	isDebugMode bool
-	configPath  string
+	// configPath  string
 }
 
 var postureScore *ScoreUtil
@@ -199,26 +199,31 @@ func NewScore(allResources map[string]workloadinterface.IMetadata) *ScoreUtil {
 	return postureScore
 }
 
+// CalculatePostureReportV2 calculates controls by framework score.
 func (su *ScoreUtil) CalculatePostureReportV2(report *v2.PostureReport) error {
-	//calculate controls by framework score
 	for i := range report.SummaryDetails.Frameworks {
 		report.SummaryDetails.Frameworks[i].Score = 0
-		var wcsFwork float32 = 0
+		var wcsFwork float32
 		fwUnormalizedScore, wcsFwork := su.ControlsSummariesScore(&report.SummaryDetails.Frameworks[i].Controls, report.SummaryDetails.Frameworks[i].GetName())
 
-		if wcsFwork == 0 {
+		if wcsFwork == 0 { // NOTE(fred): since this is a float32, perhaps we should use a tolerance here
 			report.SummaryDetails.Frameworks[i].Score = 0
-			return fmt.Errorf("unable to calculate score for framework %s due to bad wcs score\n", report.SummaryDetails.Frameworks[i].GetName())
+
+			return fmt.Errorf(
+				"unable to calculate score for framework %s due to bad wcs score\n",
+				report.SummaryDetails.Frameworks[i].GetName(),
+			)
 		}
+
 		report.SummaryDetails.Frameworks[i].Score = (fwUnormalizedScore * 100) / wcsFwork
 		if su.isDebugMode {
 			fmt.Printf("framework %s score %v\n", report.SummaryDetails.Frameworks[i].GetName(), report.SummaryDetails.Frameworks[i].GetScore())
 		}
-
 	}
-	totalUnormalizedScore, totalWcsScore := su.ControlsSummariesScore(&report.SummaryDetails.Controls, "")
 
+	totalUnormalizedScore, totalWcsScore := su.ControlsSummariesScore(&report.SummaryDetails.Controls, "")
 	report.SummaryDetails.Score = (totalUnormalizedScore * 100) / totalWcsScore
+
 	return nil
 }
 

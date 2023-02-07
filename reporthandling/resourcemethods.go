@@ -45,20 +45,23 @@ func (r *Resource) middleware() workloadinterface.IMetadata {
 	}
 
 	if r.Object != nil {
-		mObject := map[string]interface{}{}
-		var ok bool
-		if mObject, ok = r.Object.(map[string]interface{}); !ok {
+		mObject, ok := r.Object.(map[string]interface{})
+		if !ok {
 			// can we get rid of this marshal / unmarshal totally?
+			// NOTE(fred): if the intent is to perform a deep-copy, encoding/gob would be more efficient.
 			bObject, err := json.Marshal(r.Object)
 			if err != nil {
 				return r.IMetadata
 			}
-			if err := json.Unmarshal(bObject, &mObject); err != nil {
+
+			if err = json.Unmarshal(bObject, &mObject); err != nil {
 				return r.IMetadata
 			}
 		}
+
 		r.IMetadata = objectsenvelopes.NewObject(mObject)
 	}
+
 	return r.IMetadata
 }
 

@@ -81,38 +81,6 @@ func (gs *GitRegoStore) setObjects() error {
 }
 
 // DEPRECATED
-func isUrlRelease(u string) bool {
-	return strings.Contains(u, "releases")
-}
-
-// ========================== set Objects From Repo =====================================
-// DEPRECATED
-func (gs *GitRegoStore) setObjectsFromRepoLoop() error {
-	var wg sync.WaitGroup
-	wg.Add(1)
-	var e error
-
-	go func() {
-		f := true
-		for {
-			if err := gs.setObjectsFromRepoOnce(); err != nil {
-				e = err
-			}
-			if f {
-				wg.Done() // first update to done
-				f = false
-			}
-			if !gs.Watch {
-				return
-			}
-			time.Sleep(time.Duration(gs.FrequencyPullFromGitMinutes) * time.Minute)
-		}
-	}()
-	wg.Wait()
-	return e
-}
-
-// DEPRECATED
 func (gs *GitRegoStore) setObjectsFromRepoOnce() error {
 
 	url := gs.BaseUrl + "/" + gs.Owner + "/" + gs.Repository + "/" + gs.Path + "/" + gs.Branch + "?recursive=1"

@@ -6,8 +6,6 @@ import (
 	"strings"
 
 	"github.com/kubescape/k8s-interface/workloadinterface"
-
-	"github.com/kubescape/opa-utils/reporthandling"
 )
 
 func loadResourcesMock() []map[string]interface{} {
@@ -49,6 +47,7 @@ func getResourceByType(desiredType string) map[string]interface{} {
 	return nil
 }
 
+/* unused for now
 func loadFrameworkMock() *reporthandling.FrameworkReport {
 	report := &reporthandling.FrameworkReport{}
 
@@ -63,6 +62,7 @@ func loadFrameworkMock() *reporthandling.FrameworkReport {
 
 	return report
 }
+*/
 
 // func getMITREFrameworkResultMock() []reporthandling.FrameworkReport {
 // 	l := make([]reporthandling.FrameworkReport, 0)
