@@ -19,7 +19,7 @@ type SummaryDetails struct {
 	Frameworks                []FrameworkSummary  `json:"frameworks"`
 	ResourcesSeverityCounters SeverityCounters    `json:"resourcesSeverityCounters,omitempty"`
 	ControlsSeverityCounters  SeverityCounters    `json:"controlsSeverityCounters,omitempty"`
-	StatusCounters            StatusCounters      `json:",inline"`
+	StatusCounters            StatusCounters      `json:"ResourceCounters"` // Backward compatibility
 	Score                     float32             `json:"score"`
 }
 
@@ -29,7 +29,7 @@ type FrameworkSummary struct {
 	Name           string              `json:"name"`               // framework name
 	Status         apis.ScanningStatus `json:"status"`
 	Version        string              `json:"version"`
-	StatusCounters StatusCounters      `json:",inline"`
+	StatusCounters StatusCounters      `json:"ResourceCounters"` // Backward compatibility
 	Score          float32             `json:"score"`
 }
 
@@ -42,8 +42,8 @@ type ControlSummary struct {
 	Description       string              `json:"-"`
 	Remediation       string              `json:"-"`
 	ResourceIDs       helpersv1.AllLists  `json:"resourceIDs"`
-	StatusCounters    StatusCounters      `json:",inline"`
-	SubStatusCounters SubStatusCounters   `json:",inline"`
+	StatusCounters    StatusCounters      `json:"ResourceCounters"` // Backward compatibility
+	SubStatusCounters SubStatusCounters   `json:"subStatusCounters"`
 	Score             float32             `json:"score"`
 	ScoreFactor       float32             `json:"scoreFactor"`
 }
