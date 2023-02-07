@@ -1,0 +1,21 @@
+{
+ "pod": 1,
+ "service": 1,
+ "daemonset": 1,
+ "deployment": 1,
+ "replicaset": 1.1,
+ "statefulset": 1,
+ "job": 1,
+ "secret": 1,
+ "cronjob": 1,
+ "clusterrolebinding": 1,
+ "clusterrole": 1,
+ "rolebinding": 1,
+ "role": 1,
+ "networkpolicy": 1,
+ "controllerrevision": 1,
+ "namespace": 1,
+ "serviceaccount": 1,
+ "configmap": 1,
+ "node": 1
+}
