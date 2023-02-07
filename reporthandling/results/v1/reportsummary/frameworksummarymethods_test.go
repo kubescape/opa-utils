@@ -46,7 +46,7 @@ func TestStatusEmpty(t *testing.T) {
 	f := mockSummaryDetailsStatusEmpty()
 	for _, v := range f.Controls {
 		v.Status = apis.StatusPassed
-		v.SubStatus = apis.SubStatusIrrelevant
+		v.StatusInfo.SubStatus = apis.SubStatusIrrelevant
 		status := v.GetStatus()
 		subStatus := v.GetSubStatus()
 		assert.Equal(t, reflect.TypeOf(status), reflect.TypeOf(&apis.StatusInfo{}))
@@ -91,6 +91,7 @@ func TestStatusIrrelevant(t *testing.T) {
 func TestFrameworkControlsSummariesCounters(t *testing.T) {
 	f := mockFrameworkSummaryFailPass()
 	assert.Equal(t, len(f.Controls), f.GetControls().NumberOfControls().All(), "invalid total control count")
+	// assert.Equal(t, len(f.GetControls().NumberOfControls().), f.GetControls().NumberOfControls().Failed(), "invalid total failed control count")
 	assert.Equal(t, len(f.GetControls().ListControlsIDs().Failed()), f.GetControls().NumberOfControls().Failed(), "invalid total failed control count")
 	assert.Equal(t, len(f.GetControls().ListControlsIDs().Passed()), f.GetControls().NumberOfControls().Passed(), "invalid total passed control count")
 	assert.Equal(t, len(f.GetControls().ListControlsIDs().Skipped()), f.GetControls().NumberOfControls().Skipped(), "invalid total skipped control count")

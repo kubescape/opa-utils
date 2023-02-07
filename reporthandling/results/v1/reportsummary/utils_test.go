@@ -8,9 +8,9 @@ import (
 )
 
 func TestCalculateStatus(t *testing.T) {
-	passed := mockResourceCountersPass()
-	failed := mockResourceCountersFailPass()
-	skipped := mockResourceCountersSkipped()
+	passed := mockStatusCountersPass()
+	failed := mockStatusCountersFailPass()
+	skipped := mockStatusCountersSkipped()
 
 	assert.Equal(t, apis.StatusPassed, calculateStatus(passed))
 	assert.Equal(t, apis.StatusFailed, calculateStatus(failed))

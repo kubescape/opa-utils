@@ -26,4 +26,12 @@ jobs:
     - name: Build
       run: go build -v ./...
 
+    - name: golangci-lint
+      continue-on-error: true
+      uses: golangci/golangci-lint-action@v3
+      with:
+        version: latest
+        args: --timeout 10m --build-tags=static
+        only-new-issues: true
+
 

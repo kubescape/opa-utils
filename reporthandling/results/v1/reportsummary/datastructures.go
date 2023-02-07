@@ -19,40 +19,44 @@ type SummaryDetails struct {
 	Frameworks                []FrameworkSummary  `json:"frameworks"`
 	ResourcesSeverityCounters SeverityCounters    `json:"resourcesSeverityCounters,omitempty"`
 	ControlsSeverityCounters  SeverityCounters    `json:"controlsSeverityCounters,omitempty"`
-	ResourceCounters          ResourceCounters    `json:",inline"`
+	StatusCounters            StatusCounters      `json:",inline"`
 	Score                     float32             `json:"score"`
 }
 
 // FrameworkSummary summary of scanning from a single framework perspective
 type FrameworkSummary struct {
-	Controls         ControlSummaries    `json:"controls,omitempty"` // mapping of control - map[<control ID>]<control summary>
-	Name             string              `json:"name"`               // framework name
-	Status           apis.ScanningStatus `json:"status"`
-	Version          string              `json:"version"`
-	ResourceCounters ResourceCounters    `json:",inline"`
-	Score            float32             `json:"score"`
+	Controls       ControlSummaries    `json:"controls,omitempty"` // mapping of control - map[<control ID>]<control summary>
+	Name           string              `json:"name"`               // framework name
+	Status         apis.ScanningStatus `json:"status"`
+	Version        string              `json:"version"`
+	StatusCounters StatusCounters      `json:",inline"`
+	Score          float32             `json:"score"`
 }
 
 // ControlSummary summary of scanning from a single control perspective
 type ControlSummary struct {
-	StatusInfo       apis.StatusInfo        `json:"statusInfo,omitempty"`
-	ControlID        string                 `json:"controlID"`
-	Name             string                 `json:"name"`
-	Status           apis.ScanningStatus    `json:"status"`
-	SubStatus        apis.ScanningSubStatus `json:"subStatus"`
-	Description      string                 `json:"-"`
-	Remediation      string                 `json:"-"`
-	ResourceIDs      helpersv1.AllLists     `json:"resourceIDs"`
-	ResourceCounters ResourceCounters       `json:",inline"`
-	Score            float32                `json:"score"`
-	ScoreFactor      float32                `json:"scoreFactor"`
+	StatusInfo        apis.StatusInfo     `json:"statusInfo,omitempty"`
+	ControlID         string              `json:"controlID"`
+	Name              string              `json:"name"`
+	Status            apis.ScanningStatus `json:"status"` // backward compatibility
+	Description       string              `json:"-"`
+	Remediation       string              `json:"-"`
+	ResourceIDs       helpersv1.AllLists  `json:"resourceIDs"`
+	StatusCounters    StatusCounters      `json:",inline"`
+	SubStatusCounters SubStatusCounters   `json:",inline"`
+	Score             float32             `json:"score"`
+	ScoreFactor       float32             `json:"scoreFactor"`
 }
 
-type ResourceCounters struct {
+type StatusCounters struct {
 	PassedResources   int `json:"passedResources"`
 	FailedResources   int `json:"failedResources"`
 	SkippedResources  int `json:"skippedResources"`
 	ExcludedResources int `json:"excludedResources"` // Deprecated
+}
+
+type SubStatusCounters struct {
+	IgnoredResources int `json:"ignoredResources"`
 }
 
 type SeverityCounters struct {

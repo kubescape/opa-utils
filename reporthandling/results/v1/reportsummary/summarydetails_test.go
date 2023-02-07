@@ -67,6 +67,37 @@ func TestUpdateControlsSummaryCountersFailed(t *testing.T) {
 		assert.Equal(t, 0, v.NumberOfResources().Skipped())
 	}
 
+	for _, v := range controls {
+		statuses, subStatuses := v.StatusesCounters()
+		assert.Equal(t, 1, statuses.All())
+		assert.Equal(t, 1, statuses.Failed())
+		assert.Equal(t, 0, statuses.Passed())
+		assert.Equal(t, 0, statuses.Skipped())
+		assert.Equal(t, 0, subStatuses.All())
+		assert.Equal(t, 0, subStatuses.Ignored())
+	}
+
+}
+
+func TestUpdateControlsSummaryCountersExcluded(t *testing.T) {
+	controls := map[string]ControlSummary{}
+
+	passedControls := mockResultsFailed.ListControlsIDs(nil).Passed()
+	for i := range passedControls {
+		controls[passedControls[i]] = ControlSummary{}
+	}
+
+	updateControlsSummaryCounters(&mockResultsException, controls, nil)
+	for _, v := range controls {
+		statuses, subStatuses := v.StatusesCounters()
+		assert.Equal(t, 1, statuses.All())
+		assert.Equal(t, 0, statuses.Failed())
+		assert.Equal(t, 1, statuses.Passed())
+		assert.Equal(t, 0, statuses.Skipped())
+		assert.Equal(t, 1, subStatuses.All())
+		assert.Equal(t, 1, subStatuses.Ignored())
+	}
+
 }
 func TestUpdateControlsSummaryCountersPassed(t *testing.T) {
 	controls := map[string]ControlSummary{}

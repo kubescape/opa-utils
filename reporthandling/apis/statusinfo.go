@@ -1,8 +1,13 @@
 package apis
 
 type StatusInfo struct {
-	InnerStatus ScanningStatus `json:"status,omitempty"`
-	InnerInfo   string         `json:"info,omitempty"`
+	InnerStatus ScanningStatus    `json:"status,omitempty"`
+	SubStatus   ScanningSubStatus `json:"subStatus,omitempty"`
+	InnerInfo   string            `json:"info,omitempty"`
+}
+
+func (s *StatusInfo) GetSubStatus() ScanningSubStatus {
+	return s.SubStatus
 }
 
 func (s *StatusInfo) Status() ScanningStatus {
