@@ -1,4 +1,4 @@
-package v1
+package helpers
 
 import "github.com/kubescape/opa-utils/reporthandling/apis"
 

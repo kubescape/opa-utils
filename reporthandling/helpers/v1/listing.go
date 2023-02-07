@@ -1,8 +1,8 @@
-package v1
+package helpers
 
 import (
-	"github.com/armosec/utils-go/str"
 	"github.com/kubescape/opa-utils/reporthandling/apis"
+	"github.com/kubescape/opa-utils/reporthandling/internal/slices"
 )
 
 // ReportObject any report object must be compliment with a map[string]interface{} structures
@@ -104,10 +104,10 @@ func (all *AllLists) Update(all2 *AllLists) {
 // ToUnique - Call this function only when setting the List
 func (all *AllLists) toUniqueBase() {
 	// remove duplications from each resource list
-	all.failed = str.SliceStringToUnique(all.failed)
-	all.passed = str.SliceStringToUnique(all.passed)
-	all.skipped = str.SliceStringToUnique(all.skipped)
-	all.other = str.SliceStringToUnique(all.other)
+	all.failed = slices.UniqueStrings(all.failed)
+	all.passed = slices.UniqueStrings(all.passed)
+	all.skipped = slices.UniqueStrings(all.skipped)
+	all.other = slices.UniqueStrings(all.other)
 }
 
 // ToUnique - Call this function only when setting the List
@@ -117,44 +117,28 @@ func (all *AllLists) ToUniqueControls() {
 
 // ToUnique - Call this function only when setting the List
 func (all *AllLists) ToUniqueResources() {
-	all.toUniqueBase()
-	// remove failed from passed list
-	all.passed = trimUnique(all.passed, all.failed)
-	// remove failed, and passed from skipped list
-	trimmed := append(all.failed, all.passed...)
-	all.skipped = trimUnique(all.skipped, trimmed)
-	// remove failed, passed and skipped from other list
+	all.failed = slices.UniqueStrings(all.failed)
+
+	const heuristicCapacity = 100 // alloc 100 slots to the stack. The rest would go to the heap - see https://github.com/golang/go/issues/58215
+	trimmed := append(make([]string, 0, heuristicCapacity), make([]string, 0, max(len(all.failed)+len(all.excluded)+len(all.passed)+len(all.skipped), heuristicCapacity)-heuristicCapacity)...)
+
+	// remove failed and excluded from passed list
+	trimmed = append(trimmed, all.failed...)
+	all.passed = slices.TrimStableUnique(all.passed, trimmed)
+
+	// remove failed, excluded and passed from skipped list
+	trimmed = append(trimmed, all.passed...)
+	all.skipped = slices.TrimStableUnique(all.skipped, trimmed)
+
+	// remove failed, excluded, passed and skipped from other list
 	trimmed = append(trimmed, all.skipped...)
-	all.other = trimUnique(all.other, trimmed)
+	all.other = slices.TrimStableUnique(all.other, trimmed)
 }
 
-// trimUnique trim the list, return original list without the "trimFrom" list. the list is trimmed in place, so the original list is modified. Also, the list is not sorted
-func trimUnique(origin, trimFrom []string) []string {
-	if len(origin) == 0 || len(trimFrom) == 0 { // if there is nothing to trim
-		return origin
-	}
-	toRemove := make(map[string]bool, len(trimFrom))
-
-	for i := range trimFrom {
-		toRemove[trimFrom[i]] = true
+func max(a, b int) int {
+	if a > b {
+		return a
 	}
 
-	originLen := len(origin)
-	for i := 0; i < originLen; {
-		if _, ok := toRemove[origin[i]]; ok {
-			str.RemoveIndexFromStringSlice(&origin, i)
-			originLen--
-		} else {
-			i++
-		}
-	}
-	return origin
-}
-
-// appendSlice append a slice to a slice the index indicates the position of the slice
-func appendSlice(origin, appendTo []string, index *int) {
-	for i := range appendTo {
-		origin[*index] = appendTo[i]
-		*index++
-	}
+	return b
 }

@@ -5,6 +5,7 @@ import (
 	"fmt"
 
 	"github.com/kubescape/opa-utils/objectsenvelopes"
+	"github.com/kubescape/opa-utils/reporthandling/internal/slices"
 	"github.com/open-policy-agent/opa/rego"
 )
 
@@ -54,38 +55,20 @@ func GetUniqueResources(k8sResources []map[string]interface{}) []map[string]inte
 	return k8sResources
 }
 
-// GetUniqueResources the list of resources can contain duplications, this function removes the resource duplication based on workloadinterface.GetID
+// GetUniqueResourcesIDs yields the list of unique resource IDs. Duplicates are removed, based on the workload.GetID() interface method.
+//
+// NOTE: the input slice is modified in-place.
 func GetUniqueResourcesIDs(k8sResourcesList []string) []string {
-	uniqueRuleResponses := map[string]bool{}
-	k8sResourcesNewList := []string{}
-
-	for i := range k8sResourcesList {
-		if found := uniqueRuleResponses[k8sResourcesList[i]]; !found {
-			uniqueRuleResponses[k8sResourcesList[i]] = true
-			k8sResourcesNewList = append(k8sResourcesNewList, k8sResourcesList[i])
-		}
-	}
-	return k8sResourcesNewList
+	return slices.UniqueStrings(k8sResourcesList)
 }
 
-// TrimUniqueResources trim the list, this wil trim in case the same resource appears in the warning list and in the failed list
+// TrimUniqueResources trims the origin list to contain only elements that are NOT already present in the trimFrom list.
+//
+// # This is used to cover the case when the same resource appears in the warning list and in the failed list
+//
+// NOTE: the origin slice is modified in-place.
 func TrimUniqueIDs(origin, trimFrom []string) []string {
-	if len(origin) == 0 || len(trimFrom) == 0 { // if there is nothing to trim
-		return origin
-	}
-	uniqueResources := map[string]bool{}
-	listResources := []string{}
-
-	for i := range trimFrom {
-		uniqueResources[trimFrom[i]] = true
-	}
-
-	for i := range origin {
-		if found := uniqueResources[origin[i]]; !found {
-			listResources = append(listResources, origin[i])
-		}
-	}
-	return listResources
+	return slices.TrimStable(origin, trimFrom)
 }
 
 func removeFromSlice(k8sResources []map[string]interface{}, i int) []map[string]interface{} {

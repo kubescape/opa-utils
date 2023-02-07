@@ -1,5 +1,9 @@
 package reporthandling
 
+import (
+	"github.com/kubescape/opa-utils/reporthandling/internal/slices"
+)
+
 type ResourcesIDs struct {
 	passedResources  []string
 	failedResources  []string
@@ -31,17 +35,17 @@ func (r *ResourcesIDs) setFailedResources(a []string) {
 
 // setWarningResources - initialized after failed resources are set
 func (r *ResourcesIDs) setWarningResources(a []string) {
-	r.warningResources = TrimUniqueIDs(GetUniqueResourcesIDs(a), r.failedResources)
+	r.warningResources = slices.TrimStable(GetUniqueResourcesIDs(a), r.failedResources)
 }
 
 // setPassedResources - initialized after warning resources are set
 func (r *ResourcesIDs) setPassedResources(a []string) {
-	r.passedResources = TrimUniqueIDs(GetUniqueResourcesIDs(a), append(r.failedResources, r.warningResources...))
+	r.passedResources = slices.TrimStable(GetUniqueResourcesIDs(a), append(r.failedResources, r.warningResources...))
 }
 
 func deleteFromMap(m map[string]interface{}, keepFields []string) {
 	for k := range m {
-		if StringInSlice(keepFields, k) {
+		if slices.StringInSlice(keepFields, k) {
 			continue
 		}
 		delete(m, k)
@@ -49,12 +53,7 @@ func deleteFromMap(m map[string]interface{}, keepFields []string) {
 }
 
 func StringInSlice(strSlice []string, str string) bool {
-	for i := range strSlice {
-		if strSlice[i] == str {
-			return true
-		}
-	}
-	return false
+	return slices.StringInSlice(strSlice, str)
 }
 
 func RemoveResponse(slice []RuleResponse, index int) []RuleResponse {

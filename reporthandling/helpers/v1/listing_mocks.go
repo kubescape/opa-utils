@@ -1,4 +1,4 @@
-package v1
+package helpers
 
 func MockAllListsForIntegration() *AllLists {
 	return &AllLists{
