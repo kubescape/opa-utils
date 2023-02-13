@@ -73,6 +73,9 @@ type PostScanRequest struct {
 	// UseExceptions      string      // Load file with exceptions configuration
 	// ControlsInputs     string      // Load file with inputs for controls
 	// VerboseMode        bool        // Display all of the input resources and not only failed resources
+	
+	// Example: /home/ks/.kubescape
+	UseArtifactsFrom      string   `json:"useArtifactsFrom,omitempty"`
 }
 
 // A Scan Response object
