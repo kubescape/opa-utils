@@ -47,7 +47,6 @@ func (summaryDetails *SummaryDetails) InitResourcesSummary(controlInfoMap map[st
 	for k, control := range summaryDetails.Controls {
 		if statusInfo, ok := controlInfoMap[control.ControlID]; ok && statusInfo.InnerStatus != apis.StatusUnknown {
 			control.SetStatus(&statusInfo)
-			control.SetSubStatus(apis.SubStatusIntegration)
 		} else if control.GetStatus().Status() == apis.StatusUnknown {
 			control.CalculateStatus()
 		}
@@ -161,9 +160,10 @@ func (summaryDetails *SummaryDetails) AppendResourceResult(resourceResult *resou
 	}
 
 	// update frameworks counters
-	for _, framework := range summaryDetails.Frameworks {
-		updateControlsSummaryCounters(resourceResult, framework.Controls, &helpersv1.Filters{FrameworkNames: []string{framework.Name}})
-		framework.CalculateStatus()
+	for i := range summaryDetails.Frameworks {
+		updateControlsSummaryCounters(resourceResult, summaryDetails.Frameworks[i].Controls, &helpersv1.Filters{FrameworkNames: []string{summaryDetails.Frameworks[i].GetName()}})
+		summaryDetails.Frameworks[i].StatusCounters.Set(summaryDetails.Frameworks[i].ListResourcesIDs())
+		summaryDetails.Frameworks[i].CalculateStatus()
 	}
 }
 

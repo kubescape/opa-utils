@@ -22,7 +22,7 @@ const (
 	StatusError      ScanningStatus = "error"      // Deprecated
 )
 const (
-	SubStatusConfigurationInfo  StatusMsg = "Control missing configuration"
+	SubStatusConfigurationInfo  StatusMsg = "Control configurations are empty"
 	SubStatusRequiresReviewInfo StatusMsg = "Control type is requires-review"
 	SubStatusManualReviewInfo   StatusMsg = "Control type is manual-review"
 )

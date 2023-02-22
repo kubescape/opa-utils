@@ -120,18 +120,19 @@ func (all *AllLists) ToUniqueResources() {
 	all.failed = slices.UniqueStrings(all.failed)
 
 	const heuristicCapacity = 100 // alloc 100 slots to the stack. The rest would go to the heap - see https://github.com/golang/go/issues/58215
+
 	trimmed := append(make([]string, 0, heuristicCapacity), make([]string, 0, max(len(all.failed)+len(all.excluded)+len(all.passed)+len(all.skipped), heuristicCapacity)-heuristicCapacity)...)
 
-	// remove failed and excluded from passed list
+	// remove failed from excluded list
 	trimmed = append(trimmed, all.failed...)
-	all.passed = slices.TrimStableUnique(all.passed, trimmed)
-
-	// remove failed, excluded and passed from skipped list
-	trimmed = append(trimmed, all.passed...)
 	all.skipped = slices.TrimStableUnique(all.skipped, trimmed)
 
-	// remove failed, excluded, passed and skipped from other list
+	// remove failed and skipped from passed list
 	trimmed = append(trimmed, all.skipped...)
+	all.passed = slices.TrimStableUnique(all.passed, trimmed)
+
+	// remove failed, skipped and skipped from "other" list
+	trimmed = append(trimmed, all.passed...)
 	all.other = slices.TrimStableUnique(all.other, trimmed)
 }
 

@@ -1,0 +1,1068 @@
+{
+    "controls": {
+        "C-0002": {
+            "statusInfo": {
+                "status": "passed"
+            },
+            "controlID": "C-0002",
+            "name": "Exec into container",
+            "status": "passed",
+            "resourceIDs": {},
+            "ResourceCounters": {
+                "passedResources": 4,
+                "failedResources": 0,
+                "skippedResources": 0,
+                "excludedResources": 0
+            },
+            "subStatusCounters": {
+                "ignoredResources": 0
+            },
+            "score": 0,
+            "scoreFactor": 5
+        },
+        "C-0007": {
+            "statusInfo": {
+                "status": "passed"
+            },
+            "controlID": "C-0007",
+            "name": "Data Destruction",
+            "status": "passed",
+            "resourceIDs": {},
+            "ResourceCounters": {
+                "passedResources": 4,
+                "failedResources": 0,
+                "skippedResources": 0,
+                "excludedResources": 0
+            },
+            "subStatusCounters": {
+                "ignoredResources": 0
+            },
+            "score": 0,
+            "scoreFactor": 5
+        },
+        "C-0012": {
+            "statusInfo": {
+                "status": "skipped",
+                "subStatus": "configuration",
+                "info": "Control missing configuration"
+            },
+            "controlID": "C-0012",
+            "name": "Applications credentials in configuration files",
+            "status": "skipped",
+            "resourceIDs": {},
+            "ResourceCounters": {
+                "passedResources": 0,
+                "failedResources": 0,
+                "skippedResources": 85,
+                "excludedResources": 0
+            },
+            "subStatusCounters": {
+                "ignoredResources": 0
+            },
+            "score": 0,
+            "scoreFactor": 8
+        },
+        "C-0014": {
+            "statusInfo": {
+                "status": "passed"
+            },
+            "controlID": "C-0014",
+            "name": "Access Kubernetes dashboard",
+            "status": "passed",
+            "resourceIDs": {},
+            "ResourceCounters": {
+                "passedResources": 89,
+                "failedResources": 0,
+                "skippedResources": 0,
+                "excludedResources": 0
+            },
+            "subStatusCounters": {
+                "ignoredResources": 0
+            },
+            "score": 0,
+            "scoreFactor": 2
+        },
+        "C-0015": {
+            "statusInfo": {
+                "status": "passed"
+            },
+            "controlID": "C-0015",
+            "name": "List Kubernetes secrets",
+            "status": "passed",
+            "resourceIDs": {},
+            "ResourceCounters": {
+                "passedResources": 4,
+                "failedResources": 0,
+                "skippedResources": 0,
+                "excludedResources": 0
+            },
+            "subStatusCounters": {
+                "ignoredResources": 0
+            },
+            "score": 0,
+            "scoreFactor": 7
+        },
+        "C-0020": {
+            "statusInfo": {
+                "status": "passed"
+            },
+            "controlID": "C-0020",
+            "name": "Mount service principal",
+            "status": "passed",
+            "resourceIDs": {},
+            "ResourceCounters": {
+                "passedResources": 85,
+                "failedResources": 0,
+                "skippedResources": 0,
+                "excludedResources": 0
+            },
+            "subStatusCounters": {
+                "ignoredResources": 0
+            },
+            "score": 0,
+            "scoreFactor": 4
+        },
+        "C-0021": {
+            "statusInfo": {},
+            "controlID": "C-0021",
+            "name": "Exposed sensitive interfaces",
+            "status": "",
+            "resourceIDs": {},
+            "ResourceCounters": {
+                "passedResources": 0,
+                "failedResources": 0,
+                "skippedResources": 0,
+                "excludedResources": 0
+            },
+            "subStatusCounters": {
+                "ignoredResources": 0
+            },
+            "score": 0,
+            "scoreFactor": 6
+        },
+        "C-0026": {
+            "statusInfo": {},
+            "controlID": "C-0026",
+            "name": "Kubernetes CronJob",
+            "status": "",
+            "resourceIDs": {},
+            "ResourceCounters": {
+                "passedResources": 0,
+                "failedResources": 0,
+                "skippedResources": 0,
+                "excludedResources": 0
+            },
+            "subStatusCounters": {
+                "ignoredResources": 0
+            },
+            "score": 0,
+            "scoreFactor": 1
+        },
+        "C-0031": {
+            "statusInfo": {
+                "status": "passed"
+            },
+            "controlID": "C-0031",
+            "name": "Delete Kubernetes events",
+            "status": "passed",
+            "resourceIDs": {},
+            "ResourceCounters": {
+                "passedResources": 4,
+                "failedResources": 0,
+                "skippedResources": 0,
+                "excludedResources": 0
+            },
+            "subStatusCounters": {
+                "ignoredResources": 0
+            },
+            "score": 0,
+            "scoreFactor": 4
+        },
+        "C-0035": {
+            "statusInfo": {
+                "status": "passed"
+            },
+            "controlID": "C-0035",
+            "name": "Cluster-admin binding",
+            "status": "passed",
+            "resourceIDs": {},
+            "ResourceCounters": {
+                "passedResources": 4,
+                "failedResources": 0,
+                "skippedResources": 0,
+                "excludedResources": 0
+            },
+            "subStatusCounters": {
+                "ignoredResources": 0
+            },
+            "score": 0,
+            "scoreFactor": 6
+        },
+        "C-0036": {
+            "statusInfo": {},
+            "controlID": "C-0036",
+            "name": "Malicious admission controller (validating)",
+            "status": "",
+            "resourceIDs": {},
+            "ResourceCounters": {
+                "passedResources": 0,
+                "failedResources": 0,
+                "skippedResources": 0,
+                "excludedResources": 0
+            },
+            "subStatusCounters": {
+                "ignoredResources": 0
+            },
+            "score": 0,
+            "scoreFactor": 3
+        },
+        "C-0037": {
+            "statusInfo": {
+                "status": "passed"
+            },
+            "controlID": "C-0037",
+            "name": "CoreDNS poisoning",
+            "status": "passed",
+            "resourceIDs": {},
+            "ResourceCounters": {
+                "passedResources": 4,
+                "failedResources": 0,
+                "skippedResources": 0,
+                "excludedResources": 0
+            },
+            "subStatusCounters": {
+                "ignoredResources": 0
+            },
+            "score": 0,
+            "scoreFactor": 4
+        },
+        "C-0039": {
+            "statusInfo": {},
+            "controlID": "C-0039",
+            "name": "Malicious admission controller (mutating)",
+            "status": "",
+            "resourceIDs": {},
+            "ResourceCounters": {
+                "passedResources": 0,
+                "failedResources": 0,
+                "skippedResources": 0,
+                "excludedResources": 0
+            },
+            "subStatusCounters": {
+                "ignoredResources": 0
+            },
+            "score": 0,
+            "scoreFactor": 4
+        },
+        "C-0042": {
+            "statusInfo": {},
+            "controlID": "C-0042",
+            "name": "SSH server running inside container",
+            "status": "",
+            "resourceIDs": {},
+            "ResourceCounters": {
+                "passedResources": 0,
+                "failedResources": 0,
+                "skippedResources": 0,
+                "excludedResources": 0
+            },
+            "subStatusCounters": {
+                "ignoredResources": 0
+            },
+            "score": 0,
+            "scoreFactor": 3
+        },
+        "C-0045": {
+            "statusInfo": {
+                "status": "failed"
+            },
+            "controlID": "C-0045",
+            "name": "Writable hostPath mount",
+            "status": "failed",
+            "resourceIDs": {},
+            "ResourceCounters": {
+                "passedResources": 82,
+                "failedResources": 3,
+                "skippedResources": 0,
+                "excludedResources": 0
+            },
+            "subStatusCounters": {
+                "ignoredResources": 0
+            },
+            "score": 0,
+            "scoreFactor": 8
+        },
+        "C-0048": {
+            "statusInfo": {
+                "status": "failed"
+            },
+            "controlID": "C-0048",
+            "name": "HostPath mount",
+            "status": "failed",
+            "resourceIDs": {},
+            "ResourceCounters": {
+                "passedResources": 82,
+                "failedResources": 3,
+                "skippedResources": 0,
+                "excludedResources": 0
+            },
+            "subStatusCounters": {
+                "ignoredResources": 0
+            },
+            "score": 0,
+            "scoreFactor": 7
+        },
+        "C-0052": {
+            "statusInfo": {},
+            "controlID": "C-0052",
+            "name": "Instance Metadata API",
+            "status": "",
+            "resourceIDs": {},
+            "ResourceCounters": {
+                "passedResources": 0,
+                "failedResources": 0,
+                "skippedResources": 0,
+                "excludedResources": 0
+            },
+            "subStatusCounters": {
+                "ignoredResources": 0
+            },
+            "score": 0,
+            "scoreFactor": 7
+        },
+        "C-0053": {
+            "statusInfo": {},
+            "controlID": "C-0053",
+            "name": "Access container service account",
+            "status": "",
+            "resourceIDs": {},
+            "ResourceCounters": {
+                "passedResources": 0,
+                "failedResources": 0,
+                "skippedResources": 0,
+                "excludedResources": 0
+            },
+            "subStatusCounters": {
+                "ignoredResources": 0
+            },
+            "score": 0,
+            "scoreFactor": 6
+        },
+        "C-0054": {
+            "statusInfo": {
+                "status": "failed"
+            },
+            "controlID": "C-0054",
+            "name": "Cluster internal networking",
+            "status": "failed",
+            "resourceIDs": {},
+            "ResourceCounters": {
+                "passedResources": 0,
+                "failedResources": 4,
+                "skippedResources": 0,
+                "excludedResources": 0
+            },
+            "subStatusCounters": {
+                "ignoredResources": 0
+            },
+            "score": 0,
+            "scoreFactor": 4
+        },
+        "C-0057": {
+            "statusInfo": {
+                "status": "failed"
+            },
+            "controlID": "C-0057",
+            "name": "Privileged container",
+            "status": "failed",
+            "resourceIDs": {},
+            "ResourceCounters": {
+                "passedResources": 81,
+                "failedResources": 4,
+                "skippedResources": 0,
+                "excludedResources": 0
+            },
+            "subStatusCounters": {
+                "ignoredResources": 0
+            },
+            "score": 0,
+            "scoreFactor": 8
+        },
+        "C-0058": {
+            "statusInfo": {},
+            "controlID": "C-0058",
+            "name": "CVE-2021-25741 - Using symlink for arbitrary host file system access.",
+            "status": "",
+            "resourceIDs": {},
+            "ResourceCounters": {
+                "passedResources": 0,
+                "failedResources": 0,
+                "skippedResources": 0,
+                "excludedResources": 0
+            },
+            "subStatusCounters": {
+                "ignoredResources": 0
+            },
+            "score": 0,
+            "scoreFactor": 6
+        },
+        "C-0059": {
+            "statusInfo": {},
+            "controlID": "C-0059",
+            "name": "CVE-2021-25742-nginx-ingress-snippet-annotation-vulnerability",
+            "status": "",
+            "resourceIDs": {},
+            "ResourceCounters": {
+                "passedResources": 0,
+                "failedResources": 0,
+                "skippedResources": 0,
+                "excludedResources": 0
+            },
+            "subStatusCounters": {
+                "ignoredResources": 0
+            },
+            "score": 0,
+            "scoreFactor": 8
+        },
+        "C-0066": {
+            "statusInfo": {},
+            "controlID": "C-0066",
+            "name": "Secret/ETCD encryption enabled",
+            "status": "",
+            "resourceIDs": {},
+            "ResourceCounters": {
+                "passedResources": 0,
+                "failedResources": 0,
+                "skippedResources": 0,
+                "excludedResources": 0
+            },
+            "subStatusCounters": {
+                "ignoredResources": 0
+            },
+            "score": 0,
+            "scoreFactor": 6
+        },
+        "C-0067": {
+            "statusInfo": {},
+            "controlID": "C-0067",
+            "name": "Audit logs enabled",
+            "status": "",
+            "resourceIDs": {},
+            "ResourceCounters": {
+                "passedResources": 0,
+                "failedResources": 0,
+                "skippedResources": 0,
+                "excludedResources": 0
+            },
+            "subStatusCounters": {
+                "ignoredResources": 0
+            },
+            "score": 0,
+            "scoreFactor": 5
+        },
+        "C-0068": {
+            "statusInfo": {},
+            "controlID": "C-0068",
+            "name": "PSP enabled",
+            "status": "",
+            "resourceIDs": {},
+            "ResourceCounters": {
+                "passedResources": 0,
+                "failedResources": 0,
+                "skippedResources": 0,
+                "excludedResources": 0
+            },
+            "subStatusCounters": {
+                "ignoredResources": 0
+            },
+            "score": 0,
+            "scoreFactor": 1
+        },
+        "C-0069": {
+            "statusInfo": {},
+            "controlID": "C-0069",
+            "name": "Disable anonymous access to Kubelet service",
+            "status": "",
+            "resourceIDs": {},
+            "ResourceCounters": {
+                "passedResources": 0,
+                "failedResources": 0,
+                "skippedResources": 0,
+                "excludedResources": 0
+            },
+            "subStatusCounters": {
+                "ignoredResources": 0
+            },
+            "score": 0,
+            "scoreFactor": 10
+        },
+        "C-0070": {
+            "statusInfo": {},
+            "controlID": "C-0070",
+            "name": "Enforce Kubelet client TLS authentication",
+            "status": "",
+            "resourceIDs": {},
+            "ResourceCounters": {
+                "passedResources": 0,
+                "failedResources": 0,
+                "skippedResources": 0,
+                "excludedResources": 0
+            },
+            "subStatusCounters": {
+                "ignoredResources": 0
+            },
+            "score": 0,
+            "scoreFactor": 9
+        }
+    },
+    "status": "",
+    "frameworks": [
+        {
+            "controls": {
+                "C-0002": {
+                    "statusInfo": {
+                        "status": "passed"
+                    },
+                    "controlID": "C-0002",
+                    "name": "Exec into container",
+                    "status": "passed",
+                    "resourceIDs": {},
+                    "ResourceCounters": {
+                        "passedResources": 4,
+                        "failedResources": 0,
+                        "skippedResources": 0,
+                        "excludedResources": 0
+                    },
+                    "subStatusCounters": {
+                        "ignoredResources": 0
+                    },
+                    "score": 0,
+                    "scoreFactor": 5
+                },
+                "C-0007": {
+                    "statusInfo": {
+                        "status": "passed"
+                    },
+                    "controlID": "C-0007",
+                    "name": "Data Destruction",
+                    "status": "passed",
+                    "resourceIDs": {},
+                    "ResourceCounters": {
+                        "passedResources": 4,
+                        "failedResources": 0,
+                        "skippedResources": 0,
+                        "excludedResources": 0
+                    },
+                    "subStatusCounters": {
+                        "ignoredResources": 0
+                    },
+                    "score": 0,
+                    "scoreFactor": 5
+                },
+                "C-0012": {
+                    "statusInfo": {
+                        "status": "skipped",
+                        "subStatus": "configuration",
+                        "info": "Control missing configuration"
+                    },
+                    "controlID": "C-0012",
+                    "name": "Applications credentials in configuration files",
+                    "status": "skipped",
+                    "resourceIDs": {},
+                    "ResourceCounters": {
+                        "passedResources": 0,
+                        "failedResources": 0,
+                        "skippedResources": 85,
+                        "excludedResources": 0
+                    },
+                    "subStatusCounters": {
+                        "ignoredResources": 0
+                    },
+                    "score": 0,
+                    "scoreFactor": 8
+                },
+                "C-0014": {
+                    "statusInfo": {
+                        "status": "passed"
+                    },
+                    "controlID": "C-0014",
+                    "name": "Access Kubernetes dashboard",
+                    "status": "passed",
+                    "resourceIDs": {},
+                    "ResourceCounters": {
+                        "passedResources": 89,
+                        "failedResources": 0,
+                        "skippedResources": 0,
+                        "excludedResources": 0
+                    },
+                    "subStatusCounters": {
+                        "ignoredResources": 0
+                    },
+                    "score": 0,
+                    "scoreFactor": 2
+                },
+                "C-0015": {
+                    "statusInfo": {
+                        "status": "passed"
+                    },
+                    "controlID": "C-0015",
+                    "name": "List Kubernetes secrets",
+                    "status": "passed",
+                    "resourceIDs": {},
+                    "ResourceCounters": {
+                        "passedResources": 4,
+                        "failedResources": 0,
+                        "skippedResources": 0,
+                        "excludedResources": 0
+                    },
+                    "subStatusCounters": {
+                        "ignoredResources": 0
+                    },
+                    "score": 0,
+                    "scoreFactor": 7
+                },
+                "C-0020": {
+                    "statusInfo": {
+                        "status": "passed"
+                    },
+                    "controlID": "C-0020",
+                    "name": "Mount service principal",
+                    "status": "passed",
+                    "resourceIDs": {},
+                    "ResourceCounters": {
+                        "passedResources": 85,
+                        "failedResources": 0,
+                        "skippedResources": 0,
+                        "excludedResources": 0
+                    },
+                    "subStatusCounters": {
+                        "ignoredResources": 0
+                    },
+                    "score": 0,
+                    "scoreFactor": 4
+                },
+                "C-0021": {
+                    "statusInfo": {},
+                    "controlID": "C-0021",
+                    "name": "Exposed sensitive interfaces",
+                    "status": "",
+                    "resourceIDs": {},
+                    "ResourceCounters": {
+                        "passedResources": 0,
+                        "failedResources": 0,
+                        "skippedResources": 0,
+                        "excludedResources": 0
+                    },
+                    "subStatusCounters": {
+                        "ignoredResources": 0
+                    },
+                    "score": 0,
+                    "scoreFactor": 6
+                },
+                "C-0026": {
+                    "statusInfo": {},
+                    "controlID": "C-0026",
+                    "name": "Kubernetes CronJob",
+                    "status": "",
+                    "resourceIDs": {},
+                    "ResourceCounters": {
+                        "passedResources": 0,
+                        "failedResources": 0,
+                        "skippedResources": 0,
+                        "excludedResources": 0
+                    },
+                    "subStatusCounters": {
+                        "ignoredResources": 0
+                    },
+                    "score": 0,
+                    "scoreFactor": 1
+                },
+                "C-0031": {
+                    "statusInfo": {
+                        "status": "passed"
+                    },
+                    "controlID": "C-0031",
+                    "name": "Delete Kubernetes events",
+                    "status": "passed",
+                    "resourceIDs": {},
+                    "ResourceCounters": {
+                        "passedResources": 4,
+                        "failedResources": 0,
+                        "skippedResources": 0,
+                        "excludedResources": 0
+                    },
+                    "subStatusCounters": {
+                        "ignoredResources": 0
+                    },
+                    "score": 0,
+                    "scoreFactor": 4
+                },
+                "C-0035": {
+                    "statusInfo": {
+                        "status": "passed"
+                    },
+                    "controlID": "C-0035",
+                    "name": "Cluster-admin binding",
+                    "status": "passed",
+                    "resourceIDs": {},
+                    "ResourceCounters": {
+                        "passedResources": 4,
+                        "failedResources": 0,
+                        "skippedResources": 0,
+                        "excludedResources": 0
+                    },
+                    "subStatusCounters": {
+                        "ignoredResources": 0
+                    },
+                    "score": 0,
+                    "scoreFactor": 6
+                },
+                "C-0036": {
+                    "statusInfo": {},
+                    "controlID": "C-0036",
+                    "name": "Malicious admission controller (validating)",
+                    "status": "",
+                    "resourceIDs": {},
+                    "ResourceCounters": {
+                        "passedResources": 0,
+                        "failedResources": 0,
+                        "skippedResources": 0,
+                        "excludedResources": 0
+                    },
+                    "subStatusCounters": {
+                        "ignoredResources": 0
+                    },
+                    "score": 0,
+                    "scoreFactor": 3
+                },
+                "C-0037": {
+                    "statusInfo": {
+                        "status": "passed"
+                    },
+                    "controlID": "C-0037",
+                    "name": "CoreDNS poisoning",
+                    "status": "passed",
+                    "resourceIDs": {},
+                    "ResourceCounters": {
+                        "passedResources": 4,
+                        "failedResources": 0,
+                        "skippedResources": 0,
+                        "excludedResources": 0
+                    },
+                    "subStatusCounters": {
+                        "ignoredResources": 0
+                    },
+                    "score": 0,
+                    "scoreFactor": 4
+                },
+                "C-0039": {
+                    "statusInfo": {},
+                    "controlID": "C-0039",
+                    "name": "Malicious admission controller (mutating)",
+                    "status": "",
+                    "resourceIDs": {},
+                    "ResourceCounters": {
+                        "passedResources": 0,
+                        "failedResources": 0,
+                        "skippedResources": 0,
+                        "excludedResources": 0
+                    },
+                    "subStatusCounters": {
+                        "ignoredResources": 0
+                    },
+                    "score": 0,
+                    "scoreFactor": 4
+                },
+                "C-0042": {
+                    "statusInfo": {},
+                    "controlID": "C-0042",
+                    "name": "SSH server running inside container",
+                    "status": "",
+                    "resourceIDs": {},
+                    "ResourceCounters": {
+                        "passedResources": 0,
+                        "failedResources": 0,
+                        "skippedResources": 0,
+                        "excludedResources": 0
+                    },
+                    "subStatusCounters": {
+                        "ignoredResources": 0
+                    },
+                    "score": 0,
+                    "scoreFactor": 3
+                },
+                "C-0045": {
+                    "statusInfo": {
+                        "status": "failed"
+                    },
+                    "controlID": "C-0045",
+                    "name": "Writable hostPath mount",
+                    "status": "failed",
+                    "resourceIDs": {},
+                    "ResourceCounters": {
+                        "passedResources": 82,
+                        "failedResources": 3,
+                        "skippedResources": 0,
+                        "excludedResources": 0
+                    },
+                    "subStatusCounters": {
+                        "ignoredResources": 0
+                    },
+                    "score": 0,
+                    "scoreFactor": 8
+                },
+                "C-0048": {
+                    "statusInfo": {
+                        "status": "failed"
+                    },
+                    "controlID": "C-0048",
+                    "name": "HostPath mount",
+                    "status": "failed",
+                    "resourceIDs": {},
+                    "ResourceCounters": {
+                        "passedResources": 82,
+                        "failedResources": 3,
+                        "skippedResources": 0,
+                        "excludedResources": 0
+                    },
+                    "subStatusCounters": {
+                        "ignoredResources": 0
+                    },
+                    "score": 0,
+                    "scoreFactor": 7
+                },
+                "C-0052": {
+                    "statusInfo": {},
+                    "controlID": "C-0052",
+                    "name": "Instance Metadata API",
+                    "status": "",
+                    "resourceIDs": {},
+                    "ResourceCounters": {
+                        "passedResources": 0,
+                        "failedResources": 0,
+                        "skippedResources": 0,
+                        "excludedResources": 0
+                    },
+                    "subStatusCounters": {
+                        "ignoredResources": 0
+                    },
+                    "score": 0,
+                    "scoreFactor": 7
+                },
+                "C-0053": {
+                    "statusInfo": {},
+                    "controlID": "C-0053",
+                    "name": "Access container service account",
+                    "status": "",
+                    "resourceIDs": {},
+                    "ResourceCounters": {
+                        "passedResources": 0,
+                        "failedResources": 0,
+                        "skippedResources": 0,
+                        "excludedResources": 0
+                    },
+                    "subStatusCounters": {
+                        "ignoredResources": 0
+                    },
+                    "score": 0,
+                    "scoreFactor": 6
+                },
+                "C-0054": {
+                    "statusInfo": {
+                        "status": "failed"
+                    },
+                    "controlID": "C-0054",
+                    "name": "Cluster internal networking",
+                    "status": "failed",
+                    "resourceIDs": {},
+                    "ResourceCounters": {
+                        "passedResources": 0,
+                        "failedResources": 4,
+                        "skippedResources": 0,
+                        "excludedResources": 0
+                    },
+                    "subStatusCounters": {
+                        "ignoredResources": 0
+                    },
+                    "score": 0,
+                    "scoreFactor": 4
+                },
+                "C-0057": {
+                    "statusInfo": {
+                        "status": "failed"
+                    },
+                    "controlID": "C-0057",
+                    "name": "Privileged container",
+                    "status": "failed",
+                    "resourceIDs": {},
+                    "ResourceCounters": {
+                        "passedResources": 81,
+                        "failedResources": 4,
+                        "skippedResources": 0,
+                        "excludedResources": 0
+                    },
+                    "subStatusCounters": {
+                        "ignoredResources": 0
+                    },
+                    "score": 0,
+                    "scoreFactor": 8
+                },
+                "C-0058": {
+                    "statusInfo": {},
+                    "controlID": "C-0058",
+                    "name": "CVE-2021-25741 - Using symlink for arbitrary host file system access.",
+                    "status": "",
+                    "resourceIDs": {},
+                    "ResourceCounters": {
+                        "passedResources": 0,
+                        "failedResources": 0,
+                        "skippedResources": 0,
+                        "excludedResources": 0
+                    },
+                    "subStatusCounters": {
+                        "ignoredResources": 0
+                    },
+                    "score": 0,
+                    "scoreFactor": 6
+                },
+                "C-0059": {
+                    "statusInfo": {},
+                    "controlID": "C-0059",
+                    "name": "CVE-2021-25742-nginx-ingress-snippet-annotation-vulnerability",
+                    "status": "",
+                    "resourceIDs": {},
+                    "ResourceCounters": {
+                        "passedResources": 0,
+                        "failedResources": 0,
+                        "skippedResources": 0,
+                        "excludedResources": 0
+                    },
+                    "subStatusCounters": {
+                        "ignoredResources": 0
+                    },
+                    "score": 0,
+                    "scoreFactor": 8
+                },
+                "C-0066": {
+                    "statusInfo": {},
+                    "controlID": "C-0066",
+                    "name": "Secret/ETCD encryption enabled",
+                    "status": "",
+                    "resourceIDs": {},
+                    "ResourceCounters": {
+                        "passedResources": 0,
+                        "failedResources": 0,
+                        "skippedResources": 0,
+                        "excludedResources": 0
+                    },
+                    "subStatusCounters": {
+                        "ignoredResources": 0
+                    },
+                    "score": 0,
+                    "scoreFactor": 6
+                },
+                "C-0067": {
+                    "statusInfo": {},
+                    "controlID": "C-0067",
+                    "name": "Audit logs enabled",
+                    "status": "",
+                    "resourceIDs": {},
+                    "ResourceCounters": {
+                        "passedResources": 0,
+                        "failedResources": 0,
+                        "skippedResources": 0,
+                        "excludedResources": 0
+                    },
+                    "subStatusCounters": {
+                        "ignoredResources": 0
+                    },
+                    "score": 0,
+                    "scoreFactor": 5
+                },
+                "C-0068": {
+                    "statusInfo": {},
+                    "controlID": "C-0068",
+                    "name": "PSP enabled",
+                    "status": "",
+                    "resourceIDs": {},
+                    "ResourceCounters": {
+                        "passedResources": 0,
+                        "failedResources": 0,
+                        "skippedResources": 0,
+                        "excludedResources": 0
+                    },
+                    "subStatusCounters": {
+                        "ignoredResources": 0
+                    },
+                    "score": 0,
+                    "scoreFactor": 1
+                },
+                "C-0069": {
+                    "statusInfo": {},
+                    "controlID": "C-0069",
+                    "name": "Disable anonymous access to Kubelet service",
+                    "status": "",
+                    "resourceIDs": {},
+                    "ResourceCounters": {
+                        "passedResources": 0,
+                        "failedResources": 0,
+                        "skippedResources": 0,
+                        "excludedResources": 0
+                    },
+                    "subStatusCounters": {
+                        "ignoredResources": 0
+                    },
+                    "score": 0,
+                    "scoreFactor": 10
+                },
+                "C-0070": {
+                    "statusInfo": {},
+                    "controlID": "C-0070",
+                    "name": "Enforce Kubelet client TLS authentication",
+                    "status": "",
+                    "resourceIDs": {},
+                    "ResourceCounters": {
+                        "passedResources": 0,
+                        "failedResources": 0,
+                        "skippedResources": 0,
+                        "excludedResources": 0
+                    },
+                    "subStatusCounters": {
+                        "ignoredResources": 0
+                    },
+                    "score": 0,
+                    "scoreFactor": 9
+                }
+            },
+            "name": "MITRE",
+            "status": "",
+            "version": "",
+            "ResourceCounters": {
+                "passedResources": 0,
+                "failedResources": 0,
+                "skippedResources": 0,
+                "excludedResources": 0
+            },
+            "score": 0
+        }
+    ],
+    "resourcesSeverityCounters": {
+        "criticalSeverity": 0,
+        "highSeverity": 10,
+        "mediumSeverity": 4,
+        "lowSeverity": 0
+    },
+    "controlsSeverityCounters": {
+        "criticalSeverity": 0,
+        "highSeverity": 0,
+        "mediumSeverity": 0,
+        "lowSeverity": 0
+    },
+    "ResourceCounters": {
+        "passedResources": 0,
+        "failedResources": 0,
+        "skippedResources": 0,
+        "excludedResources": 0
+    },
+    "score": 0
+}

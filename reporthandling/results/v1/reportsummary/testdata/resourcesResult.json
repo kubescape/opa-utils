@@ -1,0 +1,110 @@
+{
+    "resourceID": "path=3590015798/api=apps/v1//Deployment/wordpress-mysql",
+    "controls": [
+        {
+            "controlID": "C-0048",
+            "name": "HostPath mount",
+            "status": {
+                "status": "passed"
+            },
+            "rules": [
+                {
+                    "name": "alert-any-hostpath",
+                    "status": "passed",
+                    "subStatus": ""
+                }
+            ]
+        },
+        {
+            "controlID": "C-0045",
+            "name": "Writable hostPath mount",
+            "status": {
+                "status": "passed"
+            },
+            "rules": [
+                {
+                    "name": "alert-rw-hostpath",
+                    "status": "passed",
+                    "subStatus": ""
+                }
+            ]
+        },
+        {
+            "controlID": "C-0020",
+            "name": "Mount service principal",
+            "status": {
+                "status": "passed"
+            },
+            "rules": [
+                {
+                    "name": "alert-mount-potential-credentials-paths",
+                    "status": "passed",
+                    "subStatus": ""
+                }
+            ]
+        },
+        {
+            "controlID": "C-0057",
+            "name": "Privileged container",
+            "status": {
+                "status": "passed"
+            },
+            "rules": [
+                {
+                    "name": "rule-privilege-escalation",
+                    "status": "passed",
+                    "subStatus": ""
+                }
+            ]
+        },
+        {
+            "controlID": "C-0012",
+            "name": "Applications credentials in configuration files",
+            "status": {
+                "status": "skipped",
+                "subStatus": "configuration",
+                "info": "Control missing configuration"
+            },
+            "rules": [
+                {
+                    "controlConfigurations": {
+                        "sensitiveKeyNames": [
+                            "aws_access_key_id",
+                            "aws_secret_access_key",
+                            "azure_batchai_storage_account",
+                            "azure_batchai_storage_key",
+                            "azure_batch_account",
+                            "azure_batch_key",
+                            "secret",
+                            "key",
+                            "password",
+                            "pwd",
+                            "token",
+                            "jwt",
+                            "bearer",
+                            "credential"
+                        ],
+                        "sensitiveValuesAllowed": []
+                    },
+                    "name": "rule-credentials-in-env-var",
+                    "status": "skipped",
+                    "subStatus": ""
+                }
+            ]
+        },
+        {
+            "controlID": "C-0014",
+            "name": "Access Kubernetes dashboard",
+            "status": {
+                "status": "passed"
+            },
+            "rules": [
+                {
+                    "name": "rule-access-dashboard-wl-v1",
+                    "status": "passed",
+                    "subStatus": ""
+                }
+            ]
+        }
+    ]
+}
