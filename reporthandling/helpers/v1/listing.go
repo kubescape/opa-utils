@@ -131,7 +131,7 @@ func (all *AllLists) ToUniqueResources() {
 	trimmed = append(trimmed, all.skipped...)
 	all.passed = slices.TrimStableUnique(all.passed, trimmed)
 
-	// remove failed, skipped and skipped from "other" list
+	// remove failed, skipped and passed from "other" list
 	trimmed = append(trimmed, all.passed...)
 	all.other = slices.TrimStableUnique(all.other, trimmed)
 }
