@@ -1,6 +1,9 @@
 package reportsummary
 
 import (
+	_ "embed"
+	"encoding/json"
+	"fmt"
 	"testing"
 
 	"github.com/kubescape/opa-utils/reporthandling/apis"
@@ -325,4 +328,206 @@ func TestSummaryDetails_GetControlsSeverityCounters(t *testing.T) {
 			}
 		})
 	}
+}
+
+//go:embed testdata/summaryDetails.json
+var summaryDetailsBytes []byte
+
+//go:embed testdata/allResourcesResults.json
+var allResourcesResultsBytes []byte
+
+func setUpSummaryDetails() (*SummaryDetails, error) {
+	summaryDetails := &SummaryDetails{}
+	if err := json.Unmarshal(summaryDetailsBytes, summaryDetails); err != nil {
+		return nil, fmt.Errorf("failed to unmarshal summaryDetailsBytes: %v", err)
+	}
+
+	allResourcesResults := map[string]resourcesresults.Result{}
+	if err := json.Unmarshal(allResourcesResultsBytes, &allResourcesResults); err != nil {
+		return nil, fmt.Errorf("failed to unmarshal allResourcesResults: %v", err)
+	}
+
+	for i := range allResourcesResults {
+		t := allResourcesResults[i]
+		summaryDetails.AppendResourceResult(&t)
+	}
+
+	summaryDetails.InitResourcesSummary(nil)
+
+	return summaryDetails, nil
+}
+func TestSummaryDetails_Counters(t *testing.T) {
+
+	summaryDetails, err := setUpSummaryDetails()
+	if err != nil {
+		t.Fatalf("failed to unmarshal allResourcesResults: %v", err)
+	}
+
+	// testing counters
+	assert.Equal(t, 93, summaryDetails.StatusCounters.All())
+	assert.Equal(t, 4, summaryDetails.StatusCounters.Passed())
+	assert.Equal(t, 9, summaryDetails.StatusCounters.Failed())
+	assert.Equal(t, 80, summaryDetails.StatusCounters.Skipped())
+
+	assert.Equal(t, 93, summaryDetails.NumberOfResources().All())
+	assert.Equal(t, 4, summaryDetails.NumberOfResources().Passed())
+	assert.Equal(t, 9, summaryDetails.NumberOfResources().Failed())
+	assert.Equal(t, 80, summaryDetails.NumberOfResources().Skipped())
+
+	assert.Equal(t, 0, summaryDetails.GetControlsSeverityCounters().NumberOfCriticalSeverity())
+	assert.Equal(t, 3, summaryDetails.GetControlsSeverityCounters().NumberOfHighSeverity())
+	assert.Equal(t, 1, summaryDetails.GetControlsSeverityCounters().NumberOfMediumSeverity())
+	assert.Equal(t, 0, summaryDetails.GetControlsSeverityCounters().NumberOfLowSeverity())
+
+	assert.Equal(t, 0, summaryDetails.GetResourcesSeverityCounters().NumberOfCriticalSeverity())
+	assert.Equal(t, 20, summaryDetails.GetResourcesSeverityCounters().NumberOfHighSeverity())
+	assert.Equal(t, 8, summaryDetails.GetResourcesSeverityCounters().NumberOfMediumSeverity())
+	assert.Equal(t, 0, summaryDetails.GetResourcesSeverityCounters().NumberOfLowSeverity())
+
+	assert.Equal(t, 27, summaryDetails.NumberOfControls().All())
+	assert.Equal(t, 22, summaryDetails.NumberOfControls().Passed())
+	assert.Equal(t, 4, summaryDetails.NumberOfControls().Failed())
+	assert.Equal(t, 1, summaryDetails.NumberOfControls().Skipped())
+}
+
+func TestSummaryDetails_UniqueControls(t *testing.T) {
+
+	summaryDetails, err := setUpSummaryDetails()
+	if err != nil {
+		t.Fatalf("failed to unmarshal allResourcesResults: %v", err)
+	}
+	m := map[string]interface{}{}
+	for _, c := range summaryDetails.ListControls() {
+		m[c.GetID()] = nil
+	}
+
+	assert.Equal(t, len(summaryDetails.ListControls()), len(m))
+
+}
+
+func TestSummaryDetails_UniqueFrameworks(t *testing.T) {
+
+	summaryDetails, err := setUpSummaryDetails()
+	if err != nil {
+		t.Fatalf("failed to unmarshal allResourcesResults: %v", err)
+	}
+	m := map[string]interface{}{}
+	for _, c := range summaryDetails.ListFrameworks() {
+		m[c.GetName()] = nil
+	}
+
+	assert.Equal(t, len(summaryDetails.ListFrameworks()), len(m))
+
+}
+
+func TestSummaryDetails_UniqueResources(t *testing.T) {
+
+	summaryDetails, err := setUpSummaryDetails()
+	if err != nil {
+		t.Fatalf("failed to unmarshal allResourcesResults: %v", err)
+	}
+
+	m := map[string]interface{}{}
+	r := summaryDetails.ListResourcesIDs().All()
+	for r.HasNext() {
+		m[r.Next()] = nil
+	}
+
+	assert.Equal(t, summaryDetails.ListResourcesIDs().All().Len(), len(m))
+
+}
+
+//go:embed testdata/initSummaryDetails.json
+var initSummaryDetailsBytes []byte
+
+//go:embed testdata/resourcesResult.json
+var resourcesResultBytes []byte
+
+func TestSummaryDetails_AppendResourceResult(t *testing.T) {
+
+	summaryDetails := &SummaryDetails{}
+	if err := json.Unmarshal(initSummaryDetailsBytes, summaryDetails); err != nil {
+		t.Fatalf("failed to unmarshal initSummaryDetailsBytes: %v", err)
+	}
+
+	resourcesResult := &resourcesresults.Result{}
+	if err := json.Unmarshal(resourcesResultBytes, resourcesResult); err != nil {
+		t.Fatalf("failed to unmarshal resourcesResultBytes: %v", err)
+	}
+	summaryDetails.AppendResourceResult(resourcesResult)
+
+	// Test framework status
+	fw := summaryDetails.Frameworks[0]
+
+	assert.Equal(t, 1, fw.StatusCounters.All())
+	assert.Equal(t, 0, fw.StatusCounters.Passed())
+	assert.Equal(t, 0, fw.StatusCounters.Failed())
+	assert.Equal(t, 1, fw.StatusCounters.Skipped())
+
+	assert.Truef(t, fw.GetStatus().IsSkipped(), "framework status is \"%s\"", fw.GetStatus().Status())
+}
+
+func TestUpdateControlsSummaryCounters(t *testing.T) {
+
+	tests := []struct {
+		want      apis.IStatus
+		controlID string
+		name      string
+	}{
+		{
+			name:      "Skipped control",
+			controlID: "C-0012",
+			want: &apis.StatusInfo{
+				InnerStatus: apis.StatusSkipped,
+				SubStatus:   apis.SubStatusConfiguration,
+				InnerInfo:   "Control configurations are empty",
+			},
+		},
+		{
+			name:      "Passed control",
+			controlID: "C-0057",
+			want: &apis.StatusInfo{
+				InnerStatus: apis.StatusPassed,
+				SubStatus:   "",
+				InnerInfo:   "",
+			},
+		},
+	}
+
+	summaryDetails := &SummaryDetails{}
+	if err := json.Unmarshal(initSummaryDetailsBytes, summaryDetails); err != nil {
+		t.Fatalf("failed to unmarshal initSummaryDetailsBytes: %v", err)
+	}
+
+	resourcesResult := &resourcesresults.Result{}
+	if err := json.Unmarshal(resourcesResultBytes, resourcesResult); err != nil {
+		t.Fatalf("failed to unmarshal resourcesResultBytes: %v", err)
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			summaryDetails := &SummaryDetails{}
+			if err := json.Unmarshal(initSummaryDetailsBytes, summaryDetails); err != nil {
+				t.Fatalf("failed to unmarshal initSummaryDetailsBytes: %v", err)
+			}
+
+			resourcesResult := &resourcesresults.Result{}
+			if err := json.Unmarshal(resourcesResultBytes, resourcesResult); err != nil {
+				t.Fatalf("failed to unmarshal resourcesResultBytes: %v", err)
+			}
+
+			updateControlsSummaryCounters(resourcesResult, summaryDetails.Controls, nil)
+
+			if summaryDetails.Controls.GetControl(EControlCriteriaID, tt.controlID).GetStatus().Status() != tt.want.Status() {
+				t.Errorf("Status() = %v, want %v", summaryDetails.Controls.GetControl(EControlCriteriaID, tt.controlID).GetStatus().Status(), tt.want.Status())
+			}
+			if summaryDetails.Controls.GetControl(EControlCriteriaID, tt.controlID).GetStatus().GetSubStatus() != tt.want.GetSubStatus() {
+				t.Errorf("GetSubStatus() = %v, want %v", summaryDetails.Controls.GetControl(EControlCriteriaID, tt.controlID).GetStatus().GetSubStatus(), tt.want.GetSubStatus())
+			}
+			if summaryDetails.Controls.GetControl(EControlCriteriaID, tt.controlID).GetStatus().Info() != tt.want.Info() {
+				t.Errorf("Info() = %v, want %v", summaryDetails.Controls.GetControl(EControlCriteriaID, tt.controlID).GetStatus().Info(), tt.want.Info())
+			}
+		})
+	}
+
 }
