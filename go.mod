@@ -6,7 +6,7 @@ require (
 	github.com/armosec/armoapi-go v0.0.151
 	github.com/armosec/utils-go v0.0.12
 	github.com/francoispqt/gojay v1.2.13
-	github.com/go-faker/faker/v4 v4.0.0-beta.4
+	github.com/go-faker/faker/v4 v4.1.0
 	github.com/kubescape/k8s-interface v0.0.99
 	github.com/kubescape/rbac-utils v0.0.20
 	github.com/mitchellh/mapstructure v1.1.2
@@ -106,7 +106,7 @@ require (
 	golang.org/x/oauth2 v0.0.0-20220630143837-2104d58473e0 // indirect
 	golang.org/x/sys v0.3.0 // indirect
 	golang.org/x/term v0.3.0 // indirect
-	golang.org/x/text v0.5.0 // indirect
+	golang.org/x/text v0.7.0 // indirect
 	golang.org/x/time v0.0.0-20220210224613-90d013bbcef8 // indirect
 	google.golang.org/api v0.84.0 // indirect
 	google.golang.org/appengine v1.6.7 // indirect
