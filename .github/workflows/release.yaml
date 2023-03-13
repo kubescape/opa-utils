@@ -17,7 +17,13 @@ jobs:
       run: go build -v ./...
 
     - name: Test
-      run: go test -v ./...
+      run: go test -v ./... -covermode=count -coverprofile=coverage.out
+
+    - name: Coveralls
+      uses: coverallsapp/github-action@v1
+      with:
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        path-to-lcov: coverage.lcov
 
     - name: Create a release
       id: create_release
