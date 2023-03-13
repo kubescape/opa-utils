@@ -17,12 +17,16 @@ jobs:
       uses: actions/setup-go@v2
       with:
         go-version: 1.19
-    
+
     - name: Test
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      run: go test -v -race ./...
-        
+      run: go test -v -race ./... -covermode=count -coverprofile=coverage.out
+
+    - name: Coveralls
+      uses: coverallsapp/github-action@v1
+      with:
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+        path-to-lcov: coverage.lcov
+
     - name: Build
       run: go build -v ./...
 
