@@ -163,16 +163,16 @@ func (p *Processor) hasException(clusterName string, designator *armotypes.Porta
 		p.designatorCache.Set(designator, attributes)
 	}
 
-	if attributes.GetCluster() == "" && attributes.GetNamespace() == "" && attributes.GetKind() == "" && attributes.GetName() == "" && attributes.GetPath() == "" && len(attributes.GetLabels()) == 0 {
+	if attributes.GetCluster() == "" && attributes.GetNamespace() == "" && attributes.GetKind() == "" && attributes.GetName() == "" && attributes.GetResourceID() == "" && attributes.GetPath() == "" && len(attributes.GetLabels()) == 0 {
 		return false // if designators are empty
 	}
 
-	if attributes.GetCluster() != "" {
-		if !p.compareCluster(attributes.GetCluster(), clusterName) { // TODO - where do we receive cluster name from?
-			return false // cluster name does not match
-		} else if attributes.GetResourceID() != "" && !p.compareResourceID(workload, attributes.GetResourceID()) { //resourceID is applicable only if cluster name is specified
-			return false // names do not match
-		}
+	if attributes.GetCluster() != "" && !p.compareCluster(attributes.GetCluster(), clusterName) { // TODO - where do we receive cluster name from?
+		return false // cluster name does not match
+	}
+
+	if attributes.GetResourceID() != "" && !p.compareResourceID(workload, attributes.GetResourceID()) {
+		return false // resourceID does not match
 	}
 
 	if attributes.GetNamespace() != "" && !p.compareNamespace(workload, attributes.GetNamespace()) {

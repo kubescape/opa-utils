@@ -182,8 +182,7 @@ func TestGetResourceExceptions(t *testing.T) {
 
 	exceptionPolicyResourceID := postureResourceIDExceptionPolicyMock(idObj.GetID())
 	exceptionPolicyResourceIDRegex := postureResourceIDExceptionPolicyMock("*")
-	exceptionPolicyResourceIDNoCluster := postureResourceIDExceptionPolicyMock(idObj.GetID())
-	delete(exceptionPolicyResourceIDNoCluster.Resources[0].Attributes, armotypes.AttributeCluster)
+	exceptionPolicyResourceOtherID := postureResourceIDExceptionPolicyMock("v1/core/default/ConfigMap/test")
 
 	exceptionPolicy := postureLabelsRegexExceptionPolicyAlertOnlyMock()
 	exceptionPolicyRegex := postureLabelsRegexExceptionPolicyAlertOnlyMock()
@@ -246,8 +245,8 @@ func TestGetResourceExceptions(t *testing.T) {
 			expectedExceptionsCount: 1,
 		},
 		{
-			desc:                    "exception by ID with no cluster",
-			exceptionPolicy:         exceptionPolicyResourceIDNoCluster,
+			desc:                    "exception with not matching ID",
+			exceptionPolicy:         exceptionPolicyResourceOtherID,
 			workloadObj:             idObj,
 			expectedExceptionsCount: 0,
 		},
