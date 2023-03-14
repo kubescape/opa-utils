@@ -167,14 +167,6 @@ func (p *Processor) hasException(clusterName string, designator *armotypes.Porta
 		return false // if designators are empty
 	}
 
-	if attributes.GetCluster() != "" && !p.compareCluster(attributes.GetCluster(), clusterName) { // TODO - where do we receive cluster name from?
-		return false // cluster name does not match
-	}
-
-	if attributes.GetResourceID() != "" && !p.compareResourceID(workload, attributes.GetResourceID()) {
-		return false // resourceID does not match
-	}
-
 	if attributes.GetNamespace() != "" && !p.compareNamespace(workload, attributes.GetNamespace()) {
 		return false // namespaces do not match
 	}
