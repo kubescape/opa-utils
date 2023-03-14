@@ -40,6 +40,10 @@ func (c *comparator) compareName(workload workloadinterface.IMetadata, name stri
 	return c.regexCompare(name, workload.GetName())
 }
 
+func (c *comparator) compareResourceID(workload workloadinterface.IMetadata, resourceID string) bool {
+	return c.regexCompare(resourceID, workload.GetID())
+}
+
 func (c *comparator) comparePath(workload workloadinterface.IMetadata, path string) bool {
 	w := workload.GetObject()
 	if !k8sinterface.IsTypeWorkload(w) {
