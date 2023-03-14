@@ -1,39 +1,20 @@
 name: Release-Tag
 on:
   push:
-    branches: [ master ] 
+    branches: [ master, main ] 
+    paths-ignore:
+      - '**.md' ### Ignore running when .md files change
+      - '**.yaml' ### Ignore running when .yaml files change
+      - '**.json' ### Ignore running when .json files change
+      - '.github/*' ### Ignore running when files under path: .github/* changed.
+
 jobs:
-  build:
-    runs-on: ubuntu-latest
-    steps:
-    - uses: actions/checkout@v3
-
-    - name: Set up Go
-      uses: actions/setup-go@v3
-      with:
-        go-version: 1.19
-
-    - name: Build
-      run: go build -v ./...
-
-    - name: Test
-      run: go test -v ./... -covermode=count -coverprofile=coverage.out
-
-    - name: Convert coverage to lcov
-      uses: jandelgado/gcov2lcov-action@v1
-
-    - name: Coveralls
-      uses: coverallsapp/github-action@v1
-      with:
-        github-token: ${{ secrets.GITHUB_TOKEN }}
-        path-to-lcov: coverage.lcov
-
-    - name: Create a release
-      id: create_release
-      uses: actions/create-release@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        tag_name: v0.0.${{ github.run_number }}
-        draft: false
-        prerelease: false
+  test:
+    permissions:
+      pull-requests: write
+    uses: kubescape/workflows/.github/workflows/package-release.yaml@main
+    with:
+      GO_VERSION: 1.19
+      RELEASE: "v0.0.${{ github.run_number }}"
+    secrets: inherit
+ 

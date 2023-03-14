@@ -4,44 +4,16 @@ on:
   pull_request:
     types: [ edited, opened, synchronize, reopened ]
     paths-ignore:
-      # Do not run the pipeline if only Markdown files changed
-      - '**.yaml'
-      - '**.md'
+      - '**.md' ### Ignore running when .md files change
+      - '**.yaml' ### Ignore running when .yaml files change
+      - '**.json' ### Ignore running when .json files change
+      - '.github/*' ### Ignore running when files under path: .github/* changed.
+
 jobs:
-  build:
-    runs-on: ubuntu-latest
-    steps:
-    - uses: actions/checkout@v2
-
-    - name: Set up Go
-      uses: actions/setup-go@v2
-      with:
-        go-version: 1.19
-
-    - name: Test race
-      run: go test -v -race ./...
-      
-    - name: Test units
-      run: go test -v ./... -covermode=count -coverprofile=coverage.out
-
-    - name: Convert coverage to lcov
-      uses: jandelgado/gcov2lcov-action@v1
-      
-    - name: Coveralls
-      uses: coverallsapp/github-action@v1
-      with:
-        github-token: ${{ secrets.GITHUB_TOKEN }}
-        path-to-lcov: coverage.lcov
-
-    - name: Build
-      run: go build -v ./...
-
-    - name: golangci-lint
-      continue-on-error: true
-      uses: golangci/golangci-lint-action@v3
-      with:
-        version: latest
-        args: --timeout 10m --build-tags=static
-        only-new-issues: true
-
-
+  test:
+    permissions:
+      pull-requests: write
+    uses: kubescape/workflows/.github/workflows/go-basic-tests.yaml@main
+    with:
+      GO_VERSION: 1.19
+    secrets: inherit
