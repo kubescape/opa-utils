@@ -163,7 +163,7 @@ func (p *Processor) hasException(clusterName string, designator *armotypes.Porta
 		p.designatorCache.Set(designator, attributes)
 	}
 
-	if attributes.GetCluster() == "" && attributes.GetNamespace() == "" && attributes.GetKind() == "" && attributes.GetName() == "" && attributes.GetPath() == "" && len(attributes.GetLabels()) == 0 {
+	if attributes.GetCluster() == "" && attributes.GetNamespace() == "" && attributes.GetKind() == "" && attributes.GetName() == "" && attributes.GetResourceID() == "" && attributes.GetPath() == "" && len(attributes.GetLabels()) == 0 {
 		return false // if designators are empty
 	}
 
@@ -180,6 +180,10 @@ func (p *Processor) hasException(clusterName string, designator *armotypes.Porta
 	}
 
 	if attributes.GetName() != "" && !p.compareName(workload, attributes.GetName()) {
+		return false // names do not match
+	}
+
+	if attributes.GetResourceID() != "" && !p.compareResourceID(workload, attributes.GetResourceID()) {
 		return false // names do not match
 	}
 

@@ -3,7 +3,7 @@ module github.com/kubescape/opa-utils
 go 1.19
 
 require (
-	github.com/armosec/armoapi-go v0.0.151
+	github.com/armosec/armoapi-go v0.0.173
 	github.com/armosec/utils-go v0.0.12
 	github.com/francoispqt/gojay v1.2.13
 	github.com/kubescape/k8s-interface v0.0.99
@@ -92,6 +92,7 @@ require (
 	github.com/pquerna/cachecontrol v0.1.0 // indirect
 	github.com/rcrowley/go-metrics v0.0.0-20200313005456-10cdbea86bc0 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
+	github.com/stripe/stripe-go/v74 v74.8.0 // indirect
 	github.com/vektah/gqlparser/v2 v2.4.5 // indirect
 	github.com/xeipuuv/gojsonpointer v0.0.0-20190905194746-02993c407bfb // indirect
 	github.com/xeipuuv/gojsonreference v0.0.0-20180127040603-bd5ef7bd5415 // indirect

@@ -63,6 +63,30 @@ func postureLabelsRegexExceptionPolicyAlertOnlyMock() *armotypes.PostureExceptio
 	}
 }
 
+func postureResourceIDExceptionPolicyMock(resourceID string) *armotypes.PostureExceptionPolicy {
+	return &armotypes.PostureExceptionPolicy{
+		PortalBase: armotypes.PortalBase{
+			Name: "postureResourceIDExceptionPolicyMock",
+		},
+		PolicyType: "postureExceptionPolicy",
+		Actions:    []armotypes.PostureExceptionPolicyActions{armotypes.AlertOnly},
+		Resources: []armotypes.PortalDesignator{
+			{
+				DesignatorType: armotypes.DesignatorAttributes,
+				Attributes: map[string]string{
+					armotypes.AttributeCluster:    "test",
+					armotypes.AttributeResourceID: resourceID,
+				},
+			},
+		},
+		PosturePolicies: []armotypes.PosturePolicy{
+			{
+				FrameworkName: "MIT.*",
+			},
+		},
+	}
+}
+
 func emptyPostureExceptionPolicyAlertOnlyMock() *armotypes.PostureExceptionPolicy {
 	return &armotypes.PostureExceptionPolicy{
 		PortalBase: armotypes.PortalBase{
@@ -153,6 +177,13 @@ func TestGetResourceExceptions(t *testing.T) {
 	withAnnotationObj, err := workloadinterface.NewBaseObjBytes([]byte(`{"apiVersion": "v1", "kind":"Deployment", "metadata": {"name": "test", "annotations": {"myLabelOrAnnotation" : "static_test"}}}`))
 	require.NoError(t, err)
 
+	idObj, err := workloadinterface.NewBaseObjBytes([]byte(`{"apiVersion": "v1/core", "kind":"Deployment", "metadata": {"name": "test", "namespace": "default"}}`))
+	require.NoError(t, err)
+
+	exceptionPolicyResourceID := postureResourceIDExceptionPolicyMock(idObj.GetID())
+	exceptionPolicyResourceIDRegex := postureResourceIDExceptionPolicyMock("*")
+	exceptionPolicyResourceOtherID := postureResourceIDExceptionPolicyMock("v1/core/default/ConfigMap/test")
+
 	exceptionPolicy := postureLabelsRegexExceptionPolicyAlertOnlyMock()
 	exceptionPolicyRegex := postureLabelsRegexExceptionPolicyAlertOnlyMock()
 	exceptionPolicyRegex.Resources[0].Attributes["myLabelOrAnnotation"] = "static_.*"
@@ -201,6 +232,24 @@ func TestGetResourceExceptions(t *testing.T) {
 			workloadObj:             withAnnotationObj,
 			expectedExceptionsCount: 1,
 		},
+		{
+			desc:                    "exception by ID",
+			exceptionPolicy:         exceptionPolicyResourceID,
+			workloadObj:             idObj,
+			expectedExceptionsCount: 1,
+		},
+		{
+			desc:                    "exception by ID regex",
+			exceptionPolicy:         exceptionPolicyResourceIDRegex,
+			workloadObj:             idObj,
+			expectedExceptionsCount: 1,
+		},
+		{
+			desc:                    "exception with not matching ID",
+			exceptionPolicy:         exceptionPolicyResourceOtherID,
+			workloadObj:             idObj,
+			expectedExceptionsCount: 0,
+		},
 	}
 
 	for _, test := range testCases {
@@ -208,7 +257,7 @@ func TestGetResourceExceptions(t *testing.T) {
 		t.Run(test.desc, func(t *testing.T) {
 			t.Parallel()
 
-			res := p.GetResourceExceptions([]armotypes.PostureExceptionPolicy{*exceptionPolicy}, test.workloadObj, "")
+			res := p.GetResourceExceptions([]armotypes.PostureExceptionPolicy{*test.exceptionPolicy}, test.workloadObj, "test")
 			assert.Equal(t, test.expectedExceptionsCount, len(res))
 		})
 	}
