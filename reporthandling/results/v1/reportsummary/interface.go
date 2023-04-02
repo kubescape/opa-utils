@@ -28,6 +28,7 @@ type IFrameworkSummary interface {
 	IPolicies
 	ListControls() []IControlSummary
 	NumberOfControls() ICounters
+	GetComplianceScore() float32
 }
 
 type IControlSummary interface {

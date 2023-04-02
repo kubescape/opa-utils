@@ -783,3 +783,171 @@ func mockResources(t testing.TB) map[string]workloadinterface.IMetadata {
 		"resource-10": reporthandling.NewResource(mocks.GetResourceByType(t, "Pod", mocks.WithName("resource-10"))),
 	}
 }
+
+// ================================ compliance score tests ================================
+
+func TestGetControlComplianceScore(t *testing.T) {
+	var resourceWithFailed, resourceWithPassed helpers.AllLists
+	resourceWithFailed.Append(apis.StatusFailed, "resource-1", "resource-2")
+	resourceWithFailed.Append(apis.StatusPassed, "resource-3")
+	resourceWithPassed.Append(apis.StatusPassed, "resource-4")
+
+	var resourceWithFailed2, resourceWithPassed2 helpers.AllLists
+	resourceWithFailed2.Append(apis.StatusFailed, "resource-5", "resource-6")
+	resourceWithFailed2.Append(apis.StatusPassed, "resource-7", "resource-8")
+	resourceWithPassed2.Append(apis.StatusPassed, "resource-9", "resource-10")
+	t.Parallel()
+
+	t.Run("with empty control report", func(t *testing.T) {
+		t.Parallel()
+
+		resources := mockResources(t)
+		s := ScoreUtil{isDebugMode: true, resources: resources}
+		controlReport := reportsummary.ControlSummary{
+			Name:        "empty",
+			ControlID:   "empty",
+			ResourceIDs: helpers.AllLists{},
+		}
+
+		require.Equal(t, float32(0), s.GetControlComplianceScore(&controlReport, ""),
+			"empty control report should return a score equals to 0",
+		)
+	})
+
+	t.Run("with control report", func(t *testing.T) {
+		t.Parallel()
+
+		resources := mockResources(t)
+		s := ScoreUtil{isDebugMode: true, resources: resources}
+		controlReport := reportsummary.ControlSummary{
+			Name:        "mock-control-1",
+			ControlID:   "mock-control-1",
+			ResourceIDs: resourceWithFailed2,
+		}
+
+		require.Equal(t, float32(50), s.GetControlComplianceScore(&controlReport, ""),
+			"control report should return a score equals to 50",
+		)
+	})
+}
+
+func TestSetPostureReportComplianceScores(t *testing.T) {
+	t.Parallel()
+
+	t.Run("with empty report", func(t *testing.T) {
+		t.Parallel()
+
+		s := NewScore(map[string]workloadinterface.IMetadata{})
+		report := &v2.PostureReport{
+			SummaryDetails: reportsummary.SummaryDetails{Frameworks: []reportsummary.FrameworkSummary{{Name: "empty", Controls: reportsummary.ControlSummaries{}}}},
+			Results:        []resourcesresults.Result{},
+			Resources:      []reporthandling.Resource{},
+		}
+
+		require.Errorf(t, s.SetPostureReportComplianceScores(report),
+			"empty framework should return an error",
+		)
+
+		require.Equal(t, float32(0), report.SummaryDetails.Frameworks[0].Score,
+			"empty framework should return an error and have a score equals to 0",
+		)
+	})
+
+	t.Run("with skipped report", func(t *testing.T) {
+		t.Parallel()
+
+		s := NewScore(map[string]workloadinterface.IMetadata{})
+		report := &v2.PostureReport{
+			SummaryDetails: reportsummary.SummaryDetails{Frameworks: []reportsummary.FrameworkSummary{{Name: "skipped", Controls: reportsummary.ControlSummaries{
+				"skipped1": reportsummary.ControlSummary{
+					Name:        "skipped1",
+					ControlID:   "Skippie1",
+					Description: "skipper",
+				},
+				"skipped2": reportsummary.ControlSummary{
+					Name:        "skipped2",
+					ControlID:   "Skippie2",
+					Description: "skipper",
+				},
+			}}}},
+			Results:   []resourcesresults.Result{},
+			Resources: []reporthandling.Resource{},
+		}
+
+		require.Errorf(t, s.SetPostureReportComplianceScores(report),
+			"empty framework should return an error",
+		)
+
+		require.Equal(t, float32(0), report.SummaryDetails.Frameworks[0].Score,
+			"empty framework should return an error and have a score equals to 0",
+		)
+	})
+
+	t.Run("with mock report", func(t *testing.T) {
+		t.Parallel()
+
+		resources, report := mockPostureReportV2(t)
+		s := ScoreUtil{
+			isDebugMode: true,
+			resources:   resources,
+		}
+
+		require.NoErrorf(t, s.SetPostureReportComplianceScores(report),
+			"mock framework should not return an error",
+		)
+
+		const (
+			expectedScoreFramework1           = float32(62.577965)
+			expectedScoreFramework2           = float32(46.42857)
+			expectedComplianceScoreFramework1 = float32(66.66667)
+			expectedComplianceScoreFramework2 = float32(75)
+			expectedSummary                   = float32(70.833336)
+		)
+
+		t.Run("assert control scores", func(t *testing.T) {
+			require.Len(t, report.SummaryDetails.Controls, 4)
+			for _, control := range report.SummaryDetails.Controls {
+				var expectedForControl float64
+
+				switch control.ControlID {
+				case "control-1":
+					expectedForControl = 33.333336
+				case "control-2":
+					expectedForControl = 100 // passed
+				case "control-3":
+					expectedForControl = 50
+				case "control-4":
+					expectedForControl = 100 // passed
+				}
+
+				assert.InDeltaf(t, expectedForControl, control.Score, 1e-6,
+					"unexpected summarized score for control %q", control.ControlID,
+				)
+			}
+		})
+
+		t.Run("assert framework scores", func(t *testing.T) {
+			assert.InDeltaf(t, expectedScoreFramework1, report.SummaryDetails.Frameworks[0].Score, 1e-6,
+				"unexpected summarized score for framework[0]",
+			)
+			assert.InDeltaf(t, expectedScoreFramework2, report.SummaryDetails.Frameworks[1].Score, 1e-6,
+				"unexpected summarized score for framework[1]",
+			)
+		})
+
+		t.Run("assert framework compliance scores", func(t *testing.T) {
+			assert.InDeltaf(t, expectedComplianceScoreFramework1, report.SummaryDetails.Frameworks[0].ComplianceScore, 1e-6,
+				"unexpected summarized compliance score for framework[0]",
+			)
+			assert.InDeltaf(t, expectedComplianceScoreFramework2, report.SummaryDetails.Frameworks[1].ComplianceScore, 1e-6,
+				"unexpected summarized compliance score for framework[1]",
+			)
+		})
+
+		t.Run("assert final score", func(t *testing.T) {
+			assert.InDeltaf(t, expectedSummary, report.SummaryDetails.Score, 1e-6,
+				"unexpected summarized final score",
+			)
+		})
+	})
+}

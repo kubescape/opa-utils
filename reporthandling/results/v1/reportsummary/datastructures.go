@@ -25,12 +25,13 @@ type SummaryDetails struct {
 
 // FrameworkSummary summary of scanning from a single framework perspective
 type FrameworkSummary struct {
-	Controls       ControlSummaries    `json:"controls,omitempty"` // mapping of control - map[<control ID>]<control summary>
-	Name           string              `json:"name"`               // framework name
-	Status         apis.ScanningStatus `json:"status"`
-	Version        string              `json:"version"`
-	StatusCounters StatusCounters      `json:"ResourceCounters"` // Backward compatibility
-	Score          float32             `json:"score"`
+	Controls        ControlSummaries    `json:"controls,omitempty"` // mapping of control - map[<control ID>]<control summary>
+	Name            string              `json:"name"`               // framework name
+	Status          apis.ScanningStatus `json:"status"`
+	Version         string              `json:"version"`
+	StatusCounters  StatusCounters      `json:"ResourceCounters"` // Backward compatibility
+	Score           float32             `json:"score"`
+	ComplianceScore float32             `json:"complianceScore"`
 }
 
 // ControlSummary summary of scanning from a single control perspective
