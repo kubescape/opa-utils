@@ -8,6 +8,8 @@ import (
 	"strings"
 	"sync"
 
+	"github.com/kubescape/go-logger"
+	"github.com/kubescape/go-logger/helpers"
 	k8sinterface "github.com/kubescape/k8s-interface/k8sinterface"
 	"github.com/kubescape/k8s-interface/workloadinterface"
 	armoupautils "github.com/kubescape/opa-utils/objectsenvelopes"
@@ -344,4 +346,87 @@ func (su ScoreUtil) debugf(format string, args ...any) {
 
 func max32(a, b float32) float32 {
 	return float32(math.Max(float64(a), float64(b)))
+}
+
+// ==================================== Compliance Score ====================================
+
+// SetPostureReportComplianceScores calculates and populates scores for all controls, frameworks and whole scan.
+func (su *ScoreUtil) SetPostureReportComplianceScores(report *v2.PostureReport) error {
+	// call CalculatePostureReportV2 to set frameworks.score for backward compatibility
+	// afterwards we will override the controls.score and summeryDetails.score
+	// and set frameworks.complianceScore
+	// TODO: remove CalculatePostureReportV2 call after we deprecate frameworks.score
+	if err := su.CalculatePostureReportV2(report); err != nil {
+		return err
+	}
+	// set compliance score for each framework
+	for i := range report.SummaryDetails.Frameworks {
+		// set compliance score for framework and all controls in framework
+		report.SummaryDetails.Frameworks[i].ComplianceScore = su.GetFrameworkComplianceScore(&report.SummaryDetails.Frameworks[i])
+		logger.L().Debug("set framework score", helpers.String("framework name", report.SummaryDetails.Frameworks[i].GetName()), helpers.Int("ComplianceScore", int(report.SummaryDetails.Frameworks[i].GetComplianceScore())))
+	}
+	// set compliance score per control
+	sumScore := su.ControlsSummariesComplianceScore(&report.SummaryDetails.Controls, "")
+	// set compliance score for whole scan
+	summaryScore := float32(0)
+	if len(report.SummaryDetails.Controls) > 0 {
+		summaryScore = sumScore / float32(len(report.SummaryDetails.Controls))
+	}
+	report.SummaryDetails.Score = summaryScore
+	return nil
+}
+
+// ControlsSummariesComplianceScore sets the controls compliance score
+// and returns the sum of all controls scores
+func (su *ScoreUtil) ControlsSummariesComplianceScore(ctrls *reportsummary.ControlSummaries, frameworkName string) (sumScore float32) {
+	for ctrlID := range *ctrls {
+		ctrl := (*ctrls)[ctrlID]
+		ctrl.Score = 0
+		ctrl.Score = su.GetControlComplianceScore(&ctrl, frameworkName)
+		(*ctrls)[ctrlID] = ctrl
+		logger.L().Debug("set control score", helpers.String("controlID", ctrl.GetID()), helpers.Int("score", int(ctrl.GetScore())))
+		sumScore += ctrl.GetScore()
+	}
+	return sumScore
+}
+
+// GetFrameworkComplianceScore returns the compliance score for a given framework (as a percentage)
+// The framework compliance score is the average of all controls scores in that framework
+func (su *ScoreUtil) GetFrameworkComplianceScore(framework *reportsummary.FrameworkSummary) (frameworkScore float32) {
+	sumScore := su.ControlsSummariesComplianceScore(&framework.Controls, framework.GetName())
+	if len(framework.Controls) > 0 {
+		frameworkScore = sumScore / float32(len(framework.Controls))
+	}
+	return frameworkScore
+}
+
+// GetControlComplianceScore returns the compliance score for a given control (as a percentage).
+func (su *ScoreUtil) GetControlComplianceScore(ctrl reportsummary.IControlSummary, _ /*frameworkName*/ string) (ctrlScore float32) {
+	resourcesIDs := ctrl.ListResourcesIDs()
+	passedResourceIDS := resourcesIDs.Passed()
+	allResourcesIDSIter := resourcesIDs.All()
+
+	numOfPassedResources := float32(0)
+	numOfAllResources := float32(0)
+
+	for i := range passedResourceIDS {
+		if _, ok := su.resources[passedResourceIDS[i]]; ok {
+			numOfPassedResources += 1
+		}
+	}
+
+	for allResourcesIDSIter.HasNext() {
+		resourceID := allResourcesIDSIter.Next()
+		if _, ok := su.resources[resourceID]; ok {
+			numOfAllResources += 1
+		}
+	}
+
+	if numOfAllResources > 0 {
+		ctrlScore = (numOfPassedResources / numOfAllResources) * 100
+	} else {
+		logger.L().Debug("no resources were given for this control, score is 0", helpers.String("controlID", ctrl.GetID()))
+	}
+
+	return ctrlScore
 }

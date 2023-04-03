@@ -61,6 +61,13 @@ func (frameworkSummary *FrameworkSummary) initResourcesSummary(controlInfoMap ma
 	frameworkSummary.CalculateStatus()
 }
 
+// =================================== ComplianceScore ============================================
+
+// GetComplianceScore returns framework ComplianceScore
+func (frameworkSummary *FrameworkSummary) GetComplianceScore() float32 {
+	return frameworkSummary.ComplianceScore
+}
+
 // =================================== Score ============================================
 
 // GetScore return framework score
