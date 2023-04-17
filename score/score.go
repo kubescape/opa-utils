@@ -352,10 +352,10 @@ func max32(a, b float32) float32 {
 
 // SetPostureReportComplianceScores calculates and populates scores for all controls, frameworks and whole scan.
 func (su *ScoreUtil) SetPostureReportComplianceScores(report *v2.PostureReport) error {
-	// call CalculatePostureReportV2 to set frameworks.score for backward compatibility
-	// afterwards we will override the controls.score and summeryDetails.score
-	// and set frameworks.complianceScore
-	// TODO: remove CalculatePostureReportV2 call after we deprecate frameworks.score
+	// call CalculatePostureReportV2 to set frameworks.score and summaryDetails.score for backward compatibility
+	// afterwards we will override the controls.score
+	// and set frameworks.complianceScore and summaryDetails.complianceScore
+	// TODO: remove CalculatePostureReportV2 call after we deprecate frameworks.score and summaryDetails.score
 	if err := su.CalculatePostureReportV2(report); err != nil {
 		return err
 	}
@@ -372,7 +372,7 @@ func (su *ScoreUtil) SetPostureReportComplianceScores(report *v2.PostureReport) 
 	if len(report.SummaryDetails.Controls) > 0 {
 		summaryScore = sumScore / float32(len(report.SummaryDetails.Controls))
 	}
-	report.SummaryDetails.Score = summaryScore
+	report.SummaryDetails.ComplianceScore = summaryScore
 	return nil
 }
 
