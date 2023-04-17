@@ -945,7 +945,7 @@ func TestSetPostureReportComplianceScores(t *testing.T) {
 		})
 
 		t.Run("assert final score", func(t *testing.T) {
-			assert.InDeltaf(t, expectedSummary, report.SummaryDetails.Score, 1e-6,
+			assert.InDeltaf(t, expectedSummary, report.SummaryDetails.ComplianceScore, 1e-6,
 				"unexpected summarized final score",
 			)
 		})

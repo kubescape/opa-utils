@@ -108,17 +108,18 @@ type ScanMetadata struct {
 	// `Formats` field instead.
 	Format string `json:"format,omitempty"`
 	// Formats that have been requested for the output results.
-	Formats            []string       `json:"formats,omitempty"`
-	UseExceptions      string         `json:"useExceptions,omitempty"`
-	Logger             string         `json:"logger,omitempty"`
-	ExcludedNamespaces []string       `json:"excludedNamespaces,omitempty"`
-	IncludeNamespaces  []string       `json:"includeNamespaces,omitempty"`
-	TargetNames        []string       `json:"targetNames,omitempty"`
-	FailThreshold      float32        `json:"failThreshold,omitempty"`
-	ScanningTarget     ScanningTarget `json:"scanningTarget,omitempty"`
-	HostScanner        bool           `json:"hostScanner,omitempty"`
-	Submit             bool           `json:"submit,omitempty"`
-	VerboseMode        bool           `json:"verboseMode,omitempty"`
+	Formats             []string       `json:"formats,omitempty"`
+	UseExceptions       string         `json:"useExceptions,omitempty"`
+	Logger              string         `json:"logger,omitempty"`
+	ExcludedNamespaces  []string       `json:"excludedNamespaces,omitempty"`
+	IncludeNamespaces   []string       `json:"includeNamespaces,omitempty"`
+	TargetNames         []string       `json:"targetNames,omitempty"`
+	FailThreshold       float32        `json:"failThreshold,omitempty"`
+	ComplianceThreshold float32        `json:"complianceThreshold,omitempty"`
+	ScanningTarget      ScanningTarget `json:"scanningTarget,omitempty"`
+	HostScanner         bool           `json:"hostScanner,omitempty"`
+	Submit              bool           `json:"submit,omitempty"`
+	VerboseMode         bool           `json:"verboseMode,omitempty"`
 }
 
 // Moved to apis/cloudmetadata.go

@@ -21,6 +21,7 @@ type SummaryDetails struct {
 	ControlsSeverityCounters  SeverityCounters    `json:"controlsSeverityCounters,omitempty"`
 	StatusCounters            StatusCounters      `json:"ResourceCounters"` // Backward compatibility
 	Score                     float32             `json:"score"`
+	ComplianceScore           float32             `json:"complianceScore"`
 }
 
 // FrameworkSummary summary of scanning from a single framework perspective
