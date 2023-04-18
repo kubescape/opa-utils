@@ -425,7 +425,13 @@ func (su *ScoreUtil) GetControlComplianceScore(ctrl reportsummary.IControlSummar
 	if numOfAllResources > 0 {
 		ctrlScore = (numOfPassedResources / numOfAllResources) * 100
 	} else {
-		logger.L().Debug("no resources were given for this control, score is 0", helpers.String("controlID", ctrl.GetID()))
+		// in case the control didn't run on any resources:
+		// If the control passed (irrelevant): score = 100 , else (skipped): score = 0
+		if ctrl.GetStatus().IsPassed() {
+			ctrlScore = 100
+		} else {
+			logger.L().Debug("no resources were given for this control, score is 0", helpers.String("controlID", ctrl.GetID()))
+		}
 	}
 
 	return ctrlScore

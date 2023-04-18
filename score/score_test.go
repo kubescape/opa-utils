@@ -814,6 +814,46 @@ func TestGetControlComplianceScore(t *testing.T) {
 		)
 	})
 
+	t.Run("skipped control", func(t *testing.T) {
+		t.Parallel()
+
+		resources := mockResources(t)
+		s := ScoreUtil{isDebugMode: true, resources: resources}
+		controlReport := reportsummary.ControlSummary{
+			Name:      "skipped-control",
+			ControlID: "skipped1",
+			StatusInfo: apis.StatusInfo{
+				InnerInfo:   "enable-host-scan flag not used. For more information: https://hub.armosec.io/docs/host-sensor",
+				InnerStatus: "skipped",
+			},
+			ResourceIDs: helpers.AllLists{},
+		}
+
+		require.Equal(t, float32(0), s.GetControlComplianceScore(&controlReport, ""),
+			"skipped control report should return a score equals to 0",
+		)
+	})
+
+	t.Run("passed (irrelevant) control", func(t *testing.T) {
+		t.Parallel()
+
+		resources := mockResources(t)
+		s := ScoreUtil{isDebugMode: true, resources: resources}
+		controlReport := reportsummary.ControlSummary{
+			Name:      "irrelevant-control",
+			ControlID: "irrelevant1",
+			StatusInfo: apis.StatusInfo{
+				SubStatus:   "irrelevant",
+				InnerStatus: "passed",
+			},
+			ResourceIDs: helpers.AllLists{},
+		}
+
+		require.Equal(t, float32(100), s.GetControlComplianceScore(&controlReport, ""),
+			"passed (irrelevant) control report should return a score equals to 100",
+		)
+	})
+
 	t.Run("with control report", func(t *testing.T) {
 		t.Parallel()
 
