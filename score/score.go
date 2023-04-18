@@ -432,6 +432,5 @@ func (su *ScoreUtil) GetControlComplianceScore(ctrl reportsummary.IControlSummar
 	if ctrl.GetStatus().IsPassed() {
 		return 100
 	}
-	logger.L().Debug("no resources were given for this control, score is 0", helpers.String("controlID", ctrl.GetID()))
 	return 0
 }
