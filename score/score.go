@@ -403,6 +403,11 @@ func (su *ScoreUtil) GetFrameworkComplianceScore(framework *reportsummary.Framew
 
 // GetControlComplianceScore returns the compliance score for a given control (as a percentage).
 func (su *ScoreUtil) GetControlComplianceScore(ctrl reportsummary.IControlSummary, _ /*frameworkName*/ string) float32 {
+	// If a control has status passed it should always be considered as having 100% compliance score
+	if ctrl.GetStatus().IsPassed() {
+		return 100
+	}
+
 	resourcesIDs := ctrl.ListResourcesIDs()
 	passedResourceIDS := resourcesIDs.Passed()
 	allResourcesIDSIter := resourcesIDs.All()
@@ -425,12 +430,6 @@ func (su *ScoreUtil) GetControlComplianceScore(ctrl reportsummary.IControlSummar
 
 	if numOfAllResources > 0 {
 		return (numOfPassedResources / numOfAllResources) * 100
-	}
-
-	// in case the control didn't run on any resources:
-	// If the control passed (irrelevant): score = 100 , else (skipped): score = 0
-	if ctrl.GetStatus().IsPassed() {
-		return 100
 	}
 	return 0
 }
