@@ -392,7 +392,8 @@ func (su *ScoreUtil) ControlsSummariesComplianceScore(ctrls *reportsummary.Contr
 
 // GetFrameworkComplianceScore returns the compliance score for a given framework (as a percentage)
 // The framework compliance score is the average of all controls scores in that framework
-func (su *ScoreUtil) GetFrameworkComplianceScore(framework *reportsummary.FrameworkSummary) (frameworkScore float32) {
+func (su *ScoreUtil) GetFrameworkComplianceScore(framework *reportsummary.FrameworkSummary) float32 {
+	frameworkScore := float32(0)
 	sumScore := su.ControlsSummariesComplianceScore(&framework.Controls, framework.GetName())
 	if len(framework.Controls) > 0 {
 		frameworkScore = sumScore / float32(len(framework.Controls))
@@ -401,7 +402,7 @@ func (su *ScoreUtil) GetFrameworkComplianceScore(framework *reportsummary.Framew
 }
 
 // GetControlComplianceScore returns the compliance score for a given control (as a percentage).
-func (su *ScoreUtil) GetControlComplianceScore(ctrl reportsummary.IControlSummary, _ /*frameworkName*/ string) (ctrlScore float32) {
+func (su *ScoreUtil) GetControlComplianceScore(ctrl reportsummary.IControlSummary, _ /*frameworkName*/ string) float32 {
 	resourcesIDs := ctrl.ListResourcesIDs()
 	passedResourceIDS := resourcesIDs.Passed()
 	allResourcesIDSIter := resourcesIDs.All()
@@ -423,16 +424,14 @@ func (su *ScoreUtil) GetControlComplianceScore(ctrl reportsummary.IControlSummar
 	}
 
 	if numOfAllResources > 0 {
-		ctrlScore = (numOfPassedResources / numOfAllResources) * 100
-	} else {
-		// in case the control didn't run on any resources:
-		// If the control passed (irrelevant): score = 100 , else (skipped): score = 0
-		if ctrl.GetStatus().IsPassed() {
-			ctrlScore = 100
-		} else {
-			logger.L().Debug("no resources were given for this control, score is 0", helpers.String("controlID", ctrl.GetID()))
-		}
+		return (numOfPassedResources / numOfAllResources) * 100
 	}
 
-	return ctrlScore
+	// in case the control didn't run on any resources:
+	// If the control passed (irrelevant): score = 100 , else (skipped): score = 0
+	if ctrl.GetStatus().IsPassed() {
+		return 100
+	}
+	logger.L().Debug("no resources were given for this control, score is 0", helpers.String("controlID", ctrl.GetID()))
+	return 0
 }
