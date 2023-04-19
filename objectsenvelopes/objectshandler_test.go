@@ -96,12 +96,3 @@ func TestGetObjectType(t *testing.T) {
 	}
 	assert.Equal(t, workloadinterface.TypeListWorkloads, GetObjectType(listWorkloads))
 }
-
-// // Test BaseObject
-// baseObject := map[string]interface{}{
-// 	"kind": "Pod",
-// 	"metadata": map[string]interface{}{
-// 		"name": "test-pod",
-// 	},
-// }
-// assert.Equal(t
