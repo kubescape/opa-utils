@@ -8,8 +8,6 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/kubescape/go-logger"
-	"github.com/kubescape/go-logger/helpers"
 	k8sinterface "github.com/kubescape/k8s-interface/k8sinterface"
 	"github.com/kubescape/k8s-interface/workloadinterface"
 	armoupautils "github.com/kubescape/opa-utils/objectsenvelopes"
@@ -363,7 +361,6 @@ func (su *ScoreUtil) SetPostureReportComplianceScores(report *v2.PostureReport) 
 	for i := range report.SummaryDetails.Frameworks {
 		// set compliance score for framework and all controls in framework
 		report.SummaryDetails.Frameworks[i].ComplianceScore = su.GetFrameworkComplianceScore(&report.SummaryDetails.Frameworks[i])
-		logger.L().Debug("set framework score", helpers.String("framework name", report.SummaryDetails.Frameworks[i].GetName()), helpers.Int("ComplianceScore", int(report.SummaryDetails.Frameworks[i].GetComplianceScore())))
 	}
 	// set compliance score per control
 	sumScore := su.ControlsSummariesComplianceScore(&report.SummaryDetails.Controls, "")
@@ -384,7 +381,6 @@ func (su *ScoreUtil) ControlsSummariesComplianceScore(ctrls *reportsummary.Contr
 		ctrl.Score = 0
 		ctrl.Score = su.GetControlComplianceScore(&ctrl, frameworkName)
 		(*ctrls)[ctrlID] = ctrl
-		logger.L().Debug("set control score", helpers.String("controlID", ctrl.GetID()), helpers.Int("score", int(ctrl.GetScore())))
 		sumScore += ctrl.GetScore()
 	}
 	return sumScore
@@ -409,27 +405,11 @@ func (su *ScoreUtil) GetControlComplianceScore(ctrl reportsummary.IControlSummar
 	}
 
 	resourcesIDs := ctrl.ListResourcesIDs()
-	passedResourceIDS := resourcesIDs.Passed()
-	allResourcesIDSIter := resourcesIDs.All()
-
-	numOfPassedResources := float32(0)
-	numOfAllResources := float32(0)
-
-	for i := range passedResourceIDS {
-		if _, ok := su.resources[passedResourceIDS[i]]; ok {
-			numOfPassedResources += 1
-		}
-	}
-
-	for allResourcesIDSIter.HasNext() {
-		resourceID := allResourcesIDSIter.Next()
-		if _, ok := su.resources[resourceID]; ok {
-			numOfAllResources += 1
-		}
-	}
+	numOfPassedResources := len(resourcesIDs.Passed())
+	numOfAllResources := resourcesIDs.All().Len()
 
 	if numOfAllResources > 0 {
-		return (numOfPassedResources / numOfAllResources) * 100
+		return (float32(numOfPassedResources) / float32(numOfAllResources)) * 100
 	}
 	return 0
 }
