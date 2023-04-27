@@ -14,6 +14,7 @@ import (
 	"github.com/kubescape/opa-utils/reporthandling"
 	"github.com/kubescape/opa-utils/reporthandling/results/v1/reportsummary"
 	v2 "github.com/kubescape/opa-utils/reporthandling/v2"
+	"github.com/kubescape/opa-utils/shared"
 	"go.uber.org/zap"
 	appsv1 "k8s.io/api/apps/v1"
 )
@@ -351,8 +352,7 @@ func max32(a, b float32) float32 {
 // SetPostureReportComplianceScores calculates and populates scores for all controls, frameworks and whole scan.
 func (su *ScoreUtil) SetPostureReportComplianceScores(report *v2.PostureReport) error {
 	// call CalculatePostureReportV2 to set frameworks.score and summaryDetails.score for backward compatibility
-	// afterwards we will override the controls.score
-	// and set frameworks.complianceScore and summaryDetails.complianceScore
+	// afterwards we set complianceScore for frameworks, controls and summaryDetails
 	// TODO: remove CalculatePostureReportV2 call after we deprecate frameworks.score and summaryDetails.score
 	if err := su.CalculatePostureReportV2(report); err != nil {
 		return err
@@ -378,10 +378,9 @@ func (su *ScoreUtil) SetPostureReportComplianceScores(report *v2.PostureReport) 
 func (su *ScoreUtil) ControlsSummariesComplianceScore(ctrls *reportsummary.ControlSummaries, frameworkName string) (sumScore float32) {
 	for ctrlID := range *ctrls {
 		ctrl := (*ctrls)[ctrlID]
-		ctrl.Score = 0
-		ctrl.Score = su.GetControlComplianceScore(&ctrl, frameworkName)
+		ctrl.ComplianceScore = shared.Ptr(su.GetControlComplianceScore(&ctrl, frameworkName))
 		(*ctrls)[ctrlID] = ctrl
-		sumScore += ctrl.GetScore()
+		sumScore += ctrl.GetComplianceScore()
 	}
 	return sumScore
 }

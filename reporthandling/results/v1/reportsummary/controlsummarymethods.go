@@ -116,6 +116,14 @@ func (controlSummary *ControlSummary) GetScore() float32 {
 	return controlSummary.Score
 }
 
+func (controlSummary *ControlSummary) GetComplianceScore() float32 {
+	// if ComplianceScore field is set return it, else return -1
+	if controlSummary.ComplianceScore != nil {
+		return *controlSummary.ComplianceScore
+	}
+	return -1
+}
+
 // GetScoreFactor return control score
 func (controlSummary *ControlSummary) GetScoreFactor() float32 {
 	return controlSummary.ScoreFactor

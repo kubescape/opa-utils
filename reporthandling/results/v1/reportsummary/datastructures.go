@@ -47,6 +47,7 @@ type ControlSummary struct {
 	StatusCounters    StatusCounters      `json:"ResourceCounters"` // Backward compatibility
 	SubStatusCounters SubStatusCounters   `json:"subStatusCounters"`
 	Score             float32             `json:"score"`
+	ComplianceScore   *float32            `json:"complianceScore,omitempty"`
 	ScoreFactor       float32             `json:"scoreFactor"`
 }
 

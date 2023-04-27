@@ -947,20 +947,29 @@ func TestSetPostureReportComplianceScores(t *testing.T) {
 		t.Run("assert control scores", func(t *testing.T) {
 			require.Len(t, report.SummaryDetails.Controls, 4)
 			for _, control := range report.SummaryDetails.Controls {
-				var expectedForControl float64
+				var expectedComplianceScore float64
+				var expectedScore float64
 
 				switch control.ControlID {
 				case "control-1":
-					expectedForControl = 33.333336
+					expectedComplianceScore = 33.333336
+					expectedScore = 81.13208
 				case "control-2":
-					expectedForControl = 100 // passed
+					expectedComplianceScore = 100 // passed
+					expectedScore = 0
 				case "control-3":
-					expectedForControl = 50
+					expectedComplianceScore = 50
+					expectedScore = 66.666664
 				case "control-4":
-					expectedForControl = 100 // passed
+					expectedComplianceScore = 100 // passed
+					expectedScore = 0
 				}
 
-				assert.InDeltaf(t, expectedForControl, control.Score, 1e-6,
+				assert.InDeltaf(t, expectedComplianceScore, *control.ComplianceScore, 1e-6,
+					"unexpected summarized score for control %q", control.ControlID,
+				)
+				// check that control score wasn't overridden by compliance score
+				assert.InDeltaf(t, expectedScore, control.Score, 1e-6,
 					"unexpected summarized score for control %q", control.ControlID,
 				)
 			}
