@@ -69,6 +69,9 @@ type IPolicies interface {
 	// Score
 	GetScore() float32
 
+	// ComplianceScore
+	GetComplianceScore() float32
+
 	// Name
 	GetName() string
 }
