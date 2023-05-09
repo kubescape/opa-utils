@@ -68,13 +68,15 @@ func (controlSummary *ControlSummary) calculateNSetSubStatus(subStatus apis.Scan
 		} else if subStatus == apis.SubStatusManualReview || controlSummary.StatusInfo.SubStatus == apis.SubStatusManualReview {
 			controlSummary.StatusInfo.SubStatus = apis.SubStatusManualReview
 			controlSummary.StatusInfo.InnerInfo = string(apis.SubStatusManualReviewInfo)
-		} else if subStatus == apis.SubStatusRequiresReview || controlSummary.StatusInfo.SubStatus == apis.SubStatusRequiresReview {
-			controlSummary.StatusInfo.SubStatus = apis.SubStatusRequiresReview
-			controlSummary.StatusInfo.InnerInfo = string(apis.SubStatusRequiresReviewInfo)
 		}
 	case apis.StatusFailed:
-		controlSummary.StatusInfo.SubStatus = apis.SubStatusUnknown
-		controlSummary.StatusInfo.InnerInfo = ""
+		if subStatus == apis.SubStatusRequiresReview || controlSummary.StatusInfo.SubStatus == apis.SubStatusRequiresReview {
+			controlSummary.StatusInfo.SubStatus = apis.SubStatusRequiresReview
+			controlSummary.StatusInfo.InnerInfo = string(apis.SubStatusRequiresReviewInfo)
+		} else {
+			controlSummary.StatusInfo.SubStatus = apis.SubStatusUnknown
+			controlSummary.StatusInfo.InnerInfo = ""
+		}
 	}
 }
 
