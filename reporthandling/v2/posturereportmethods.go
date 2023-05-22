@@ -19,7 +19,7 @@ func (postureReport *PostureReport) GetStatus() *helpersv1.Status {
 // =========================================== List resources ====================================
 
 func (postureReport *PostureReport) ListResourcesIDs(f *helpersv1.Filters) *helpersv1.AllLists {
-	return postureReport.SummaryDetails.ListResourcesIDs()
+	return postureReport.SummaryDetails.ListResourcesIDs(nil)
 }
 
 // =========================================== List Frameworks ====================================

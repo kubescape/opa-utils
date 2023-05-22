@@ -33,8 +33,11 @@ func (frameworkSummary *FrameworkSummary) Increase(status apis.IStatus) {
 }
 
 // List resources IDs
-func (frameworkSummary *FrameworkSummary) ListResourcesIDs() *helpersv1.AllLists {
-	return frameworkSummary.Controls.ListResourcesIDs()
+//
+// If an optional pointer to an AllLists object is provided as a parameter, it will be used to store the results,
+// avoiding unnecessary memory allocations. If the parameter is nil, a new AllLists object will be created and returned.
+func (frameworkSummary *FrameworkSummary) ListResourcesIDs(l *helpersv1.AllLists) *helpersv1.AllLists {
+	return frameworkSummary.Controls.ListResourcesIDs(l)
 }
 
 func (frameworkSummary *FrameworkSummary) NumberOfControls() ICounters {
@@ -57,7 +60,9 @@ func (frameworkSummary *FrameworkSummary) initResourcesSummary(controlInfoMap ma
 		frameworkSummary.Controls[k] = control
 	}
 
-	frameworkSummary.StatusCounters.Set(frameworkSummary.ListResourcesIDs())
+	l := helpersv1.GetAllListsFromPool()
+	defer helpersv1.PutAllListsToPool(l)
+	frameworkSummary.StatusCounters.Set(frameworkSummary.ListResourcesIDs(l))
 	frameworkSummary.CalculateStatus()
 }
 
@@ -85,31 +90,47 @@ func (frameworkSummary *FrameworkSummary) GetName() string {
 // =========================================== List Controls ====================================
 
 // ListControlsNames list all framework names
-func (frameworkSummary *FrameworkSummary) ListControlsNames() *helpersv1.AllLists {
-	controls := &helpersv1.AllLists{}
+//
+// If an optional pointer to an AllLists object is provided as a parameter, it will be used to store the results,
+// avoiding unnecessary memory allocations. If the parameter is nil, a new AllLists object will be created and returned.
+func (frameworkSummary *FrameworkSummary) ListControlsNames(controls *helpersv1.AllLists) *helpersv1.AllLists {
+	if controls == nil {
+		controls = &helpersv1.AllLists{}
+	}
+
+	controls.Initialize(len(frameworkSummary.Controls))
 	for _, controlSummary := range frameworkSummary.Controls {
 		controls.Append(controlSummary.GetStatus().Status(), controlSummary.Name)
 	}
-	controls.ToUniqueControls()
 	return controls
 }
 
-func (frameworkSummary *FrameworkSummary) ListControlsIDs() *helpersv1.AllLists {
-	controls := &helpersv1.AllLists{}
+// ListControlsIDs list all controls IDs in the framework
+//
+// If an optional pointer to an AllLists object is provided as a parameter, it will be used to store the results,
+// avoiding unnecessary memory allocations. If the parameter is nil, a new AllLists object will be created and returned.
+func (frameworkSummary *FrameworkSummary) ListControlsIDs(controls *helpersv1.AllLists) *helpersv1.AllLists {
+	if controls == nil {
+		controls = &helpersv1.AllLists{}
+	}
+	controls.Initialize(len(frameworkSummary.Controls))
 	for controlID, controlSummary := range frameworkSummary.Controls {
 		controls.Append(controlSummary.GetStatus().Status(), controlID)
 	}
-	controls.ToUniqueControls()
 	return controls
 }
 
 // ListControls list all controls
 func (frameworkSummary *FrameworkSummary) ListControls() []IControlSummary {
 	controls := make([]IControlSummary, len(frameworkSummary.Controls))
-	iter := frameworkSummary.Controls.ListControlsIDs().All()
 	i := 0
-	for iter.HasNext() {
-		controls[i] = frameworkSummary.Controls.GetControl(EControlCriteriaID, iter.Next())
+
+	l := helpersv1.GetAllListsFromPool()
+	defer helpersv1.PutAllListsToPool(l)
+
+	for ctrlId := range frameworkSummary.Controls.ListControlsIDs(l).All() {
+		controls[i] = frameworkSummary.Controls.GetControl(EControlCriteriaID, ctrlId)
+		i++
 	}
 	return controls
 }

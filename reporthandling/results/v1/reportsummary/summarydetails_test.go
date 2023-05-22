@@ -47,18 +47,20 @@ func TestRuleStatus(t *testing.T) {
 
 func TestRuleListing(t *testing.T) {
 	r := mockSummaryDetailsFailed()
-	assert.NotEqual(t, 0, r.ListFrameworksNames().All().Len())
-	assert.NotEqual(t, 0, len(r.ListFrameworksNames().Failed()))
-	assert.NotEqual(t, 0, len(r.ListControlsNames().Failed()))
-	assert.NotEqual(t, 0, len(r.ListControlsIDs().Failed()))
+	assert.NotEqual(t, 0, r.ListFrameworksNames().Len())
+	assert.NotEqual(t, 0, r.ListFrameworksNames().Failed())
+	assert.NotEqual(t, 0, r.ListControlsNames().Failed())
+	assert.NotEqual(t, 0, r.ListControlsIDs().Failed())
 }
 
 func TestUpdateControlsSummaryCountersFailed(t *testing.T) {
 	controls := map[string]ControlSummary{}
 
-	failedControls := mockResultsFailed.ListControlsIDs(nil).Failed()
-	for i := range failedControls {
-		controls[failedControls[i]] = ControlSummary{}
+	allControls := mockResultsFailed.ListControlsIDs(nil).All()
+	for ctrlId, status := range allControls {
+		if status == apis.StatusFailed {
+			controls[ctrlId] = ControlSummary{}
+		}
 	}
 
 	// New control
@@ -85,9 +87,11 @@ func TestUpdateControlsSummaryCountersFailed(t *testing.T) {
 func TestUpdateControlsSummaryCountersExcluded(t *testing.T) {
 	controls := map[string]ControlSummary{}
 
-	passedControls := mockResultsFailed.ListControlsIDs(nil).Passed()
-	for i := range passedControls {
-		controls[passedControls[i]] = ControlSummary{}
+	allControls := mockResultsFailed.ListControlsIDs(nil).All()
+	for ctrlId, status := range allControls {
+		if status == apis.StatusPassed {
+			controls[ctrlId] = ControlSummary{}
+		}
 	}
 
 	updateControlsSummaryCounters(&mockResultsException, controls, nil)
@@ -105,9 +109,11 @@ func TestUpdateControlsSummaryCountersExcluded(t *testing.T) {
 func TestUpdateControlsSummaryCountersPassed(t *testing.T) {
 	controls := map[string]ControlSummary{}
 
-	passedControls := mockResultsFailed.ListControlsIDs(nil).Passed()
-	for i := range passedControls {
-		controls[passedControls[i]] = ControlSummary{}
+	allControls := mockResultsFailed.ListControlsIDs(nil).All()
+	for ctrlId, status := range allControls {
+		if status == apis.StatusPassed {
+			controls[ctrlId] = ControlSummary{}
+		}
 	}
 
 	// New control
@@ -124,10 +130,9 @@ func TestUpdateControlsSummaryCountersPassed(t *testing.T) {
 func TestUpdateControlsSummaryCountersException(t *testing.T) {
 	controls := map[string]ControlSummary{}
 
-	allControls := mockResultsException.ListControlsIDs(nil)
-	tt := allControls.All()
-	for tt.HasNext() {
-		controls[tt.Next()] = ControlSummary{}
+	allControls := mockResultsException.ListControlsIDs(nil).All()
+	for ctrlId := range allControls {
+		controls[ctrlId] = ControlSummary{}
 	}
 
 	// New control
@@ -144,10 +149,9 @@ func TestUpdateControlsSummaryCountersException(t *testing.T) {
 func TestUpdateControlsSummaryCountersConfiguration(t *testing.T) {
 	controls := map[string]ControlSummary{}
 
-	allControls := mockResultsConfigurqation.ListControlsIDs(nil)
-	tt := allControls.All()
-	for tt.HasNext() {
-		controls[tt.Next()] = ControlSummary{}
+	allControls := mockResultsConfigurqation.ListControlsIDs(nil).All()
+	for ctrlId := range allControls {
+		controls[ctrlId] = ControlSummary{}
 	}
 
 	// New control
@@ -164,10 +168,9 @@ func TestUpdateControlsSummaryCountersConfiguration(t *testing.T) {
 func TestUpdateControlsSummaryCountersRequiresReview(t *testing.T) {
 	controls := map[string]ControlSummary{}
 
-	allControls := mockResultRequiresReview.ListControlsIDs(nil)
-	tt := allControls.All()
-	for tt.HasNext() {
-		controls[tt.Next()] = ControlSummary{}
+	allControls := mockResultRequiresReview.ListControlsIDs(nil).All()
+	for ctrlId := range allControls {
+		controls[ctrlId] = ControlSummary{}
 	}
 
 	// New control
@@ -184,10 +187,9 @@ func TestUpdateControlsSummaryCountersRequiresReview(t *testing.T) {
 func TestUpdateControlsSummaryCountersManualReview(t *testing.T) {
 	controls := map[string]ControlSummary{}
 
-	allControls := mockResultManualReview.ListControlsIDs(nil)
-	tt := allControls.All()
-	for tt.HasNext() {
-		controls[tt.Next()] = ControlSummary{}
+	allControls := mockResultManualReview.ListControlsIDs(nil).All()
+	for ctrlId := range allControls {
+		controls[ctrlId] = ControlSummary{}
 	}
 
 	// New control
@@ -204,30 +206,32 @@ func TestUpdateControlsSummaryCountersManualReview(t *testing.T) {
 func TestUpdateControlsSummaryCountersAll(t *testing.T) {
 	controls := map[string]ControlSummary{}
 
-	allControls := mockResultsFailed.ListControlsIDs(nil)
-	tt := allControls.All()
-	for tt.HasNext() {
-		controls[tt.Next()] = ControlSummary{}
+	allControls := mockResultsFailed.ListControlsIDs(nil).All()
+	for ctrlId := range allControls {
+		controls[ctrlId] = ControlSummary{}
 	}
 
 	updateControlsSummaryCounters(&mockResultsFailed, controls, nil)
-	for _, i := range allControls.Failed() {
-		v, k := controls[i]
-		assert.True(t, k)
-		assert.NotEqual(t, 0, v.NumberOfResources().All())
-		assert.NotEqual(t, 0, v.NumberOfResources().Failed())
-		assert.Equal(t, 0, v.NumberOfResources().Passed())
-		assert.Equal(t, 0, v.NumberOfResources().Skipped())
+	for ctrlId, status := range allControls {
+		if status == apis.StatusFailed {
+			v, k := controls[ctrlId]
+			assert.True(t, k)
+			assert.NotEqual(t, 0, v.NumberOfResources().All())
+			assert.NotEqual(t, 0, v.NumberOfResources().Failed())
+			assert.Equal(t, 0, v.NumberOfResources().Passed())
+			assert.Equal(t, 0, v.NumberOfResources().Skipped())
+		}
 
 	}
-	for _, i := range allControls.Passed() {
-		v, k := controls[i]
-		assert.True(t, k)
-		assert.NotEqual(t, 0, v.NumberOfResources().All())
-		assert.NotEqual(t, 0, v.NumberOfResources().Passed())
-		assert.Equal(t, 0, v.NumberOfResources().Failed())
-		assert.Equal(t, 0, v.NumberOfResources().Skipped())
-
+	for ctrlId, status := range allControls {
+		if status == apis.StatusPassed {
+			v, k := controls[ctrlId]
+			assert.True(t, k)
+			assert.NotEqual(t, 0, v.NumberOfResources().All())
+			assert.NotEqual(t, 0, v.NumberOfResources().Passed())
+			assert.Equal(t, 0, v.NumberOfResources().Failed())
+			assert.Equal(t, 0, v.NumberOfResources().Skipped())
+		}
 	}
 }
 
@@ -428,12 +432,11 @@ func TestSummaryDetails_UniqueResources(t *testing.T) {
 	}
 
 	m := map[string]interface{}{}
-	r := summaryDetails.ListResourcesIDs().All()
-	for r.HasNext() {
-		m[r.Next()] = nil
+	for rId := range summaryDetails.ListResourcesIDs(nil).All() {
+		m[rId] = nil
 	}
 
-	assert.Equal(t, summaryDetails.ListResourcesIDs().All().Len(), len(m))
+	assert.Equal(t, summaryDetails.ListResourcesIDs(nil).Len(), len(m))
 
 }
 

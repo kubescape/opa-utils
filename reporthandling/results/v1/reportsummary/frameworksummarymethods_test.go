@@ -92,9 +92,9 @@ func TestFrameworkControlsSummariesCounters(t *testing.T) {
 	f := mockFrameworkSummaryFailPass()
 	assert.Equal(t, len(f.Controls), f.GetControls().NumberOfControls().All(), "invalid total control count")
 	// assert.Equal(t, len(f.GetControls().NumberOfControls().), f.GetControls().NumberOfControls().Failed(), "invalid total failed control count")
-	assert.Equal(t, len(f.GetControls().ListControlsIDs().Failed()), f.GetControls().NumberOfControls().Failed(), "invalid total failed control count")
-	assert.Equal(t, len(f.GetControls().ListControlsIDs().Passed()), f.GetControls().NumberOfControls().Passed(), "invalid total passed control count")
-	assert.Equal(t, len(f.GetControls().ListControlsIDs().Skipped()), f.GetControls().NumberOfControls().Skipped(), "invalid total skipped control count")
+	assert.Equal(t, f.GetControls().ListControlsIDs(nil).Failed(), f.GetControls().NumberOfControls().Failed(), "invalid total failed control count")
+	assert.Equal(t, f.GetControls().ListControlsIDs(nil).Passed(), f.GetControls().NumberOfControls().Passed(), "invalid total passed control count")
+	assert.Equal(t, f.GetControls().ListControlsIDs(nil).Skipped(), f.GetControls().NumberOfControls().Skipped(), "invalid total skipped control count")
 }
 
 func TestFrameworkGettingSpecificControl(t *testing.T) {

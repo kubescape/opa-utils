@@ -20,7 +20,7 @@ func setResourcesCountersMock() {
 func TestSet(t *testing.T) {
 	rc := StatusCounters{}
 	summaryDetails := MockSummaryDetails()
-	rc.Set(summaryDetails.ListResourcesIDs())
+	rc.Set(summaryDetails.ListResourcesIDs(nil))
 	assert.Equal(t, 1, rc.SkippedResources)
 	assert.Equal(t, 1, rc.PassedResources)
 	assert.Equal(t, 2, rc.FailedResources)

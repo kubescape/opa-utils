@@ -54,14 +54,14 @@ type IControlsSummaries interface {
 	GetControl(criteria ControlCriteria, value string) IControlSummary
 
 	NumberOfControls() ICounters
-	ListControlsIDs() *helpersv1.AllLists
-	ListResourcesIDs() *helpersv1.AllLists
+	ListControlsIDs(*helpersv1.AllLists) *helpersv1.AllLists
+	ListResourcesIDs(*helpersv1.AllLists) *helpersv1.AllLists
 }
 
 type IPolicies interface {
 	GetStatus() apis.IStatus
 	CalculateStatus()
-	ListResourcesIDs() *helpersv1.AllLists
+	ListResourcesIDs(*helpersv1.AllLists) *helpersv1.AllLists
 
 	// Counters
 	NumberOfResources() ICounters

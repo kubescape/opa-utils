@@ -31,21 +31,33 @@ func TestResultStatus(t *testing.T) {
 
 func TestResultList(t *testing.T) {
 	r := mockResultFailed()
-	assert.NotEqual(t, 0, r.ListControlsIDs(nil).All().Len())
-	assert.NotEqual(t, 0, len(r.ListControlsIDs(nil).Failed()))
-	assert.NotEqual(t, 0, len(r.ListControlsIDs(nil).Passed()))
+	assert.NotEqual(t, 0, r.ListControlsIDs(nil).Len())
+	assert.NotEqual(t, 0, r.ListControlsIDs(nil).Failed())
+	assert.NotEqual(t, 0, r.ListControlsIDs(nil).Passed())
 
 	r3 := mockResultPassed()
-	assert.NotEqual(t, 0, r3.ListControlsIDs(nil).All())
-	assert.NotEqual(t, 0, len(r3.ListControlsIDs(nil).Passed()))
-	assert.Equal(t, 0, len(r3.ListControlsIDs(nil).Failed()))
+	assert.NotEqual(t, 0, r3.ListControlsIDs(nil).Len())
+	assert.NotEqual(t, 0, r3.ListControlsIDs(nil).Passed())
+	assert.Equal(t, 0, r3.ListControlsIDs(nil).Failed())
 }
 
 func TestListRulesOfControl(t *testing.T) {
 	r := mockResultFailed()
 	assert.Equal(t, 3, len(r.ListRulesOfControl("", "")))
-	assert.NotEqual(t, 0, len(r.ListRulesOfControl("", r.ListControlsNames(nil).All().Next())))
-	assert.NotEqual(t, 3, len(r.ListRulesOfControl("", r.ListControlsNames(nil).All().Next())))
-	assert.NotEqual(t, 0, len(r.ListRulesOfControl(r.ListControlsIDs(nil).All().Next(), "")))
-	assert.NotEqual(t, 3, len(r.ListRulesOfControl(r.ListControlsIDs(nil).All().Next(), "")))
+	controlNames := r.ListControlsNames(nil).All()
+	assert.Containsf(t, controlNames, "0087", "expected to find 0087 in %v", controlNames)
+	assert.Containsf(t, controlNames, "0088", "expected to find 0088 in %v", controlNames)
+	assert.Containsf(t, controlNames, "0089", "expected to find 0089 in %v", controlNames)
+	assert.Equalf(t, 2, len(r.ListRulesOfControl("", "0087")), "expected to find 2 rules for control named 0087")
+	assert.Equalf(t, 1, len(r.ListRulesOfControl("", "0088")), "expected to find 1 rule for control named 0088")
+	assert.Equalf(t, 1, len(r.ListRulesOfControl("", "0089")), "expected to find 1 rule for control named 0089")
+
+	controlIds := r.ListControlsIDs(nil).All()
+	assert.Containsf(t, controlIds, "C-0087", "expected to find C-0087 in %v", controlIds)
+	assert.Containsf(t, controlIds, "C-0088", "expected to find C-0088 in %v", controlIds)
+	assert.Containsf(t, controlIds, "C-0089", "expected to find C-0089 in %v", controlIds)
+	assert.Equalf(t, 2, len(r.ListRulesOfControl("C-0087", "")), "expected to find 2 rules for control id C-0087")
+	assert.Equalf(t, 1, len(r.ListRulesOfControl("C-0088", "")), "expected to find 1 rule for control id C-0088")
+	assert.Equalf(t, 1, len(r.ListRulesOfControl("C-0089", "")), "expected to find 1 rule for control id C-0089")
+
 }
