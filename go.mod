@@ -10,8 +10,9 @@ require (
 	github.com/kubescape/rbac-utils v0.0.20
 	github.com/mitchellh/mapstructure v1.1.2
 	github.com/open-policy-agent/opa v0.42.0
-	github.com/stretchr/testify v1.8.0
+	github.com/stretchr/testify v1.8.3
 	go.uber.org/zap v1.22.0
+	golang.org/x/exp v0.0.0-20230519143937-03e91628a987
 	k8s.io/api v0.25.3
 	k8s.io/apimachinery v0.25.3
 	k8s.io/client-go v0.25.3
@@ -101,7 +102,6 @@ require (
 	go.uber.org/atomic v1.7.0 // indirect
 	go.uber.org/multierr v1.6.0 // indirect
 	golang.org/x/crypto v0.0.0-20220525230936-793ad666bf5e // indirect
-	golang.org/x/exp v0.0.0-20230116083435-1de6713980de // indirect
 	golang.org/x/net v0.3.1-0.20221206200815-1e63c2f08a10 // indirect
 	golang.org/x/oauth2 v0.0.0-20220630143837-2104d58473e0 // indirect
 	golang.org/x/sys v0.3.0 // indirect

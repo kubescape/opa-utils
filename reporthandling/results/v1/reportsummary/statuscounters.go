@@ -22,9 +22,9 @@ type ISubCounters interface {
 
 // NumberOfExcluded get the number of excluded resources
 func (resourceCounters *StatusCounters) Set(allLists *helpersv1.AllLists) {
-	resourceCounters.FailedResources = len(allLists.Failed())
-	resourceCounters.PassedResources = len(allLists.Passed())
-	resourceCounters.SkippedResources = len(allLists.Skipped())
+	resourceCounters.FailedResources = allLists.Failed()
+	resourceCounters.PassedResources = allLists.Passed()
+	resourceCounters.SkippedResources = allLists.Skipped()
 }
 
 // NumberOfPassed get the number of passed resources

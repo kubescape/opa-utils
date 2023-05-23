@@ -58,7 +58,10 @@ func (summaryDetails *SummaryDetails) InitResourcesSummary(controlInfoMap map[st
 		}
 	}
 
-	summaryDetails.StatusCounters.Set(summaryDetails.ListResourcesIDs())
+	l := helpersv1.GetAllListsFromPool()
+	defer helpersv1.PutAllListsToPool(l)
+
+	summaryDetails.StatusCounters.Set(summaryDetails.ListResourcesIDs(l))
 	summaryDetails.CalculateStatus()
 }
 
@@ -67,10 +70,10 @@ func (summaryDetails *SummaryDetails) InitResourcesSummary(controlInfoMap map[st
 // ListFrameworksNames list all framework names
 func (summaryDetails *SummaryDetails) ListFrameworksNames() *helpersv1.AllLists {
 	frameworks := &helpersv1.AllLists{}
+	frameworks.Initialize(len(summaryDetails.Frameworks))
 	for i := range summaryDetails.Frameworks {
 		frameworks.Append(summaryDetails.Frameworks[i].GetStatus().Status(), summaryDetails.Frameworks[i].GetName())
 	}
-	frameworks.ToUniqueControls()
 	return frameworks
 }
 
@@ -88,29 +91,28 @@ func (summaryDetails *SummaryDetails) ListFrameworks() []IFrameworkSummary {
 // ListControlsNames list all framework names
 func (summaryDetails *SummaryDetails) ListControlsNames() *helpersv1.AllLists {
 	controls := &helpersv1.AllLists{}
+	controls.Initialize(len(summaryDetails.Controls))
 	for _, controlSummary := range summaryDetails.Controls {
 		controls.Append(controlSummary.GetStatus().Status(), controlSummary.Name)
 	}
-	controls.ToUniqueControls()
 	return controls
 }
 
 func (summaryDetails *SummaryDetails) ListControlsIDs() *helpersv1.AllLists {
 	controls := &helpersv1.AllLists{}
+	controls.Initialize(len(summaryDetails.Controls))
 	for controlID, controlSummary := range summaryDetails.Controls {
 		controls.Append(controlSummary.GetStatus().Status(), controlID)
 	}
-	controls.ToUniqueControls()
 	return controls
 }
 
 // ListControls list all controls
 func (summaryDetails *SummaryDetails) ListControls() []IControlSummary {
 	controls := make([]IControlSummary, len(summaryDetails.Controls))
-	iter := summaryDetails.ListControlsIDs().All()
 	i := 0
-	for iter.HasNext() {
-		controls[i] = summaryDetails.Controls.GetControl(EControlCriteriaID, iter.Next())
+	for ctrlId := range summaryDetails.ListControlsIDs().All() {
+		controls[i] = summaryDetails.Controls.GetControl(EControlCriteriaID, ctrlId)
 		i++
 	}
 	return controls
@@ -120,9 +122,9 @@ func (summaryDetails *SummaryDetails) ListControls() []IControlSummary {
 func (summaryDetails *SummaryDetails) NumberOfControls() ICounters {
 	controlsIds := summaryDetails.ListControlsIDs()
 	return &PostureCounters{
-		PassedCounter:  len(controlsIds.Passed()),
-		FailedCounter:  len(controlsIds.Failed()),
-		SkippedCounter: len(controlsIds.Skipped()),
+		PassedCounter:  controlsIds.Passed(),
+		FailedCounter:  controlsIds.Failed(),
+		SkippedCounter: controlsIds.Skipped(),
 	}
 }
 
@@ -135,8 +137,11 @@ func (summaryDetails *SummaryDetails) ControlName(controlID string) string {
 }
 
 // ListResourcesIDs list all resources IDs
-func (summaryDetails *SummaryDetails) ListResourcesIDs() *helpersv1.AllLists {
-	return summaryDetails.Controls.ListResourcesIDs()
+//
+// If an optional pointer to an AllLists object is provided as a parameter, it will be used to store the results,
+// avoiding unnecessary memory allocations. If the parameter is nil, a new AllLists object will be created and returned.
+func (summaryDetails *SummaryDetails) ListResourcesIDs(l *helpersv1.AllLists) *helpersv1.AllLists {
+	return summaryDetails.Controls.ListResourcesIDs(l)
 }
 
 // AppendResourceResult appends the given resource result to the summary
@@ -162,7 +167,11 @@ func (summaryDetails *SummaryDetails) AppendResourceResult(resourceResult *resou
 	// update frameworks counters
 	for i := range summaryDetails.Frameworks {
 		updateControlsSummaryCounters(resourceResult, summaryDetails.Frameworks[i].Controls, &helpersv1.Filters{FrameworkNames: []string{summaryDetails.Frameworks[i].GetName()}})
-		summaryDetails.Frameworks[i].StatusCounters.Set(summaryDetails.Frameworks[i].ListResourcesIDs())
+
+		l := helpersv1.GetAllListsFromPool()
+		defer helpersv1.PutAllListsToPool(l)
+
+		summaryDetails.Frameworks[i].StatusCounters.Set(summaryDetails.Frameworks[i].ListResourcesIDs(l))
 		summaryDetails.Frameworks[i].CalculateStatus()
 	}
 }

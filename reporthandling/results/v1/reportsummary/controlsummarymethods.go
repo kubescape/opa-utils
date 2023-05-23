@@ -79,7 +79,7 @@ func (controlSummary *ControlSummary) calculateNSetSubStatus(subStatus apis.Scan
 }
 
 // =================================== Counters ============================================
-func (controlSummary *ControlSummary) ListResourcesIDs() *helpersv1.AllLists {
+func (controlSummary *ControlSummary) ListResourcesIDs(l *helpersv1.AllLists) *helpersv1.AllLists {
 	return &controlSummary.ResourceIDs
 }
 
@@ -106,7 +106,6 @@ func (controlSummary *ControlSummary) Append(status apis.IStatus, ids ...string)
 		controlSummary.ResourceIDs.Append(status.Status(), ids[i])
 		controlSummary.increase(status)
 	}
-	controlSummary.ResourceIDs.ToUniqueResources() // TODO: check if it is needed
 }
 
 // =================================== Score ============================================
@@ -185,40 +184,50 @@ func (controlSummaries *ControlSummaries) GetControl(criteria ControlCriteria, v
 	return nil
 }
 
-func (controlSummaries *ControlSummaries) ListControlsIDs() *helpersv1.AllLists {
-	controls := &helpersv1.AllLists{}
+func (controlSummaries *ControlSummaries) ListControlsIDs(controls *helpersv1.AllLists) *helpersv1.AllLists {
+	if controls == nil {
+		controls = &helpersv1.AllLists{}
+	}
+	controls.Initialize(len(*controlSummaries))
 	for controlID, controlSummary := range *controlSummaries {
 		controls.Append(controlSummary.GetStatus().Status(), controlID)
 	}
-	controls.ToUniqueControls()
 	return controls
 }
 
 // might be redundant
 func (controlSummaries *ControlSummaries) NumberOfControls() ICounters {
-	l := controlSummaries.ListControlsIDs()
+	l := helpersv1.GetAllListsFromPool()
+	defer helpersv1.PutAllListsToPool(l)
+
+	l = controlSummaries.ListControlsIDs(l)
 	return &PostureCounters{
-		PassedCounter:  len(l.Passed()),
-		FailedCounter:  len(l.Failed()),
-		SkippedCounter: len(l.Skipped()),
+		PassedCounter:  l.Passed(),
+		FailedCounter:  l.Failed(),
+		SkippedCounter: l.Skipped(),
 	}
 }
 
-func (controlSummaries *ControlSummaries) ListResourcesIDs() *helpersv1.AllLists {
-	allList := &helpersv1.AllLists{}
+// ListResourcesIDs list all resources IDs for all controls
+//
+// If an optional pointer to an AllLists object is provided as a parameter, it will be used to store the results,
+// avoiding unnecessary memory allocations. If the parameter is nil, a new AllLists object will be created and returned.
+func (controlSummaries *ControlSummaries) ListResourcesIDs(allList *helpersv1.AllLists) *helpersv1.AllLists {
+	controlIds := helpersv1.GetAllListsFromPool()
+	defer helpersv1.PutAllListsToPool(controlIds)
 
-	//I've implemented it like this because i wanted to support future changes and access things only via interfaces
-	ctrlIDsIter := controlSummaries.ListControlsIDs().All()
-	for ctrlIDsIter.HasNext() {
-		resourcesIDs := controlSummaries.GetControl(EControlCriteriaID, ctrlIDsIter.Next()).ListResourcesIDs()
-		allList.Append(apis.StatusFailed, resourcesIDs.Failed()...)
-		allList.Append(apis.StatusPassed, resourcesIDs.Passed()...)
-		allList.Append(apis.StatusSkipped, resourcesIDs.Skipped()...)
-		allList.Append(apis.StatusUnknown, resourcesIDs.Other()...)
+	controlIds = controlSummaries.ListControlsIDs(controlIds)
+
+	if allList == nil {
+		allList = &helpersv1.AllLists{}
 	}
+	allList.Initialize(controlIds.Len())
 
-	// remove resources IDs duplications
-	allList.ToUniqueResources()
+	for ctrlId := range controlIds.All() {
+		l := helpersv1.GetAllListsFromPool()
+		allList.Update(controlSummaries.GetControl(EControlCriteriaID, ctrlId).ListResourcesIDs(l))
+		helpersv1.PutAllListsToPool(l)
+	}
 
 	return allList
 }

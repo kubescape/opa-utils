@@ -12,6 +12,7 @@ import (
 	"github.com/kubescape/k8s-interface/workloadinterface"
 	armoupautils "github.com/kubescape/opa-utils/objectsenvelopes"
 	"github.com/kubescape/opa-utils/reporthandling"
+	"github.com/kubescape/opa-utils/reporthandling/apis"
 	"github.com/kubescape/opa-utils/reporthandling/results/v1/reportsummary"
 	v2 "github.com/kubescape/opa-utils/reporthandling/v2"
 	"github.com/kubescape/opa-utils/shared"
@@ -302,22 +303,21 @@ func (su *ScoreUtil) ControlsSummariesScore(ctrls *reportsummary.ControlSummarie
 //
 // Returns: ctrlscore(normalized),ctrlscore(unnormalized),wcsscore,
 func (su *ScoreUtil) ControlV2Score(ctrl reportsummary.IControlSummary, _ /*frameworkName*/ string) (ctrlScore float32, unormalizedScore float32, wcsScore float32) {
-	resourcesIDs := ctrl.ListResourcesIDs()
-	failedResourceIDS := resourcesIDs.Failed()
-	allResourcesIDSIter := resourcesIDs.All()
+	resourcesIDs := ctrl.ListResourcesIDs(nil) // TODO: use pool?
 
-	for i := range failedResourceIDS {
-		if _, ok := su.resources[failedResourceIDS[i]]; ok {
-			unormalizedScore += su.GetScore(su.resources[failedResourceIDS[i]].GetObject())
+	for resourceId, status := range resourcesIDs.All() {
+		if status == apis.StatusFailed {
+			if _, ok := su.resources[resourceId]; ok {
+				unormalizedScore += su.GetScore(su.resources[resourceId].GetObject())
+			}
 		}
 	}
 
 	unormalizedScore *= ctrl.GetScoreFactor()
 
-	for allResourcesIDSIter.HasNext() {
-		resourceID := allResourcesIDSIter.Next()
-		if _, ok := su.resources[resourceID]; ok {
-			wcsScore += su.GetScore(su.resources[resourceID].GetObject())
+	for resourceId := range resourcesIDs.All() {
+		if _, ok := su.resources[resourceId]; ok {
+			wcsScore += su.GetScore(su.resources[resourceId].GetObject())
 		}
 	}
 
@@ -403,9 +403,9 @@ func (su *ScoreUtil) GetControlComplianceScore(ctrl reportsummary.IControlSummar
 		return 100
 	}
 
-	resourcesIDs := ctrl.ListResourcesIDs()
-	numOfPassedResources := len(resourcesIDs.Passed())
-	numOfAllResources := resourcesIDs.All().Len()
+	resourcesIDs := ctrl.ListResourcesIDs(nil)
+	numOfPassedResources := resourcesIDs.Passed()
+	numOfAllResources := resourcesIDs.Len()
 
 	if numOfAllResources > 0 {
 		return (float32(numOfPassedResources) / float32(numOfAllResources)) * 100

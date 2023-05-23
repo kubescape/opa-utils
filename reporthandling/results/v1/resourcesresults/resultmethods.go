@@ -36,20 +36,20 @@ func (result *Result) ListControls() []ResourceAssociatedControl {
 // ListFailedControls return list of failed controls IDs
 func (result *Result) ListControlsIDs(f *helpersv1.Filters) *helpersv1.AllLists {
 	controls := &helpersv1.AllLists{}
+	controls.Initialize(len(result.AssociatedControls))
 	for i := range result.AssociatedControls {
 		controls.Append(result.AssociatedControls[i].GetStatus(f).Status(), result.AssociatedControls[i].GetID())
 	}
-	controls.ToUniqueControls()
 	return controls
 }
 
 // ListFailedControls return list of controls IDs
 func (result *Result) ListControlsNames(f *helpersv1.Filters) *helpersv1.AllLists {
 	controls := &helpersv1.AllLists{}
+	controls.Initialize(len(result.AssociatedControls))
 	for i := range result.AssociatedControls {
 		controls.Append(result.AssociatedControls[i].GetStatus(f).Status(), result.AssociatedControls[i].GetName())
 	}
-	controls.ToUniqueControls()
 	return controls
 }
 

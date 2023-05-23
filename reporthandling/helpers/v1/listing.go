@@ -1,145 +1,154 @@
 package helpers
 
 import (
+	"sync"
+
 	"github.com/kubescape/opa-utils/reporthandling/apis"
-	"github.com/kubescape/opa-utils/reporthandling/internal/slices"
+	"golang.org/x/exp/maps"
 )
+
+var allListsPool = &sync.Pool{
+	New: func() interface{} {
+		return &AllLists{}
+	},
+}
+
+// GetAllListsFromPool get the AllLists object from the pool
+func GetAllListsFromPool() *AllLists {
+	l := allListsPool.Get().(*AllLists)
+	// reset the object before returning it as it might be dirty
+	l.Clear()
+	return l
+}
+
+// PutAllListsToPool put the AllLists object back to the pool
+func PutAllListsToPool(l *AllLists) {
+	allListsPool.Put(l)
+}
 
 // ReportObject any report object must be compliment with a map[string]interface{} structures
 type ReportObject map[string]interface{}
 
 // AllLists lists of resources/policies grouped by the status, this structure is meant for internal use of report handling and not an API
 type AllLists struct {
-	passed   []string
-	failed   []string
-	skipped  []string
-	excluded []string
-	other    []string
+	itemToStatus map[string]apis.ScanningStatus
+	passed       int
+	failed       int
+	skipped      int
+	other        int
 }
 
-type Iterator interface {
-	HasNext() bool
-	Next() string
-	Len() int
+func (all *AllLists) Failed() int  { return all.failed }
+func (all *AllLists) Passed() int  { return all.passed }
+func (all *AllLists) Skipped() int { return all.skipped }
+func (all *AllLists) Other() int   { return all.other }
+func (all *AllLists) Len() int {
+	return all.failed + all.passed + all.skipped + all.other
+}
+func (all *AllLists) All() map[string]apis.ScanningStatus {
+	return all.itemToStatus
 }
 
-type AllListsIterator struct {
-	allLists     *AllLists
-	size         int
-	index        int
-	failedIndex  int
-	passIndex    int
-	skippedIndex int
-	otherIndex   int
-}
-
-func (all *AllLists) createIterator() Iterator {
-	return &AllListsIterator{
-		size:     len(all.failed) + len(all.passed) + len(all.skipped) + len(all.other),
-		allLists: all,
+// Initialize initialize the AllLists object map with the given size - this is an optimization for the map
+func (all *AllLists) Initialize(size int) {
+	if all.itemToStatus == nil {
+		all.itemToStatus = make(map[string]apis.ScanningStatus, size)
 	}
 }
 
-func (iter *AllListsIterator) Len() int {
-	return iter.size
-}
-
-func (iter *AllListsIterator) HasNext() bool {
-	return iter.index < iter.size
-}
-
-func (iter *AllListsIterator) Next() string {
-	var item string
-	if iter.HasNext() {
-		if iter.failedIndex < len(iter.allLists.failed) {
-			item = iter.allLists.failed[iter.failedIndex]
-			iter.failedIndex++
-		} else if iter.passIndex < len(iter.allLists.passed) {
-			item = iter.allLists.passed[iter.passIndex]
-			iter.passIndex++
-		} else if iter.skippedIndex < len(iter.allLists.skipped) {
-			item = iter.allLists.skipped[iter.skippedIndex]
-			iter.skippedIndex++
-		} else if iter.otherIndex < len(iter.allLists.other) {
-			item = iter.allLists.other[iter.otherIndex]
-			iter.otherIndex++
-		}
-		iter.index++
+// Clear remove all items and reset the counters
+func (all *AllLists) Clear() {
+	if all.itemToStatus != nil {
+		maps.Clear(all.itemToStatus)
+		all.passed = 0
+		all.failed = 0
+		all.skipped = 0
+		all.other = 0
 	}
-	return item
-}
-
-// GetAllResources
-
-func (all *AllLists) Failed() []string  { return all.failed }
-func (all *AllLists) Passed() []string  { return append(all.passed, all.excluded...) }
-func (all *AllLists) Skipped() []string { return all.skipped }
-func (all *AllLists) Other() []string   { return all.other }
-func (all *AllLists) All() Iterator {
-	return all.createIterator()
 }
 
 // Append append single string to matching status list
 func (all *AllLists) Append(status apis.ScanningStatus, str ...string) {
-	switch status {
-	case apis.StatusPassed:
-		all.passed = append(all.passed, str...)
-	case apis.StatusSkipped:
-		all.skipped = append(all.skipped, str...)
-	case apis.StatusFailed:
-		all.failed = append(all.failed, str...)
-	default:
-		all.other = append(all.other, str...)
+	if all.itemToStatus == nil {
+		all.itemToStatus = make(map[string]apis.ScanningStatus, len(str))
+	}
+
+	for _, s := range str {
+		oldStatus, exist := all.itemToStatus[s]
+		if !exist {
+			all.itemToStatus[s] = status
+			switch status {
+			case apis.StatusPassed:
+				all.passed++
+			case apis.StatusFailed:
+				all.failed++
+			case apis.StatusSkipped:
+				all.skipped++
+			default:
+				all.other++
+			}
+			// element exist with different status
+		} else if oldStatus != status {
+			// check if the new status is more significant
+			if result := apis.Compare(oldStatus, status); result == status {
+				all.itemToStatus[s] = status
+				switch status {
+				case apis.StatusPassed:
+					all.passed++
+				case apis.StatusFailed:
+					all.failed++
+				case apis.StatusSkipped:
+					all.skipped++
+				default:
+					all.other++
+				}
+
+				// update the old status
+				switch oldStatus {
+				case apis.StatusPassed:
+					all.passed--
+				case apis.StatusFailed:
+					all.failed--
+				case apis.StatusSkipped:
+					all.skipped--
+				default:
+					all.other--
+				}
+			}
+		}
 	}
 }
 
 // Update AllLists objects with
 func (all *AllLists) Update(all2 *AllLists) {
-	all.passed = append(all.passed, all2.passed...)
-	all.skipped = append(all.skipped, all2.skipped...)
-	all.failed = append(all.failed, all2.failed...)
-	all.other = append(all.other, all2.other...)
+	for item, status := range all2.itemToStatus {
+		all.Append(apis.ScanningStatus(status), item)
+	}
 }
 
-// ToUnique - Call this function only when setting the List
-func (all *AllLists) toUniqueBase() {
-	// remove duplications from each resource list
-	all.failed = slices.UniqueStrings(all.failed)
-	all.passed = slices.UniqueStrings(all.passed)
-	all.skipped = slices.UniqueStrings(all.skipped)
-	all.other = slices.UniqueStrings(all.other)
-}
-
-// ToUnique - Call this function only when setting the List
-func (all *AllLists) ToUniqueControls() {
-	all.toUniqueBase()
-}
-
-// ToUnique - Call this function only when setting the List
-func (all *AllLists) ToUniqueResources() {
-	all.failed = slices.UniqueStrings(all.failed)
-
-	const heuristicCapacity = 100 // alloc 100 slots to the stack. The rest would go to the heap - see https://github.com/golang/go/issues/58215
-
-	trimmed := append(make([]string, 0, heuristicCapacity), make([]string, 0, max(len(all.failed)+len(all.excluded)+len(all.passed)+len(all.skipped), heuristicCapacity)-heuristicCapacity)...)
-
-	// remove failed from excluded list
-	trimmed = append(trimmed, all.failed...)
-	all.skipped = slices.TrimStableUnique(all.skipped, trimmed)
-
-	// remove failed and skipped from passed list
-	trimmed = append(trimmed, all.skipped...)
-	all.passed = slices.TrimStableUnique(all.passed, trimmed)
-
-	// remove failed, skipped and passed from "other" list
-	trimmed = append(trimmed, all.passed...)
-	all.other = slices.TrimStableUnique(all.other, trimmed)
-}
-
-func max(a, b int) int {
-	if a > b {
-		return a
+func (all *AllLists) GetItems(status apis.ScanningStatus) []string {
+	var amount int
+	switch status {
+	case apis.StatusPassed:
+		amount = all.passed
+	case apis.StatusFailed:
+		amount = all.failed
+	case apis.StatusSkipped:
+		amount = all.skipped
+	default:
+		amount = all.other
 	}
 
-	return b
+	if amount == 0 {
+		return []string{}
+	}
+
+	items := make([]string, 0, amount)
+	for item, itemStatus := range all.itemToStatus {
+		if itemStatus == status {
+			items = append(items, item)
+		}
+	}
+
+	return items
 }
