@@ -15,7 +15,10 @@ var allListsPool = &sync.Pool{
 
 // GetAllListsFromPool get the AllLists object from the pool
 func GetAllListsFromPool() *AllLists {
-	l := allListsPool.Get().(*AllLists)
+	l, ok := allListsPool.Get().(*AllLists)
+	if !ok {
+		return nil
+	}
 	// reset the object before returning it as it might be dirty
 	l.Clear()
 	return l
@@ -77,45 +80,37 @@ func (all *AllLists) Append(status apis.ScanningStatus, str ...string) {
 		oldStatus, exist := all.itemToStatus[s]
 		if !exist {
 			all.itemToStatus[s] = status
-			switch status {
-			case apis.StatusPassed:
-				all.passed++
-			case apis.StatusFailed:
-				all.failed++
-			case apis.StatusSkipped:
-				all.skipped++
-			default:
-				all.other++
-			}
+			all.updateCounters(status, true)
 			// element exist with different status
 		} else if oldStatus != status {
 			// check if the new status is more significant
 			if result := apis.Compare(oldStatus, status); result == status {
 				all.itemToStatus[s] = status
-				switch status {
-				case apis.StatusPassed:
-					all.passed++
-				case apis.StatusFailed:
-					all.failed++
-				case apis.StatusSkipped:
-					all.skipped++
-				default:
-					all.other++
-				}
-
-				// update the old status
-				switch oldStatus {
-				case apis.StatusPassed:
-					all.passed--
-				case apis.StatusFailed:
-					all.failed--
-				case apis.StatusSkipped:
-					all.skipped--
-				default:
-					all.other--
-				}
+				all.updateCounters(status, true)
+				all.updateCounters(oldStatus, false)
 			}
 		}
+	}
+}
+
+// Helper function to update status counters
+func (all *AllLists) updateCounters(status apis.ScanningStatus, increment bool) {
+	var delta int
+	if increment {
+		delta = 1
+	} else {
+		delta = -1
+	}
+
+	switch status {
+	case apis.StatusPassed:
+		all.passed += delta
+	case apis.StatusFailed:
+		all.failed += delta
+	case apis.StatusSkipped:
+		all.skipped += delta
+	default:
+		all.other += delta
 	}
 }
 
