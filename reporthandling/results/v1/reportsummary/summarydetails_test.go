@@ -174,9 +174,9 @@ func TestUpdateControlsSummaryCountersRequiresReview(t *testing.T) {
 	updateControlsSummaryCounters(&mockResultRequiresReview, controls, nil)
 	for _, v := range controls {
 		assert.Equal(t, 1, v.NumberOfResources().All())
-		assert.Equal(t, 0, v.NumberOfResources().Failed())
+		assert.Equal(t, 1, v.NumberOfResources().Failed())
 		assert.Equal(t, 0, v.NumberOfResources().Passed())
-		assert.Equal(t, 1, v.NumberOfResources().Skipped())
+		assert.Equal(t, 0, v.NumberOfResources().Skipped())
 		assert.Equal(t, apis.SubStatusRequiresReview, v.GetSubStatus())
 	}
 }

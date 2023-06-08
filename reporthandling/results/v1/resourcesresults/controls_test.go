@@ -61,11 +61,11 @@ func TestSetStatus(t *testing.T) {
 
 	r6 := mockResourceAssociatedControlFailed()
 	r6.SetStatus(*mockControlWithActionRequiredRequiresReview())
-	assert.Equal(t, apis.StatusSkipped, r6.GetStatus(nil).Status())
+	assert.Equal(t, apis.StatusFailed, r6.GetStatus(nil).Status())
 	assert.Equal(t, apis.SubStatusRequiresReview, r6.GetSubStatus())
 	assert.False(t, r6.GetStatus(nil).IsPassed())
-	assert.False(t, r6.GetStatus(nil).IsFailed())
-	assert.True(t, r6.GetStatus(nil).IsSkipped())
+	assert.True(t, r6.GetStatus(nil).IsFailed())
+	assert.False(t, r6.GetStatus(nil).IsSkipped())
 
 }
 
