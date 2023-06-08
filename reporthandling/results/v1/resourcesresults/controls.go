@@ -120,22 +120,6 @@ func (control *ResourceAssociatedControl) ListRules() []ResourceAssociatedRule {
 	return control.ResourceAssociatedRules
 }
 
-// DEPRECATED
-// controlMissingConfiguration return true if the control is missing configuration
-func controlMissingConfiguration(control *ResourceAssociatedControl) bool {
-	for _, rule := range control.ResourceAssociatedRules {
-		if len(rule.ControlConfigurations) == 0 {
-			return true
-		}
-		for _, configuration := range rule.ControlConfigurations {
-			if len(configuration) == 0 {
-				return true
-			}
-		}
-	}
-	return false
-}
-
 // controlMissingConfiguration returns true if all control configurations are missing
 func controlMissingAllConfigurations(control *ResourceAssociatedControl) bool {
 	for _, rule := range control.ResourceAssociatedRules {
