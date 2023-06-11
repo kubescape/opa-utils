@@ -162,3 +162,73 @@ func Test_GetStatusAndSubStatus_NewResourceAssociatedControls(t *testing.T) {
 		assert.Equal(t, controlIdToExpectedSubStatus[control.ControlID], string(control.GetSubStatus()))
 	}
 }
+
+func TestControlMissingAllConfigurations(t *testing.T) {
+	tests := []struct {
+		name    string
+		control *ResourceAssociatedControl
+		want    bool
+	}{
+		{
+			name: "TestControlNoConfigurations",
+			control: &ResourceAssociatedControl{
+				ResourceAssociatedRules: []ResourceAssociatedRule{
+					{
+						ControlConfigurations: map[string][]string{},
+					},
+				},
+			},
+			want: true,
+		}, {
+			name: "TestControlOneEmptyConfiguration",
+			control: &ResourceAssociatedControl{
+				ResourceAssociatedRules: []ResourceAssociatedRule{
+					{
+						ControlConfigurations: map[string][]string{
+							"EmptyConfiguration": {},
+						},
+					},
+				},
+			},
+			want: true,
+		},
+		{
+			name: "TestControlOneNonEmptyConfiguration",
+			control: &ResourceAssociatedControl{
+				ResourceAssociatedRules: []ResourceAssociatedRule{
+					{
+						ControlConfigurations: map[string][]string{
+							"NonEmptyConfiguration": {
+								"key", "value",
+							},
+						},
+					},
+				},
+			},
+			want: false,
+		},
+		{
+			name: "TestControlMultipleConfigurations",
+			control: &ResourceAssociatedControl{
+				ResourceAssociatedRules: []ResourceAssociatedRule{
+					{
+						ControlConfigurations: map[string][]string{
+							"EmptyConfiguration": {},
+							"NonEmptyConfiguration": {
+								"key", "value",
+							},
+						},
+					},
+				},
+			},
+			want: false,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := controlMissingAllConfigurations(tt.control); got != tt.want {
+				t.Errorf("Control.missingAllConfigurations() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}

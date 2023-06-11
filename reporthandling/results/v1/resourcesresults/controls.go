@@ -103,7 +103,7 @@ func (control *ResourceAssociatedControl) SetStatus(c reporthandling.Control) {
 	}
 
 	// If the control type is configuration and the configuration is not set, the status is skipped and the sub status is configuration
-	if actionRequired == apis.SubStatusConfiguration && controlMissingConfiguration(control) {
+	if actionRequired == apis.SubStatusConfiguration && controlMissingAllConfigurations(control) {
 		status = apis.StatusSkipped
 		subStatus = apis.SubStatusConfiguration
 		statusInfo = string(apis.SubStatusConfigurationInfo)
@@ -120,17 +120,17 @@ func (control *ResourceAssociatedControl) ListRules() []ResourceAssociatedRule {
 	return control.ResourceAssociatedRules
 }
 
-// controlMissingConfiguration return true if the control is missing configuration
-func controlMissingConfiguration(control *ResourceAssociatedControl) bool {
+// controlMissingAllConfiguration returns true if all control configurations are missing
+func controlMissingAllConfigurations(control *ResourceAssociatedControl) bool {
 	for _, rule := range control.ResourceAssociatedRules {
 		if len(rule.ControlConfigurations) == 0 {
 			return true
 		}
 		for _, configuration := range rule.ControlConfigurations {
-			if len(configuration) == 0 {
-				return true
+			if len(configuration) != 0 {
+				return false
 			}
 		}
 	}
-	return false
+	return true
 }
