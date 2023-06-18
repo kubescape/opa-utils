@@ -61,7 +61,7 @@ type Control struct {
 	CreationTime          string       `json:"creationTime" bson:"creationTime"`
 	Description           string       `json:"description" bson:"description"`
 	Remediation           string       `json:"remediation" bson:"remediation"`
-	ControlTypeTags       []string     `json:"controlTypeTags" bson:"controlTypeTags"`
+	TypeTags              []string     `json:"typeTags" bson:"typeTags"`
 	Rules                 []PolicyRule `json:"rules" bson:"rules,omitempty"`
 	FrameworkNames        []string     `json:"frameworkNames,omitempty" bson:"frameworkNames,omitempty"`
 	BaseScore             float32      `json:"baseScore,omitempty" bson:"baseScore,omitempty"`
@@ -78,7 +78,7 @@ type Framework struct {
 	armotypes.PortalBase `json:",inline" bson:"inline"`
 	CreationTime         string    `json:"creationTime" bson:"creationTime"`
 	Description          string    `json:"description" bson:"description"`
-	FrameworkTypeTags    []string  `json:"frameworkTypeTags" bson:"type"`
+	TypeTags             []string  `json:"typeTags" bson:"typeTags"`
 	Controls             []Control `json:"controls" bson:"-"`
 	// for new list of  controls in POST/UPADTE requests
 	ControlsIDs *[]string                       `json:"controlsIDs,omitempty" bson:"controlsIDs,omitempty"`
