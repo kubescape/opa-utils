@@ -61,7 +61,6 @@ type Control struct {
 	CreationTime          string       `json:"creationTime" bson:"creationTime"`
 	Description           string       `json:"description" bson:"description"`
 	Remediation           string       `json:"remediation" bson:"remediation"`
-	TypeTags              []string     `json:"typeTags" bson:"typeTags"`
 	Rules                 []PolicyRule `json:"rules" bson:"rules,omitempty"`
 	FrameworkNames        []string     `json:"frameworkNames,omitempty" bson:"frameworkNames,omitempty"`
 	BaseScore             float32      `json:"baseScore,omitempty" bson:"baseScore,omitempty"`
