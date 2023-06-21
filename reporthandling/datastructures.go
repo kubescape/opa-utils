@@ -77,6 +77,7 @@ type Framework struct {
 	armotypes.PortalBase `json:",inline" bson:"inline"`
 	CreationTime         string    `json:"creationTime" bson:"creationTime"`
 	Description          string    `json:"description" bson:"description"`
+	TypeTags             []string  `json:"typeTags" bson:"typeTags"`
 	Controls             []Control `json:"controls" bson:"-"`
 	// for new list of  controls in POST/UPADTE requests
 	ControlsIDs *[]string                       `json:"controlsIDs,omitempty" bson:"controlsIDs,omitempty"`
