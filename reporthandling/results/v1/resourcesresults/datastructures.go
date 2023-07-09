@@ -32,4 +32,5 @@ type ResourceAssociatedRule struct {
 	SubStatus             apis.ScanningSubStatus             `json:"subStatus"`
 	Paths                 []armotypes.PosturePaths           `json:"paths,omitempty"`
 	Exception             []armotypes.PostureExceptionPolicy `json:"exception,omitempty"`
+	RelatedResourcesIDs   []string                           `json:"relatedResourcesIDs,omitempty"`
 }
