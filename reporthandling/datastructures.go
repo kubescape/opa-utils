@@ -18,9 +18,10 @@ const (
 
 // RuleMatchObjects defines which objects this rule applied on
 type RuleMatchObjects struct {
-	APIGroups   []string `json:"apiGroups" bson:"apiGroups"`     // apps
-	APIVersions []string `json:"apiVersions" bson:"apiVersions"` // v1/ v1beta1 / *
-	Resources   []string `json:"resources" bson:"resources"`     // dep.., pods,
+	APIGroups     []string `json:"apiGroups" bson:"apiGroups"`         // apps
+	APIVersions   []string `json:"apiVersions" bson:"apiVersions"`     // v1/ v1beta1 / *
+	Resources     []string `json:"resources" bson:"resources"`         // dep.., pods,
+	FieldSelector []string `json:"fieldSelector" bson:"fieldSelector"` // fields selector for example metadata.name==nginx,metadata.namespace==ns1
 }
 
 type RuleDependency struct {
