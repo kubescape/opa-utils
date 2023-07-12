@@ -22,13 +22,13 @@ var (
 func TestControlsVectorFromAttackTrackPaths(t *testing.T) {
 	tests := []struct {
 		name        string
-		attackTrack *v1alpha1.AttackTrack
+		attackTrack v1alpha1.IAttackTrack
 		controlsMap v1alpha1.AttackTrackControlsLookup
 		expected    []ControlsVector
 	}{
 		{
 			name: "Valid Attack Graph",
-			attackTrack: v1alpha1.AttackTrackMock(
+			attackTrack: v1alpha1.GetAttackTrackMock(
 				v1alpha1.AttackTrackStep{
 					Name: "A",
 					SubSteps: []v1alpha1.AttackTrackStep{

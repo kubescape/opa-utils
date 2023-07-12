@@ -28,3 +28,33 @@ func (step *AttackTrackStep) Length() int {
 func (step *AttackTrackStep) SubStepAt(index int) IAttackTrackStep {
 	return &step.SubSteps[index]
 }
+
+// Equal checks if the given attack track step is equal to the current one
+// If compareControls is true, the controls are also compared
+func (s *AttackTrackStep) Equal(other *AttackTrackStep, compareControls bool) bool {
+	if s.Name != other.Name || s.Description != other.Description || len(s.SubSteps) != len(other.SubSteps) {
+		return false
+	}
+
+	for i := range s.SubSteps {
+		if !s.SubSteps[i].Equal(&other.SubSteps[i], compareControls) {
+			return false
+		}
+	}
+
+	if compareControls {
+
+		if len(s.Controls) != len(other.Controls) {
+			return false
+		}
+
+		for i := range s.Controls {
+
+			if !(s.Controls[i] == other.Controls[i]) {
+				return false
+			}
+		}
+	}
+
+	return true
+}

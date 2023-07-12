@@ -20,13 +20,13 @@ var (
 
 func TestAttackTrack_IsValid(t *testing.T) {
 	tests := []struct {
-		v        *AttackTrack
+		v        IAttackTrack
 		name     string
 		expected bool
 	}{
 		{
 			name: "Cyclic Definition",
-			v: AttackTrackMock(
+			v: GetAttackTrackMock(
 				AttackTrackStep{
 					Name: "A",
 					SubSteps: []AttackTrackStep{
@@ -45,7 +45,7 @@ func TestAttackTrack_IsValid(t *testing.T) {
 		},
 		{
 			name: "Duplicate step",
-			v: AttackTrackMock(
+			v: GetAttackTrackMock(
 				AttackTrackStep{
 					Name: "A",
 					SubSteps: []AttackTrackStep{
@@ -62,7 +62,7 @@ func TestAttackTrack_IsValid(t *testing.T) {
 		},
 		{
 			name: "Valid Attack Graph",
-			v: AttackTrackMock(
+			v: GetAttackTrackMock(
 				AttackTrackStep{
 					Name: "A",
 					SubSteps: []AttackTrackStep{
@@ -79,7 +79,7 @@ func TestAttackTrack_IsValid(t *testing.T) {
 		},
 		{
 			name: "Invalid tree with duplicate step",
-			v: AttackTrackMock(
+			v: GetAttackTrackMock(
 				AttackTrackStep{
 					Name: "A",
 					SubSteps: []AttackTrackStep{
@@ -116,7 +116,7 @@ func TestAttackTrack_IsValid(t *testing.T) {
 }
 
 func TestIterator(t *testing.T) {
-	v := AttackTrackMock(
+	v := GetAttackTrackMock(
 		AttackTrackStep{
 			Name: "A",
 			SubSteps: []AttackTrackStep{
@@ -155,13 +155,13 @@ func TestIterator(t *testing.T) {
 func TestAttackTrack_CalculateAllPaths(t *testing.T) {
 	tests := []struct {
 		name        string
-		attackTrack *AttackTrack
+		attackTrack IAttackTrack
 		controlsMap AttackTrackControlsLookup
 		want        [][]string
 	}{
 		{
 			name: "Valid Attack Graph",
-			attackTrack: AttackTrackMock(
+			attackTrack: GetAttackTrackMock(
 				AttackTrackStep{
 					Name: "A",
 					SubSteps: []AttackTrackStep{
@@ -233,7 +233,7 @@ func TestAttackTrack_CalculateAllPaths(t *testing.T) {
 }
 
 func TestNewAttackTrackControlsLookup(t *testing.T) {
-	attackTrack := AttackTrackMock(
+	attackTrack := GetAttackTrackMock(
 		AttackTrackStep{
 			Name: "A",
 			SubSteps: []AttackTrackStep{
@@ -293,4 +293,397 @@ func TestNewAttackTrackControlsLookup(t *testing.T) {
 	expectedJson, _ := json.Marshal(expected)
 
 	assert.JSONEq(t, string(expectedJson), string(resultJson))
+}
+
+func TestCalculatePathsRootToLeaf(t *testing.T) {
+	tests := []struct {
+		name        string
+		attackTrack IAttackTrack
+		controlsMap AttackTrackControlsLookup
+		want        [][]string
+	}{
+		{
+			name: "Found attack chain",
+			attackTrack: GetAttackTrackMock(
+				AttackTrackStep{
+					Name: "A",
+					SubSteps: []AttackTrackStep{
+						{
+							Name: "C",
+							SubSteps: []AttackTrackStep{
+								{
+									Name: "B",
+								},
+								{
+									Name: "D",
+								},
+								{
+									Name: "E",
+									SubSteps: []AttackTrackStep{
+										{
+											Name: "G",
+										},
+									},
+								},
+							},
+						},
+						{
+							Name: "F",
+						},
+					},
+				},
+			),
+			controlsMap: AttackTrackControlsLookup{
+				"TestAttackTrack": {
+					"A": {
+						control_1, control_2,
+					},
+					"F": {
+						control_3, control_4,
+					},
+					"C": {
+						control_5,
+					},
+					"B": {
+						control_6,
+					},
+					"G": {
+						control_7, control_8,
+					},
+				},
+			},
+			want: [][]string{
+				{"A", "C", "B"},
+				{"A", "F"},
+			},
+		},
+		{
+			name: "No attack chain",
+			attackTrack: GetAttackTrackMock(
+				AttackTrackStep{
+					Name: "A",
+					SubSteps: []AttackTrackStep{
+						{
+							Name: "C",
+							SubSteps: []AttackTrackStep{
+								{
+									Name: "B",
+								},
+								{
+									Name: "D",
+								},
+								{
+									Name: "E",
+									SubSteps: []AttackTrackStep{
+										{
+											Name: "G",
+										},
+									},
+								},
+							},
+						},
+						{
+							Name: "F",
+						},
+					},
+				},
+			),
+			controlsMap: AttackTrackControlsLookup{
+				"TestAttackTrack": {
+					"A": {
+						control_1, control_2,
+					},
+					"B": {
+						control_6,
+					},
+				},
+			},
+			want: nil,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			handler := NewAttackTrackAllPathsHandler(tt.attackTrack, &tt.controlsMap)
+			paths := handler.CalculatePathsRootToLeaf()
+			// newAttackTrack := handler.GenerateAttackTrackFromPaths(paths)
+
+			if !(tt.want == nil && paths == nil) {
+				assert.Equalf(t, len(tt.want), len(paths), "CalculatePathsToLeaf should return the correct number of paths. expected: %v, actual: %v", len(tt.want), len(paths))
+				for i, path := range paths {
+					for j, step := range path {
+						assert.Equalf(t, tt.want[i][j], step.GetName(), "CalculatePathsToLeaf should return the correct paths. expected: %v, actual: %v", tt.want, paths)
+					}
+				}
+
+			}
+
+		})
+	}
+}
+
+func TestGenerateAttackTrackFromPaths(t *testing.T) {
+	tests := []struct {
+		name        string
+		attackTrack IAttackTrack
+		controlsMap AttackTrackControlsLookup
+		want        IAttackTrack
+	}{
+		{
+			name: "Found attack chain",
+			attackTrack: GetAttackTrackMock(
+				AttackTrackStep{
+					Name: "A",
+					SubSteps: []AttackTrackStep{
+						{
+							Name: "C",
+							SubSteps: []AttackTrackStep{
+								{
+									Name: "B",
+								},
+								{
+									Name: "D",
+								},
+								{
+									Name: "E",
+									SubSteps: []AttackTrackStep{
+										{
+											Name: "G",
+										},
+									},
+								},
+							},
+						},
+						{
+							Name: "F",
+						},
+					},
+				},
+			),
+			controlsMap: AttackTrackControlsLookup{
+				"TestAttackTrack": {
+					"A": {
+						control_1, control_2,
+					},
+					"F": {
+						control_3, control_4,
+					},
+					"C": {
+						control_5,
+					},
+					"B": {
+						control_6,
+					},
+					"G": {
+						control_7, control_8,
+					},
+				},
+			},
+			want: GetAttackTrackMock(
+				AttackTrackStep{
+					Name: "A",
+					SubSteps: []AttackTrackStep{
+						{
+							Name: "C",
+							SubSteps: []AttackTrackStep{
+								{
+									Name: "B",
+								},
+							},
+						},
+						{
+							Name: "F",
+						},
+					},
+				}),
+		},
+		{
+			name: "No attack chain",
+			attackTrack: GetAttackTrackMock(
+				AttackTrackStep{
+					Name: "A",
+					SubSteps: []AttackTrackStep{
+						{
+							Name: "C",
+							SubSteps: []AttackTrackStep{
+								{
+									Name: "B",
+								},
+								{
+									Name: "D",
+								},
+								{
+									Name: "E",
+									SubSteps: []AttackTrackStep{
+										{
+											Name: "G",
+										},
+									},
+								},
+							},
+						},
+						{
+							Name: "F",
+						},
+					},
+				},
+			),
+			controlsMap: AttackTrackControlsLookup{
+				"TestAttackTrack": {
+					"A": {
+						control_1, control_2,
+					},
+					"B": {
+						control_6,
+					},
+				},
+			},
+			want: nil,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			handler := NewAttackTrackAllPathsHandler(tt.attackTrack, &tt.controlsMap)
+			paths := handler.CalculatePathsRootToLeaf()
+			result := handler.GenerateAttackTrackFromPaths(paths)
+
+			if !(tt.want == nil && result == nil) {
+				if tt.want == nil {
+					assert.Fail(t, "Expected is nil while actual is not nil")
+				} else if result == nil {
+					assert.Fail(t, "Actual is nil while expected is not nil")
+				} else {
+					assert.True(t, result.GetData().(*AttackTrackStep).Equal(tt.want.GetData().(*AttackTrackStep), false))
+				}
+			}
+
+		})
+	}
+}
+
+func TestFilterNodesWithControls(t *testing.T) {
+
+	// Create some sample paths
+	paths := [][]AttackTrackStepMock{
+		{
+			AttackTrackStepMock{Name: "A", Controls: []IAttackTrackControl{}},
+			AttackTrackStepMock{Name: "B", Controls: []IAttackTrackControl{}},
+		},
+		{
+			AttackTrackStepMock{Name: "A", Controls: []IAttackTrackControl{}},
+			AttackTrackStepMock{Name: "C", Controls: []IAttackTrackControl{}},
+			AttackTrackStepMock{Name: "D", Controls: []IAttackTrackControl{}},
+		},
+		{
+			AttackTrackStepMock{Name: "B", Controls: []IAttackTrackControl{}},
+			AttackTrackStepMock{Name: "E", Controls: []IAttackTrackControl{}},
+		},
+	}
+
+	// Create the test cases
+	testCases := []struct {
+		name           string
+		step           *AttackTrackStepMock
+		expectedResult *AttackTrackStep
+	}{
+		{
+			name: "No controls, no substeps",
+			step: &AttackTrackStepMock{
+				Name:        "A",
+				Description: "Step A",
+				SubSteps:    []AttackTrackStepMock{},
+				Controls:    []IAttackTrackControl{},
+			},
+			expectedResult: nil,
+		},
+		{
+			name: "Controls, no substeps",
+			step: &AttackTrackStepMock{
+				Name:        "B",
+				Description: "Step B",
+				SubSteps:    []AttackTrackStepMock{},
+				Controls:    []IAttackTrackControl{control_1},
+			},
+			expectedResult: &AttackTrackStep{
+				Name:        "B",
+				Description: "Step B",
+				SubSteps:    []AttackTrackStep{},
+				Controls:    []IAttackTrackControl{control_1},
+			},
+		},
+		{
+			name: "No controls, substeps present in paths",
+			step: &AttackTrackStepMock{
+				Name:        "C",
+				Description: "Step C",
+				SubSteps: []AttackTrackStepMock{
+					{Name: "D", Controls: []IAttackTrackControl{}},
+				},
+				Controls: []IAttackTrackControl{},
+			},
+			expectedResult: nil,
+		},
+		{
+			name: "Controls, substeps not present in paths",
+			step: &AttackTrackStepMock{
+				Name:        "E",
+				Description: "Step E",
+				SubSteps: []AttackTrackStepMock{
+					{Name: "F", Controls: []IAttackTrackControl{}},
+					{Name: "G", Controls: []IAttackTrackControl{}},
+				},
+				Controls: []IAttackTrackControl{control_2},
+			},
+			expectedResult: &AttackTrackStep{
+				Name:        "E",
+				Description: "Step E",
+				SubSteps:    []AttackTrackStep{},
+				Controls:    []IAttackTrackControl{control_2},
+			},
+		},
+		{
+			name: "Controls, substeps present in paths",
+			step: &AttackTrackStepMock{
+				Name:        "A",
+				Description: "Step A",
+				SubSteps: []AttackTrackStepMock{
+					{Name: "B", Controls: []IAttackTrackControl{}},
+					{Name: "C", Controls: []IAttackTrackControl{}},
+				},
+				Controls: []IAttackTrackControl{control_1},
+			},
+			expectedResult: &AttackTrackStep{
+				Name:        "A",
+				Description: "Step A",
+				SubSteps:    []AttackTrackStep{},
+				Controls:    []IAttackTrackControl{control_1},
+			},
+		},
+	}
+
+	// Run the test cases
+	for _, tc := range testCases {
+		t.Run(tc.name, func(t *testing.T) {
+			handler := AttackTrackAllPathsHandler{
+				// attackTrack: AttackTrackMock(tc.step),
+				attackTrack: AttackTrackMock{Spec: MockAttackTrackSpecification{Data: tc.step}},
+			}
+
+			pathsCopy := make([][]IAttackTrackStep, len(paths))
+			for i := range paths {
+				pathsCopy[i] = make([]IAttackTrackStep, len(paths[i]))
+				for j, step := range paths[i] {
+					pathsCopy[i][j] = step
+				}
+			}
+
+			result := handler.filterNodesWithControls(handler.attackTrack.GetData(), pathsCopy)
+
+			if !(result == nil && tc.expectedResult == nil) && result.Equal(tc.expectedResult, true) == false {
+				// if !compareAttackTrackStep(result, tc.expectedResult) {
+				t.Errorf("Unexpected result.\nExpected: %+v\nGot: %+v", tc.expectedResult, result)
+			}
+		})
+	}
 }
