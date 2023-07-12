@@ -406,13 +406,12 @@ func TestCalculatePathsRootToLeaf(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			handler := NewAttackTrackAllPathsHandler(tt.attackTrack, &tt.controlsMap)
 			paths := handler.CalculatePathsRootToLeaf()
-			// newAttackTrack := handler.GenerateAttackTrackFromPaths(paths)
 
-			if !(tt.want == nil && paths == nil) {
-				assert.Equalf(t, len(tt.want), len(paths), "CalculatePathsToLeaf should return the correct number of paths. expected: %v, actual: %v", len(tt.want), len(paths))
+			if tt.want != nil || paths != nil {
+				assert.Equalf(t, len(tt.want), len(paths), "CalculatePathsRootToLeaf should return the correct number of paths. expected: %v, actual: %v", len(tt.want), len(paths))
 				for i, path := range paths {
 					for j, step := range path {
-						assert.Equalf(t, tt.want[i][j], step.GetName(), "CalculatePathsToLeaf should return the correct paths. expected: %v, actual: %v", tt.want, paths)
+						assert.Equalf(t, tt.want[i][j], step.GetName(), "CalculatePathsRootToLeaf should return the correct paths. expected: %v, actual: %v", tt.want, paths)
 					}
 				}
 
@@ -681,7 +680,6 @@ func TestFilterNodesWithControls(t *testing.T) {
 			result := handler.filterNodesWithControls(handler.attackTrack.GetData(), pathsCopy)
 
 			if !(result == nil && tc.expectedResult == nil) && result.Equal(tc.expectedResult, true) == false {
-				// if !compareAttackTrackStep(result, tc.expectedResult) {
 				t.Errorf("Unexpected result.\nExpected: %+v\nGot: %+v", tc.expectedResult, result)
 			}
 		})

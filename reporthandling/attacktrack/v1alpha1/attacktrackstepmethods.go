@@ -29,6 +29,10 @@ func (step *AttackTrackStep) SubStepAt(index int) IAttackTrackStep {
 	return &step.SubSteps[index]
 }
 
+func (step *AttackTrackStep) IsLeaf() bool {
+	return step.Length() == 0
+}
+
 // Equal checks if the given attack track step is equal to the current one
 // If compareControls is true, the controls are also compared
 func (s *AttackTrackStep) Equal(other *AttackTrackStep, compareControls bool) bool {
@@ -50,7 +54,7 @@ func (s *AttackTrackStep) Equal(other *AttackTrackStep, compareControls bool) bo
 
 		for i := range s.Controls {
 
-			if !(s.Controls[i] == other.Controls[i]) {
+			if s.Controls[i] != other.Controls[i] {
 				return false
 			}
 		}

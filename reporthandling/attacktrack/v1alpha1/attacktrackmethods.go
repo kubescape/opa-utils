@@ -192,9 +192,9 @@ func (handler *AttackTrackAllPathsHandler) CalculatePathsRootToLeaf() [][]IAttac
 			currentPath = append(currentPath, step)
 		}
 
-		if step.Length() == 0 {
+		if step.IsLeaf() {
 			// Reached a leaf node
-			if len(step.GetControls()) > 0 {
+			if step.IsPartOfAttackTrackPath() {
 				// Add current path to paths only if controls are not empty
 				path := make([]IAttackTrackStep, len(currentPath))
 				copy(path, currentPath)
@@ -213,7 +213,7 @@ func (handler *AttackTrackAllPathsHandler) CalculatePathsRootToLeaf() [][]IAttac
 					handler.visited[subStep.GetName()] = true
 
 					// Only include nodes with controls in the path
-					if len(subStep.GetControls()) > 0 {
+					if step.IsPartOfAttackTrackPath() {
 						traverse(subStep)
 						traversedSubstepWithControls = true
 					} else {
@@ -225,19 +225,23 @@ func (handler *AttackTrackAllPathsHandler) CalculatePathsRootToLeaf() [][]IAttac
 			}
 
 			// Add the current path to paths only if it ends with a leaf node with controls
-			if len(step.GetControls()) > 0 && !traversedSubstepWithControls && step.Length() == 0 {
+			if step.IsPartOfAttackTrackPath() && !traversedSubstepWithControls && step.IsLeaf() {
 				path := make([]IAttackTrackStep, len(currentPath))
 				copy(path, currentPath)
 				paths = append(paths, path)
 			}
 		}
 
-		if len(step.GetControls()) > 0 {
+		if step.IsPartOfAttackTrackPath() {
 			currentPath = currentPath[:len(currentPath)-1] // Remove last step from current path in order to explore other paths
 		}
 	}
 
 	traverse(handler.attackTrack.GetData())
+
+	if len(paths) == 0 {
+		return nil
+	}
 
 	return paths
 }

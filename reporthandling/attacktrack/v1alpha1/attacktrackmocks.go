@@ -64,6 +64,10 @@ func (s AttackTrackStepMock) SubStepAt(index int) IAttackTrackStep {
 	return s.SubSteps[index]
 }
 
+func (s AttackTrackStepMock) IsLeaf() bool {
+	return len(s.SubSteps) == 0
+}
+
 func (a AttackTrackStepMock) IsPartOfAttackTrackPath() bool {
 	return len(a.Controls) > 0
 }
