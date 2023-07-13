@@ -1,6 +1,8 @@
 package v1alpha1
 
 import (
+	"reflect"
+
 	"github.com/kubescape/k8s-interface/workloadinterface"
 	"go.uber.org/zap"
 )
@@ -170,6 +172,160 @@ func (handler *AttackTrackAllPathsHandler) CalculateAllPaths() [][]IAttackTrackS
 	}
 
 	return allPaths
+}
+
+// CalculatePathsRootToLeaf calculates all paths from the root to the leaf nodes of the attack track
+// The paths are returned as a slice of slices of IAttackTrackStep
+// Each path is a slice of IAttackTrackStep
+// The first element of each path is the root of the attack track
+// The last element of each path is a leaf node
+// The paths are calculated using DFS
+
+func (handler *AttackTrackAllPathsHandler) CalculatePathsRootToLeaf() [][]IAttackTrackStep {
+	handler.visited = make(map[string]bool)
+	var paths [][]IAttackTrackStep
+	currentPath := []IAttackTrackStep{}
+
+	var traverse func(step IAttackTrackStep)
+	traverse = func(step IAttackTrackStep) {
+		if len(step.GetControls()) > 0 {
+			currentPath = append(currentPath, step)
+		}
+
+		if step.IsLeaf() {
+			// Reached a leaf node
+			if step.IsPartOfAttackTrackPath() {
+				// Add current path to paths only if controls are not empty
+				path := make([]IAttackTrackStep, len(currentPath))
+				copy(path, currentPath)
+				paths = append(paths, path)
+			}
+		} else {
+
+			// Traverse substeps recursively
+			// Keep track of whether any substep with controls was traversed
+			traversedSubstepWithControls := false
+			for i := 0; i < step.Length(); i++ {
+				subStep := step.SubStepAt(i)
+
+				// Check if the subStep has been visited before
+				if !handler.visited[subStep.GetName()] {
+					handler.visited[subStep.GetName()] = true
+
+					// Only include nodes with controls in the path
+					if step.IsPartOfAttackTrackPath() {
+						traverse(subStep)
+						traversedSubstepWithControls = true
+					} else {
+						// Exclude the substep and its connected path
+						handler.visited[subStep.GetName()] = false
+						continue
+					}
+				}
+			}
+
+			// Add the current path to paths only if it ends with a leaf node with controls
+			if step.IsPartOfAttackTrackPath() && !traversedSubstepWithControls && step.IsLeaf() {
+				path := make([]IAttackTrackStep, len(currentPath))
+				copy(path, currentPath)
+				paths = append(paths, path)
+			}
+		}
+
+		if step.IsPartOfAttackTrackPath() {
+			currentPath = currentPath[:len(currentPath)-1] // Remove last step from current path in order to explore other paths
+		}
+	}
+
+	traverse(handler.attackTrack.GetData())
+
+	if len(paths) == 0 {
+		return nil
+	}
+
+	return paths
+}
+
+// GenerateAttackTrackFromPaths - generates a new attack track from the given paths
+// The new attack track will contain only nodes that have controls
+func (handler *AttackTrackAllPathsHandler) GenerateAttackTrackFromPaths(paths [][]IAttackTrackStep) *AttackTrack {
+	if len(paths) == 0 {
+		return nil
+	}
+	data := handler.filterNodesWithControls(handler.attackTrack.GetData(), paths)
+	// Create a new AttackTrack with only nodes that have controls
+	updatedAttackTrack := AttackTrack{
+		ApiVersion: handler.attackTrack.GetApiVersion(),
+		Kind:       handler.attackTrack.GetKind(),
+		Metadata:   map[string]interface{}{"name": handler.attackTrack.GetName()},
+		Spec: AttackTrackSpecification{
+			Version:     handler.attackTrack.GetVersion(),
+			Description: handler.attackTrack.GetDescription(),
+			Data:        *data,
+		},
+	}
+
+	return &updatedAttackTrack
+}
+
+// filterNodesWithControls - filters out nodes that do not have controls
+func (handler *AttackTrackAllPathsHandler) filterNodesWithControls(step IAttackTrackStep, paths [][]IAttackTrackStep) *AttackTrackStep {
+	filteredStep := AttackTrackStep{
+		Name:        step.GetName(),
+		Description: step.GetDescription(),
+		SubSteps:    nil,
+		Controls:    step.GetControls(),
+	}
+
+	if step.Length() == 0 {
+		if len(step.GetControls()) > 0 {
+			return &filteredStep
+		}
+
+		return nil
+	}
+
+	subSteps := make([]AttackTrackStep, 0, step.Length())
+
+	for i := 0; i < step.Length(); i++ {
+		subStep := step.SubStepAt(i)
+
+		// Check if the subStep is present in any of the paths
+		isInPath := false
+		for _, path := range paths {
+			if containsStep(path, subStep) {
+				isInPath = true
+				break
+			}
+		}
+
+		// Only include substeps that have controls or are present in a path
+		if len(subStep.GetControls()) > 0 || isInPath {
+			filteredSubStep := handler.filterNodesWithControls(subStep, paths)
+			if filteredSubStep != nil {
+				subSteps = append(subSteps, *filteredSubStep)
+			}
+		}
+	}
+	if len(subSteps) > 0 {
+		filteredStep.SubSteps = subSteps
+	}
+
+	if len(filteredStep.Controls) == 0 && len(filteredStep.SubSteps) == 0 {
+		return nil
+	}
+
+	return &filteredStep
+}
+
+// containsStep - checks if the given step is present in the given path
+func containsStep(path []IAttackTrackStep, step IAttackTrackStep) bool {
+	for _, s := range path {
+		if reflect.DeepEqual(s, step) {
+			return true
+		}
+	}
+	return false
 }
 
 func NewAttackTrackControlsLookup(attackTracks []IAttackTrack, failedControlIds []string, allControls map[string]IAttackTrackControl) AttackTrackControlsLookup {

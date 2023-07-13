@@ -20,6 +20,7 @@ type IAttackTrackStep interface {
 	Length() int                                // returns the number of sub steps
 	SubStepAt(index int) IAttackTrackStep       // returns a sub step at the given index
 	IsPartOfAttackTrackPath() bool              // checks if the step can be a part of an attack track path
+	IsLeaf() bool                               // checks if the step is a leaf node
 }
 
 // A control related to an attack track step
