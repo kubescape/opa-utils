@@ -70,7 +70,7 @@ func (s AttackTrackStepMock) IsLeaf() bool {
 }
 
 func (s AttackTrackStepMock) DoesCheckVulnerabilities() bool {
-	return s.ChecksVulnerabilities == true
+	return s.ChecksVulnerabilities
 }
 
 func (a AttackTrackStepMock) IsPartOfAttackTrackPath() bool {
