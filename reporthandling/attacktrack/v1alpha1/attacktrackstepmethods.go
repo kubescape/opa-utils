@@ -33,6 +33,10 @@ func (step *AttackTrackStep) IsLeaf() bool {
 	return step.Length() == 0
 }
 
+func (step *AttackTrackStep) DoesCheckVulnerabilities() bool {
+	return step.ChecksVulnerabilities
+}
+
 // Equal checks if the given attack track step is equal to the current one
 // If compareControls is true, the controls are also compared
 func (s *AttackTrackStep) Equal(other *AttackTrackStep, compareControls bool) bool {
