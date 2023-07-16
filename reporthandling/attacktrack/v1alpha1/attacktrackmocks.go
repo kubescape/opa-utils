@@ -41,11 +41,11 @@ func GetAttackTrackMock(data AttackTrackStep) IAttackTrack {
 
 // Mocked AttackTrackStep implementation for testing
 type AttackTrackStepMock struct {
-	Name              string
-	Description       string
-	VulnerabilityStep bool
-	SubSteps          []AttackTrackStepMock
-	Controls          []IAttackTrackControl
+	Name                  string
+	Description           string
+	ChecksVulnerabilities bool
+	SubSteps              []AttackTrackStepMock
+	Controls              []IAttackTrackControl
 }
 
 // Mocked AttackTrackStep methods
@@ -69,8 +69,8 @@ func (s AttackTrackStepMock) IsLeaf() bool {
 	return len(s.SubSteps) == 0
 }
 
-func (s AttackTrackStepMock) IsVulnerabilityStep() bool {
-	return s.VulnerabilityStep == true
+func (s AttackTrackStepMock) DoesCheckVulnerabilities() bool {
+	return s.ChecksVulnerabilities == true
 }
 
 func (a AttackTrackStepMock) IsPartOfAttackTrackPath() bool {

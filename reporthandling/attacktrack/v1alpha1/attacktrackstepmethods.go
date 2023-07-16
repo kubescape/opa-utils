@@ -33,8 +33,8 @@ func (step *AttackTrackStep) IsLeaf() bool {
 	return step.Length() == 0
 }
 
-func (step *AttackTrackStep) IsVulnerabilityStep() bool {
-	return step.VulnerabilityStep == true
+func (step *AttackTrackStep) DoesCheckVulnerabilities() bool {
+	return step.ChecksVulnerabilities == true
 }
 
 // Equal checks if the given attack track step is equal to the current one

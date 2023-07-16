@@ -21,10 +21,10 @@ type AttackTrackSpecification struct {
 }
 
 type AttackTrackStep struct {
-	Name              string            `json:"name"`
-	Description       string            `json:"description,omitempty"`
-	VulnerabilityStep bool              `json:"isVulnerabilityStep,omitempty"`
-	SubSteps          []AttackTrackStep `json:"subSteps,omitempty"`
+	Name                  string            `json:"name"`
+	Description           string            `json:"description,omitempty"`
+	ChecksVulnerabilities bool              `json:"checksVulnerabilities,omitempty"`
+	SubSteps              []AttackTrackStep `json:"subSteps,omitempty"`
 
 	// failed controls which are related to this step
 	Controls []IAttackTrackControl `json:"-"`
