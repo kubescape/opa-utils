@@ -5,19 +5,18 @@ import (
 	"testing"
 
 	"github.com/kubescape/k8s-interface/workloadinterface"
+	"github.com/kubescape/opa-utils/reporthandling/mock"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 func TestPostureReportWithK8SResource(t *testing.T) {
-
 	expectedID := "apps/v1/default/Deployment/demoservice-server"
 	report := MockPostureReportA()
 	report.Resources = append(report.Resources, Resource{
 		ResourceID: "test-id",
 		Object:     workloadinterface.NewWorkloadMock(nil).GetObject(),
 	})
-
-	// t.Errorf(report.Resources[0].Object.GetID())
 
 	a, e := json.Marshal(report)
 	if e != nil {
@@ -49,8 +48,6 @@ func TestPostureReportWithExternalResource(t *testing.T) {
 		},
 	})
 
-	// t.Errorf(report.Resources[0].Object.GetID())
-
 	a, e := json.Marshal(report)
 	if e != nil {
 		t.Errorf("failed to marshal the report: %v", e.Error())
@@ -61,6 +58,7 @@ func TestPostureReportWithExternalResource(t *testing.T) {
 
 	assert.Equal(t, expectedID, report2.Resources[0].GetID())
 }
+
 func TestMockFrameworkA(t *testing.T) {
 	policy := MockFrameworkA()
 	bp, err := json.Marshal(policy)
@@ -68,7 +66,6 @@ func TestMockFrameworkA(t *testing.T) {
 		t.Error(err)
 	} else {
 		t.Logf("%s\n", string(bp))
-		// t.Errorf("%s\n", string(bp))
 	}
 
 }
@@ -79,8 +76,54 @@ func TestMockPostureReportA(t *testing.T) {
 	if err != nil {
 		t.Error(err)
 	} else {
-		// t.Errorf("%s\n", string(bp))
 		t.Logf("%s\n", string(bp))
 	}
 
+}
+
+const randomizedTests = 25
+
+func TestMarshalStruct(t *testing.T) {
+	t.Parallel()
+
+	for n := 0; n < randomizedTests; n++ {
+		testMarshalDataStructure[PolicyRule]()(t)
+	}
+}
+
+func TestMarshalControl(t *testing.T) {
+	t.Parallel()
+
+	for n := 0; n < randomizedTests; n++ {
+		testMarshalDataStructure[Control]()(t)
+	}
+}
+
+func TestMarshalFramework(t *testing.T) {
+	t.Parallel()
+
+	for n := 0; n < randomizedTests; n++ {
+		testMarshalDataStructure[Control]()(t)
+	}
+}
+
+func TestMarshalAttackTrackCategories(t *testing.T) {
+	t.Parallel()
+
+	for n := 0; n < randomizedTests; n++ {
+		testMarshalDataStructure[AttackTrackCategories]()(t)
+	}
+}
+
+func testMarshalDataStructure[T any]() func ( *testing.T) {
+	return func(t *testing.T) {
+	m:= mock.MockData[T]()
+
+	buf, err := json.Marshal(m)
+	require.NoError(t, err)
+
+	var target T
+	require.NoError(t, json.Unmarshal(buf, &target))
+	require.EqualValues(t, m, target)
+}
 }
