@@ -136,6 +136,26 @@ func (at AttackTrackMock) Iterator() IAttackTrackIterator {
 	}
 }
 
+// GetSubstepsWithVulnerabilities returns a list of substeps names that check for vulnerabilities
+func (at AttackTrackMock) GetSubstepsWithVulnerabilities() []string {
+	var substepNames []string
+
+	var traverse func(step AttackTrackStep)
+	traverse = func(step AttackTrackStep) {
+		if step.ChecksVulnerabilities {
+			substepNames = append(substepNames, step.Name)
+		}
+		for _, substep := range step.SubSteps {
+			traverse(substep)
+		}
+	}
+
+	t := at.Spec.Data.(*AttackTrackStep)
+	traverse(*t)
+
+	return substepNames
+}
+
 type MockAttackTrackSpecification struct {
 	Version     string           `json:"version,omitempty"`
 	Description string           `json:"description,omitempty"`

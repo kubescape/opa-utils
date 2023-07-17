@@ -57,6 +57,24 @@ func (at *AttackTrack) Iterator() IAttackTrackIterator {
 	}
 }
 
+func (at *AttackTrack) GetSubstepsWithVulnerabilities() []string {
+	var substepNames []string
+
+	var traverse func(step AttackTrackStep)
+	traverse = func(step AttackTrackStep) {
+		if step.ChecksVulnerabilities {
+			substepNames = append(substepNames, step.Name)
+		}
+		for _, substep := range step.SubSteps {
+			traverse(substep)
+		}
+	}
+
+	traverse(at.Spec.Data)
+
+	return substepNames
+}
+
 func (iter *AttackTrackIterator) HasNext() bool {
 	return !iter.stack.IsEmpty()
 }
