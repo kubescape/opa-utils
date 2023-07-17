@@ -685,3 +685,50 @@ func TestFilterNodesWithControls(t *testing.T) {
 		})
 	}
 }
+
+func TestGetSubstepsWithVulnerabilities(t *testing.T) {
+	// Create an AttackTrack object with substeps having different values for ChecksVulnerabilities
+	attackTrack := AttackTrack{
+		ApiVersion: "v1",
+		Kind:       "AttackTrack",
+		Metadata:   map[string]interface{}{},
+		Spec: AttackTrackSpecification{
+			Version:     "1.0",
+			Description: "Example attack track",
+			Data: AttackTrackStep{
+				Name:                  "Step 1",
+				Description:           "First step",
+				ChecksVulnerabilities: true,
+				SubSteps: []AttackTrackStep{
+					{
+						Name:                  "Substep 1.1",
+						Description:           "Substep 1.1 description",
+						ChecksVulnerabilities: true,
+					},
+					{
+						Name:                  "Substep 1.2",
+						Description:           "Substep 1.2 description",
+						ChecksVulnerabilities: false,
+					},
+				},
+			},
+		},
+	}
+
+	// Call the method being tested
+	substepNames := attackTrack.GetSubstepsWithVulnerabilities()
+
+	// Define the expected substep names with ChecksVulnerabilities set to true
+	expectedSubstepNames := []string{"Step 1", "Substep 1.1"}
+
+	// Check if the returned substep names match the expected substep names
+	if len(substepNames) != len(expectedSubstepNames) {
+		t.Errorf("Unexpected number of substep names. Expected: %d, Got: %d", len(expectedSubstepNames), len(substepNames))
+	}
+
+	for i, name := range substepNames {
+		if name != expectedSubstepNames[i] {
+			t.Errorf("Mismatched substep name. Expected: %s, Got: %s", expectedSubstepNames[i], name)
+		}
+	}
+}
