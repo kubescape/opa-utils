@@ -142,7 +142,7 @@ func (at AttackTrackMock) GetSubstepsWithVulnerabilities() []string {
 
 	var traverse func(step AttackTrackStep)
 	traverse = func(step AttackTrackStep) {
-		if step.ChecksVulnerabilities {
+		if step.DoesCheckVulnerabilities() {
 			substepNames = append(substepNames, step.Name)
 		}
 		for _, substep := range step.SubSteps {
