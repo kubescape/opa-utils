@@ -45,7 +45,7 @@ const (
 )
 
 type ScanningScope struct {
-	Matches [][]ScanningScopeType `json:"matches"`
+	Matches []ScanningScopeType `json:"matches"`
 }
 
 // PolicyRule represents single rule, the fundamental executable block of policy
