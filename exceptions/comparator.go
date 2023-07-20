@@ -72,13 +72,18 @@ func (c *comparator) compareLabels(workload workloadinterface.IMetadata, attribu
 	}
 
 	for key, val := range attributes {
-		for _, annotation := range workloadLabels {
-			if !workloadLabels.Has(key) {
-				return false
+		if !workloadLabels.Has(key) {
+			return false
+		}
+		found := false
+		for label, annotation := range workloadLabels {
+			if key == label && c.regexCompare(val, annotation) {
+				found = true
+				break
 			}
-			if !c.regexCompare(val, annotation) {
-				return false
-			}
+		}
+		if !found {
+			return false
 		}
 	}
 
@@ -97,13 +102,18 @@ func (c *comparator) compareAnnotations(workload workloadinterface.IMetadata, at
 	}
 
 	for key, val := range attributes {
-		for _, annotation := range workloadAnnotations {
-			if !workloadAnnotations.Has(key) {
-				return false
+		if !workloadAnnotations.Has(key) {
+			return false
+		}
+		found := false
+		for label, annotation := range workloadAnnotations {
+			if key == label && c.regexCompare(val, annotation) {
+				found = true
+				break
 			}
-			if !c.regexCompare(val, annotation) {
-				return false
-			}
+		}
+		if !found {
+			return false
 		}
 	}
 
