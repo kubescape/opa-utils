@@ -70,9 +70,12 @@ type PostScanRequest struct {
 	//
 	// Example: false
 	UseCachedArtifacts *bool `json:"useCachedArtifacts,omitempty"`
-	// UseExceptions      string      // Load file with exceptions configuration
-	// ControlsInputs     string      // Load file with inputs for controls
-	// VerboseMode        bool        // Display all of the input resources and not only failed resources
+	// Scan a specific workload
+	//
+	// Same as `kubescape scan workload <workloadIdentifier>`
+	//
+	// Example: {"apiVersion": "apps/v1", "kind": "Deployment", "name": "nginx", "namespace": "my-namespace"}
+	Workload *v1.WorkloadScan `json:"workload,omitempty"`
 }
 
 // A Scan Response object
