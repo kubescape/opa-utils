@@ -290,10 +290,11 @@ func (handler *AttackTrackAllPathsHandler) GenerateAttackTrackFromPaths(paths []
 // filterNodesWithControls - filters out nodes that do not have controls
 func (handler *AttackTrackAllPathsHandler) filterNodesWithControls(step IAttackTrackStep, paths [][]IAttackTrackStep) *AttackTrackStep {
 	filteredStep := AttackTrackStep{
-		Name:        step.GetName(),
-		Description: step.GetDescription(),
-		SubSteps:    nil,
-		Controls:    step.GetControls(),
+		Name:                  step.GetName(),
+		Description:           step.GetDescription(),
+		SubSteps:              nil,
+		Controls:              step.GetControls(),
+		ChecksVulnerabilities: step.DoesCheckVulnerabilities(),
 	}
 
 	if step.Length() == 0 {
