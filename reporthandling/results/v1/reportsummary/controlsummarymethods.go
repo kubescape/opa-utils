@@ -3,6 +3,7 @@ package reportsummary
 import (
 	"strings"
 
+	"github.com/kubescape/opa-utils/reporthandling"
 	"github.com/kubescape/opa-utils/reporthandling/apis"
 	helpersv1 "github.com/kubescape/opa-utils/reporthandling/helpers/v1"
 )
@@ -149,6 +150,14 @@ func (controlSummary *ControlSummary) GetRemediation() string {
 func (controlSummary *ControlSummary) GetDescription() string {
 	return controlSummary.Description
 
+}
+
+func (controlSummary *ControlSummary) GetCategory() reporthandling.Category {
+	return controlSummary.Category
+}
+
+func (controlSummary *ControlSummary) GetSubCategory() reporthandling.SubCategory {
+	return controlSummary.GetCategory().SubCategory
 }
 
 // =============== ControlSummaries

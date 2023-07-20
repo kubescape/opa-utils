@@ -65,6 +65,18 @@ type Control struct {
 	FrameworkNames        []string     `json:"frameworkNames,omitempty" bson:"frameworkNames,omitempty"`
 	BaseScore             float32      `json:"baseScore,omitempty" bson:"baseScore,omitempty"`
 	ARMOImprovementFactor float32      `json:"ARMOImprovementFactor,omitempty" bson:"ARMOImprovementFactor,omitempty"`
+	Category              Category     `json:"category,omitempty" bson:"categories,omitempty"`
+}
+
+type Category struct {
+	Name        string      `json:"name" bson:"name"`
+	ID          string      `json:"id" bson:"id"`
+	SubCategory SubCategory `json:"subCategory" bson:"subCategory"`
+}
+
+type SubCategory struct {
+	Name string `json:"name" bson:"name"`
+	ID   string `json:"id" bson:"id"`
 }
 
 type UpdatedControl struct {

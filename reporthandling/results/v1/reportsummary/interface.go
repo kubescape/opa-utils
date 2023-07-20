@@ -3,6 +3,7 @@ package reportsummary
 import (
 	"time"
 
+	"github.com/kubescape/opa-utils/reporthandling"
 	"github.com/kubescape/opa-utils/reporthandling/apis"
 	helpersv1 "github.com/kubescape/opa-utils/reporthandling/helpers/v1"
 )
@@ -40,6 +41,12 @@ type IControlSummary interface {
 
 	// GetRemediation get control remediation
 	GetRemediation() string
+
+	// GetCategory get control category
+	GetCategory() reporthandling.Category
+
+	// GetSubCategory get control sub category
+	GetSubCategory() reporthandling.SubCategory
 
 	// GetDescription get control description
 	GetDescription() string

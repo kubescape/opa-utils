@@ -1,6 +1,8 @@
 package reportsummary
 
 import (
+	"github.com/kubescape/k8s-interface/workloadinterface"
+	"github.com/kubescape/opa-utils/reporthandling"
 	"github.com/kubescape/opa-utils/reporthandling/apis"
 	helpersv1 "github.com/kubescape/opa-utils/reporthandling/helpers/v1"
 )
@@ -22,6 +24,12 @@ type SummaryDetails struct {
 	StatusCounters            StatusCounters      `json:"ResourceCounters"` // Backward compatibility
 	Score                     float32             `json:"score"`
 	ComplianceScore           float32             `json:"complianceScore"`
+	TopWorkloadsByScore       []TopWorkload       `json:"topWorkloads,omitempty"`
+}
+
+type TopWorkload struct {
+	Workload       workloadinterface.IMetadata
+	ResourceSource reporthandling.Source
 }
 
 // FrameworkSummary summary of scanning from a single framework perspective
@@ -37,18 +45,19 @@ type FrameworkSummary struct {
 
 // ControlSummary summary of scanning from a single control perspective
 type ControlSummary struct {
-	StatusInfo        apis.StatusInfo     `json:"statusInfo,omitempty"`
-	ControlID         string              `json:"controlID"`
-	Name              string              `json:"name"`
-	Status            apis.ScanningStatus `json:"status"` // backward compatibility
-	Description       string              `json:"-"`
-	Remediation       string              `json:"-"`
-	ResourceIDs       helpersv1.AllLists  `json:"resourceIDs"`
-	StatusCounters    StatusCounters      `json:"ResourceCounters"` // Backward compatibility
-	SubStatusCounters SubStatusCounters   `json:"subStatusCounters"`
-	Score             float32             `json:"score"`
-	ComplianceScore   *float32            `json:"complianceScore,omitempty"`
-	ScoreFactor       float32             `json:"scoreFactor"`
+	StatusInfo        apis.StatusInfo         `json:"statusInfo,omitempty"`
+	ControlID         string                  `json:"controlID"`
+	Name              string                  `json:"name"`
+	Status            apis.ScanningStatus     `json:"status"` // backward compatibility
+	Description       string                  `json:"-"`
+	Remediation       string                  `json:"-"`
+	ResourceIDs       helpersv1.AllLists      `json:"resourceIDs"`
+	StatusCounters    StatusCounters          `json:"ResourceCounters"` // Backward compatibility
+	SubStatusCounters SubStatusCounters       `json:"subStatusCounters"`
+	Score             float32                 `json:"score"`
+	ComplianceScore   *float32                `json:"complianceScore,omitempty"`
+	ScoreFactor       float32                 `json:"scoreFactor"`
+	Category          reporthandling.Category `json:"categories"`
 }
 
 type StatusCounters struct {
