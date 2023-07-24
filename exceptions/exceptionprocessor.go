@@ -1,6 +1,7 @@
 package exceptions
 
 import (
+	"github.com/armosec/armoapi-go/identifiers"
 	"strings"
 
 	"github.com/kubescape/k8s-interface/workloadinterface"
@@ -153,8 +154,8 @@ func (p *Processor) GetResourceExceptions(ruleExceptions []armotypes.PostureExce
 }
 
 // compareMetadata - compare namespace and kind
-func (p *Processor) hasException(clusterName string, designator *armotypes.PortalDesignator, workload workloadinterface.IMetadata) bool {
-	var attributes armotypes.AttributesDesignators
+func (p *Processor) hasException(clusterName string, designator *identifiers.PortalDesignator, workload workloadinterface.IMetadata) bool {
+	var attributes identifiers.AttributesDesignators
 	if attrs, ok := p.designatorCache.Get(designator); ok {
 		attributes = attrs
 	} else {

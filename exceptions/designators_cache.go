@@ -1,9 +1,9 @@
 package exceptions
 
 import (
+	"github.com/armosec/armoapi-go/identifiers"
 	"sync"
 
-	"github.com/armosec/armoapi-go/armotypes"
 	"github.com/kubescape/opa-utils/exceptions/internal/hashmap"
 )
 
@@ -14,11 +14,11 @@ type (
 	// a few slots for designators.
 	designatorCache struct {
 		mx       sync.RWMutex
-		innerMap map[portalDesignatorKey]armotypes.AttributesDesignators
+		innerMap map[portalDesignatorKey]identifiers.AttributesDesignators
 	}
 
 	portalDesignatorKey struct {
-		DesignatorType armotypes.DesignatorType
+		DesignatorType identifiers.DesignatorType
 		WLID           string
 		WildWLID       string
 		SID            string
@@ -37,11 +37,11 @@ func newDesignatorCache() *designatorCache {
 	const heuristicAllocDesignators = 1000 // this is a hint on the number of AttributeDesignators to hold, in order to minimize dynamic reallocations for this map
 
 	return &designatorCache{
-		innerMap: make(map[portalDesignatorKey]armotypes.AttributesDesignators, heuristicAllocDesignators),
+		innerMap: make(map[portalDesignatorKey]identifiers.AttributesDesignators, heuristicAllocDesignators),
 	}
 }
 
-func (c *designatorCache) Get(designator *armotypes.PortalDesignator) (armotypes.AttributesDesignators, bool) {
+func (c *designatorCache) Get(designator *identifiers.PortalDesignator) (identifiers.AttributesDesignators, bool) {
 	key := c.toDesignatorKey(designator)
 
 	c.mx.RLock()
@@ -52,7 +52,7 @@ func (c *designatorCache) Get(designator *armotypes.PortalDesignator) (armotypes
 	return val, ok
 }
 
-func (c *designatorCache) Set(designator *armotypes.PortalDesignator, value armotypes.AttributesDesignators) {
+func (c *designatorCache) Set(designator *identifiers.PortalDesignator, value identifiers.AttributesDesignators) {
 	key := c.toDesignatorKey(designator)
 
 	c.mx.Lock()
@@ -61,7 +61,7 @@ func (c *designatorCache) Set(designator *armotypes.PortalDesignator, value armo
 	c.innerMap[key] = value
 }
 
-func (c *designatorCache) toDesignatorKey(designator *armotypes.PortalDesignator) portalDesignatorKey {
+func (c *designatorCache) toDesignatorKey(designator *identifiers.PortalDesignator) portalDesignatorKey {
 	return portalDesignatorKey{
 		DesignatorType: designator.DesignatorType,
 		WLID:           designator.WLID,
