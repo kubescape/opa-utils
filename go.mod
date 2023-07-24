@@ -3,7 +3,7 @@ module github.com/kubescape/opa-utils
 go 1.19
 
 require (
-	github.com/armosec/armoapi-go v0.0.173
+	github.com/armosec/armoapi-go v0.0.207
 	github.com/armosec/utils-go v0.0.12
 	github.com/francoispqt/gojay v1.2.13
 	github.com/kubescape/k8s-interface v0.0.99
@@ -12,7 +12,7 @@ require (
 	github.com/open-policy-agent/opa v0.42.0
 	github.com/stretchr/testify v1.8.3
 	go.uber.org/zap v1.22.0
-	golang.org/x/exp v0.0.0-20230519143937-03e91628a987
+	golang.org/x/exp v0.0.0-20230711023510-fffb14384f22
 	k8s.io/api v0.25.3
 	k8s.io/apimachinery v0.25.3
 	k8s.io/client-go v0.25.3
@@ -35,6 +35,7 @@ require (
 	github.com/AzureAD/microsoft-authentication-library-for-go v0.7.0 // indirect
 	github.com/OneOfOne/xxhash v1.2.8 // indirect
 	github.com/agnivade/levenshtein v1.0.1 // indirect
+	github.com/armosec/gojay v1.2.15 // indirect
 	github.com/armosec/utils-k8s-go v0.0.12 // indirect
 	github.com/aws/aws-sdk-go-v2 v1.17.3 // indirect
 	github.com/aws/aws-sdk-go-v2/config v1.15.13 // indirect
@@ -101,7 +102,7 @@ require (
 	go.opencensus.io v0.23.0 // indirect
 	go.uber.org/atomic v1.7.0 // indirect
 	go.uber.org/multierr v1.6.0 // indirect
-	golang.org/x/crypto v0.0.0-20220525230936-793ad666bf5e // indirect
+	golang.org/x/crypto v0.0.0-20221005025214-4161e89ecf1b // indirect
 	golang.org/x/net v0.3.1-0.20221206200815-1e63c2f08a10 // indirect
 	golang.org/x/oauth2 v0.0.0-20220630143837-2104d58473e0 // indirect
 	golang.org/x/sys v0.3.0 // indirect

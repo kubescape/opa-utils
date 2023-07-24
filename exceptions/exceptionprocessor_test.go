@@ -1,6 +1,7 @@
 package exceptions
 
 import (
+	"github.com/armosec/armoapi-go/identifiers"
 	"testing"
 
 	"github.com/kubescape/k8s-interface/workloadinterface"
@@ -23,12 +24,12 @@ func postureExceptionPolicyAlertOnlyMock() *armotypes.PostureExceptionPolicy {
 		},
 		PolicyType: "postureExceptionPolicy",
 		Actions:    []armotypes.PostureExceptionPolicyActions{armotypes.AlertOnly},
-		Resources: []armotypes.PortalDesignator{
+		Resources: []identifiers.PortalDesignator{
 			{
-				DesignatorType: armotypes.DesignatorAttributes,
+				DesignatorType: identifiers.DesignatorAttributes,
 				Attributes: map[string]string{
-					armotypes.AttributeNamespace: "default",
-					armotypes.AttributeCluster:   "unittest",
+					identifiers.AttributeNamespace: "default",
+					identifiers.AttributeCluster:   "unittest",
 				},
 			},
 		},
@@ -47,9 +48,9 @@ func postureLabelsRegexExceptionPolicyAlertOnlyMock() *armotypes.PostureExceptio
 		},
 		PolicyType: "postureExceptionPolicy",
 		Actions:    []armotypes.PostureExceptionPolicyActions{armotypes.AlertOnly},
-		Resources: []armotypes.PortalDesignator{
+		Resources: []identifiers.PortalDesignator{
 			{
-				DesignatorType: armotypes.DesignatorAttributes,
+				DesignatorType: identifiers.DesignatorAttributes,
 				Attributes: map[string]string{
 					"myLabelOrAnnotation": "static_test",
 				},
@@ -70,12 +71,12 @@ func postureResourceIDExceptionPolicyMock(resourceID string) *armotypes.PostureE
 		},
 		PolicyType: "postureExceptionPolicy",
 		Actions:    []armotypes.PostureExceptionPolicyActions{armotypes.AlertOnly},
-		Resources: []armotypes.PortalDesignator{
+		Resources: []identifiers.PortalDesignator{
 			{
-				DesignatorType: armotypes.DesignatorAttributes,
+				DesignatorType: identifiers.DesignatorAttributes,
 				Attributes: map[string]string{
-					armotypes.AttributeCluster:    "test",
-					armotypes.AttributeResourceID: resourceID,
+					identifiers.AttributeCluster:    "test",
+					identifiers.AttributeResourceID: resourceID,
 				},
 			},
 		},
@@ -94,9 +95,9 @@ func emptyPostureExceptionPolicyAlertOnlyMock() *armotypes.PostureExceptionPolic
 		},
 		PolicyType: "postureExceptionPolicy",
 		Actions:    []armotypes.PostureExceptionPolicyActions{armotypes.AlertOnly},
-		Resources: []armotypes.PortalDesignator{
+		Resources: []identifiers.PortalDesignator{
 			{
-				DesignatorType: armotypes.DesignatorAttributes,
+				DesignatorType: identifiers.DesignatorAttributes,
 				Attributes:     map[string]string{},
 			},
 		},
