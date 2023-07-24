@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	"github.com/armosec/armoapi-go/armotypes"
+	"github.com/armosec/armoapi-go/identifiers"
 	"github.com/kubescape/k8s-interface/workloadinterface"
 	"github.com/kubescape/opa-utils/exceptions"
 	"github.com/kubescape/opa-utils/reporthandling"
@@ -16,11 +17,11 @@ func mockExceptionDeploymentC0087() *armotypes.PostureExceptionPolicy {
 			Name: "DeploymentC0087",
 		},
 		Actions: []armotypes.PostureExceptionPolicyActions{armotypes.AlertOnly},
-		Resources: []armotypes.PortalDesignator{
+		Resources: []identifiers.PortalDesignator{
 			{
-				DesignatorType: armotypes.DesignatorAttributes,
+				DesignatorType: identifiers.DesignatorAttributes,
 				Attributes: map[string]string{
-					armotypes.AttributeKind: "Deployment",
+					identifiers.AttributeKind: "Deployment",
 				},
 			},
 		},
@@ -38,12 +39,12 @@ func mockExceptionUnitestDeploymentC0087() *armotypes.PostureExceptionPolicy {
 			Name: "unitestDeploymentC0087",
 		},
 		Actions: []armotypes.PostureExceptionPolicyActions{armotypes.AlertOnly},
-		Resources: []armotypes.PortalDesignator{
+		Resources: []identifiers.PortalDesignator{
 			{
-				DesignatorType: armotypes.DesignatorAttributes,
+				DesignatorType: identifiers.DesignatorAttributes,
 				Attributes: map[string]string{
-					armotypes.AttributeCluster: "unitest",
-					armotypes.AttributeKind:    "Deployment",
+					identifiers.AttributeCluster: "unitest",
+					identifiers.AttributeKind:    "Deployment",
 				},
 			},
 		},
@@ -61,11 +62,11 @@ func mockExceptionUnitestC0088() *armotypes.PostureExceptionPolicy {
 			Name: "unitestC0088",
 		},
 		Actions: []armotypes.PostureExceptionPolicyActions{armotypes.AlertOnly},
-		Resources: []armotypes.PortalDesignator{
+		Resources: []identifiers.PortalDesignator{
 			{
-				DesignatorType: armotypes.DesignatorAttributes,
+				DesignatorType: identifiers.DesignatorAttributes,
 				Attributes: map[string]string{
-					armotypes.AttributeCluster: "unitest",
+					identifiers.AttributeCluster: "unitest",
 				},
 			},
 		},
@@ -83,11 +84,11 @@ func mockExceptionDeploymentC0089() *armotypes.PostureExceptionPolicy {
 			Name: "Deployment0089",
 		},
 		Actions: []armotypes.PostureExceptionPolicyActions{armotypes.AlertOnly},
-		Resources: []armotypes.PortalDesignator{
+		Resources: []identifiers.PortalDesignator{
 			{
-				DesignatorType: armotypes.DesignatorAttributes,
+				DesignatorType: identifiers.DesignatorAttributes,
 				Attributes: map[string]string{
-					armotypes.AttributeKind: "Deployment",
+					identifiers.AttributeKind: "Deployment",
 				},
 			},
 		},

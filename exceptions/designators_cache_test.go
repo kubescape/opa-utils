@@ -3,19 +3,19 @@ package exceptions
 import (
 	"testing"
 
-	"github.com/armosec/armoapi-go/armotypes"
+	"github.com/armosec/armoapi-go/identifiers"
 	"github.com/stretchr/testify/require"
 )
 
 func TestDesignatorsCache(t *testing.T) {
 	cache := &designatorCache{
-		innerMap: make(map[portalDesignatorKey]armotypes.AttributesDesignators, 1000),
+		innerMap: make(map[portalDesignatorKey]identifiers.AttributesDesignators, 1000),
 		// seed:     maphash.MakeSeed(), // for maphash version
 	}
 
 	t.Run("should retrieve cached designator", func(t *testing.T) {
-		designator := &armotypes.PortalDesignator{
-			DesignatorType: armotypes.DesignatorAttributes,
+		designator := &identifiers.PortalDesignator{
+			DesignatorType: identifiers.DesignatorAttributes,
 			WLID:           "x",
 			WildWLID:       "y",
 			SID:            "z",
@@ -38,8 +38,8 @@ func TestDesignatorsCache(t *testing.T) {
 	})
 
 	t.Run("should not collide with previously cached designator (WLID differs)", func(t *testing.T) {
-		designator := &armotypes.PortalDesignator{
-			DesignatorType: armotypes.DesignatorAttributes,
+		designator := &identifiers.PortalDesignator{
+			DesignatorType: identifiers.DesignatorAttributes,
 			WLID:           "x1",
 			WildWLID:       "y",
 			SID:            "z",
@@ -62,8 +62,8 @@ func TestDesignatorsCache(t *testing.T) {
 	})
 
 	t.Run("should not collide with previously cached designator (attributes differ)", func(t *testing.T) {
-		designator := &armotypes.PortalDesignator{
-			DesignatorType: armotypes.DesignatorAttributes,
+		designator := &identifiers.PortalDesignator{
+			DesignatorType: identifiers.DesignatorAttributes,
 			WLID:           "x",
 			WildWLID:       "y",
 			SID:            "z",
@@ -87,8 +87,8 @@ func TestDesignatorsCache(t *testing.T) {
 	})
 
 	t.Run("should support empty attributes", func(t *testing.T) {
-		designator := &armotypes.PortalDesignator{
-			DesignatorType: armotypes.DesignatorAttributes,
+		designator := &identifiers.PortalDesignator{
+			DesignatorType: identifiers.DesignatorAttributes,
 			WLID:           "x",
 			WildWLID:       "y",
 			SID:            "z",
@@ -109,11 +109,11 @@ func TestDesignatorsCache(t *testing.T) {
 
 func BenchmarkDesignatorsCache(b *testing.B) {
 	cache := &designatorCache{
-		innerMap: make(map[portalDesignatorKey]armotypes.AttributesDesignators, 1000),
+		innerMap: make(map[portalDesignatorKey]identifiers.AttributesDesignators, 1000),
 	}
 
-	designator := &armotypes.PortalDesignator{
-		DesignatorType: armotypes.DesignatorAttributes,
+	designator := &identifiers.PortalDesignator{
+		DesignatorType: identifiers.DesignatorAttributes,
 		WLID:           "x",
 		WildWLID:       "y",
 		SID:            "z",
