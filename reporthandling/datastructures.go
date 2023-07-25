@@ -34,6 +34,21 @@ type ControlConfigInputs struct {
 	Description string `json:"description" bson:"description"`
 }
 
+type ScanningScopeType string
+
+const (
+	ScopeCloudAKS ScanningScopeType = "AKS"
+	ScopeCloudGKE ScanningScopeType = "GKE"
+	ScopeCloudEKS ScanningScopeType = "EKS"
+	ScopeCloud    ScanningScopeType = "cloud"
+	ScopeCluster  ScanningScopeType = "cluster"
+	ScopeFile     ScanningScopeType = "file"
+)
+
+type ScanningScope struct {
+	Matches []ScanningScopeType `json:"matches"`
+}
+
 // PolicyRule represents single rule, the fundamental executable block of policy
 type PolicyRule struct {
 	armotypes.PortalBase   `json:",inline" bson:"inline"`
@@ -57,16 +72,17 @@ type Control struct {
 	FixedInput            map[string][]string `json:"fixedInput,omitempty"`
 	RulesIDs              *[]string           `json:"rulesIDs,omitempty" bson:"rulesIDs,omitempty"`
 	armotypes.PortalBase  `json:",inline" bson:"inline"`
-	Control_ID            string       `json:"id,omitempty" bson:"id,omitempty"  `
-	ControlID             string       `json:"controlID" bson:"controlID"`
-	CreationTime          string       `json:"creationTime" bson:"creationTime"`
-	Description           string       `json:"description" bson:"description"`
-	Remediation           string       `json:"remediation" bson:"remediation"`
-	Rules                 []PolicyRule `json:"rules" bson:"rules,omitempty"`
-	FrameworkNames        []string     `json:"frameworkNames,omitempty" bson:"frameworkNames,omitempty"`
-	BaseScore             float32      `json:"baseScore,omitempty" bson:"baseScore,omitempty"`
-	ARMOImprovementFactor float32      `json:"ARMOImprovementFactor,omitempty" bson:"ARMOImprovementFactor,omitempty"`
-	Category              Category     `json:"category,omitempty" bson:"categories,omitempty"`
+	Control_ID            string        `json:"id,omitempty" bson:"id,omitempty"  `
+	ControlID             string        `json:"controlID" bson:"controlID"`
+	CreationTime          string        `json:"creationTime" bson:"creationTime"`
+	Description           string        `json:"description" bson:"description"`
+	Remediation           string        `json:"remediation" bson:"remediation"`
+	Rules                 []PolicyRule  `json:"rules" bson:"rules,omitempty"`
+	FrameworkNames        []string      `json:"frameworkNames,omitempty" bson:"frameworkNames,omitempty"`
+	BaseScore             float32       `json:"baseScore,omitempty" bson:"baseScore,omitempty"`
+	ARMOImprovementFactor float32       `json:"ARMOImprovementFactor,omitempty" bson:"ARMOImprovementFactor,omitempty"`
+	Category              Category      `json:"category,omitempty" bson:"categories,omitempty"`
+	ScanningScope         ScanningScope `json:"scanningScope" bson:"scanningScope"`
 }
 
 type Category struct {
