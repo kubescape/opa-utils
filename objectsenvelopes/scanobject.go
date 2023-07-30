@@ -113,7 +113,7 @@ func (scanObject *ScanObject) GetObject() map[string]interface{} {
 }
 
 func (scanObject *ScanObject) GetID() string {
-	return fmt.Sprintf("%s/%s/%s", k8sinterface.JoinGroupVersion(k8sinterface.SplitApiVersion(scanObject.GetApiVersion())), scanObject.GetKind(), scanObject.GetName())
+	return fmt.Sprintf("%s/%s/%s/%s", k8sinterface.JoinGroupVersion(k8sinterface.SplitApiVersion(scanObject.GetApiVersion())), scanObject.GetNamespace(), scanObject.GetKind(), scanObject.GetName())
 }
 
 func (scanObject *ScanObject) GetObjectType() workloadinterface.ObjectType {
