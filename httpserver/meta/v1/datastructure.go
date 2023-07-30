@@ -1,6 +1,9 @@
 package v1
 
-import v1 "github.com/kubescape/opa-utils/httpserver/apis/v1"
+import (
+	v1 "github.com/kubescape/opa-utils/httpserver/apis/v1"
+	"github.com/kubescape/opa-utils/objectsenvelopes"
+)
 
 // A request to trigger a Kubescape scan
 type PostScanRequest struct {
@@ -70,12 +73,10 @@ type PostScanRequest struct {
 	//
 	// Example: false
 	UseCachedArtifacts *bool `json:"useCachedArtifacts,omitempty"`
-	// Scan a specific workload
+	// Scan a specific K8S object
 	//
-	// Same as `kubescape scan workload <workloadIdentifier>`
-	//
-	// Example: {"apiVersion": "apps/v1", "kind": "Deployment", "name": "nginx", "namespace": "my-namespace"}
-	Workload *v1.WorkloadScan `json:"workload,omitempty"`
+	// Example: {"apiVersion": "apps/v1", "kind": "Deployment", "metadata": { "name": "nginx", "namespace": "my-namespace"} }
+	ScanObject *objectsenvelopes.ScanObject `json:"scanObject,omitempty"`
 }
 
 // A Scan Response object
