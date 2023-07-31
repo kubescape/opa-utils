@@ -81,7 +81,7 @@ type Control struct {
 	FrameworkNames        []string      `json:"frameworkNames,omitempty" bson:"frameworkNames,omitempty"`
 	BaseScore             float32       `json:"baseScore,omitempty" bson:"baseScore,omitempty"`
 	ARMOImprovementFactor float32       `json:"ARMOImprovementFactor,omitempty" bson:"ARMOImprovementFactor,omitempty"`
-	ScanningScope         ScanningScope `json:"scanningScope,omitempty" bson:"scanningScope,omitempty"`
+	ScanningScope         *ScanningScope `json:"scanningScope,omitempty" bson:"scanningScope,omitempty"`
 }
 
 type UpdatedControl struct {
