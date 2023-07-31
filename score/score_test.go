@@ -277,6 +277,24 @@ func TestGetScore(t *testing.T) {
 func TestCalculatePostureReportV2(t *testing.T) {
 	t.Parallel()
 
+	t.Run("with no frameworks and controls", func(t *testing.T) {
+		t.Parallel()
+
+		s := NewScore(map[string]workloadinterface.IMetadata{})
+		report := &v2.PostureReport{
+			SummaryDetails: reportsummary.SummaryDetails{},
+			Results:        []resourcesresults.Result{},
+			Resources:      []reporthandling.Resource{},
+		}
+
+		s.CalculatePostureReportV2(report)
+
+		require.Equal(t, float32(0), report.SummaryDetails.Score,
+			"empty framework should have a score equals to 0",
+		)
+
+	})
+
 	t.Run("with empty report", func(t *testing.T) {
 		t.Parallel()
 
