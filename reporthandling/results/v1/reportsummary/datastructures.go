@@ -27,6 +27,7 @@ type SummaryDetails struct {
 	TopWorkloadsByScore       []TopWorkload       `json:"topWorkloads,omitempty"`
 }
 
+// TopWorkload represents one of the top workloads of a scan
 type TopWorkload struct {
 	Workload       workloadinterface.IMetadata
 	ResourceSource reporthandling.Source
