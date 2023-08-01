@@ -82,6 +82,18 @@ type Control struct {
 	BaseScore             float32        `json:"baseScore,omitempty" bson:"baseScore,omitempty"`
 	ARMOImprovementFactor float32        `json:"ARMOImprovementFactor,omitempty" bson:"ARMOImprovementFactor,omitempty"`
 	ScanningScope         *ScanningScope `json:"scanningScope,omitempty" bson:"scanningScope,omitempty"`
+	Category              *Category      `json:"category,omitempty" bson:"category,omitempty"`
+}
+
+type Category struct {
+	Name        string       `json:"name" bson:"name"`
+	ID          string       `json:"id" bson:"id"`
+	SubCategory *SubCategory `json:"subCategory,omitempty" bson:"subCategory,omitempty"`
+}
+
+type SubCategory struct {
+	Name string `json:"name" bson:"name"`
+	ID   string `json:"id" bson:"id"`
 }
 
 type UpdatedControl struct {

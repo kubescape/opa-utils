@@ -111,8 +111,9 @@ const (
 
 // Source - File source metadata
 type Source struct {
-	Path                   string     `json:"path,omitempty"`                   // deprecated
+	Path                   string     `json:"path,omitempty"`
 	RelativePath           string     `json:"relativePath,omitempty"`           // relative path from the repo base
+	HelmPath               string     `json:"helmPath,omitempty"`               // relative path to helm chart
 	FileType               string     `json:"fileType,omitempty"`               // file type
 	HelmChartName          string     `json:"helmChartName,omitempty"`          // helm chart name (if FileType is "Helm Chart")
 	KustomizeDirectoryName string     `json:"kustomizeDirectoryName,omitempty"` //Kustomize Directory name if File is from Kustomize Directory
