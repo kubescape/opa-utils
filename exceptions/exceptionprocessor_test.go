@@ -1,8 +1,9 @@
 package exceptions
 
 import (
-	"github.com/armosec/armoapi-go/identifiers"
 	"testing"
+
+	"github.com/armosec/armoapi-go/identifiers"
 
 	"github.com/kubescape/k8s-interface/workloadinterface"
 	"github.com/stretchr/testify/assert"
@@ -172,10 +173,10 @@ func TestGetResourceExceptions(t *testing.T) {
 	emptyObj, err := workloadinterface.NewBaseObjBytes([]byte(`{"apiVersion": "v1", "kind":"Deployment", "metadata": {"name": "test"}}`))
 	require.NoError(t, err)
 
-	withLabelObj, err := workloadinterface.NewBaseObjBytes([]byte(`{"apiVersion": "v1", "kind":"Deployment", "metadata": {"name": "test", "labels": {"myLabelOrAnnotation" : "static_test"}}}`))
+	withLabelObj, err := workloadinterface.NewBaseObjBytes([]byte(`{"apiVersion": "v1", "kind":"Deployment", "metadata": {"name": "test", "labels": {"myLabelOrAnnotation" : "static_test", "mySecondLabelOrAnnotation" : "second_static_test"}}}`))
 	require.NoError(t, err)
 
-	withAnnotationObj, err := workloadinterface.NewBaseObjBytes([]byte(`{"apiVersion": "v1", "kind":"Deployment", "metadata": {"name": "test", "annotations": {"myLabelOrAnnotation" : "static_test"}}}`))
+	withAnnotationObj, err := workloadinterface.NewBaseObjBytes([]byte(`{"apiVersion": "v1", "kind":"Deployment", "metadata": {"name": "test", "annotations": {"myLabelOrAnnotation" : "static_test", "mySecondLabelOrAnnotation" : "second_static_test"}}}`))
 	require.NoError(t, err)
 
 	idObj, err := workloadinterface.NewBaseObjBytes([]byte(`{"apiVersion": "v1/core", "kind":"Deployment", "metadata": {"name": "test", "namespace": "default"}}`))
