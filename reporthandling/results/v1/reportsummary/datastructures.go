@@ -57,7 +57,7 @@ type ControlSummary struct {
 	Score             float32                 `json:"score"`
 	ComplianceScore   *float32                `json:"complianceScore,omitempty"`
 	ScoreFactor       float32                 `json:"scoreFactor"`
-	Category          reporthandling.Category `json:"categories"`
+	Category          reporthandling.Category `json:"categories,omitempty"`
 }
 
 type StatusCounters struct {
