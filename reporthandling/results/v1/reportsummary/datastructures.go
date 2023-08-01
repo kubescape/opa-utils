@@ -1,7 +1,6 @@
 package reportsummary
 
 import (
-	"github.com/kubescape/k8s-interface/workloadinterface"
 	"github.com/kubescape/opa-utils/reporthandling"
 	"github.com/kubescape/opa-utils/reporthandling/apis"
 	helpersv1 "github.com/kubescape/opa-utils/reporthandling/helpers/v1"
@@ -16,21 +15,15 @@ type ControlSummaries map[string]ControlSummary
 
 // SummaryDetails detailed summary of the scanning. will contain versions, counters, etc.
 type SummaryDetails struct {
-	Controls                  ControlSummaries    `json:"controls,omitempty"`
-	Status                    apis.ScanningStatus `json:"status"`
-	Frameworks                []FrameworkSummary  `json:"frameworks"`
-	ResourcesSeverityCounters SeverityCounters    `json:"resourcesSeverityCounters,omitempty"`
-	ControlsSeverityCounters  SeverityCounters    `json:"controlsSeverityCounters,omitempty"`
-	StatusCounters            StatusCounters      `json:"ResourceCounters"` // Backward compatibility
-	Score                     float32             `json:"score"`
-	ComplianceScore           float32             `json:"complianceScore"`
-	TopWorkloadsByScore       []TopWorkload       `json:"topWorkloads,omitempty"`
-}
-
-// TopWorkload represents one of the top workloads of a scan
-type TopWorkload struct {
-	Workload       workloadinterface.IMetadata
-	ResourceSource reporthandling.Source
+	Controls                  ControlSummaries           `json:"controls,omitempty"`
+	Status                    apis.ScanningStatus        `json:"status"`
+	Frameworks                []FrameworkSummary         `json:"frameworks"`
+	ResourcesSeverityCounters SeverityCounters           `json:"resourcesSeverityCounters,omitempty"`
+	ControlsSeverityCounters  SeverityCounters           `json:"controlsSeverityCounters,omitempty"`
+	StatusCounters            StatusCounters             `json:"ResourceCounters"` // Backward compatibility
+	Score                     float32                    `json:"score"`
+	ComplianceScore           float32                    `json:"complianceScore"`
+	TopWorkloadsByScore       []reporthandling.IResource `json:"topWorkloads,omitempty"`
 }
 
 // FrameworkSummary summary of scanning from a single framework perspective
@@ -46,19 +39,19 @@ type FrameworkSummary struct {
 
 // ControlSummary summary of scanning from a single control perspective
 type ControlSummary struct {
-	StatusInfo        apis.StatusInfo         `json:"statusInfo,omitempty"`
-	ControlID         string                  `json:"controlID"`
-	Name              string                  `json:"name"`
-	Status            apis.ScanningStatus     `json:"status"` // backward compatibility
-	Description       string                  `json:"-"`
-	Remediation       string                  `json:"-"`
-	ResourceIDs       helpersv1.AllLists      `json:"resourceIDs"`
-	StatusCounters    StatusCounters          `json:"ResourceCounters"` // Backward compatibility
-	SubStatusCounters SubStatusCounters       `json:"subStatusCounters"`
-	Score             float32                 `json:"score"`
-	ComplianceScore   *float32                `json:"complianceScore,omitempty"`
-	ScoreFactor       float32                 `json:"scoreFactor"`
-	Category          reporthandling.Category `json:"categories,omitempty"`
+	StatusInfo        apis.StatusInfo          `json:"statusInfo,omitempty"`
+	ControlID         string                   `json:"controlID"`
+	Name              string                   `json:"name"`
+	Status            apis.ScanningStatus      `json:"status"` // backward compatibility
+	Description       string                   `json:"-"`
+	Remediation       string                   `json:"-"`
+	ResourceIDs       helpersv1.AllLists       `json:"resourceIDs"`
+	StatusCounters    StatusCounters           `json:"ResourceCounters"` // Backward compatibility
+	SubStatusCounters SubStatusCounters        `json:"subStatusCounters"`
+	Score             float32                  `json:"score"`
+	ComplianceScore   *float32                 `json:"complianceScore,omitempty"`
+	ScoreFactor       float32                  `json:"scoreFactor"`
+	Category          *reporthandling.Category `json:"category,omitempty"`
 }
 
 type StatusCounters struct {

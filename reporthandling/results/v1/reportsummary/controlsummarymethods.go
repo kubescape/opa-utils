@@ -153,11 +153,14 @@ func (controlSummary *ControlSummary) GetDescription() string {
 }
 
 func (controlSummary *ControlSummary) GetCategory() reporthandling.Category {
-	return controlSummary.Category
+	return *controlSummary.Category
 }
 
 func (controlSummary *ControlSummary) GetSubCategory() reporthandling.SubCategory {
-	return controlSummary.GetCategory().SubCategory
+	if controlSummary.Category == nil {
+		return reporthandling.SubCategory{}
+	}
+	return *controlSummary.GetCategory().SubCategory
 }
 
 // =============== ControlSummaries
