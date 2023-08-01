@@ -31,15 +31,3 @@ const (
 	// ReadyScanResponseType indicates that a server has successfully completed a request
 	ReadyScanResponseType ScanResponseType = "ready"
 )
-
-// A WorkloadScan contains the identifiers of a workload to be scanned
-type WorkloadScan struct {
-	// The ApiVersion of the workload
-	ApiVersion string `json:"apiVersion"`
-	// The kind of the workload
-	Kind string `json:"kind"`
-	// The name of the workload
-	Name string `json:"name"`
-	// The namespace of the workload
-	Namespace string `json:"namespace"`
-}
