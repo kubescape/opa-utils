@@ -43,10 +43,10 @@ type IControlSummary interface {
 	GetRemediation() string
 
 	// GetCategory get control category
-	GetCategory() reporthandling.Category
+	GetCategory() *reporthandling.Category
 
 	// GetSubCategory get control sub category
-	GetSubCategory() reporthandling.SubCategory
+	GetSubCategory() *reporthandling.SubCategory
 
 	// GetDescription get control description
 	GetDescription() string
