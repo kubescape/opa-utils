@@ -135,6 +135,50 @@ func TestControl_GetAttackTrackCategories(t *testing.T) {
 	assert.Equal(t, []string{}, invalidControl2.GetAttackTrackCategories("container"))
 }
 
+func TestControl_GetAllAttackTracks(t *testing.T) {
+	validControlJson := `{"name":"TEST","attributes":{"armoBuiltin":true,"controlTypeTags":["security","compliance"],"attackTracks":[{"attackTrack": "container","categories": ["Execution","Initial access"]},{"attackTrack": "network","categories": ["Eavesdropping","Spoofing"]}]},"description":"","remediation":"","rulesNames":["CVE-2022-0185"],"id":"C-0079","long_description":"","test":"","controlID":"C-0079","baseScore":4,"example":""}`
+	var validControl Control
+	err := json.Unmarshal([]byte(validControlJson), &validControl)
+	assert.NoError(t, err)
+	expectedTracks := []AttackTrackCategories{
+		{
+			AttackTrack: "container",
+			Categories:  []string{"Execution", "Initial access"},
+		},
+		{
+			AttackTrack: "network",
+			Categories:  []string{"Eavesdropping", "Spoofing"},
+		},
+	}
+	assert.ElementsMatch(t, expectedTracks, validControl.GetAllAttackTrackCategories())
+
+	invalidControlJson1 := `{"name":"TEST","attributes":{"armoBuiltin":true,"controlTypeTags":["security","compliance"],"attackTracks":{"container": "x"}},"description":"","remediation":"","rulesNames":["CVE-2022-0185"],"id":"C-0079","long_description":"","test":"","controlID":"C-0079","baseScore":4,"example":""}`
+	var invalidControl1 Control
+	err = json.Unmarshal([]byte(invalidControlJson1), &invalidControl1)
+	assert.NoError(t, err)
+	assert.Nil(t, invalidControl1.GetAllAttackTrackCategories())
+
+	invalidControlJson2 := `{"name":"TEST","attributes":{"armoBuiltin":true,"controlTypeTags":["security","compliance"],"attack":{"container": "x"}},"description":"","remediation":"","rulesNames":["CVE-2022-0185"],"id":"C-0079","long_description":"","test":"","controlID":"C-0079","baseScore":4,"example":""}`
+	var invalidControl2 Control
+	err = json.Unmarshal([]byte(invalidControlJson2), &invalidControl2)
+	assert.NoError(t, err)
+	assert.Nil(t, invalidControl2.GetAllAttackTrackCategories())
+
+	// Case: control that has no "attackTracks" field
+	missingAttackTrackJson := `{"name":"TEST","attributes":{"armoBuiltin":true,"controlTypeTags":["security","compliance"]},"description":"","remediation":"","rulesNames":["CVE-2022-0185"],"id":"C-0079","long_description":"","test":"","controlID":"C-0079","baseScore":4,"example":""}`
+	var missingAttackTrackControl Control
+	err = json.Unmarshal([]byte(missingAttackTrackJson), &missingAttackTrackControl)
+	assert.NoError(t, err)
+	assert.Nil(t, missingAttackTrackControl.GetAllAttackTrackCategories())
+
+	// Case: control that has "attackTracks" but it's an empty list
+	emptyAttackTrackJson := `{"name":"TEST","attributes":{"armoBuiltin":true,"controlTypeTags":["security","compliance"],"attackTracks":[]},"description":"","remediation":"","rulesNames":["CVE-2022-0185"],"id":"C-0079","long_description":"","test":"","controlID":"C-0079","baseScore":4,"example":""}`
+	var emptyAttackTrackControl Control
+	err = json.Unmarshal([]byte(emptyAttackTrackJson), &emptyAttackTrackControl)
+	assert.NoError(t, err)
+	assert.Nil(t, emptyAttackTrackControl.GetAllAttackTrackCategories())
+}
+
 func TestControl_GetControlTypeTags(t *testing.T) {
 	validControlJson := `{"name":"TEST","attributes":{"armoBuiltin":true,"controlTypeTags":["security","compliance"],"attackTracks":{"container":["Privilege escalation"]}},"description":"","remediation":"","rulesNames":["CVE-2022-0185"],"id":"C-0079","long_description":"","test":"","controlID":"C-0079","baseScore":4,"example":""}`
 	var validControl Control
