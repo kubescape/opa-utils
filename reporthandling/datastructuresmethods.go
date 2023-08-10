@@ -403,6 +403,20 @@ func (ruleResponse *RuleResponse) RemoveData(keepFields, keepMetadataFields []st
 	}
 }
 
+// GetAllAttackTracks returns all attack tracks of the control
+// if the control has no attack tracks, it returns nil
+func (control *Control) GetAllAttackTrackCategories() []AttackTrackCategories {
+	if v, exist := control.Attributes[ControlAttributeKeyAttackTracks]; exist {
+		var attackTrackToCategories []AttackTrackCategories
+		if err := mapstructure.Decode(v, &attackTrackToCategories); err == nil {
+			if len(attackTrackToCategories) > 0 {
+				return attackTrackToCategories
+			}
+		}
+	}
+	return nil
+}
+
 func (control *Control) GetAttackTrackCategories(attackTrackName string) []string {
 	if v, exist := control.Attributes[ControlAttributeKeyAttackTracks]; exist {
 		var attackTrackToCategories []AttackTrackCategories
