@@ -1,11 +1,12 @@
 package apis
 
 const (
-	SeverityCriticalString = "Critical"
-	SeverityHighString     = "High"
-	SeverityMediumString   = "Medium"
-	SeverityLowString      = "Low"
-	SeverityUnknownString  = "Unknown"
+	SeverityCriticalString   = "Critical"
+	SeverityHighString       = "High"
+	SeverityMediumString     = "Medium"
+	SeverityLowString        = "Low"
+	SeverityNegligibleString = "Negligible"
+	SeverityUnknownString    = "Unknown"
 )
 
 const (

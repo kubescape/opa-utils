@@ -9,6 +9,7 @@ type IAttackTrack interface {
 	GetData() IAttackTrackStep
 	Iterator() IAttackTrackIterator
 	IsValid() bool
+	GetSubstepsWithVulnerabilities() []string
 }
 
 // A step in an attack track

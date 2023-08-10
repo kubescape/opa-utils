@@ -57,6 +57,25 @@ func (at *AttackTrack) Iterator() IAttackTrackIterator {
 	}
 }
 
+// GetSubstepsWithVulnerabilities returns a list of substeps names that check for vulnerabilities
+func (at *AttackTrack) GetSubstepsWithVulnerabilities() []string {
+	var substepNames []string
+
+	var traverse func(step AttackTrackStep)
+	traverse = func(step AttackTrackStep) {
+		if step.DoesCheckVulnerabilities() {
+			substepNames = append(substepNames, step.Name)
+		}
+		for _, substep := range step.SubSteps {
+			traverse(substep)
+		}
+	}
+
+	traverse(at.Spec.Data)
+
+	return substepNames
+}
+
 func (iter *AttackTrackIterator) HasNext() bool {
 	return !iter.stack.IsEmpty()
 }
@@ -271,10 +290,11 @@ func (handler *AttackTrackAllPathsHandler) GenerateAttackTrackFromPaths(paths []
 // filterNodesWithControls - filters out nodes that do not have controls
 func (handler *AttackTrackAllPathsHandler) filterNodesWithControls(step IAttackTrackStep, paths [][]IAttackTrackStep) *AttackTrackStep {
 	filteredStep := AttackTrackStep{
-		Name:        step.GetName(),
-		Description: step.GetDescription(),
-		SubSteps:    nil,
-		Controls:    step.GetControls(),
+		Name:                  step.GetName(),
+		Description:           step.GetDescription(),
+		SubSteps:              nil,
+		Controls:              step.GetControls(),
+		ChecksVulnerabilities: step.DoesCheckVulnerabilities(),
 	}
 
 	if step.Length() == 0 {

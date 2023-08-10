@@ -18,9 +18,10 @@ const (
 
 // RuleMatchObjects defines which objects this rule applied on
 type RuleMatchObjects struct {
-	APIGroups   []string `json:"apiGroups" bson:"apiGroups"`     // apps
-	APIVersions []string `json:"apiVersions" bson:"apiVersions"` // v1/ v1beta1 / *
-	Resources   []string `json:"resources" bson:"resources"`     // dep.., pods,
+	APIGroups     []string `json:"apiGroups" bson:"apiGroups"`                             // apps
+	APIVersions   []string `json:"apiVersions" bson:"apiVersions"`                         // v1/ v1beta1 / *
+	Resources     []string `json:"resources" bson:"resources"`                             // dep.., pods,
+	FieldSelector []string `json:"fieldSelector,omitempty" bson:"fieldSelector,omitempty"` // fields selector for example metadata.name==nginx,metadata.namespace==ns1
 }
 
 type RuleDependency struct {
@@ -31,6 +32,21 @@ type ControlConfigInputs struct {
 	Path        string `json:"path" bson:"path"`
 	Name        string `json:"name" bson:"name"`
 	Description string `json:"description" bson:"description"`
+}
+
+type ScanningScopeType string
+
+const (
+	ScopeCloudAKS ScanningScopeType = "AKS"
+	ScopeCloudGKE ScanningScopeType = "GKE"
+	ScopeCloudEKS ScanningScopeType = "EKS"
+	ScopeCloud    ScanningScopeType = "cloud"
+	ScopeCluster  ScanningScopeType = "cluster"
+	ScopeFile     ScanningScopeType = "file"
+)
+
+type ScanningScope struct {
+	Matches []ScanningScopeType `json:"matches"`
 }
 
 // PolicyRule represents single rule, the fundamental executable block of policy
@@ -56,15 +72,28 @@ type Control struct {
 	FixedInput            map[string][]string `json:"fixedInput,omitempty"`
 	RulesIDs              *[]string           `json:"rulesIDs,omitempty" bson:"rulesIDs,omitempty"`
 	armotypes.PortalBase  `json:",inline" bson:"inline"`
-	Control_ID            string       `json:"id,omitempty" bson:"id,omitempty"  `
-	ControlID             string       `json:"controlID" bson:"controlID"`
-	CreationTime          string       `json:"creationTime" bson:"creationTime"`
-	Description           string       `json:"description" bson:"description"`
-	Remediation           string       `json:"remediation" bson:"remediation"`
-	Rules                 []PolicyRule `json:"rules" bson:"rules,omitempty"`
-	FrameworkNames        []string     `json:"frameworkNames,omitempty" bson:"frameworkNames,omitempty"`
-	BaseScore             float32      `json:"baseScore,omitempty" bson:"baseScore,omitempty"`
-	ARMOImprovementFactor float32      `json:"ARMOImprovementFactor,omitempty" bson:"ARMOImprovementFactor,omitempty"`
+	Control_ID            string         `json:"id,omitempty" bson:"id,omitempty"  `
+	ControlID             string         `json:"controlID" bson:"controlID"`
+	CreationTime          string         `json:"creationTime" bson:"creationTime"`
+	Description           string         `json:"description" bson:"description"`
+	Remediation           string         `json:"remediation" bson:"remediation"`
+	Rules                 []PolicyRule   `json:"rules" bson:"rules,omitempty"`
+	FrameworkNames        []string       `json:"frameworkNames,omitempty" bson:"frameworkNames,omitempty"`
+	BaseScore             float32        `json:"baseScore,omitempty" bson:"baseScore,omitempty"`
+	ARMOImprovementFactor float32        `json:"ARMOImprovementFactor,omitempty" bson:"ARMOImprovementFactor,omitempty"`
+	ScanningScope         *ScanningScope `json:"scanningScope,omitempty" bson:"scanningScope,omitempty"`
+	Category              *Category      `json:"category,omitempty" bson:"category,omitempty"`
+}
+
+type Category struct {
+	Name        string       `json:"name" bson:"name"`
+	ID          string       `json:"id" bson:"id"`
+	SubCategory *SubCategory `json:"subCategory,omitempty" bson:"subCategory,omitempty"`
+}
+
+type SubCategory struct {
+	Name string `json:"name" bson:"name"`
+	ID   string `json:"id" bson:"id"`
 }
 
 type UpdatedControl struct {
@@ -80,8 +109,9 @@ type Framework struct {
 	TypeTags             []string  `json:"typeTags" bson:"typeTags"`
 	Controls             []Control `json:"controls" bson:"-"`
 	// for new list of  controls in POST/UPADTE requests
-	ControlsIDs *[]string                       `json:"controlsIDs,omitempty" bson:"controlsIDs,omitempty"`
-	SubSections map[string]*FrameworkSubSection `json:"subSections,omitempty" bson:"subSections,omitempty"`
+	ControlsIDs   *[]string                       `json:"controlsIDs,omitempty" bson:"controlsIDs,omitempty"`
+	SubSections   map[string]*FrameworkSubSection `json:"subSections,omitempty" bson:"subSections,omitempty"`
+	ScanningScope *ScanningScope                  `json:"scanningScope,omitempty" bson:"scanningScope,omitempty"`
 }
 
 type UpdatedFramework struct {

@@ -268,7 +268,9 @@ func (su *ScoreUtil) CalculatePostureReportV2(report *v2.PostureReport) error {
 
 	totalUnormalizedScore, totalWcsScore := su.ControlsSummariesScore(&report.SummaryDetails.Controls, "") // populate summaries per control
 	su.debugf("total un-normalized score %v, (total wcs: %v)", totalUnormalizedScore, totalWcsScore)
-	report.SummaryDetails.Score = (totalUnormalizedScore * 100) / totalWcsScore // populate final summarized score
+	if totalWcsScore > 0 {
+		report.SummaryDetails.Score = (totalUnormalizedScore * 100) / totalWcsScore // populate final summarized score
+	}
 
 	return nil
 }

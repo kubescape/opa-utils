@@ -57,12 +57,56 @@ func (m *Metadata) UnmarshalJSONObject(dec *gojay.Decoder, key string) (err erro
 
 	case "clusterMetadata":
 		err = dec.Object(&(m.ClusterMetadata))
+
+	case "targetMetadata":
+		err = dec.Object(&(m.ContextMetadata))
 	}
+
 	return err
 
 }
 
 func (file *Metadata) NKeys() int {
+	return 0
+}
+
+func (c *ContextMetadata) UnmarshalJSONObject(dec *gojay.Decoder, key string) (err error) {
+	switch key {
+	case "clusterContextMetadata":
+		clusterMetadata := &ClusterMetadata{}
+		if err = dec.Object(clusterMetadata); err == nil {
+			c.ClusterContextMetadata = clusterMetadata
+		}
+	case "gitRepoContextMetadata":
+		repoContextMetadata := &RepoContextMetadata{}
+		if err = dec.Object(repoContextMetadata); err == nil {
+			c.RepoContextMetadata = repoContextMetadata
+		}
+	}
+	return err
+}
+
+func (c *ContextMetadata) NKeys() int {
+	return 0
+}
+
+func (c *RepoContextMetadata) UnmarshalJSONObject(dec *gojay.Decoder, key string) (err error) {
+	switch key {
+	case "provider":
+		err = dec.String(&(c.Provider))
+	case "repo":
+		err = dec.String(&(c.Repo))
+	case "owner":
+		err = dec.String(&(c.Owner))
+	case "branch":
+		err = dec.String(&(c.Branch))
+	case "remoteURL":
+		err = dec.String(&(c.RemoteURL))
+	}
+	return err
+}
+
+func (c *RepoContextMetadata) NKeys() int {
 	return 0
 }
 
