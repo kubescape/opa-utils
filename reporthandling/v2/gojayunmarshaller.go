@@ -29,9 +29,12 @@ func (r *PostureReport) UnmarshalJSONObject(dec *gojay.Decoder, key string) (err
 		r.ReportGenerationTime = r.ReportGenerationTime.Local()
 	case "metadata":
 		err = dec.Object(&(r.Metadata))
+	case "customerGUIDGenerated":
+		err = dec.Bool(&(r.CustomerGUIDGenerated))
+	case "paginationInfo":
+		err = dec.Object(&(r.PaginationInfo))
 	}
 	return err
-
 }
 
 // func (files *PkgFiles) UnmarshalJSONArray(dec *gojay.Decoder) error {
