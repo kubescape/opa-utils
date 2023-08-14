@@ -143,6 +143,10 @@ func (m *ScanMetadata) UnmarshalJSONObject(dec *gojay.Decoder, key string) (err 
 		err = dec.String(&(m.ControlsInputs))
 	case "verboseMode": // bool
 		err = dec.Bool(&(m.VerboseMode))
+	case "scanningTarget":
+		var value uint16
+		err = dec.Uint16(&value)
+		m.ScanningTarget = ScanningTarget(value)
 	}
 	return err
 
