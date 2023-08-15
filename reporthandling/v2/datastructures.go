@@ -14,19 +14,20 @@ import (
 
 // PostureReport posture scanning report structure
 type PostureReport struct {
-	ReportGenerationTime time.Time                         `json:"generationTime"`
-	Metadata             Metadata                          `json:"metadata,omitempty"`
-	ClusterAPIServerInfo *version.Info                     `json:"clusterAPIServerInfo"`
-	CustomerGUID         string                            `json:"customerGUID"`
-	ClusterName          string                            `json:"clusterName"`
-	ClusterCloudProvider string                            `json:"clusterCloudProvider"`
-	ReportID             string                            `json:"reportGUID"`
-	JobID                string                            `json:"jobID"`
-	Resources            []reporthandling.Resource         `json:"resources,omitempty"`
-	Attributes           []reportsummary.PostureAttributes `json:"attributes"`
-	Results              []resourcesresults.Result         `json:"results,omitempty"`
-	SummaryDetails       reportsummary.SummaryDetails      `json:"summaryDetails,omitempty"`
-	PaginationInfo       armoapi.PaginationMarks           `json:"paginationInfo"`
+	ReportGenerationTime  time.Time                         `json:"generationTime"`
+	ClusterAPIServerInfo  *version.Info                     `json:"clusterAPIServerInfo"`
+	ClusterCloudProvider  string                            `json:"clusterCloudProvider"`
+	CustomerGUID          string                            `json:"customerGUID"`
+	ClusterName           string                            `json:"clusterName"`
+	ReportID              string                            `json:"reportGUID"`
+	JobID                 string                            `json:"jobID"`
+	SummaryDetails        reportsummary.SummaryDetails      `json:"summaryDetails,omitempty"`
+	Resources             []reporthandling.Resource         `json:"resources,omitempty"`
+	Attributes            []reportsummary.PostureAttributes `json:"attributes"`
+	Results               []resourcesresults.Result         `json:"results,omitempty"`
+	Metadata              Metadata                          `json:"metadata,omitempty"`
+	PaginationInfo        armoapi.PaginationMarks           `json:"paginationInfo"`
+	CustomerGUIDGenerated bool                              `json:"customerGUIDGenerated"`
 }
 
 type ClusterMetadata struct {

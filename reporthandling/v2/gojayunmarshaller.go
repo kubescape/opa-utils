@@ -29,9 +29,12 @@ func (r *PostureReport) UnmarshalJSONObject(dec *gojay.Decoder, key string) (err
 		r.ReportGenerationTime = r.ReportGenerationTime.Local()
 	case "metadata":
 		err = dec.Object(&(r.Metadata))
+	case "customerGUIDGenerated":
+		err = dec.Bool(&(r.CustomerGUIDGenerated))
+	case "paginationInfo":
+		err = dec.Object(&(r.PaginationInfo))
 	}
 	return err
-
 }
 
 // func (files *PkgFiles) UnmarshalJSONArray(dec *gojay.Decoder) error {
@@ -140,6 +143,10 @@ func (m *ScanMetadata) UnmarshalJSONObject(dec *gojay.Decoder, key string) (err 
 		err = dec.String(&(m.ControlsInputs))
 	case "verboseMode": // bool
 		err = dec.Bool(&(m.VerboseMode))
+	case "scanningTarget":
+		var value uint16
+		err = dec.Uint16(&value)
+		m.ScanningTarget = ScanningTarget(value)
 	}
 	return err
 
