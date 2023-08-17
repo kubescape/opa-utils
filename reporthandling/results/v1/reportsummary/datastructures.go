@@ -23,7 +23,7 @@ type SummaryDetails struct {
 	StatusCounters            StatusCounters             `json:"ResourceCounters"` // Backward compatibility
 	Score                     float32                    `json:"score"`
 	ComplianceScore           float32                    `json:"complianceScore"`
-	TopWorkloadsByScore       []reporthandling.IResource `json:"topWorkloadsByScore,omitempty"`
+	TopWorkloadsByScore       []reporthandling.IResource `json:"-"`
 }
 
 // FrameworkSummary summary of scanning from a single framework perspective
