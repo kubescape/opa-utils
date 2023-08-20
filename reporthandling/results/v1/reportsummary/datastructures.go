@@ -15,15 +15,14 @@ type ControlSummaries map[string]ControlSummary
 
 // SummaryDetails detailed summary of the scanning. will contain versions, counters, etc.
 type SummaryDetails struct {
-	Controls                  ControlSummaries           `json:"controls,omitempty"`
-	Status                    apis.ScanningStatus        `json:"status"`
-	Frameworks                []FrameworkSummary         `json:"frameworks"`
-	ResourcesSeverityCounters SeverityCounters           `json:"resourcesSeverityCounters,omitempty"`
-	ControlsSeverityCounters  SeverityCounters           `json:"controlsSeverityCounters,omitempty"`
-	StatusCounters            StatusCounters             `json:"ResourceCounters"` // Backward compatibility
-	Score                     float32                    `json:"score"`
-	ComplianceScore           float32                    `json:"complianceScore"`
-	TopWorkloadsByScore       []reporthandling.IResource `json:"topWorkloadsByScore,omitempty"`
+	Controls                  ControlSummaries    `json:"controls,omitempty"`
+	Status                    apis.ScanningStatus `json:"status"`
+	Frameworks                []FrameworkSummary  `json:"frameworks"`
+	ResourcesSeverityCounters SeverityCounters    `json:"resourcesSeverityCounters,omitempty"`
+	ControlsSeverityCounters  SeverityCounters    `json:"controlsSeverityCounters,omitempty"`
+	StatusCounters            StatusCounters      `json:"ResourceCounters"` // Backward compatibility
+	Score                     float32             `json:"score"`
+	ComplianceScore           float32             `json:"complianceScore"`
 }
 
 // FrameworkSummary summary of scanning from a single framework perspective
