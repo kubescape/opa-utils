@@ -77,6 +77,10 @@ type PostScanRequest struct {
 	//
 	// Example: {"apiVersion": "apps/v1", "kind": "Deployment", "metadata": { "name": "nginx", "namespace": "my-namespace"} }
 	ScanObject *objectsenvelopes.ScanObject `json:"scanObject,omitempty"`
+	// Specifies whether the ScanObject is a deleted K8S resource so that the scan will be performed without fetching the resource
+	//
+	// Example: true
+	IsDeletedScanObject *bool `json:"isDeletedScanObject,omitempty"`
 }
 
 // A Scan Response object
