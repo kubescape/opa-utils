@@ -40,7 +40,8 @@ type RelatedObject struct {
 }
 
 type AssistedRemediation struct {
-	FailedPaths []string            `json:"failedPaths"`          // path in yaml that led to failure of this resource
+	FailedPaths []string            `json:"failedPaths"`          // path in yaml that led to failure of this resource TODO - deprecate
+	ReviewPaths []string            `json:"reviewPaths"`          // path in yaml that led to failure of this resource
 	DeletePaths []string            `json:"deletePaths"`          // path in yaml to be deleted to remediate this resource
 	FixPaths    []armotypes.FixPath `json:"fixPaths"`             // path in yaml to be added to fix this resource
 	FixCommand  string              `json:"fixCommand,omitempty"` // command to fix this resource
