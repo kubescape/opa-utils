@@ -21,28 +21,31 @@ const (
 
 // RegoResponse the expected response of single run of rego policy
 type RuleResponse struct {
-	AlertMessage   string                            `json:"alertMessage"`
-	FailedPaths    []string                          `json:"failedPaths"`          // path in yaml that led to failure of this resource
-	FixPaths       []armotypes.FixPath               `json:"fixPaths"`             // path in yaml to be added to fix this resource
-	FixCommand     string                            `json:"fixCommand,omitempty"` // command to fix this resource
-	RuleStatus     string                            `json:"ruleStatus"`
-	PackageName    string                            `json:"packagename"`
-	AlertScore     AlertScore                        `json:"alertScore"`
-	AlertObject    AlertObject                       `json:"alertObject"`
-	RelatedObjects []RelatedObject                   `json:"relatedObjects,omitempty"`
-	Context        []string                          `json:"context,omitempty"`  // TODO - Remove
-	Rulename       string                            `json:"rulename,omitempty"` // TODO - Remove
-	Exception      *armotypes.PostureExceptionPolicy `json:"exception,omitempty"`
+	AlertMessage        string `json:"alertMessage"`
+	AssistedRemediation `json:",inline"`
+	RuleStatus          string                            `json:"ruleStatus"`
+	PackageName         string                            `json:"packagename"`
+	AlertScore          AlertScore                        `json:"alertScore"`
+	AlertObject         AlertObject                       `json:"alertObject"`
+	RelatedObjects      []RelatedObject                   `json:"relatedObjects,omitempty"`
+	Context             []string                          `json:"context,omitempty"`  // TODO - Remove
+	Rulename            string                            `json:"rulename,omitempty"` // TODO - Remove
+	Exception           *armotypes.PostureExceptionPolicy `json:"exception,omitempty"`
 }
 
 // RelatedObjects - resource that is related to the failure of the main resource
 type RelatedObject struct {
-	Object      map[string]interface{} `json:"object"`
-	FailedPaths []string               `json:"failedPaths"`          // path in yaml that led to failure of this resource
-	FixPaths    []armotypes.FixPath    `json:"fixPaths"`             // path in yaml to be added to fix this resource
-	FixCommand  string                 `json:"fixCommand,omitempty"` // command to fix this resource
+	Object              map[string]interface{} `json:"object"`
+	AssistedRemediation `json:",inline"`
 }
 
+type AssistedRemediation struct {
+	FailedPaths []string            `json:"failedPaths"`          // path in yaml that led to failure of this resource TODO - deprecate
+	ReviewPaths []string            `json:"reviewPaths"`          // path in yaml that led to failure of this resource
+	DeletePaths []string            `json:"deletePaths"`          // path in yaml to be deleted to remediate this resource
+	FixPaths    []armotypes.FixPath `json:"fixPaths"`             // path in yaml to be added to fix this resource
+	FixCommand  string              `json:"fixCommand,omitempty"` // command to fix this resource
+}
 type AlertObject struct {
 	K8SApiObjects   []map[string]interface{} `json:"k8sApiObjects,omitempty"`
 	ExternalObjects map[string]interface{}   `json:"externalObjects,omitempty"`
