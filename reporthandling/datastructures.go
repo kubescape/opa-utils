@@ -59,7 +59,6 @@ type PolicyRule struct {
 	Match                  []RuleMatchObjects    `json:"match" bson:"match"`                                   // k8s resources this rule needs as inputs
 	DynamicMatch           []RuleMatchObjects    `json:"dynamicMatch,omitempty" bson:"dynamicMatch,omitempty"` // NON-k8s resources this rule needs as inputs, acquired by host-scanner
 	RuleDependencies       []RuleDependency      `json:"ruleDependencies" bson:"ruleDependencies"`             // packages this rule uses
-	ConfigInputs           []string              `json:"configInputs" bson:"configInputs"`                     // DEPRECATED
 	ControlConfigInputs    []ControlConfigInputs `json:"controlConfigInputs" bson:"controlConfigInputs" `      // list of inputs from postureControlInputs in customerConfig for this rule
 	Description            string                `json:"description" bson:"description"`
 	Remediation            string                `json:"remediation" bson:"remediation"`
