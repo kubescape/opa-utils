@@ -10,6 +10,7 @@ import (
 	"github.com/open-policy-agent/opa/storage/inmem"
 
 	k8sinterface "github.com/kubescape/k8s-interface/k8sinterface"
+	"github.com/kubescape/opa-utils/reporthandling"
 	"k8s.io/client-go/rest"
 )
 
@@ -78,6 +79,20 @@ func (data *RegoDependenciesData) GetFilteredPostureControlInputs(settings []str
 	jsonObj := map[string][]string{}
 	for i := range settings {
 		splitted := strings.Split(settings[i], ".")
+		if len(splitted) != 3 {
+			continue
+		}
+		if v, k := data.PostureControlInputs[splitted[2]]; k && v != nil {
+			jsonObj[splitted[2]] = v
+		}
+	}
+	return jsonObj
+}
+
+func (data *RegoDependenciesData) GetFilteredPostureControlConfigInputs(settings []reporthandling.ControlConfigInputs) map[string][]string {
+	jsonObj := map[string][]string{}
+	for i := range settings {
+		splitted := strings.Split(settings[i].Path, ".")
 		if len(splitted) != 3 {
 			continue
 		}
