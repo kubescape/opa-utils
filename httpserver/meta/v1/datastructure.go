@@ -23,6 +23,14 @@ type PostScanRequest struct {
 	// swagger:strfmt uuid4
 	//
 	Account string `json:"account,omitempty"`
+	// A Kubescape access key to use for scanning.
+	//
+	// Same as `kubescape scan --access-key`.
+	//
+	// Example: d13791eb-19b1-4222-867b-9a7c1799cfac
+	// swagger:strfmt uuid4
+	//
+	AccessKey string `json:"accessKey,omitempty"`
 	// Threshold for a failing score.
 	//
 	// Scores higher than the provided value will be considered failing.
