@@ -1,10 +1,11 @@
 package v1alpha1
 
 const (
-	ControlTypeTagDevops         string = "devops"
-	ControlTypeTagSecurity       string = "security"
-	ControlTypeTagCompliance     string = "compliance"
-	ControlTypeTagSecurityImpact string = "security-impact"
+	ControlTypeTagDevops           string = "devops"
+	ControlTypeTagSecurity         string = "security"
+	ControlTypeTagCompliance       string = "compliance"
+	ControlTypeTagSecurityImpact   string = "security-impact"
+	ControlTypeTagSmartRemediation string = "smartRemediation"
 )
 
 type AttackTrack struct {
