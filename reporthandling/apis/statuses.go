@@ -22,7 +22,7 @@ const (
 	StatusError      ScanningStatus = "error"      // Deprecated
 )
 const (
-	SubStatusConfigurationInfo  StatusMsg = "Control configurations are empty"
+	SubStatusConfigurationInfo  StatusMsg = "Control configurations are empty (docs: https://kubescape.io/docs/frameworks-and-controls/configuring-controls)"
 	SubStatusRequiresReviewInfo StatusMsg = "Control type is requires-review"
 	SubStatusManualReviewInfo   StatusMsg = "Control type is manual-review"
 )
