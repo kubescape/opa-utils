@@ -483,7 +483,7 @@ func TestUpdateControlsSummaryCounters(t *testing.T) {
 			want: &apis.StatusInfo{
 				InnerStatus: apis.StatusSkipped,
 				SubStatus:   apis.SubStatusConfiguration,
-				InnerInfo:   "Control configurations are empty",
+				InnerInfo:   "Control configurations are empty (docs: https://kubescape.io/docs/frameworks-and-controls/configuring-controls)",
 			},
 		},
 		{
