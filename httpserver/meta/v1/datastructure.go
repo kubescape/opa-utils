@@ -1,6 +1,7 @@
 package v1
 
 import (
+	"github.com/armosec/armoapi-go/armotypes"
 	v1 "github.com/kubescape/opa-utils/httpserver/apis/v1"
 	"github.com/kubescape/opa-utils/objectsenvelopes"
 )
@@ -89,6 +90,12 @@ type PostScanRequest struct {
 	//
 	// Example: true
 	IsDeletedScanObject *bool `json:"isDeletedScanObject,omitempty"`
+	// List of exceptions to the controls
+	//
+	// Same as kubescape scan --exceptions
+	//
+	// Example: [{"controlID": "K8S_111", "exceptions": ["exception1", "exception2"]}]
+	Exceptions []armotypes.PostureExceptionPolicy `json:"exceptions,omitempty"`
 }
 
 // A Scan Response object
