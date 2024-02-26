@@ -120,3 +120,64 @@ func TestVectorObjGetters(t *testing.T) {
 		t.Errorf("error in GetNamespace, got: '%s', should be ''", ns)
 	}
 }
+
+func TestGetNamespace(t *testing.T) {
+	tests := []struct {
+		object   map[string]interface{}
+		f        func(*RegoResponseVectorObject) string
+		name     string
+		expected string
+	}{
+		{
+			name:     "name exists",
+			object:   map[string]interface{}{"name": "test-name"},
+			expected: "test-name",
+			f:        (*RegoResponseVectorObject).GetName,
+		},
+		{
+			name:     "name does not exist",
+			object:   map[string]interface{}{"not-name": "test-name"},
+			expected: "",
+			f:        (*RegoResponseVectorObject).GetName,
+		},
+		{
+			name:     "namespace exists",
+			object:   map[string]interface{}{"namespace": "test-namespace"},
+			expected: "test-namespace",
+			f:        (*RegoResponseVectorObject).GetNamespace,
+		},
+		{
+			name:     "namespace does not exist",
+			object:   map[string]interface{}{"not-namespace": "test-namespace"},
+			expected: "",
+			f:        (*RegoResponseVectorObject).GetNamespace,
+		},
+		{
+			name:     "namespace is not a string",
+			object:   map[string]interface{}{"namespace": 123},
+			expected: "",
+			f:        (*RegoResponseVectorObject).GetNamespace,
+		},
+		{
+			name:     "namespace is an interface",
+			object:   map[string]interface{}{"namespace": map[string]interface{}{"namespace": nil}},
+			expected: "",
+			f:        (*RegoResponseVectorObject).GetNamespace,
+		},
+		{
+			name:     "namespace is nil",
+			object:   map[string]interface{}{"namespace": nil},
+			expected: "",
+			f:        (*RegoResponseVectorObject).GetNamespace,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			obj := &RegoResponseVectorObject{object: tt.object}
+			if got := tt.f(obj); got != tt.expected {
+				t.Errorf("GetNamespace() = %v, want %v", got, tt.expected)
+			}
+		})
+	}
+}
