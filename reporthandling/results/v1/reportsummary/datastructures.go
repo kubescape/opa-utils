@@ -15,14 +15,15 @@ type ControlSummaries map[string]ControlSummary
 
 // SummaryDetails detailed summary of the scanning. will contain versions, counters, etc.
 type SummaryDetails struct {
-	Controls                  ControlSummaries    `json:"controls,omitempty"`
-	Status                    apis.ScanningStatus `json:"status"`
-	Frameworks                []FrameworkSummary  `json:"frameworks"`
-	ResourcesSeverityCounters SeverityCounters    `json:"resourcesSeverityCounters,omitempty"`
-	ControlsSeverityCounters  SeverityCounters    `json:"controlsSeverityCounters,omitempty"`
-	StatusCounters            StatusCounters      `json:"ResourceCounters"` // Backward compatibility
-	Score                     float32             `json:"score"`
-	ComplianceScore           float32             `json:"complianceScore"`
+	Controls                  ControlSummaries     `json:"controls,omitempty"`
+	Status                    apis.ScanningStatus  `json:"status"`
+	Frameworks                []FrameworkSummary   `json:"frameworks"`
+	ResourcesSeverityCounters SeverityCounters     `json:"resourcesSeverityCounters,omitempty"`
+	ControlsSeverityCounters  SeverityCounters     `json:"controlsSeverityCounters,omitempty"`
+	StatusCounters            StatusCounters       `json:"ResourceCounters"` // Backward compatibility
+	Vulnerabilities           VulnerabilitySummary `json:"vulnerabilities,omitempty"`
+	Score                     float32              `json:"score"`
+	ComplianceScore           float32              `json:"complianceScore"`
 }
 
 // FrameworkSummary summary of scanning from a single framework perspective
@@ -76,4 +77,36 @@ type PostureCounters struct {
 	FailedCounter   int `json:"failed"`
 	SkippedCounter  int `json:"skipped"`
 	ExcludedCounter int `json:"excluded"` // Deprecated
+}
+
+type VulnerabilitySummary struct {
+	MapsSeverityToSummary MapsSeverityToSummary `json:"MapsSeverityToSummary"`
+	CVESummary            []CVESummary          `json:"CVEs"`
+	PackageScores         PackageScores         `json:"PackageScores"`
+	Images                []string              `json:"Images"`
+}
+
+type MapsSeverityToSummary map[string]*SeveritySummary
+
+type SeveritySummary struct {
+	NumberOfCVEs        int `json:"NumberOfCVEs"`
+	NumberOfFixableCVEs int `json:"NumberOfFixableCVEs"`
+}
+
+type CVESummary struct {
+	Severity    string   `json:"Severity"`
+	ID          string   `json:"ID"`
+	Package     string   `json:"Package"`
+	Version     string   `json:"Version"`
+	FixVersions []string `json:"FixVersions"`
+	FixedState  string   `json:"FixedState"`
+}
+
+type PackageScores map[string]*PackageSummary
+
+type PackageSummary struct {
+	Name                    string         `json:"Name"`
+	Version                 string         `json:"Version"`
+	Score                   int            `json:"Score"`
+	MapSeverityToCVEsNumber map[string]int `json:"MapSeverityToCVEsNumber"`
 }
