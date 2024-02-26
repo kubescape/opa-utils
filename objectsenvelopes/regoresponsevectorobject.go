@@ -89,30 +89,40 @@ func (obj *RegoResponseVectorObject) SetRelatedObjects(relatedObjects []map[stri
 // =================== Get ================================
 func (obj *RegoResponseVectorObject) GetApiVersion() string {
 	if v, ok := workloadinterface.InspectMap(obj.object, "apiVersion"); ok {
-		return v.(string)
+		if s, k := v.(string); k {
+			return s
+		}
 	} else if v, ok := workloadinterface.InspectMap(obj.object, "apiGroup"); ok {
-		return v.(string)
+		if s, k := v.(string); k {
+			return s
+		}
 	}
 	return ""
 }
 
 func (obj *RegoResponseVectorObject) GetNamespace() string {
 	if v, ok := workloadinterface.InspectMap(obj.object, "namespace"); ok {
-		return v.(string)
+		if s, k := v.(string); k {
+			return s
+		}
 	}
 	return ""
 }
 
 func (obj *RegoResponseVectorObject) GetName() string {
 	if v, ok := workloadinterface.InspectMap(obj.object, "name"); ok {
-		return v.(string)
+		if s, k := v.(string); k {
+			return s
+		}
 	}
 	return ""
 }
 
 func (obj *RegoResponseVectorObject) GetKind() string {
 	if v, ok := workloadinterface.InspectMap(obj.object, "kind"); ok {
-		return v.(string)
+		if s, k := v.(string); k {
+			return s
+		}
 	}
 	return ""
 }
