@@ -818,6 +818,142 @@ func TestHasException(t *testing.T) {
 			),
 			expected: true,
 		},
+		{
+			name: "Test case: Name matches in base object",
+			workload: objectsenvelopes.NewRegoResponseVectorObject(
+				map[string]interface{}{
+					"kind": "RegoResponseVector",
+					"name": "base",
+					"relatedObjects": []interface{}{
+						map[string]interface{}{
+							"apiVersion": "apps/v1",
+							"kind":       "Deployment",
+							"metadata": map[string]interface{}{
+								"name":      "test",
+								"namespace": "test-namespace",
+							},
+						},
+						map[string]interface{}{
+							"apiVersion": "apps/v1",
+							"kind":       "Deployment",
+							"metadata": map[string]interface{}{
+								"name":      "test-2",
+								"namespace": "test-namespace",
+							},
+						},
+					},
+				},
+			),
+			designator: &identifiers.PortalDesignator{
+				DesignatorType: identifiers.DesignatorAttributes,
+				Attributes: map[string]string{
+					"name": "base",
+				},
+			},
+			expected: true,
+		},
+		{
+			name: "Test case: Kind matches in base object",
+			workload: objectsenvelopes.NewRegoResponseVectorObject(
+				map[string]interface{}{
+					"kind": "RegoResponseVector",
+					"name": "base",
+					"relatedObjects": []interface{}{
+						map[string]interface{}{
+							"apiVersion": "apps/v1",
+							"kind":       "Deployment",
+							"metadata": map[string]interface{}{
+								"name":      "test",
+								"namespace": "test-namespace",
+							},
+						},
+						map[string]interface{}{
+							"apiVersion": "apps/v1",
+							"kind":       "Deployment",
+							"metadata": map[string]interface{}{
+								"name":      "test-2",
+								"namespace": "test-namespace",
+							},
+						},
+					},
+				},
+			),
+			designator: &identifiers.PortalDesignator{
+				DesignatorType: identifiers.DesignatorAttributes,
+				Attributes: map[string]string{
+					"kind": "RegoResponseVector",
+				},
+			},
+			expected: true,
+		},
+		{
+			name: "Test case: Name mismatches in base object",
+			workload: objectsenvelopes.NewRegoResponseVectorObject(
+				map[string]interface{}{
+					"kind": "ServiceAccount",
+					"name": "base",
+					"relatedObjects": []interface{}{
+						map[string]interface{}{
+							"apiVersion": "apps/v1",
+							"kind":       "Deployment",
+							"metadata": map[string]interface{}{
+								"name":      "test",
+								"namespace": "test-namespace",
+							},
+						},
+						map[string]interface{}{
+							"apiVersion": "apps/v1",
+							"kind":       "Deployment",
+							"metadata": map[string]interface{}{
+								"name":      "test-2",
+								"namespace": "test-namespace",
+							},
+						},
+					},
+				},
+			),
+			designator: &identifiers.PortalDesignator{
+				DesignatorType: identifiers.DesignatorAttributes,
+				Attributes: map[string]string{
+					"name": "base-2",
+				},
+			},
+			expected: false,
+		},
+		{
+			name: "Test case: Kind mismatches in base object",
+			workload: objectsenvelopes.NewRegoResponseVectorObject(
+				map[string]interface{}{
+					"kind": "ServiceAccount",
+					"name": "base",
+					"relatedObjects": []interface{}{
+						map[string]interface{}{
+							"apiVersion": "apps/v1",
+							"kind":       "Deployment",
+							"metadata": map[string]interface{}{
+								"name":      "test",
+								"namespace": "test-namespace",
+							},
+						},
+						map[string]interface{}{
+							"apiVersion": "apps/v1",
+							"kind":       "Deployment",
+							"metadata": map[string]interface{}{
+								"name":      "test-2",
+								"namespace": "test-namespace",
+							},
+						},
+					},
+				},
+			),
+			designator: &identifiers.PortalDesignator{
+				DesignatorType: identifiers.DesignatorAttributes,
+				Attributes: map[string]string{
+					"kind": "RegoResponseVector",
+				},
+			},
+			expected: false,
+		},
 	}
 
 	for _, tt := range tests {

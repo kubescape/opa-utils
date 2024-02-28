@@ -174,7 +174,10 @@ func (p *Processor) hasException(clusterName string, designator *identifiers.Por
 	}
 
 	if isTypeRegoResponseVector(workload) {
-		return p.iterateRegoResponseVector(workload, attributes)
+		if p.iterateRegoResponseVector(workload, attributes) {
+			return true
+		}
+		// otherwise, continue to check the base object
 	}
 	return p.metadataHasException(workload, attributes)
 
