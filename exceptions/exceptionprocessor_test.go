@@ -6,6 +6,7 @@ import (
 	"github.com/armosec/armoapi-go/identifiers"
 
 	"github.com/kubescape/k8s-interface/workloadinterface"
+	"github.com/kubescape/opa-utils/objectsenvelopes"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
@@ -193,9 +194,9 @@ func TestGetResourceExceptions(t *testing.T) {
 	p := NewProcessor()
 
 	testCases := []struct {
-		desc                    string
-		exceptionPolicy         *armotypes.PostureExceptionPolicy
 		workloadObj             workloadinterface.IMetadata
+		exceptionPolicy         *armotypes.PostureExceptionPolicy
+		desc                    string
 		expectedExceptionsCount int
 	}{
 		{
@@ -274,14 +275,806 @@ func TestRegexCompare(t *testing.T) {
 	assert.False(t, c.compareCluster("bla", "bez-minikube-25-10"))
 }
 
-// func TestGetException(t *testing.T) {
-// 	exceptionPolicies := []armotypes.PostureExceptionPolicy{*PostureExceptionPolicyAlertOnlyMock()}
-// 	res1 := ListRuleExceptions(exceptionPolicies, "MITRE", "", "")
-// 	if len(res1) != 1 {
-// 		t.Errorf("expecting 1 exception")
-// 	}
-// 	res2 := ListRuleExceptions(exceptionPolicies, "", "hostPath mount", "")
-// 	if len(res2) != 0 {
-// 		t.Errorf("expecting 0 exception")
-// 	}
-// }
+func TestHasException(t *testing.T) {
+	processor := NewProcessor()
+
+	tests := []struct {
+		workload    workloadinterface.IMetadata
+		designator  *identifiers.PortalDesignator
+		name        string
+		clusterName string
+		expected    bool
+	}{
+		{
+			name:        "Test case: Missing attributes",
+			clusterName: "cluster1",
+			designator: &identifiers.PortalDesignator{
+				DesignatorType: identifiers.DesignatorAttributes,
+				Attributes:     map[string]string{},
+			},
+			workload: workloadinterface.NewWorkloadObj(
+				map[string]interface{}{},
+			),
+			expected: false,
+		},
+		{
+			name:        "Test case: Matching cluster name",
+			clusterName: "cluster1",
+			designator: &identifiers.PortalDesignator{
+				DesignatorType: identifiers.DesignatorAttributes,
+				Attributes: map[string]string{
+					"cluster": "cluster1",
+				},
+			},
+			workload: workloadinterface.NewWorkloadObj(
+				map[string]interface{}{},
+			),
+			expected: true,
+		},
+		{
+			name:        "Test case: Non-matching cluster name",
+			clusterName: "cluster1",
+			designator: &identifiers.PortalDesignator{
+				DesignatorType: identifiers.DesignatorAttributes,
+				Attributes: map[string]string{
+					"cluster": "cluster2",
+				},
+			},
+			workload: workloadinterface.NewWorkloadObj(
+				map[string]interface{}{},
+			),
+			expected: false,
+		},
+		{
+			name:        "Test case: Matching cluster name with regex",
+			clusterName: "cluster1",
+			designator: &identifiers.PortalDesignator{
+				DesignatorType: identifiers.DesignatorAttributes,
+				Attributes: map[string]string{
+					"cluster": "cluster.*",
+				},
+			},
+			workload: workloadinterface.NewWorkloadObj(
+				map[string]interface{}{},
+			),
+			expected: true,
+		},
+		{
+			name: "Test case: Kind matches",
+			designator: &identifiers.PortalDesignator{
+				DesignatorType: identifiers.DesignatorAttributes,
+				Attributes: map[string]string{
+					"kind": "Deployment",
+				},
+			},
+			workload: workloadinterface.NewWorkloadObj(
+				map[string]interface{}{
+					"kind": "Deployment",
+				},
+			),
+			expected: true,
+		},
+		{
+			name: "Test case: Name matches",
+			designator: &identifiers.PortalDesignator{
+				DesignatorType: identifiers.DesignatorAttributes,
+				Attributes: map[string]string{
+					"name": "test-workload",
+				},
+			},
+			workload: workloadinterface.NewWorkloadObj(
+				map[string]interface{}{
+					"metadata": map[string]interface{}{
+						"name": "test-workload",
+					},
+				},
+			),
+			expected: true,
+		},
+		{
+			name: "Test case: Namespace matches",
+			designator: &identifiers.PortalDesignator{
+				DesignatorType: identifiers.DesignatorAttributes,
+				Attributes: map[string]string{
+					"namespace": "test-namespace",
+				},
+			},
+			workload: workloadinterface.NewWorkloadObj(
+				map[string]interface{}{
+					"metadata": map[string]interface{}{
+						"namespace": "test-namespace",
+					},
+				},
+			),
+			expected: true,
+		},
+		{
+			name:        "Test case: Kind matches with regex",
+			clusterName: "cluster1",
+			designator: &identifiers.PortalDesignator{
+				DesignatorType: identifiers.DesignatorAttributes,
+				Attributes: map[string]string{
+					"kind": "Deploy.*",
+				},
+			},
+			workload: workloadinterface.NewWorkloadObj(
+				map[string]interface{}{
+					"kind": "Deployment",
+				},
+			),
+			expected: true,
+		},
+		{
+			name:        "Test case 3: Name matches with regex",
+			clusterName: "cluster1",
+			designator: &identifiers.PortalDesignator{
+				DesignatorType: identifiers.DesignatorAttributes,
+				Attributes: map[string]string{
+					"name": "test-.*",
+				},
+			},
+			workload: workloadinterface.NewWorkloadObj(
+				map[string]interface{}{
+					"metadata": map[string]interface{}{
+						"name": "test-workload",
+					},
+				},
+			),
+			expected: true,
+		},
+		{
+			name:        "Test case 4: Namespace matches with regex",
+			clusterName: "cluster1",
+			designator: &identifiers.PortalDesignator{
+				DesignatorType: identifiers.DesignatorAttributes,
+				Attributes: map[string]string{
+					"namespace": "test-.*",
+				},
+			},
+			workload: workloadinterface.NewWorkloadObj(
+				map[string]interface{}{
+					"metadata": map[string]interface{}{
+						"namespace": "test-namespace",
+					},
+				},
+			),
+			expected: true,
+		},
+		{
+			name:        "Test case 5: Kind does not match",
+			clusterName: "cluster1",
+			designator: &identifiers.PortalDesignator{
+				DesignatorType: identifiers.DesignatorAttributes,
+				Attributes: map[string]string{
+					"kind": "Service",
+				},
+			},
+			workload: workloadinterface.NewWorkloadObj(
+				map[string]interface{}{
+					"kind": "Deployment",
+				},
+			),
+			expected: false,
+		},
+		{
+			name:        "Test case 6: Name does not match",
+			clusterName: "cluster1",
+			designator: &identifiers.PortalDesignator{
+				DesignatorType: identifiers.DesignatorAttributes,
+				Attributes: map[string]string{
+					"name": "different-workload",
+				},
+			},
+			workload: workloadinterface.NewWorkloadObj(
+				map[string]interface{}{
+					"metadata": map[string]interface{}{
+						"name": "test-workload",
+					},
+				},
+			),
+			expected: false,
+		},
+		{
+			name:        "Test case: Namespace does not match",
+			clusterName: "cluster1",
+			designator: &identifiers.PortalDesignator{
+				DesignatorType: identifiers.DesignatorAttributes,
+				Attributes: map[string]string{
+					"namespace": "different-namespace",
+				},
+			},
+			workload: workloadinterface.NewWorkloadObj(
+				map[string]interface{}{
+					"metadata": map[string]interface{}{
+						"namespace": "test-namespace",
+					},
+				},
+			),
+			expected: false,
+		},
+		{
+			name: "Test case: Path matches",
+			designator: &identifiers.PortalDesignator{
+				DesignatorType: identifiers.DesignatorAttributes,
+				Attributes: map[string]string{
+					"path": "/path/to/source",
+				},
+			},
+			workload: workloadinterface.NewWorkloadObj(
+				map[string]interface{}{
+					"sourcePath": "/path/to/source",
+				},
+			),
+			expected: true,
+		},
+		{
+			name: "Test case: Path matches with regex",
+			designator: &identifiers.PortalDesignator{
+				DesignatorType: identifiers.DesignatorAttributes,
+				Attributes: map[string]string{
+					"path": "/path/.*/source",
+				},
+			},
+			workload: workloadinterface.NewWorkloadObj(
+				map[string]interface{}{
+					"sourcePath": "/path/to/source",
+				},
+			),
+			expected: true,
+		},
+		{
+			name: "Test case: Path does not match",
+			designator: &identifiers.PortalDesignator{
+				DesignatorType: identifiers.DesignatorAttributes,
+				Attributes: map[string]string{
+					"path": "/path/to/source",
+				},
+			},
+			workload: workloadinterface.NewWorkloadObj(
+				map[string]interface{}{
+					"sourcePath": "/path/to/dest",
+				},
+			),
+			expected: false,
+		},
+		{
+			name: "Test case: Labels match",
+			designator: &identifiers.PortalDesignator{
+				DesignatorType: identifiers.DesignatorAttributes,
+				Attributes: map[string]string{
+					"key1": "val1",
+					"key2": "val2",
+				},
+			},
+			workload: workloadinterface.NewWorkloadObj(
+				map[string]interface{}{
+					"apiVersion": "v1",
+					"kind":       "Namespace",
+					"metadata": map[string]interface{}{
+						"name": "test",
+						"labels": map[string]interface{}{
+							"key1": "val1",
+							"key2": "val2",
+						},
+					},
+				},
+			),
+			expected: true,
+		},
+		{
+			name: "Test case: Labels do not match",
+			designator: &identifiers.PortalDesignator{
+				DesignatorType: identifiers.DesignatorAttributes,
+				Attributes: map[string]string{
+					"key1": "val1",
+					"key2": "val2",
+				},
+			},
+			workload: workloadinterface.NewWorkloadObj(
+				map[string]interface{}{
+					"apiVersion": "v1",
+					"kind":       "Namespace",
+					"metadata": map[string]interface{}{
+						"name": "test",
+						"labels": map[string]interface{}{
+							"key1": "val1",
+							"key2": "val3",
+						},
+					},
+				},
+			),
+			expected: false,
+		},
+		{
+			name: "Test case: Labels missing",
+			designator: &identifiers.PortalDesignator{
+				DesignatorType: identifiers.DesignatorAttributes,
+				Attributes: map[string]string{
+					"key1": "val1",
+					"key2": "val2",
+				},
+			},
+			workload: workloadinterface.NewWorkloadObj(
+				map[string]interface{}{
+					"apiVersion": "v1",
+					"kind":       "Namespace",
+					"metadata": map[string]interface{}{
+						"name": "test",
+						"labels": map[string]interface{}{
+							"key1": "val1",
+						},
+					},
+				},
+			),
+			expected: false,
+		},
+		{
+			name: "Test case: Labels match regex",
+			designator: &identifiers.PortalDesignator{
+				DesignatorType: identifiers.DesignatorAttributes,
+				Attributes: map[string]string{
+					"key1": ".*",
+					"key2": ".*",
+				},
+			},
+			workload: workloadinterface.NewWorkloadObj(
+				map[string]interface{}{
+					"apiVersion": "v1",
+					"kind":       "Namespace",
+					"metadata": map[string]interface{}{
+						"name": "test",
+						"labels": map[string]interface{}{
+							"key1": "val1",
+							"key2": "val2",
+						},
+					},
+				},
+			),
+			expected: true,
+		},
+		{
+			name: "Test case: Labels dont match regex",
+			designator: &identifiers.PortalDesignator{
+				DesignatorType: identifiers.DesignatorAttributes,
+				Attributes: map[string]string{
+					"key1": "val.*",
+					"key2": "val.*",
+				},
+			},
+			workload: workloadinterface.NewWorkloadObj(
+				map[string]interface{}{
+					"apiVersion": "v1",
+					"kind":       "Namespace",
+					"metadata": map[string]interface{}{
+						"name": "test",
+						"labels": map[string]interface{}{
+							"key1": "val1",
+							"key2": "bla2",
+						},
+					},
+				},
+			),
+			expected: false,
+		},
+		{
+			name: "Test case: Annotations match",
+			designator: &identifiers.PortalDesignator{
+				DesignatorType: identifiers.DesignatorAttributes,
+				Attributes: map[string]string{
+					"key1": "val1",
+					"key2": "val2",
+				},
+			},
+			workload: workloadinterface.NewWorkloadObj(
+				map[string]interface{}{
+					"apiVersion": "v1",
+					"kind":       "Namespace",
+					"metadata": map[string]interface{}{
+						"name": "test",
+						"annotations": map[string]interface{}{
+							"key1": "val1",
+							"key2": "val2",
+						},
+					},
+				},
+			),
+			expected: true,
+		},
+		{
+			name: "Test case: Annotations do not match",
+			designator: &identifiers.PortalDesignator{
+				DesignatorType: identifiers.DesignatorAttributes,
+				Attributes: map[string]string{
+					"key1": "val1",
+					"key2": "val2",
+				},
+			},
+			workload: workloadinterface.NewWorkloadObj(
+				map[string]interface{}{
+					"apiVersion": "v1",
+					"kind":       "Namespace",
+					"metadata": map[string]interface{}{
+						"name": "test",
+						"annotations": map[string]interface{}{
+							"key1": "val1",
+							"key2": "val3",
+						},
+					},
+				},
+			),
+			expected: false,
+		},
+		{
+			name: "Test case: annotations missing",
+			designator: &identifiers.PortalDesignator{
+				DesignatorType: identifiers.DesignatorAttributes,
+				Attributes: map[string]string{
+					"key1": "val1",
+					"key2": "val2",
+				},
+			},
+			workload: workloadinterface.NewWorkloadObj(
+				map[string]interface{}{
+					"apiVersion": "v1",
+					"kind":       "Namespace",
+					"metadata": map[string]interface{}{
+						"name": "test",
+						"annotations": map[string]interface{}{
+							"key1": "val1",
+						},
+					},
+				},
+			),
+			expected: false,
+		},
+		{
+			name: "Test case: annotations match regex",
+			designator: &identifiers.PortalDesignator{
+				DesignatorType: identifiers.DesignatorAttributes,
+				Attributes: map[string]string{
+					"key1": ".*",
+					"key2": ".*",
+				},
+			},
+			workload: workloadinterface.NewWorkloadObj(
+				map[string]interface{}{
+					"apiVersion": "v1",
+					"kind":       "Namespace",
+					"metadata": map[string]interface{}{
+						"name": "test",
+						"annotations": map[string]interface{}{
+							"key1": "val1",
+							"key2": "val2",
+						},
+					},
+				},
+			),
+			expected: true,
+		},
+		{
+			name: "Test case: annotations dont match regex",
+			designator: &identifiers.PortalDesignator{
+				DesignatorType: identifiers.DesignatorAttributes,
+				Attributes: map[string]string{
+					"key1": "val.*",
+					"key2": "val.*",
+				},
+			},
+			workload: workloadinterface.NewWorkloadObj(
+				map[string]interface{}{
+					"apiVersion": "v1",
+					"kind":       "Namespace",
+					"metadata": map[string]interface{}{
+						"name": "test",
+						"annotations": map[string]interface{}{
+							"key1": "val1",
+							"key2": "bla2",
+						},
+					},
+				},
+			),
+			expected: false,
+		},
+		{
+			name: "Labels and annotations match in related object",
+			designator: &identifiers.PortalDesignator{
+				DesignatorType: identifiers.DesignatorAttributes,
+				Attributes: map[string]string{
+					"key1": "val.*",
+					"key2": "val.*",
+				},
+			},
+			workload: objectsenvelopes.NewRegoResponseVectorObject(
+				map[string]interface{}{
+					"kind": "RegoResponseVector",
+					"name": "test",
+					"relatedObjects": []interface{}{
+						map[string]interface{}{
+							"apiVersion": "apps/v1",
+							"kind":       "Deployment",
+							"metadata": map[string]interface{}{
+								"name":      "test",
+								"namespace": "test-namespace",
+								"labels": map[string]interface{}{
+									"key1": "val1",
+									"key2": "val2",
+								},
+							},
+						},
+						map[string]interface{}{
+							"apiVersion": "apps/v1",
+							"kind":       "Deployment",
+							"metadata": map[string]interface{}{
+								"name":      "test-2",
+								"namespace": "test-namespace",
+								"annotations": map[string]interface{}{
+									"key1": "val1",
+									"key2": "val2",
+								},
+							},
+						},
+					},
+				},
+			),
+			expected: true,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			assert.Equal(t, tt.expected, processor.hasException(tt.clusterName, tt.designator, tt.workload))
+		})
+	}
+}
+
+func TestProcessor_iterateRegoResponseVector(t *testing.T) {
+	p := NewProcessor()
+
+	tests := []struct {
+		workload   workloadinterface.IMetadata
+		designator *identifiers.PortalDesignator
+		name       string
+		expected   bool
+	}{
+		{
+			name: "Labels match in one related object",
+			workload: objectsenvelopes.NewRegoResponseVectorObject(
+				map[string]interface{}{
+					"kind": "RegoResponseVector",
+					"name": "test",
+					"relatedObjects": []interface{}{
+						map[string]interface{}{
+							"apiVersion": "apps/v1",
+							"kind":       "Deployment",
+							"metadata": map[string]interface{}{
+								"name":      "test",
+								"namespace": "test-namespace",
+								"labels": map[string]interface{}{
+									"app": "test-app",
+								},
+							},
+						},
+						map[string]interface{}{
+							"apiVersion": "apps/v1",
+							"kind":       "Deployment",
+							"metadata": map[string]interface{}{
+								"name":      "test-2",
+								"namespace": "test-namespace",
+							},
+						},
+					},
+				},
+			),
+			designator: &identifiers.PortalDesignator{
+				DesignatorType: identifiers.DesignatorAttributes,
+				Attributes: map[string]string{
+					"app": "test-app",
+				},
+			},
+			expected: true,
+		},
+		{
+			name: "Labels match in one related object and mismatch in another related object",
+			workload: objectsenvelopes.NewRegoResponseVectorObject(
+				map[string]interface{}{
+					"kind": "RegoResponseVector",
+					"name": "test",
+					"relatedObjects": []interface{}{
+						map[string]interface{}{
+							"apiVersion": "apps/v1",
+							"kind":       "Deployment",
+							"metadata": map[string]interface{}{
+								"name":      "test",
+								"namespace": "test-namespace",
+								"labels": map[string]interface{}{
+									"app": "different-app",
+								},
+							},
+						},
+						map[string]interface{}{
+							"apiVersion": "apps/v1",
+							"kind":       "Deployment",
+							"metadata": map[string]interface{}{
+								"name":      "test-2",
+								"namespace": "test-namespace",
+								"labels": map[string]interface{}{
+									"app": "test-app",
+								},
+							},
+						},
+					},
+				},
+			),
+			designator: &identifiers.PortalDesignator{
+				DesignatorType: identifiers.DesignatorAttributes,
+				Attributes: map[string]string{
+					"app": "test-app",
+				},
+			},
+			expected: true,
+		},
+		{
+			name: "Annotations match in one related object",
+			workload: objectsenvelopes.NewRegoResponseVectorObject(
+				map[string]interface{}{
+					"kind": "RegoResponseVector",
+					"name": "test",
+					"relatedObjects": []interface{}{
+						map[string]interface{}{
+							"apiVersion": "apps/v1",
+							"kind":       "Deployment",
+							"metadata": map[string]interface{}{
+								"name":      "test",
+								"namespace": "test-namespace",
+								"annotations": map[string]interface{}{
+									"app": "test-app",
+								},
+							},
+						},
+						map[string]interface{}{
+							"apiVersion": "apps/v1",
+							"kind":       "Deployment",
+							"metadata": map[string]interface{}{
+								"name":      "test-2",
+								"namespace": "test-namespace",
+							},
+						},
+					},
+				},
+			),
+			designator: &identifiers.PortalDesignator{
+				DesignatorType: identifiers.DesignatorAttributes,
+				Attributes: map[string]string{
+					"app": "test-app",
+				},
+			},
+			expected: true,
+		},
+		{
+			name: "Annotations match in one related object and mismatch in another related object",
+			workload: objectsenvelopes.NewRegoResponseVectorObject(
+				map[string]interface{}{
+					"kind": "RegoResponseVector",
+					"name": "test",
+					"relatedObjects": []interface{}{
+						map[string]interface{}{
+							"apiVersion": "apps/v1",
+							"kind":       "Deployment",
+							"metadata": map[string]interface{}{
+								"name":      "test",
+								"namespace": "test-namespace",
+								"annotations": map[string]interface{}{
+									"app": "different-app",
+								},
+							},
+						},
+						map[string]interface{}{
+							"apiVersion": "apps/v1",
+							"kind":       "Deployment",
+							"metadata": map[string]interface{}{
+								"name":      "test-2",
+								"namespace": "test-namespace",
+								"annotations": map[string]interface{}{
+									"app": "test-app",
+								},
+							},
+						},
+					},
+				},
+			),
+			designator: &identifiers.PortalDesignator{
+				DesignatorType: identifiers.DesignatorAttributes,
+				Attributes: map[string]string{
+					"app": "test-app",
+				},
+			},
+			expected: true,
+		},
+		{
+			name: "Labels and Annotations do not match",
+			workload: objectsenvelopes.NewRegoResponseVectorObject(
+				map[string]interface{}{
+					"kind": "RegoResponseVector",
+					"name": "test",
+					"relatedObjects": []interface{}{
+						map[string]interface{}{
+							"apiVersion": "apps/v1",
+							"kind":       "Deployment",
+							"metadata": map[string]interface{}{
+								"name":      "test",
+								"namespace": "test-namespace",
+								"labels": map[string]interface{}{
+									"app": "test-app",
+								},
+								"annotations": map[string]interface{}{
+									"app": "test-app",
+								},
+							},
+						},
+						map[string]interface{}{
+							"apiVersion": "apps/v1",
+							"kind":       "Deployment",
+							"metadata": map[string]interface{}{
+								"name":      "test-2",
+								"namespace": "test-namespace",
+								"labels": map[string]interface{}{
+									"app": "test-app",
+								},
+								"annotations": map[string]interface{}{
+									"app": "test-app",
+								},
+							},
+						},
+					},
+				},
+			),
+			designator: &identifiers.PortalDesignator{
+				DesignatorType: identifiers.DesignatorAttributes,
+				Attributes: map[string]string{
+					"app": "different-app",
+				},
+			},
+			expected: false,
+		},
+		{
+			name: "Labels and Annotations are missing in related objects",
+			workload: objectsenvelopes.NewRegoResponseVectorObject(
+				map[string]interface{}{
+					"kind": "RegoResponseVector",
+					"name": "test",
+					"relatedObjects": []interface{}{
+						map[string]interface{}{
+							"apiVersion": "apps/v1",
+							"kind":       "Deployment",
+							"metadata": map[string]interface{}{
+								"name":      "test",
+								"namespace": "test-namespace",
+							},
+						},
+						map[string]interface{}{
+							"apiVersion": "apps/v1",
+							"kind":       "Deployment",
+							"metadata": map[string]interface{}{
+								"name":      "test-2",
+								"namespace": "test-namespace",
+							},
+						},
+					},
+				},
+			),
+			designator: &identifiers.PortalDesignator{
+				DesignatorType: identifiers.DesignatorAttributes,
+				Attributes: map[string]string{
+					"app": "test-app",
+				},
+			},
+			expected: false,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			assert.Equal(t, tt.expected, p.iterateRegoResponseVector(tt.workload, tt.designator.DigestPortalDesignator()))
+		})
+	}
+}

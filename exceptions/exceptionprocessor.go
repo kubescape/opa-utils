@@ -1,8 +1,9 @@
 package exceptions
 
 import (
-	"github.com/armosec/armoapi-go/identifiers"
 	"strings"
+
+	"github.com/armosec/armoapi-go/identifiers"
 
 	"github.com/kubescape/k8s-interface/workloadinterface"
 	"github.com/kubescape/opa-utils/objectsenvelopes"
@@ -172,6 +173,15 @@ func (p *Processor) hasException(clusterName string, designator *identifiers.Por
 		return false // cluster name does not match
 	}
 
+	if isTypeRegoResponseVector(workload) {
+		return p.iterateRegoResponseVector(workload, attributes)
+	}
+	return p.metadataHasException(workload, attributes)
+
+}
+
+func (p *Processor) metadataHasException(workload workloadinterface.IMetadata, attributes identifiers.AttributesDesignators) bool {
+
 	if attributes.GetNamespace() != "" && !p.compareNamespace(workload, attributes.GetNamespace()) {
 		return false // namespaces do not match
 	}
@@ -192,9 +202,20 @@ func (p *Processor) hasException(clusterName string, designator *identifiers.Por
 		return false // paths do not match
 	}
 
-	if len(attributes.GetLabels()) > 0 && !p.compareLabels(workload, attributes.GetLabels()) && !p.compareAnnotations(workload, attributes.GetLabels()) {
-		return false // labels nor annotations do not match
+	if isTypeWorkload(workload) && len(attributes.GetLabels()) > 0 {
+		if !p.compareLabels(workload, attributes.GetLabels()) && !p.compareAnnotations(workload, attributes.GetLabels()) {
+			return false // labels nor annotations do not match
+		}
 	}
+	return true
+}
 
-	return true // no mismatch found -> the workload has an exception
+func (p *Processor) iterateRegoResponseVector(workload workloadinterface.IMetadata, attributes identifiers.AttributesDesignators) bool {
+	v := objectsenvelopes.NewRegoResponseVectorObject(workload.GetObject())
+	for _, r := range v.GetRelatedObjects() {
+		if p.metadataHasException(r, attributes) {
+			return true
+		}
+	}
+	return false
 }
