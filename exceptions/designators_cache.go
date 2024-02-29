@@ -1,8 +1,9 @@
 package exceptions
 
 import (
-	"github.com/armosec/armoapi-go/identifiers"
 	"sync"
+
+	"github.com/armosec/armoapi-go/identifiers"
 
 	"github.com/kubescape/opa-utils/exceptions/internal/hashmap"
 )
@@ -13,8 +14,8 @@ type (
 	// We use a plain map with mutex instead of sync.Map, so we may preallocate
 	// a few slots for designators.
 	designatorCache struct {
-		mx       sync.RWMutex
 		innerMap map[portalDesignatorKey]identifiers.AttributesDesignators
+		mx       sync.RWMutex
 	}
 
 	portalDesignatorKey struct {

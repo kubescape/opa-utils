@@ -5,8 +5,9 @@ import (
 	"strings"
 	"sync"
 
-	"github.com/kubescape/k8s-interface/k8sinterface"
 	"github.com/kubescape/k8s-interface/workloadinterface"
+	"github.com/kubescape/opa-utils/objectsenvelopes"
+	"github.com/kubescape/opa-utils/objectsenvelopes/localworkload"
 
 	"k8s.io/apimachinery/pkg/labels"
 )
@@ -46,9 +47,6 @@ func (c *comparator) compareResourceID(workload workloadinterface.IMetadata, res
 
 func (c *comparator) comparePath(workload workloadinterface.IMetadata, path string) bool {
 	w := workload.GetObject()
-	if !k8sinterface.IsTypeWorkload(w) {
-		return false
-	}
 
 	if val, ok := w["sourcePath"]; ok {
 		if sourcePath, ok := val.(string); ok {
@@ -61,9 +59,6 @@ func (c *comparator) comparePath(workload workloadinterface.IMetadata, path stri
 
 func (c *comparator) compareLabels(workload workloadinterface.IMetadata, attributes map[string]string) bool {
 	w := workload.GetObject()
-	if !k8sinterface.IsTypeWorkload(w) {
-		return true
-	}
 
 	workloadLabels := labels.Set(workloadinterface.NewWorkloadObj(w).GetLabels())
 
@@ -75,14 +70,8 @@ func (c *comparator) compareLabels(workload workloadinterface.IMetadata, attribu
 		if !workloadLabels.Has(key) {
 			return false
 		}
-		found := false
-		for label, annotation := range workloadLabels {
-			if key == label && c.regexCompare(val, annotation) {
-				found = true
-				break
-			}
-		}
-		if !found {
+		value := workloadLabels.Get(key)
+		if !c.regexCompare(val, value) {
 			return false
 		}
 	}
@@ -91,11 +80,8 @@ func (c *comparator) compareLabels(workload workloadinterface.IMetadata, attribu
 }
 
 func (c *comparator) compareAnnotations(workload workloadinterface.IMetadata, attributes map[string]string) bool {
-	w := workload.GetObject()
-	if !k8sinterface.IsTypeWorkload(w) {
-		return true
-	}
 
+	w := workload.GetObject()
 	workloadAnnotations := labels.Set(workloadinterface.NewWorkloadObj(w).GetAnnotations())
 	if len(workloadAnnotations) == 0 {
 		return false
@@ -105,14 +91,8 @@ func (c *comparator) compareAnnotations(workload workloadinterface.IMetadata, at
 		if !workloadAnnotations.Has(key) {
 			return false
 		}
-		found := false
-		for label, annotation := range workloadAnnotations {
-			if key == label && c.regexCompare(val, annotation) {
-				found = true
-				break
-			}
-		}
-		if !found {
+		value := workloadAnnotations.Get(key)
+		if !c.regexCompare(val, value) {
 			return false
 		}
 	}
@@ -186,4 +166,27 @@ func (c *comparator) regexCompare(reg, name string) bool {
 	c.rexCache.Store(reg, r) // keep the compiled regexp in cache
 
 	return r.MatchString(name)
+}
+
+func isTypeWorkload(workload workloadinterface.IMetadata) bool {
+	switch objectsenvelopes.GetObjectType(workload.GetObject()) {
+	case workloadinterface.TypeBaseObject:
+		return true
+	case workloadinterface.TypeWorkloadObject:
+		return true
+	case workloadinterface.TypeListWorkloads:
+		return true
+	case localworkload.TypeLocalWorkload:
+		return true
+	default:
+		return false
+	}
+}
+func isTypeRegoResponseVector(workload workloadinterface.IMetadata) bool {
+	switch objectsenvelopes.GetObjectType(workload.GetObject()) {
+	case objectsenvelopes.TypeRegoResponseVectorObject:
+		return true
+	default:
+		return false
+	}
 }
