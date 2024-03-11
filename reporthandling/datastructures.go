@@ -127,6 +127,8 @@ type FrameworkSubSection struct {
 }
 
 type AttackTrackCategories struct {
-	AttackTrack string
-	Categories  []string
+	AttackTrack             string
+	Categories              []string
+	DisplayRelatedResources bool
+	ClickableResourceKind   string
 }
