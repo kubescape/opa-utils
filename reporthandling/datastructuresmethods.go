@@ -12,7 +12,10 @@ import (
 	"golang.org/x/exp/slices"
 )
 
-const ActionRequiredAttribute string = "actionRequired"
+const (
+	ActionRequiredAttribute                   string = "actionRequired"
+	ControlAttributeKeyIsFixedByNetworkPolicy string = "isFixedByNetworkPolicy"
+)
 
 // ==============================================================================================
 // ========================== PostureReport =====================================================
@@ -441,6 +444,19 @@ func (control *Control) GetControlTypeTags() []string {
 		}
 	}
 	return []string{}
+}
+
+// returns true if control has attribute "isFixedByNetworkPolicy" and its value is true
+func (control *Control) IsFixedByNetworkPolicy() bool {
+	if control.Attributes == nil {
+		return false
+	}
+	if v, exist := control.Attributes[ControlAttributeKeyIsFixedByNetworkPolicy]; exist {
+		if isFixedByNetworkPolicy, ok := v.(bool); ok {
+			return isFixedByNetworkPolicy
+		}
+	}
+	return false
 }
 
 func (control *Control) SupportSmartRemediation() bool {
