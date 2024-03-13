@@ -192,3 +192,22 @@ func TestControl_GetControlTypeTags(t *testing.T) {
 	assert.NoError(t, err, err)
 	assert.Equal(t, []string{}, missingAttributeControl.GetControlTypeTags())
 }
+
+func TestControl_IsFixedByNetworkPolicy(t *testing.T) {
+	validControlJsonNoAttributes := `{"name":"TEST","description":"","remediation":"","rulesNames":["CVE-2022-0185"],"id":"C-0079","long_description":"","test":"","controlID":"C-0079","baseScore":4,"example":""}`
+	var validControl Control
+	err := json.Unmarshal([]byte(validControlJsonNoAttributes), &validControl)
+	assert.NoError(t, err, err)
+	assert.False(t, validControl.IsFixedByNetworkPolicy())
+
+	validControlJson := `{"name":"TEST","attributes":{"controlTypeTags":["security","compliance"],"isFixedByNetworkPolicy":true, "attackTracks":[{"attackTrack": "network","categories": ["Eavesdropping","Spoofing"]}]},"description":"","remediation":"","rulesNames":["CVE-2022-0185"],"id":"C-0079","long_description":"","test":"","controlID":"C-0079","baseScore":4,"example":""}`
+	err = json.Unmarshal([]byte(validControlJson), &validControl)
+	assert.NoError(t, err, err)
+	assert.True(t, validControl.IsFixedByNetworkPolicy())
+
+	missingAttributeControlJson := `{"name":"TEST","attributes":{"controlTypeTags":["security","compliance"]},"description":"","remediation":"","rulesNames":["CVE-2022-0185"],"id":"C-0079","long_description":"","test":"","controlID":"C-0079","baseScore":4,"example":""}`
+	var missingAttributeControl Control
+	err = json.Unmarshal([]byte(missingAttributeControlJson), &missingAttributeControl)
+	assert.NoError(t, err, err)
+	assert.False(t, missingAttributeControl.IsFixedByNetworkPolicy())
+}
