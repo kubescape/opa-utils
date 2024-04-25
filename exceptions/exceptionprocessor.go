@@ -140,7 +140,8 @@ func alertObjectToWorkloads(obj *reporthandling.AlertObject) []workloadinterface
 
 // GetResourceException get exceptions of single resource
 func (p *Processor) GetResourceExceptions(ruleExceptions []armotypes.PostureExceptionPolicy, workload workloadinterface.IMetadata, clusterName string) []armotypes.PostureExceptionPolicy {
-	postureExceptionPolicy := make([]armotypes.PostureExceptionPolicy, 0, len(ruleExceptions))
+	// no pre-allocation since most of the time it's empty or has only one element
+	var postureExceptionPolicy []armotypes.PostureExceptionPolicy
 
 	for _, ruleException := range ruleExceptions {
 		for _, resourceToPin := range ruleException.Resources {
@@ -151,7 +152,7 @@ func (p *Processor) GetResourceExceptions(ruleExceptions []armotypes.PostureExce
 		}
 	}
 
-	return postureExceptionPolicy[:len(postureExceptionPolicy):len(postureExceptionPolicy)] // shrink capacity
+	return postureExceptionPolicy
 }
 
 // compareMetadata - compare namespace and kind
