@@ -143,9 +143,14 @@ func IsTypeTypeHostSensor(object map[string]interface{}) bool {
 	}
 
 	if apiVersion, ok := object["apiVersion"]; ok {
-		if group := strings.Split(apiVersion.(string), "/"); group[0] == GroupHostSensor {
+		apiVersionStr, ok := apiVersion.(string)
+		if !ok {
+			return false
+		}
+		if group := strings.Split(apiVersionStr, "/"); group[0] == GroupHostSensor {
 			return true
 		}
 	}
 	return false
 }
+
