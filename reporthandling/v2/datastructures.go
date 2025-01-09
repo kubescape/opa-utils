@@ -28,6 +28,7 @@ type PostureReport struct {
 	Metadata              Metadata                          `json:"metadata,omitempty"`
 	PaginationInfo        armoapi.PaginationMarks           `json:"paginationInfo"`
 	CustomerGUIDGenerated bool                              `json:"customerGUIDGenerated"`
+	TriggeredByCLI        bool                              `json:"triggeredByCLI,omitempty"`
 }
 
 type ClusterMetadata struct {
