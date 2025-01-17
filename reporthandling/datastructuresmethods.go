@@ -3,13 +3,13 @@ package reporthandling
 import (
 	"fmt"
 	"hash/fnv"
+	"slices"
 
 	"github.com/kubescape/k8s-interface/workloadinterface"
 	"github.com/kubescape/opa-utils/objectsenvelopes"
 	"github.com/kubescape/opa-utils/reporthandling/apis"
 	"github.com/kubescape/opa-utils/reporthandling/attacktrack/v1alpha1"
 	"github.com/mitchellh/mapstructure"
-	"golang.org/x/exp/slices"
 )
 
 const (

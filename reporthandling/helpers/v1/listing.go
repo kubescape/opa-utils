@@ -4,7 +4,6 @@ import (
 	"sync"
 
 	"github.com/kubescape/opa-utils/reporthandling/apis"
-	"golang.org/x/exp/maps"
 )
 
 var allListsPool = &sync.Pool{
@@ -62,7 +61,7 @@ func (all *AllLists) Initialize(size int) {
 // Clear remove all items and reset the counters
 func (all *AllLists) Clear() {
 	if all.itemToStatus != nil {
-		maps.Clear(all.itemToStatus)
+		clear(all.itemToStatus)
 		all.passed = 0
 		all.failed = 0
 		all.skipped = 0
