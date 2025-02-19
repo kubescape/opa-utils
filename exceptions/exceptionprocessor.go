@@ -35,14 +35,14 @@ func (p *Processor) SetFrameworkExceptions(frameworkReport *reporthandling.Frame
 // SetControlExceptions add exceptions to control report
 func (p *Processor) SetControlExceptions(controlReport *reporthandling.ControlReport, exceptionsPolicies []armotypes.PostureExceptionPolicy, clusterName, frameworkName string) {
 	for r := range controlReport.RuleReports {
-		p.SetRuleExceptions(&controlReport.RuleReports[r], exceptionsPolicies, clusterName, frameworkName, controlReport.Name, controlReport.ControlID)
+		p.SetRuleExceptions(&controlReport.RuleReports[r], exceptionsPolicies, clusterName, frameworkName, controlReport.ControlID)
 	}
 }
 
 // SetRuleExceptions add exceptions to rule report
-func (p *Processor) SetRuleExceptions(ruleReport *reporthandling.RuleReport, exceptionsPolicies []armotypes.PostureExceptionPolicy, clusterName, frameworkName, controlName, controlID string) {
+func (p *Processor) SetRuleExceptions(ruleReport *reporthandling.RuleReport, exceptionsPolicies []armotypes.PostureExceptionPolicy, clusterName, frameworkName, controlID string) {
 	// adding exceptions to the rules
-	ruleExceptions := p.ListRuleExceptions(exceptionsPolicies, frameworkName, controlName, controlID, ruleReport.Name)
+	ruleExceptions := p.ListRuleExceptions(exceptionsPolicies, frameworkName, controlID, ruleReport.Name)
 	p.SetRuleResponsExceptions(ruleReport.RuleResponses, ruleExceptions, clusterName)
 }
 
@@ -68,11 +68,11 @@ func (p *Processor) SetRuleResponsExceptions(results []reporthandling.RuleRespon
 	}
 }
 
-func (p *Processor) ListRuleExceptions(exceptionPolicies []armotypes.PostureExceptionPolicy, frameworkName, controlName, controlID, ruleName string) []armotypes.PostureExceptionPolicy {
+func (p *Processor) ListRuleExceptions(exceptionPolicies []armotypes.PostureExceptionPolicy, frameworkName, controlID, ruleName string) []armotypes.PostureExceptionPolicy {
 	ruleExceptions := make([]armotypes.PostureExceptionPolicy, 0, len(exceptionPolicies))
 
 	for i := range exceptionPolicies {
-		if p.ruleHasExceptions(&exceptionPolicies[i], frameworkName, controlName, controlID, ruleName) {
+		if p.ruleHasExceptions(&exceptionPolicies[i], frameworkName, controlID, ruleName) {
 			ruleExceptions = append(ruleExceptions, exceptionPolicies[i])
 		}
 	}
@@ -81,19 +81,16 @@ func (p *Processor) ListRuleExceptions(exceptionPolicies []armotypes.PostureExce
 
 }
 
-func (p *Processor) ruleHasExceptions(exceptionPolicy *armotypes.PostureExceptionPolicy, frameworkName, controlName, controlID, ruleName string) bool {
+func (p *Processor) ruleHasExceptions(exceptionPolicy *armotypes.PostureExceptionPolicy, frameworkName, controlID, ruleName string) bool {
 	if len(exceptionPolicy.PosturePolicies) == 0 {
 		return true // empty policy -> apply all
 	}
 
 	for _, posturePolicy := range exceptionPolicy.PosturePolicies {
-		if posturePolicy.FrameworkName == "" && posturePolicy.ControlName == "" && posturePolicy.ControlID == "" && posturePolicy.RuleName == "" {
+		if posturePolicy.FrameworkName == "" && posturePolicy.ControlID == "" && posturePolicy.RuleName == "" {
 			return true // empty policy -> apply all
 		}
 		if posturePolicy.FrameworkName != "" && frameworkName != "" && !(strings.EqualFold(posturePolicy.FrameworkName, frameworkName) || p.regexCompareI(posturePolicy.FrameworkName, frameworkName)) {
-			continue // policy does not match
-		}
-		if posturePolicy.ControlName != "" && controlName != "" && !(strings.EqualFold(posturePolicy.ControlName, controlName) || p.regexCompareI(posturePolicy.ControlName, controlName)) {
 			continue // policy does not match
 		}
 		if posturePolicy.ControlID != "" && controlID != "" && !(strings.EqualFold(posturePolicy.ControlID, controlID) || p.regexCompareI(posturePolicy.ControlID, controlID)) {
