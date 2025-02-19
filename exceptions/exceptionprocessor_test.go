@@ -109,13 +109,13 @@ func emptyPostureExceptionPolicyAlertOnlyMock() *armotypes.PostureExceptionPolic
 func TestListRuleExceptions(t *testing.T) {
 	p := NewProcessor()
 	exceptionPolicies := []armotypes.PostureExceptionPolicy{*postureExceptionPolicyAlertOnlyMock()}
-	res1 := p.ListRuleExceptions(exceptionPolicies, "MITRE", "", "", "")
+	res1 := p.ListRuleExceptions(exceptionPolicies, "MITRE", "", "")
 	assert.Equal(t, 1, len(res1))
 
-	res2 := p.ListRuleExceptions(exceptionPolicies, "", "hostPath mount", "", "")
+	res2 := p.ListRuleExceptions(exceptionPolicies, "", "", "")
 	assert.Equal(t, len(res2), 1)
 
-	res3 := p.ListRuleExceptions(exceptionPolicies, "NSA", "", "", "")
+	res3 := p.ListRuleExceptions(exceptionPolicies, "NSA", "", "")
 	assert.Equal(t, len(res3), 0)
 
 }
@@ -123,50 +123,44 @@ func TestListRuleExceptions(t *testing.T) {
 func TestListRuleExceptionsRegex(t *testing.T) {
 	p := NewProcessor()
 	exceptionPolicy := emptyPostureExceptionPolicyAlertOnlyMock()
-	res1 := p.ListRuleExceptions([]armotypes.PostureExceptionPolicy{*exceptionPolicy}, "MITRE", "", "", "")
+	res1 := p.ListRuleExceptions([]armotypes.PostureExceptionPolicy{*exceptionPolicy}, "MITRE", "", "")
 	assert.Equal(t, 1, len(res1))
 
 	exceptionPolicy.PosturePolicies = append(exceptionPolicy.PosturePolicies, armotypes.PosturePolicy{
 		FrameworkName: "MIT.*",
 	})
 
-	res2 := p.ListRuleExceptions([]armotypes.PostureExceptionPolicy{*exceptionPolicy}, "MITRE", "", "", "")
-	assert.Equal(t, 1, len(res2))
-
-	res2 = p.ListRuleExceptions([]armotypes.PostureExceptionPolicy{*exceptionPolicy}, "2MITRE", "", "", "")
+	res2 := p.ListRuleExceptions([]armotypes.PostureExceptionPolicy{*exceptionPolicy}, "2MITRE", "", "")
 	assert.Equal(t, 0, len(res2))
 
 	exceptionPolicy.PosturePolicies[0] = armotypes.PosturePolicy{
 		FrameworkName: "mit.*",
 	}
-	res2 = p.ListRuleExceptions([]armotypes.PostureExceptionPolicy{*exceptionPolicy}, "MITRE", "", "", "")
+	res2 = p.ListRuleExceptions([]armotypes.PostureExceptionPolicy{*exceptionPolicy}, "MITRE", "", "")
 	assert.Equal(t, 1, len(res2))
 
 	exceptionPolicy.PosturePolicies[0] = armotypes.PosturePolicy{
 		FrameworkName: "mitre",
 	}
-	res2 = p.ListRuleExceptions([]armotypes.PostureExceptionPolicy{*exceptionPolicy}, "MITRE", "", "", "")
+	res2 = p.ListRuleExceptions([]armotypes.PostureExceptionPolicy{*exceptionPolicy}, "MITRE", "", "")
 	assert.Equal(t, 1, len(res2))
 
 	exceptionPolicy.PosturePolicies[0] = armotypes.PosturePolicy{
 		FrameworkName: "MITRE",
-		ControlName:   "my.*",
+		ControlName:   "my.*", // deprecated
 		RuleName:      "rule.*vk",
 	}
 
-	res3 := p.ListRuleExceptions([]armotypes.PostureExceptionPolicy{*exceptionPolicy}, "MITRE", "", "", "")
+	res3 := p.ListRuleExceptions([]armotypes.PostureExceptionPolicy{*exceptionPolicy}, "MITRE", "", "")
 	assert.Equal(t, 1, len(res3))
 
-	res3 = p.ListRuleExceptions([]armotypes.PostureExceptionPolicy{*exceptionPolicy}, "MITRE", "my-control", "", "")
+	res3 = p.ListRuleExceptions([]armotypes.PostureExceptionPolicy{*exceptionPolicy}, "MITRE", "", "")
 	assert.Equal(t, 1, len(res3))
 
-	res3 = p.ListRuleExceptions([]armotypes.PostureExceptionPolicy{*exceptionPolicy}, "MITRE", "control-my", "", "")
-	assert.Equal(t, 0, len(res3))
-
-	res3 = p.ListRuleExceptions([]armotypes.PostureExceptionPolicy{*exceptionPolicy}, "MITRE", "my-control", "", "rulebla -bla vk")
+	res3 = p.ListRuleExceptions([]armotypes.PostureExceptionPolicy{*exceptionPolicy}, "MITRE", "", "rulebla -bla vk")
 	assert.Equal(t, 1, len(res3))
 
-	res3 = p.ListRuleExceptions([]armotypes.PostureExceptionPolicy{*exceptionPolicy}, "MITRE", "control-my", "", "rulebla -bla")
+	res3 = p.ListRuleExceptions([]armotypes.PostureExceptionPolicy{*exceptionPolicy}, "MITRE", "", "rulebla -bla")
 	assert.Equal(t, 0, len(res3))
 }
 
