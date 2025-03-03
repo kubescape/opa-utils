@@ -246,6 +246,20 @@ func (su *ScoreUtil) ControlScore(ctrlReport *reporthandling.ControlReport, _ /*
 
 }
 
+// allControlsInFrameworkIrrelevant returns true if all controls in a framework were irrelevant (0 resources were checked across all controls).
+func (su *ScoreUtil) allControlsInFrameworkIrrelevant(ctrls *reportsummary.ControlSummaries) bool {
+	for ctrlID := range *ctrls {
+		ctrl := (*ctrls)[ctrlID]
+		if ctrl.ListResourcesIDs(nil).Len() != 0 {
+			return false
+		}
+		if ctrl.GetSubStatus() != apis.SubStatusIrrelevant {
+			return false
+		}
+	}
+	return true
+}
+
 // CalculatePostureReportV2 calculates controls by framework score.
 func (su *ScoreUtil) CalculatePostureReportV2(report *v2.PostureReport) error {
 	for i := range report.SummaryDetails.Frameworks {
@@ -254,6 +268,15 @@ func (su *ScoreUtil) CalculatePostureReportV2(report *v2.PostureReport) error {
 		fwUnormalizedScore, wcsFwork := su.ControlsSummariesScore(&report.SummaryDetails.Frameworks[i].Controls, report.SummaryDetails.Frameworks[i].GetName())
 
 		if wcsFwork == 0 { // NOTE(fred): since this is a float32, perhaps we should use a tolerance here
+
+			// if all controls in framework are irrelevant, set framework score to 100
+			// except for empty frameworks (first check)
+			if len(report.SummaryDetails.Frameworks[i].Controls) > 0 && su.allControlsInFrameworkIrrelevant(&report.SummaryDetails.Frameworks[i].Controls) {
+				report.SummaryDetails.Frameworks[i].Score = 100
+				su.debugf("all controls are irrelevant - framework %s score %v", report.SummaryDetails.Frameworks[i].GetName(), report.SummaryDetails.Frameworks[i].GetScore())
+				continue
+			}
+
 			report.SummaryDetails.Frameworks[i].Score = 0
 
 			return fmt.Errorf(
