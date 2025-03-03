@@ -360,11 +360,12 @@ func TestCalculatePostureReportV2(t *testing.T) {
 		const (
 			expectedForFramework1 = float32(62.577965)
 			expectedForFramework2 = float32(46.42857)
+			expectedForFramework3 = float32(100)
 			expectedSummary       = float32(51.280453)
 		)
 
 		t.Run("assert control scores", func(t *testing.T) {
-			require.Len(t, report.SummaryDetails.Controls, 4)
+			require.Len(t, report.SummaryDetails.Controls, 5)
 			for _, control := range report.SummaryDetails.Controls {
 				var expectedForControl float64
 
@@ -376,6 +377,8 @@ func TestCalculatePostureReportV2(t *testing.T) {
 				case "control-3":
 					expectedForControl = 66.666664
 				case "control-4":
+					expectedForControl = 0 // passed
+				case "control-5":
 					expectedForControl = 0 // passed
 				}
 
@@ -391,6 +394,9 @@ func TestCalculatePostureReportV2(t *testing.T) {
 			)
 			assert.InDeltaf(t, expectedForFramework2, report.SummaryDetails.Frameworks[1].Score, 1e-6,
 				"unexpected summarized score for framework[1]",
+			)
+			assert.InDeltaf(t, expectedForFramework3, report.SummaryDetails.Frameworks[2].Score, 1e-6,
+				"unexpected summarized score for framework[2]",
 			)
 		})
 
@@ -591,6 +597,25 @@ func mockPostureReportV2(t testing.TB) (map[string]workloadinterface.IMetadata, 
 							ControlID:   "control-4",
 							ResourceIDs: resourceWithPassed2,
 							ScoreFactor: 17.00,
+						},
+					},
+				},
+				{
+					// expected score: 100%
+					Name: "mock-fw-summary-3",
+					Controls: reportsummary.ControlSummaries{
+						// 0 failed resources
+						// All resources passed (control is irrelevant)
+						// expected control score: 100%
+						"summary-1": reportsummary.ControlSummary{
+							Name:        "mock-control-5",
+							ControlID:   "control-5",
+							ResourceIDs: helpers.AllLists{},
+							ScoreFactor: 7.00,
+							StatusInfo: apis.StatusInfo{
+								InnerStatus: apis.StatusPassed,
+								SubStatus:   apis.SubStatusIrrelevant,
+							},
 						},
 					},
 				},
@@ -957,13 +982,15 @@ func TestSetPostureReportComplianceScores(t *testing.T) {
 		const (
 			expectedScoreFramework1           = float32(62.577965)
 			expectedScoreFramework2           = float32(46.42857)
+			expectedScoreFramework3           = float32(100)
 			expectedComplianceScoreFramework1 = float32(66.66667)
 			expectedComplianceScoreFramework2 = float32(75)
-			expectedSummary                   = float32(70.833336)
+			expectedComplianceScoreFramework3 = float32(100)
+			expectedSummary                   = float32(76.66667)
 		)
 
 		t.Run("assert control scores", func(t *testing.T) {
-			require.Len(t, report.SummaryDetails.Controls, 4)
+			require.Len(t, report.SummaryDetails.Controls, 5)
 			for _, control := range report.SummaryDetails.Controls {
 				var expectedComplianceScore float64
 				var expectedScore float64
@@ -979,6 +1006,9 @@ func TestSetPostureReportComplianceScores(t *testing.T) {
 					expectedComplianceScore = 50
 					expectedScore = 66.666664
 				case "control-4":
+					expectedComplianceScore = 100 // passed
+					expectedScore = 0
+				case "control-5":
 					expectedComplianceScore = 100 // passed
 					expectedScore = 0
 				}
@@ -1000,6 +1030,9 @@ func TestSetPostureReportComplianceScores(t *testing.T) {
 			assert.InDeltaf(t, expectedScoreFramework2, report.SummaryDetails.Frameworks[1].Score, 1e-6,
 				"unexpected summarized score for framework[1]",
 			)
+			assert.InDeltaf(t, expectedScoreFramework3, report.SummaryDetails.Frameworks[2].Score, 1e-6,
+				"unexpected summarized score for framework[2]",
+			)
 		})
 
 		t.Run("assert framework compliance scores", func(t *testing.T) {
@@ -1008,6 +1041,9 @@ func TestSetPostureReportComplianceScores(t *testing.T) {
 			)
 			assert.InDeltaf(t, expectedComplianceScoreFramework2, report.SummaryDetails.Frameworks[1].ComplianceScore, 1e-6,
 				"unexpected summarized compliance score for framework[1]",
+			)
+			assert.InDeltaf(t, expectedComplianceScoreFramework3, report.SummaryDetails.Frameworks[2].ComplianceScore, 1e-6,
+				"unexpected summarized compliance score for framework[2]",
 			)
 		})
 
