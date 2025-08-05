@@ -866,7 +866,7 @@ func TestGetControlComplianceScore(t *testing.T) {
 			Name:      "skipped-control",
 			ControlID: "skipped1",
 			StatusInfo: apis.StatusInfo{
-				InnerInfo:   "enable-host-scan flag not used. For more information: https://hub.armosec.io/docs/host-sensor",
+				InnerInfo:   "enable-host-scan flag not used. For more information: https://kubescape.io/docs/components/host-sensor/",
 				InnerStatus: "skipped",
 			},
 			ResourceIDs: helpers.AllLists{},
