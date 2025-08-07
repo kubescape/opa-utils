@@ -31,6 +31,8 @@ func (r *PostureReport) UnmarshalJSONObject(dec *gojay.Decoder, key string) (err
 		err = dec.Object(&(r.Metadata))
 	case "customerGUIDGenerated":
 		err = dec.Bool(&(r.CustomerGUIDGenerated))
+	case "triggeredByCLI":
+		err = dec.Bool(&(r.TriggeredByCLI))
 	case "paginationInfo":
 		err = dec.Object(&(r.PaginationInfo))
 	}
