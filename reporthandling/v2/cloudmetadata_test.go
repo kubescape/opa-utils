@@ -18,7 +18,19 @@ func TestNewCloudMetadata(t *testing.T) {
 		name string
 	}{
 		{
-			name: "TestNewCloudMetadata - EKS",
+			name: "TestNewCloudMetadata - EKS - input is normalized EKS cluster name",
+			args: args{
+				cloudParser: v1.NewEKSMetadata("arn-aws-eks-eu-central-1-123456789222-cluster-aa-test-eks-12344FG"),
+			},
+			want: &CloudMetadata{
+				CloudProvider: apis.EKS,
+				FullName:      "arn-aws-eks-eu-central-1-123456789222-cluster-aa-test-eks-12344FG",
+				ShortName:     "aa-test-eks-12344FG",
+				PrefixName:    "arn:aws:eks:eu-central-1:123456789222",
+			},
+		},
+		{
+			name: "TestNewCloudMetadata - EKS - input is k8s context name",
 			args: args{
 				cloudParser: v1.NewEKSMetadata("arn:aws:eks:eu-west-1:id:cluster/my-cluster"),
 			},

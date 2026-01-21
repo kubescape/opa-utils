@@ -85,7 +85,16 @@ func (eks EKSMetadata) Provider() apis.CloudProviderName {
 }
 
 func (eks *EKSMetadata) Parse() (string, string, error) {
+	prefix, suffix, err := eks.parseKubernetesContextName()
+	if err == nil {
+		return prefix, suffix, nil
+	}
+	return eks.parseNormalizedClusterName()
+}
 
+// parseKubernetesContextName parses a standard ARN format EKS cluster name from Kubernetes context name format
+// Format: "arn:aws:eks:{region}:{account}:cluster/{cluster-name}"
+func (eks *EKSMetadata) parseKubernetesContextName() (string, string, error) {
 	sliced := eks.split(eks.name)
 	if len(sliced) < 6 {
 		return "", "", fmt.Errorf("cluster name '%s' is not a valid EKS cluster name", eks.name)
@@ -100,6 +109,42 @@ func (eks EKSMetadata) split(s string) []string {
 
 func (eks EKSMetadata) join(s []string) string {
 	return strings.Join(s, ":")
+}
+
+// parseNormalizedClusterName parses a normalized EKS cluster name
+// Format: "arn-aws-eks-{region}-{account}-cluster-{cluster-name}"
+func (eks *EKSMetadata) parseNormalizedClusterName() (string, string, error) {
+	// Remove "arn-aws-eks-" prefix
+	withoutPrefix := strings.TrimPrefix(eks.name, "arn-aws-eks-")
+
+	// Find the "-cluster-" separator
+	clusterIndex := strings.Index(withoutPrefix, "-cluster-")
+	if clusterIndex == -1 {
+		return "", "", fmt.Errorf("cluster name '%s' is not a valid normalized EKS cluster name", eks.name)
+	}
+
+	// Extract region and account (everything before "-cluster-")
+	regionAndAccount := withoutPrefix[:clusterIndex]
+
+	// Extract cluster name (everything after "-cluster-")
+	clusterName := withoutPrefix[clusterIndex+len("-cluster-"):]
+
+	// Split region and account by finding the last hyphen (account is typically numeric)
+	// We need to find where the region ends and account begins
+	// Region format can be like "eu-central-1" or "us-east-1", account is numeric
+	parts := strings.Split(regionAndAccount, "-")
+	if len(parts) < 2 {
+		return "", "", fmt.Errorf("cluster name '%s' is not a valid normalized EKS cluster name", eks.name)
+	}
+
+	// Account is the last part, region is everything before it
+	account := parts[len(parts)-1]
+	region := strings.Join(parts[:len(parts)-1], "-")
+
+	// Build prefix: "arn:aws:eks:{region}:{account}"
+	prefix := fmt.Sprintf("arn:aws:eks:%s:%s", region, account)
+
+	return prefix, clusterName, nil
 }
 
 // =============================== AKS ===============================
