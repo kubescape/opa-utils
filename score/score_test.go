@@ -912,6 +912,26 @@ func TestGetControlComplianceScore(t *testing.T) {
 			"control report should return a score equals to 50",
 		)
 	})
+
+	t.Run("skipped control with exception", func(t *testing.T) {
+		t.Parallel()
+
+		resources := mockResources(t)
+		s := ScoreUtil{isDebugMode: true, resources: resources}
+		controlReport := reportsummary.ControlSummary{
+			Name:      "manual-control-with-exception",
+			ControlID: "C-0286",
+			StatusInfo: apis.StatusInfo{
+				InnerStatus: apis.StatusSkipped,
+				SubStatus:   apis.SubStatusException,
+			},
+			ResourceIDs: helpers.AllLists{},
+		}
+
+		require.Equal(t, float32(100), s.GetControlComplianceScore(&controlReport, ""),
+			"skipped control with exception should return a score equals to 100",
+		)
+	})
 }
 
 func TestSetPostureReportComplianceScores(t *testing.T) {
