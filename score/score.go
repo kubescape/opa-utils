@@ -428,6 +428,12 @@ func (su *ScoreUtil) GetControlComplianceScore(ctrl reportsummary.IControlSummar
 		return 100
 	}
 
+	// If a control is skipped due to an exception (e.g. manual controls with an exception applied),
+	// treat it as 100% compliant since the user has explicitly acknowledged it.
+	if ctrl.GetStatus().IsSkipped() && ctrl.GetSubStatus() == apis.SubStatusException {
+		return 100
+	}
+
 	resourcesIDs := ctrl.ListResourcesIDs(nil)
 	numOfPassedResources := resourcesIDs.Passed()
 	numOfAllResources := resourcesIDs.Len()
