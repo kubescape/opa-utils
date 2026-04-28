@@ -154,7 +154,25 @@ func (p *Processor) GetResourceExceptions(ruleExceptions []armotypes.PostureExce
 
 // MatchesCluster returns true if the designator has no cluster constraint, or if its cluster constraint matches clusterName.
 func (p *Processor) MatchesCluster(designator *identifiers.PortalDesignator, clusterName string) bool {
-	cluster := designator.GetCluster()
+	if designator == nil {
+		return true
+	}
+	return p.matchesCluster(p.getAttributes(designator), clusterName)
+}
+
+// getAttributes returns digested attributes for a designator, using the cache when available.
+func (p *Processor) getAttributes(designator *identifiers.PortalDesignator) identifiers.AttributesDesignators {
+	if attrs, ok := p.designatorCache.Get(designator); ok {
+		return attrs
+	}
+	attrs := designator.DigestPortalDesignator()
+	p.designatorCache.Set(designator, attrs)
+	return attrs
+}
+
+// matchesCluster checks the cluster constraint against already-digested attributes.
+func (p *Processor) matchesCluster(attributes identifiers.AttributesDesignators, clusterName string) bool {
+	cluster := attributes.GetCluster()
 	if cluster == "" {
 		return true
 	}
@@ -163,20 +181,13 @@ func (p *Processor) MatchesCluster(designator *identifiers.PortalDesignator, clu
 
 // compareMetadata - compare namespace and kind
 func (p *Processor) hasException(clusterName string, designator *identifiers.PortalDesignator, workload workloadinterface.IMetadata) bool {
-	var attributes identifiers.AttributesDesignators
-	if attrs, ok := p.designatorCache.Get(designator); ok {
-		attributes = attrs
-	} else {
-		attrs := designator.DigestPortalDesignator()
-		attributes = attrs
-		p.designatorCache.Set(designator, attributes)
-	}
+	attributes := p.getAttributes(designator)
 
 	if attributes.GetCluster() == "" && attributes.GetNamespace() == "" && attributes.GetKind() == "" && attributes.GetName() == "" && attributes.GetResourceID() == "" && attributes.GetPath() == "" && len(attributes.GetLabels()) == 0 {
 		return false // if designators are empty
 	}
 
-	if !p.MatchesCluster(designator, clusterName) {
+	if !p.matchesCluster(attributes, clusterName) {
 		return false // cluster name does not match
 	}
 
