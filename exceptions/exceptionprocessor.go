@@ -152,6 +152,15 @@ func (p *Processor) GetResourceExceptions(ruleExceptions []armotypes.PostureExce
 	return postureExceptionPolicy
 }
 
+// MatchesCluster returns true if the designator has no cluster constraint, or if its cluster constraint matches clusterName.
+func (p *Processor) MatchesCluster(designator *identifiers.PortalDesignator, clusterName string) bool {
+	cluster := designator.GetCluster()
+	if cluster == "" {
+		return true
+	}
+	return p.compareCluster(cluster, clusterName)
+}
+
 // compareMetadata - compare namespace and kind
 func (p *Processor) hasException(clusterName string, designator *identifiers.PortalDesignator, workload workloadinterface.IMetadata) bool {
 	var attributes identifiers.AttributesDesignators
@@ -167,7 +176,7 @@ func (p *Processor) hasException(clusterName string, designator *identifiers.Por
 		return false // if designators are empty
 	}
 
-	if attributes.GetCluster() != "" && !p.compareCluster(attributes.GetCluster(), clusterName) { // TODO - where do we receive cluster name from?
+	if !p.MatchesCluster(designator, clusterName) {
 		return false // cluster name does not match
 	}
 
