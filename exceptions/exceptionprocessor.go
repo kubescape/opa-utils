@@ -152,7 +152,13 @@ func (p *Processor) GetResourceExceptions(ruleExceptions []armotypes.PostureExce
 	return postureExceptionPolicy
 }
 
-// MatchesCluster returns true if the designator has no cluster constraint, or if its cluster constraint matches clusterName.
+// RegexCompareControlID reports whether pattern case-insensitively matches target.
+func (p *Processor) RegexCompareControlID(pattern, target string) bool {
+	return p.regexCompareI(pattern, target)
+}
+
+// MatchesCluster reports whether the designator's cluster constraint matches clusterName.
+// A nil designator or empty cluster field matches any cluster.
 func (p *Processor) MatchesCluster(designator *identifiers.PortalDesignator, clusterName string) bool {
 	if designator == nil {
 		return true
@@ -160,7 +166,7 @@ func (p *Processor) MatchesCluster(designator *identifiers.PortalDesignator, clu
 	return p.matchesCluster(p.getAttributes(designator), clusterName)
 }
 
-// getAttributes returns digested attributes for a designator, using the cache when available.
+// getAttributes returns digested attributes, using the cache when available.
 func (p *Processor) getAttributes(designator *identifiers.PortalDesignator) identifiers.AttributesDesignators {
 	if attrs, ok := p.designatorCache.Get(designator); ok {
 		return attrs
@@ -170,7 +176,7 @@ func (p *Processor) getAttributes(designator *identifiers.PortalDesignator) iden
 	return attrs
 }
 
-// matchesCluster checks the cluster constraint against already-digested attributes.
+// matchesCluster checks the cluster constraint against pre-digested attributes.
 func (p *Processor) matchesCluster(attributes identifiers.AttributesDesignators, clusterName string) bool {
 	cluster := attributes.GetCluster()
 	if cluster == "" {
