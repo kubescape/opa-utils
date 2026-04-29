@@ -152,22 +152,48 @@ func (p *Processor) GetResourceExceptions(ruleExceptions []armotypes.PostureExce
 	return postureExceptionPolicy
 }
 
+// RegexCompareControlID reports whether pattern case-insensitively matches target.
+func (p *Processor) RegexCompareControlID(pattern, target string) bool {
+	return p.regexCompareI(pattern, target)
+}
+
+// MatchesCluster reports whether the designator's cluster constraint matches clusterName.
+// A nil designator or empty cluster field matches any cluster.
+func (p *Processor) MatchesCluster(designator *identifiers.PortalDesignator, clusterName string) bool {
+	if designator == nil {
+		return true
+	}
+	return p.matchesCluster(p.getAttributes(designator), clusterName)
+}
+
+// getAttributes returns digested attributes, using the cache when available.
+func (p *Processor) getAttributes(designator *identifiers.PortalDesignator) identifiers.AttributesDesignators {
+	if attrs, ok := p.designatorCache.Get(designator); ok {
+		return attrs
+	}
+	attrs := designator.DigestPortalDesignator()
+	p.designatorCache.Set(designator, attrs)
+	return attrs
+}
+
+// matchesCluster checks the cluster constraint against pre-digested attributes.
+func (p *Processor) matchesCluster(attributes identifiers.AttributesDesignators, clusterName string) bool {
+	cluster := attributes.GetCluster()
+	if cluster == "" {
+		return true
+	}
+	return p.compareCluster(cluster, clusterName)
+}
+
 // compareMetadata - compare namespace and kind
 func (p *Processor) hasException(clusterName string, designator *identifiers.PortalDesignator, workload workloadinterface.IMetadata) bool {
-	var attributes identifiers.AttributesDesignators
-	if attrs, ok := p.designatorCache.Get(designator); ok {
-		attributes = attrs
-	} else {
-		attrs := designator.DigestPortalDesignator()
-		attributes = attrs
-		p.designatorCache.Set(designator, attributes)
-	}
+	attributes := p.getAttributes(designator)
 
 	if attributes.GetCluster() == "" && attributes.GetNamespace() == "" && attributes.GetKind() == "" && attributes.GetName() == "" && attributes.GetResourceID() == "" && attributes.GetPath() == "" && len(attributes.GetLabels()) == 0 {
 		return false // if designators are empty
 	}
 
-	if attributes.GetCluster() != "" && !p.compareCluster(attributes.GetCluster(), clusterName) { // TODO - where do we receive cluster name from?
+	if !p.matchesCluster(attributes, clusterName) {
 		return false // cluster name does not match
 	}
 
