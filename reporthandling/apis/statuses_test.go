@@ -29,6 +29,13 @@ func TestCompareStatusAndSubStatus(t *testing.T) {
 	assert.Equal(t, makeIS(StatusSkipped, SubStatusIntegration), makeIS(CompareStatusAndSubStatus(StatusSkipped, StatusPassed, SubStatusIntegration, SubStatusUnknown)))
 	assert.Equal(t, makeIS(StatusSkipped, SubStatusManualReview), makeIS(CompareStatusAndSubStatus(StatusPassed, StatusSkipped, SubStatusUnknown, SubStatusManualReview)))
 	assert.Equal(t, makeIS(StatusSkipped, SubStatusRequiresReview), makeIS(CompareStatusAndSubStatus(StatusPassed, StatusSkipped, SubStatusUnknown, SubStatusRequiresReview)))
+
+	// notEvaluated should win over other skipped substatuses since it signals a real cluster/RBAC gap
+	assert.Equal(t, makeIS(StatusSkipped, SubStatusNotEvaluated), makeIS(CompareStatusAndSubStatus(StatusSkipped, StatusPassed, SubStatusNotEvaluated, SubStatusUnknown)))
+	assert.Equal(t, makeIS(StatusSkipped, SubStatusNotEvaluated), makeIS(CompareStatusAndSubStatus(StatusSkipped, StatusSkipped, SubStatusNotEvaluated, SubStatusConfiguration)))
+	assert.Equal(t, makeIS(StatusSkipped, SubStatusNotEvaluated), makeIS(CompareStatusAndSubStatus(StatusSkipped, StatusSkipped, SubStatusManualReview, SubStatusNotEvaluated)))
+	// failed still beats notEvaluated
+	assert.Equal(t, makeIS(StatusFailed, SubStatusUnknown), makeIS(CompareStatusAndSubStatus(StatusFailed, StatusSkipped, SubStatusUnknown, SubStatusNotEvaluated)))
 }
 
 func TestConvertStatusToNewStatus(t *testing.T) {

@@ -14,6 +14,7 @@ const (
 	SubStatusIntegration    ScanningSubStatus = "integration"
 	SubStatusRequiresReview ScanningSubStatus = "requires review"
 	SubStatusManualReview   ScanningSubStatus = "manual review"
+	SubStatusNotEvaluated   ScanningSubStatus = "notEvaluated"
 	SubStatusUnknown        ScanningSubStatus = "" // keep this empty
 	StatusUnknown           ScanningStatus    = "" // keep this empty
 
@@ -25,6 +26,7 @@ const (
 	SubStatusConfigurationInfo  StatusMsg = "Control configurations are empty (docs: https://kubescape.io/docs/frameworks-and-controls/configuring-controls)"
 	SubStatusRequiresReviewInfo StatusMsg = "Control type is requires-review"
 	SubStatusManualReviewInfo   StatusMsg = "Control type is manual-review"
+	SubStatusNotEvaluatedInfo   StatusMsg = "Control was not evaluated because required resource types could not be collected"
 )
 
 // IStatus interface handling status
@@ -70,8 +72,8 @@ func Compare(a, b ScanningStatus) ScanningStatus {
 		1. status=failed or status=unknown:
 			sub status = ""
 		2. status=skipped:
-			if aSub or bSub are configuration/integration/review:
-				sub status = aSub or bSub
+			if aSub or bSub are notEvaluated/configuration/integration/review:
+				sub status = aSub or bSub (notEvaluated takes precedence)
 			else:
 				sub status = status=unknown
 		3. status=passed:
@@ -94,6 +96,9 @@ func CompareStatusAndSubStatus(a, b ScanningStatus, aSub, bSub ScanningSubStatus
 		}
 
 	case StatusSkipped:
+		if aSub == SubStatusNotEvaluated || bSub == SubStatusNotEvaluated {
+			return status, SubStatusNotEvaluated
+		}
 		if aSub == SubStatusConfiguration || bSub == SubStatusConfiguration {
 			return status, SubStatusConfiguration
 		}

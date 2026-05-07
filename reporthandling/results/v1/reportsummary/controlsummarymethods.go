@@ -63,7 +63,10 @@ func (controlSummary *ControlSummary) calculateNSetSubStatus(subStatus apis.Scan
 			controlSummary.StatusInfo.InnerInfo = ""
 		}
 	case apis.StatusSkipped:
-		if subStatus == apis.SubStatusConfiguration || controlSummary.StatusInfo.SubStatus == apis.SubStatusConfiguration {
+		if subStatus == apis.SubStatusNotEvaluated || controlSummary.StatusInfo.SubStatus == apis.SubStatusNotEvaluated {
+			controlSummary.StatusInfo.SubStatus = apis.SubStatusNotEvaluated
+			controlSummary.StatusInfo.InnerInfo = string(apis.SubStatusNotEvaluatedInfo)
+		} else if subStatus == apis.SubStatusConfiguration || controlSummary.StatusInfo.SubStatus == apis.SubStatusConfiguration {
 			controlSummary.StatusInfo.SubStatus = apis.SubStatusConfiguration
 			controlSummary.StatusInfo.InnerInfo = string(apis.SubStatusConfigurationInfo)
 		} else if subStatus == apis.SubStatusManualReview || controlSummary.StatusInfo.SubStatus == apis.SubStatusManualReview {

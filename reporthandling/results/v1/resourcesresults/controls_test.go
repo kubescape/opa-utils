@@ -67,6 +67,14 @@ func TestSetStatus(t *testing.T) {
 	assert.False(t, r6.GetStatus(nil).IsFailed())
 	assert.True(t, r6.GetStatus(nil).IsSkipped())
 
+	// notEvaluated must not be overwritten by configuration even when configs are missing.
+	// A GVR collection gap (RBAC denied, missing CRD) takes precedence over a missing-config skip.
+	r7 := mockResourceAssociatedControlNotEvaluated()
+	r7.SetStatus(*mockControlWithActionRequiredConfiguration())
+	assert.Equal(t, apis.StatusSkipped, r7.GetStatus(nil).Status())
+	assert.Equal(t, apis.SubStatusNotEvaluated, r7.GetSubStatus())
+	assert.True(t, r7.GetStatus(nil).IsSkipped())
+
 }
 
 func TestResourceAssociatedControl_SetName(t *testing.T) {
