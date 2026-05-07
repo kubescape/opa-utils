@@ -272,6 +272,27 @@ func mockControlWithActionRequiredManualReview() *reporthandling.Control {
 	}
 }
 
+func mockResourceAssociatedRuleNotEvaluated() *ResourceAssociatedRule {
+	return &ResourceAssociatedRule{
+		Name:                  "ruleNotEvaluated",
+		Status:                apis.StatusSkipped,
+		SubStatus:             apis.SubStatusNotEvaluated,
+		Paths:                 []armotypes.PosturePaths{},
+		Exception:             []armotypes.PostureExceptionPolicy{},
+		ControlConfigurations: nil,
+	}
+}
+
+func mockResourceAssociatedControlNotEvaluated() *ResourceAssociatedControl {
+	return &ResourceAssociatedControl{
+		ControlID: "C-0089",
+		Name:      "0089",
+		ResourceAssociatedRules: []ResourceAssociatedRule{
+			*mockResourceAssociatedRuleNotEvaluated(),
+		},
+	}
+}
+
 // func mockResourceAssociatedRuleWithFWException() *ResourceAssociatedRule {
 // 	return &ResourceAssociatedRule{
 // 		Name:        "ruleB",

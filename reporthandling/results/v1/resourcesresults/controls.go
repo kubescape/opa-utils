@@ -102,8 +102,9 @@ func (control *ResourceAssociatedControl) SetStatus(c reporthandling.Control) {
 		statusInfo = string(apis.SubStatusManualReviewInfo)
 	}
 
-	// If the control type is configuration and the configuration is not set, the status is skipped and the sub status is configuration
-	if actionRequired == apis.SubStatusConfiguration && controlMissingAllConfigurations(control) {
+	// If the control type is configuration and the configuration is not set, the status is skipped and the sub status is configuration.
+	// Do not overwrite notEvaluated: a GVR collection gap takes precedence over a missing-config skip.
+	if actionRequired == apis.SubStatusConfiguration && controlMissingAllConfigurations(control) && subStatus != apis.SubStatusNotEvaluated {
 		status = apis.StatusSkipped
 		subStatus = apis.SubStatusConfiguration
 		statusInfo = string(apis.SubStatusConfigurationInfo)
