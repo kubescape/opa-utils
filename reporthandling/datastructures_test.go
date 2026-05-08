@@ -92,6 +92,19 @@ func TestRuleLanguagesConstants(t *testing.T) {
 	}
 }
 
+func TestMockCELRuleA(t *testing.T) {
+	celRule := MockCELRuleA()
+	if celRule.RuleLanguage != CELLanguage {
+		t.Errorf("MockCELRuleA RuleLanguage = %q, want %q", celRule.RuleLanguage, CELLanguage)
+	}
+	if celRule.Rule == "" {
+		t.Error("MockCELRuleA Rule should not be empty")
+	}
+	if len(celRule.Match) != 1 {
+		t.Errorf("MockCELRuleA should have 1 Match entry, got %d", len(celRule.Match))
+	}
+}
+
 func TestMockPostureReportA(t *testing.T) {
 	policy := MockPostureReportA()
 	bp, err := json.Marshal(policy)
