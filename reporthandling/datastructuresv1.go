@@ -119,6 +119,9 @@ type Source struct {
 	HelmPath               string     `json:"helmPath,omitempty"`               // relative path to helm chart
 	FileType               string     `json:"fileType,omitempty"`               // file type
 	HelmChartName          string     `json:"helmChartName,omitempty"`          // helm chart name (if FileType is "Helm Chart")
+	HelmTemplateFile       string     `json:"helmTemplateFile,omitempty"`       // chart-relative path of the source template (e.g. "templates/deployment.yaml")
+	HelmValuesPaths        []string   `json:"helmValuesPaths,omitempty"`        // dotted .Values.* keys (e.g. ["image.tag","replicaCount"]) statically traced from the rendered resource back to values.yaml; empty when provenance could not be determined
+	HelmTemplateLine       int        `json:"helmTemplateLine,omitempty"`       // 1-based line in the source template that produced this resource; 0 when unknown
 	KustomizeDirectoryName string     `json:"kustomizeDirectoryName,omitempty"` //Kustomize Directory name if File is from Kustomize Directory
 	LastCommit             LastCommit `json:"lastCommit,omitempty"`
 }
