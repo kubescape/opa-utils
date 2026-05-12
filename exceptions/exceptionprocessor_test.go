@@ -1208,3 +1208,77 @@ func TestProcessor_iterateRegoResponseVector(t *testing.T) {
 		})
 	}
 }
+
+func TestMetadataHasException_ContainerName(t *testing.T) {
+	p := NewProcessor()
+
+	pod := workloadinterface.NewWorkloadObj(podObject([]string{"app", "sidecar"}, []string{"init-setup"}))
+
+	tests := []struct {
+		name       string
+		designator *identifiers.PortalDesignator
+		expected   bool
+	}{
+		{
+			name: "exception targets matching container",
+			designator: &identifiers.PortalDesignator{
+				DesignatorType: identifiers.DesignatorAttributes,
+				Attributes:     map[string]string{identifiers.AttributeContainerName: "sidecar"},
+			},
+			expected: true,
+		},
+		{
+			name: "exception targets non-existing container",
+			designator: &identifiers.PortalDesignator{
+				DesignatorType: identifiers.DesignatorAttributes,
+				Attributes:     map[string]string{identifiers.AttributeContainerName: "other"},
+			},
+			expected: false,
+		},
+		{
+			name: "exception targets init container",
+			designator: &identifiers.PortalDesignator{
+				DesignatorType: identifiers.DesignatorAttributes,
+				Attributes:     map[string]string{identifiers.AttributeContainerName: "init-setup"},
+			},
+			expected: true,
+		},
+		{
+			name: "containerName with regex wildcard",
+			designator: &identifiers.PortalDesignator{
+				DesignatorType: identifiers.DesignatorAttributes,
+				Attributes:     map[string]string{identifiers.AttributeContainerName: "side.*"},
+			},
+			expected: true,
+		},
+		{
+			name: "containerName combined with matching namespace",
+			designator: &identifiers.PortalDesignator{
+				DesignatorType: identifiers.DesignatorAttributes,
+				Attributes: map[string]string{
+					identifiers.AttributeNamespace:     "default",
+					identifiers.AttributeContainerName: "app",
+				},
+			},
+			expected: true,
+		},
+		{
+			name: "containerName combined with non-matching namespace",
+			designator: &identifiers.PortalDesignator{
+				DesignatorType: identifiers.DesignatorAttributes,
+				Attributes: map[string]string{
+					identifiers.AttributeNamespace:     "other-ns",
+					identifiers.AttributeContainerName: "app",
+				},
+			},
+			expected: false,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			attrs := tt.designator.DigestPortalDesignator()
+			assert.Equal(t, tt.expected, p.metadataHasException(pod, attrs))
+		})
+	}
+}

@@ -229,11 +229,33 @@ func (p *Processor) metadataHasException(workload workloadinterface.IMetadata, a
 		return false // paths do not match
 	}
 
-	if isTypeWorkload(workload) && len(attributes.GetLabels()) > 0 {
-		if !p.compareLabels(workload, attributes.GetLabels()) && !p.compareAnnotations(workload, attributes.GetLabels()) {
-			return false // labels nor annotations do not match
+	if isTypeWorkload(workload) {
+		allLabels := attributes.GetLabels()
+		containerName, hasContainerName := allLabels[identifiers.AttributeContainerName]
+
+		// Build a label map with containerName stripped out so it is not
+		// treated as a Kubernetes label during label/annotation comparison.
+		labelsWithoutContainer := allLabels
+		if hasContainerName {
+			labelsWithoutContainer = make(map[string]string, len(allLabels)-1)
+			for k, v := range allLabels {
+				if k != identifiers.AttributeContainerName {
+					labelsWithoutContainer[k] = v
+				}
+			}
+		}
+
+		if len(labelsWithoutContainer) > 0 {
+			if !p.compareLabels(workload, labelsWithoutContainer) && !p.compareAnnotations(workload, labelsWithoutContainer) {
+				return false // labels nor annotations do not match
+			}
+		}
+
+		if hasContainerName && !p.compareContainerName(workload, containerName) {
+			return false // container name does not match
 		}
 	}
+
 	return true
 }
 

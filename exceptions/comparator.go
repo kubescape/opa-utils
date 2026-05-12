@@ -104,6 +104,28 @@ func (c *comparator) compareCluster(designatorCluster, clusterName string) bool 
 	return designatorCluster != "" && c.regexCompare(designatorCluster, clusterName)
 }
 
+func (c *comparator) compareContainerName(workload workloadinterface.IMetadata, containerName string) bool {
+	wl := workloadinterface.NewWorkloadObj(workload.GetObject())
+
+	if containers, err := wl.GetContainers(); err == nil {
+		for i := range containers {
+			if c.regexCompare(containerName, containers[i].Name) {
+				return true
+			}
+		}
+	}
+
+	if initContainers, err := wl.GetInitContainers(); err == nil {
+		for i := range initContainers {
+			if c.regexCompare(containerName, initContainers[i].Name) {
+				return true
+			}
+		}
+	}
+
+	return false
+}
+
 // regexpCompareI performs a case-insensitive regexp match
 func (c *comparator) regexCompareI(reg, name string) bool {
 	var (
