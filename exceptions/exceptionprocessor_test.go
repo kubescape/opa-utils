@@ -7,6 +7,7 @@ import (
 
 	"github.com/kubescape/k8s-interface/workloadinterface"
 	"github.com/kubescape/opa-utils/objectsenvelopes"
+	"github.com/kubescape/opa-utils/reporthandling"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
@@ -952,7 +953,7 @@ func TestHasException(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			assert.Equal(t, tt.expected, processor.hasException(tt.clusterName, tt.designator, tt.workload))
+			assert.Equal(t, tt.expected, processor.hasException(tt.clusterName, tt.designator, tt.workload, nil))
 		})
 	}
 }
@@ -1204,7 +1205,7 @@ func TestProcessor_iterateRegoResponseVector(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			assert.Equal(t, tt.expected, p.iterateRegoResponseVector(tt.workload, tt.designator.DigestPortalDesignator()))
+			assert.Equal(t, tt.expected, p.iterateRegoResponseVector(tt.workload, tt.designator.DigestPortalDesignator(), nil))
 		})
 	}
 }
@@ -1278,7 +1279,104 @@ func TestMetadataHasException_ContainerName(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			attrs := tt.designator.DigestPortalDesignator()
-			assert.Equal(t, tt.expected, p.metadataHasException(pod, attrs))
+			assert.Equal(t, tt.expected, p.metadataHasException(pod, attrs, nil))
 		})
 	}
+}
+
+func TestSetRuleResponsExceptions_ContainerNamePrecision(t *testing.T) {
+	p := NewProcessor()
+
+	// Pod has two containers: app (index 0) and sidecar (index 1).
+	podObj := podObject([]string{"app", "sidecar"}, nil)
+	exception := armotypes.PostureExceptionPolicy{
+		Resources: []identifiers.PortalDesignator{
+			{
+				DesignatorType: identifiers.DesignatorAttributes,
+				Attributes:     map[string]string{identifiers.AttributeContainerName: "sidecar"},
+			},
+		},
+	}
+
+	tests := []struct {
+		name        string
+		failedPaths []string
+		wantExcept  bool
+	}{
+		{
+			name:        "finding on sidecar (containers[1]) — exception matches",
+			failedPaths: []string{"spec.containers[1].securityContext.privileged"},
+			wantExcept:  true,
+		},
+		{
+			name:        "finding on app (containers[0]) — exception must NOT apply",
+			failedPaths: []string{"spec.containers[0].securityContext.privileged"},
+			wantExcept:  false,
+		},
+		{
+			name:        "no failed paths — falls back to workload scan, sidecar found",
+			failedPaths: nil,
+			wantExcept:  true,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			result := reporthandling.RuleResponse{
+				AlertObject: reporthandling.AlertObject{
+					K8SApiObjects: []map[string]interface{}{podObj},
+				},
+				AssistedRemediation: reporthandling.AssistedRemediation{
+					FailedPaths: tt.failedPaths,
+				},
+			}
+			results := []reporthandling.RuleResponse{result}
+			p.SetRuleResponsExceptions(results, []armotypes.PostureExceptionPolicy{exception}, "")
+			if tt.wantExcept {
+				assert.NotNil(t, results[0].Exception, "expected exception to be set")
+			} else {
+				assert.Nil(t, results[0].Exception, "expected exception NOT to be set")
+			}
+		})
+	}
+}
+
+func TestHasException_RegoResponseVector_ContainerNameFallbackBlocked(t *testing.T) {
+	p := NewProcessor()
+
+	// A RegoResponseVector whose base name is "base-subject".
+	// The related object has containers [app], none named "missing".
+	vector := objectsenvelopes.NewRegoResponseVectorObject(map[string]interface{}{
+		"kind": "RegoResponseVector",
+		"metadata": map[string]interface{}{
+			"name": "base-subject",
+		},
+		"relatedObjects": []interface{}{
+			map[string]interface{}{
+				"apiVersion": "v1",
+				"kind":       "Pod",
+				"metadata":   map[string]interface{}{"name": "base-subject"},
+				"spec": map[string]interface{}{
+					"containers": []interface{}{
+						map[string]interface{}{"name": "app"},
+					},
+				},
+			},
+		},
+	})
+
+	designator := &identifiers.PortalDesignator{
+		DesignatorType: identifiers.DesignatorAttributes,
+		Attributes: map[string]string{
+			identifiers.AttributeName:          "base-subject",
+			identifiers.AttributeContainerName: "missing",
+		},
+	}
+
+	attrs := designator.DigestPortalDesignator()
+	// The base vector's name matches, but "missing" is not a container —
+	// hasException must return false, not bypass the container check.
+	result := p.hasException("", designator, vector, nil)
+	_ = attrs
+	assert.False(t, result, "containerName on a RegoResponseVector must not fall back to base-object name match")
 }

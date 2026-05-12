@@ -319,9 +319,23 @@ func TestComparator_compareContainerName(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			assert.Equal(t, tt.expected, c.compareContainerName(tt.workload, tt.containerName))
+			// nil failingNames → full workload scan (backward-compat path)
+			assert.Equal(t, tt.expected, c.compareContainerName(tt.workload, tt.containerName, nil))
 		})
 	}
+}
+
+func TestComparator_compareContainerName_failingNamesFilter(t *testing.T) {
+	c := &comparator{}
+	wl := workloadinterface.NewWorkloadObj(podObject([]string{"app", "sidecar"}, nil))
+
+	// When failingNames is ["app"], only "app" is a valid match.
+	assert.True(t, c.compareContainerName(wl, "app", []string{"app"}))
+	assert.False(t, c.compareContainerName(wl, "sidecar", []string{"app"}))
+
+	// When failingNames is ["sidecar"], only "sidecar" is a valid match.
+	assert.True(t, c.compareContainerName(wl, "sidecar", []string{"sidecar"}))
+	assert.False(t, c.compareContainerName(wl, "app", []string{"sidecar"}))
 }
 
 func TestIsTypeWorkload(t *testing.T) {

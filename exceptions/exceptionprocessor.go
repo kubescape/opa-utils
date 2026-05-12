@@ -1,6 +1,8 @@
 package exceptions
 
 import (
+	"regexp"
+	"strconv"
 	"strings"
 
 	"github.com/armosec/armoapi-go/identifiers"
@@ -11,6 +13,10 @@ import (
 
 	"github.com/armosec/armoapi-go/armotypes"
 )
+
+// rexContainerPath matches "containers[N]" and "initContainers[N]" in a
+// FailedPath so we can resolve the container index to a name.
+var rexContainerPath = regexp.MustCompile(`(initC|c)ontainers\[(\d+)\]`)
 
 // Processor processes exceptions.
 type Processor struct {
@@ -59,7 +65,11 @@ func (p *Processor) SetRuleResponsExceptions(results []reporthandling.RuleRespon
 		}
 
 		for w := range workloads {
-			if exceptions := p.GetResourceExceptions(ruleExceptions, workloads[w], clusterName); len(exceptions) > 0 {
+			// Resolve which containers actually produced the finding so that a
+			// containerName exception is only applied when the excepted container
+			// is the one that failed, not just any container in the pod.
+			failingContainerNames := extractFailingContainerNames(results[i].FailedPaths, workloads[w])
+			if exceptions := p.getResourceExceptions(ruleExceptions, workloads[w], clusterName, failingContainerNames); len(exceptions) > 0 {
 				results[i].Exception = &exceptions[0]
 			}
 		}
@@ -135,15 +145,21 @@ func alertObjectToWorkloads(obj *reporthandling.AlertObject) []workloadinterface
 	return resources[:len(resources):len(resources)]
 }
 
-// GetResourceException get exceptions of single resource
+// GetResourceExceptions returns the exception policies that match workload.
+// It checks container membership across the whole workload; use
+// SetRuleResponsExceptions when FailedPaths are available for precise matching.
 func (p *Processor) GetResourceExceptions(ruleExceptions []armotypes.PostureExceptionPolicy, workload workloadinterface.IMetadata, clusterName string) []armotypes.PostureExceptionPolicy {
+	return p.getResourceExceptions(ruleExceptions, workload, clusterName, nil)
+}
+
+func (p *Processor) getResourceExceptions(ruleExceptions []armotypes.PostureExceptionPolicy, workload workloadinterface.IMetadata, clusterName string, failingContainerNames []string) []armotypes.PostureExceptionPolicy {
 	// no pre-allocation since most of the time it's empty or has only one element
 	var postureExceptionPolicy []armotypes.PostureExceptionPolicy
 
 	for _, ruleException := range ruleExceptions {
 		for _, resourceToPin := range ruleException.Resources {
 			resource := resourceToPin
-			if p.hasException(clusterName, &resource, workload) {
+			if p.hasException(clusterName, &resource, workload, failingContainerNames) {
 				postureExceptionPolicy = append(postureExceptionPolicy, ruleException)
 			}
 		}
@@ -185,8 +201,7 @@ func (p *Processor) matchesCluster(attributes identifiers.AttributesDesignators,
 	return p.compareCluster(cluster, clusterName)
 }
 
-// compareMetadata - compare namespace and kind
-func (p *Processor) hasException(clusterName string, designator *identifiers.PortalDesignator, workload workloadinterface.IMetadata) bool {
+func (p *Processor) hasException(clusterName string, designator *identifiers.PortalDesignator, workload workloadinterface.IMetadata, failingContainerNames []string) bool {
 	attributes := p.getAttributes(designator)
 
 	if attributes.GetCluster() == "" && attributes.GetNamespace() == "" && attributes.GetKind() == "" && attributes.GetName() == "" && attributes.GetResourceID() == "" && attributes.GetPath() == "" && len(attributes.GetLabels()) == 0 {
@@ -198,16 +213,23 @@ func (p *Processor) hasException(clusterName string, designator *identifiers.Por
 	}
 
 	if isTypeRegoResponseVector(workload) {
-		if p.iterateRegoResponseVector(workload, attributes) {
+		if p.iterateRegoResponseVector(workload, attributes, failingContainerNames) {
 			return true
+		}
+		// If containerName is in the designator, stop here: the base
+		// RegoResponseVector object is not a workload, so container membership
+		// cannot be verified on it. Falling through would silently skip the
+		// container check and produce false positives.
+		if _, ok := attributes.GetLabels()[identifiers.AttributeContainerName]; ok {
+			return false
 		}
 		// otherwise, continue to check the base object
 	}
-	return p.metadataHasException(workload, attributes)
+	return p.metadataHasException(workload, attributes, failingContainerNames)
 
 }
 
-func (p *Processor) metadataHasException(workload workloadinterface.IMetadata, attributes identifiers.AttributesDesignators) bool {
+func (p *Processor) metadataHasException(workload workloadinterface.IMetadata, attributes identifiers.AttributesDesignators, failingContainerNames []string) bool {
 
 	if attributes.GetNamespace() != "" && !p.compareNamespace(workload, attributes.GetNamespace()) {
 		return false // namespaces do not match
@@ -251,7 +273,7 @@ func (p *Processor) metadataHasException(workload workloadinterface.IMetadata, a
 			}
 		}
 
-		if hasContainerName && !p.compareContainerName(workload, containerName) {
+		if hasContainerName && !p.compareContainerName(workload, containerName, failingContainerNames) {
 			return false // container name does not match
 		}
 	}
@@ -259,12 +281,59 @@ func (p *Processor) metadataHasException(workload workloadinterface.IMetadata, a
 	return true
 }
 
-func (p *Processor) iterateRegoResponseVector(workload workloadinterface.IMetadata, attributes identifiers.AttributesDesignators) bool {
+func (p *Processor) iterateRegoResponseVector(workload workloadinterface.IMetadata, attributes identifiers.AttributesDesignators, failingContainerNames []string) bool {
 	v := objectsenvelopes.NewRegoResponseVectorObject(workload.GetObject())
 	for _, r := range v.GetRelatedObjects() {
-		if p.metadataHasException(r, attributes) {
+		if p.metadataHasException(r, attributes, failingContainerNames) {
 			return true
 		}
 	}
 	return false
+}
+
+// extractFailingContainerNames parses paths like "spec.containers[0].…" or
+// "spec.template.spec.initContainers[1].…" to find which containers produced
+// the finding, then returns their names from the workload spec. When the
+// FailedPaths contain no container indices (e.g. pod-level findings) the
+// returned slice is nil and compareContainerName falls back to checking all
+// containers in the workload.
+func extractFailingContainerNames(paths []string, workload workloadinterface.IMetadata) []string {
+	if len(paths) == 0 {
+		return nil
+	}
+
+	wl := workloadinterface.NewWorkloadObj(workload.GetObject())
+	containers, _ := wl.GetContainers()
+	initContainers, _ := wl.GetInitContainers()
+	if len(containers)+len(initContainers) == 0 {
+		return nil
+	}
+
+	seen := make(map[string]struct{})
+	for _, path := range paths {
+		for _, m := range rexContainerPath.FindAllStringSubmatch(path, -1) {
+			idx, err := strconv.Atoi(m[2])
+			if err != nil {
+				continue
+			}
+			if m[1] == "initC" {
+				if idx < len(initContainers) {
+					seen[initContainers[idx].Name] = struct{}{}
+				}
+			} else {
+				if idx < len(containers) {
+					seen[containers[idx].Name] = struct{}{}
+				}
+			}
+		}
+	}
+
+	if len(seen) == 0 {
+		return nil
+	}
+	names := make([]string, 0, len(seen))
+	for name := range seen {
+		names = append(names, name)
+	}
+	return names
 }
