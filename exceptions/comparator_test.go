@@ -256,6 +256,88 @@ func TestComparator_comparePath(t *testing.T) {
 	}
 }
 
+func podObject(containers, initContainers []string) map[string]interface{} {
+	cs := make([]interface{}, len(containers))
+	for i, name := range containers {
+		cs[i] = map[string]interface{}{"name": name}
+	}
+	ics := make([]interface{}, len(initContainers))
+	for i, name := range initContainers {
+		ics[i] = map[string]interface{}{"name": name}
+	}
+	return map[string]interface{}{
+		"apiVersion": "v1",
+		"kind":       "Pod",
+		"metadata":   map[string]interface{}{"name": "test-pod", "namespace": "default"},
+		"spec": map[string]interface{}{
+			"containers":     cs,
+			"initContainers": ics,
+		},
+	}
+}
+
+func TestComparator_compareContainerName(t *testing.T) {
+	c := &comparator{}
+
+	tests := []struct {
+		name          string
+		workload      workloadinterface.IMetadata
+		containerName string
+		expected      bool
+	}{
+		{
+			name:          "exact match on regular container",
+			workload:      workloadinterface.NewWorkloadObj(podObject([]string{"app", "sidecar"}, nil)),
+			containerName: "app",
+			expected:      true,
+		},
+		{
+			name:          "exact match on init container",
+			workload:      workloadinterface.NewWorkloadObj(podObject([]string{"app"}, []string{"init-setup"})),
+			containerName: "init-setup",
+			expected:      true,
+		},
+		{
+			name:          "regex wildcard matches container",
+			workload:      workloadinterface.NewWorkloadObj(podObject([]string{"proxy-envoy"}, nil)),
+			containerName: "proxy-.*",
+			expected:      true,
+		},
+		{
+			name:          "no container name match",
+			workload:      workloadinterface.NewWorkloadObj(podObject([]string{"app"}, nil)),
+			containerName: "other",
+			expected:      false,
+		},
+		{
+			name:          "no containers at all",
+			workload:      workloadinterface.NewWorkloadObj(podObject(nil, nil)),
+			containerName: "app",
+			expected:      false,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			// nil failingNames → full workload scan (backward-compat path)
+			assert.Equal(t, tt.expected, c.compareContainerName(tt.workload, tt.containerName, nil))
+		})
+	}
+}
+
+func TestComparator_compareContainerName_failingNamesFilter(t *testing.T) {
+	c := &comparator{}
+	wl := workloadinterface.NewWorkloadObj(podObject([]string{"app", "sidecar"}, nil))
+
+	// When failingNames is ["app"], only "app" is a valid match.
+	assert.True(t, c.compareContainerName(wl, "app", []string{"app"}))
+	assert.False(t, c.compareContainerName(wl, "sidecar", []string{"app"}))
+
+	// When failingNames is ["sidecar"], only "sidecar" is a valid match.
+	assert.True(t, c.compareContainerName(wl, "sidecar", []string{"sidecar"}))
+	assert.False(t, c.compareContainerName(wl, "app", []string{"sidecar"}))
+}
+
 func TestIsTypeWorkload(t *testing.T) {
 	tests := []struct {
 		workload workloadinterface.IMetadata

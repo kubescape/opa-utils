@@ -104,6 +104,41 @@ func (c *comparator) compareCluster(designatorCluster, clusterName string) bool 
 	return designatorCluster != "" && c.regexCompare(designatorCluster, clusterName)
 }
 
+// compareContainerName reports whether containerName matches any of the
+// failing containers. If failingNames is provided, only those containers are
+// checked; otherwise every container and init-container in the workload is
+// inspected (used by callers that have no FailedPaths context).
+func (c *comparator) compareContainerName(workload workloadinterface.IMetadata, containerName string, failingNames []string) bool {
+	if len(failingNames) > 0 {
+		for _, name := range failingNames {
+			if c.regexCompare(containerName, name) {
+				return true
+			}
+		}
+		return false
+	}
+
+	wl := workloadinterface.NewWorkloadObj(workload.GetObject())
+
+	if containers, err := wl.GetContainers(); err == nil {
+		for i := range containers {
+			if c.regexCompare(containerName, containers[i].Name) {
+				return true
+			}
+		}
+	}
+
+	if initContainers, err := wl.GetInitContainers(); err == nil {
+		for i := range initContainers {
+			if c.regexCompare(containerName, initContainers[i].Name) {
+				return true
+			}
+		}
+	}
+
+	return false
+}
+
 // regexpCompareI performs a case-insensitive regexp match
 func (c *comparator) regexCompareI(reg, name string) bool {
 	var (

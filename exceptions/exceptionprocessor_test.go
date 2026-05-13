@@ -7,6 +7,7 @@ import (
 
 	"github.com/kubescape/k8s-interface/workloadinterface"
 	"github.com/kubescape/opa-utils/objectsenvelopes"
+	"github.com/kubescape/opa-utils/reporthandling"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 
@@ -952,7 +953,7 @@ func TestHasException(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			assert.Equal(t, tt.expected, processor.hasException(tt.clusterName, tt.designator, tt.workload))
+			assert.Equal(t, tt.expected, processor.hasException(tt.clusterName, tt.designator, tt.workload, nil))
 		})
 	}
 }
@@ -1204,7 +1205,306 @@ func TestProcessor_iterateRegoResponseVector(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			assert.Equal(t, tt.expected, p.iterateRegoResponseVector(tt.workload, tt.designator.DigestPortalDesignator()))
+			assert.Equal(t, tt.expected, p.iterateRegoResponseVector(tt.workload, tt.designator.DigestPortalDesignator(), nil))
 		})
 	}
+}
+
+func TestMetadataHasException_ContainerName(t *testing.T) {
+	p := NewProcessor()
+
+	pod := workloadinterface.NewWorkloadObj(podObject([]string{"app", "sidecar"}, []string{"init-setup"}))
+
+	tests := []struct {
+		name       string
+		designator *identifiers.PortalDesignator
+		expected   bool
+	}{
+		{
+			name: "exception targets matching container",
+			designator: &identifiers.PortalDesignator{
+				DesignatorType: identifiers.DesignatorAttributes,
+				Attributes:     map[string]string{identifiers.AttributeContainerName: "sidecar"},
+			},
+			expected: true,
+		},
+		{
+			name: "exception targets non-existing container",
+			designator: &identifiers.PortalDesignator{
+				DesignatorType: identifiers.DesignatorAttributes,
+				Attributes:     map[string]string{identifiers.AttributeContainerName: "other"},
+			},
+			expected: false,
+		},
+		{
+			name: "exception targets init container",
+			designator: &identifiers.PortalDesignator{
+				DesignatorType: identifiers.DesignatorAttributes,
+				Attributes:     map[string]string{identifiers.AttributeContainerName: "init-setup"},
+			},
+			expected: true,
+		},
+		{
+			name: "containerName with regex wildcard",
+			designator: &identifiers.PortalDesignator{
+				DesignatorType: identifiers.DesignatorAttributes,
+				Attributes:     map[string]string{identifiers.AttributeContainerName: "side.*"},
+			},
+			expected: true,
+		},
+		{
+			name: "containerName combined with matching namespace",
+			designator: &identifiers.PortalDesignator{
+				DesignatorType: identifiers.DesignatorAttributes,
+				Attributes: map[string]string{
+					identifiers.AttributeNamespace:     "default",
+					identifiers.AttributeContainerName: "app",
+				},
+			},
+			expected: true,
+		},
+		{
+			name: "containerName combined with non-matching namespace",
+			designator: &identifiers.PortalDesignator{
+				DesignatorType: identifiers.DesignatorAttributes,
+				Attributes: map[string]string{
+					identifiers.AttributeNamespace:     "other-ns",
+					identifiers.AttributeContainerName: "app",
+				},
+			},
+			expected: false,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			attrs := tt.designator.DigestPortalDesignator()
+			assert.Equal(t, tt.expected, p.metadataHasException(pod, attrs, nil))
+		})
+	}
+}
+
+func TestSetRuleResponsExceptions_ContainerNamePrecision(t *testing.T) {
+	p := NewProcessor()
+
+	// Pod has two containers: app (index 0) and sidecar (index 1).
+	podObj := podObject([]string{"app", "sidecar"}, nil)
+	exception := armotypes.PostureExceptionPolicy{
+		Resources: []identifiers.PortalDesignator{
+			{
+				DesignatorType: identifiers.DesignatorAttributes,
+				Attributes:     map[string]string{identifiers.AttributeContainerName: "sidecar"},
+			},
+		},
+	}
+
+	tests := []struct {
+		name        string
+		failedPaths []string
+		wantExcept  bool
+	}{
+		{
+			name:        "finding on sidecar (containers[1]) — exception matches",
+			failedPaths: []string{"spec.containers[1].securityContext.privileged"},
+			wantExcept:  true,
+		},
+		{
+			name:        "finding on app (containers[0]) — exception must NOT apply",
+			failedPaths: []string{"spec.containers[0].securityContext.privileged"},
+			wantExcept:  false,
+		},
+		{
+			name:        "no failed paths — falls back to workload scan, sidecar found",
+			failedPaths: nil,
+			wantExcept:  true,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			result := reporthandling.RuleResponse{
+				AlertObject: reporthandling.AlertObject{
+					K8SApiObjects: []map[string]interface{}{podObj},
+				},
+				AssistedRemediation: reporthandling.AssistedRemediation{
+					FailedPaths: tt.failedPaths,
+				},
+			}
+			results := []reporthandling.RuleResponse{result}
+			p.SetRuleResponsExceptions(results, []armotypes.PostureExceptionPolicy{exception}, "")
+			if tt.wantExcept {
+				assert.NotNil(t, results[0].Exception, "expected exception to be set")
+			} else {
+				assert.Nil(t, results[0].Exception, "expected exception NOT to be set")
+			}
+		})
+	}
+}
+
+func TestSetRuleResponsExceptions_RegoResponseVector_ContainerNamePrecision(t *testing.T) {
+	p := NewProcessor()
+
+	// A RegoResponseVector wrapping a pod that has containers [app (index 0), sidecar (index 1)].
+	// The exception targets "sidecar". The FailedPaths point to containers[0] = "app".
+	// The exception must NOT be applied because the failing container is "app", not "sidecar".
+	//
+	// Note: IsTypeRegoResponseVector requires top-level "kind", "name", and "relatedObjects"
+	// keys — not the nested metadata.name used by regular Kubernetes objects.
+	podObj := podObject([]string{"app", "sidecar"}, nil)
+	vector := objectsenvelopes.NewRegoResponseVectorObject(map[string]interface{}{
+		"kind":           "RegoResponseVector",
+		"name":           "vec",
+		"relatedObjects": []interface{}{podObj},
+	})
+	vectorRaw := vector.GetObject()
+
+	exception := armotypes.PostureExceptionPolicy{
+		Resources: []identifiers.PortalDesignator{
+			{
+				DesignatorType: identifiers.DesignatorAttributes,
+				Attributes:     map[string]string{identifiers.AttributeContainerName: "sidecar"},
+			},
+		},
+	}
+
+	tests := []struct {
+		name        string
+		failedPaths []string
+		wantExcept  bool
+	}{
+		{
+			name:        "vector finding on app (containers[0]) — sidecar exception must NOT apply",
+			failedPaths: []string{"spec.containers[0].securityContext.privileged"},
+			wantExcept:  false,
+		},
+		{
+			name:        "vector finding on sidecar (containers[1]) — sidecar exception must apply",
+			failedPaths: []string{"spec.containers[1].securityContext.privileged"},
+			wantExcept:  true,
+		},
+		{
+			name:        "no failed paths — falls back to full scan, sidecar found",
+			failedPaths: nil,
+			wantExcept:  true,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			result := reporthandling.RuleResponse{
+				AlertObject: reporthandling.AlertObject{
+					K8SApiObjects: []map[string]interface{}{vectorRaw},
+				},
+				AssistedRemediation: reporthandling.AssistedRemediation{
+					FailedPaths: tt.failedPaths,
+				},
+			}
+			results := []reporthandling.RuleResponse{result}
+			p.SetRuleResponsExceptions(results, []armotypes.PostureExceptionPolicy{exception}, "")
+			if tt.wantExcept {
+				assert.NotNil(t, results[0].Exception, "expected exception to be set")
+			} else {
+				assert.Nil(t, results[0].Exception, "expected exception NOT to be set")
+			}
+		})
+	}
+}
+
+func TestSetRuleResponsExceptions_ExternalObjects_RegoResponseVector(t *testing.T) {
+	p := NewProcessor()
+
+	// Same scenario as the K8SApiObjects test but delivered via AlertObject.ExternalObjects
+	// (a single map[string]interface{}, not a list).
+	// The vector wraps a pod with containers [app (0), sidecar (1)].
+	// Exception targets "sidecar"; FailedPaths point at containers[0] = "app".
+	podObj := podObject([]string{"app", "sidecar"}, nil)
+	vectorRaw := map[string]interface{}{
+		"kind":           "RegoResponseVector",
+		"name":           "vec",
+		"relatedObjects": []interface{}{podObj},
+	}
+
+	exception := armotypes.PostureExceptionPolicy{
+		Resources: []identifiers.PortalDesignator{
+			{
+				DesignatorType: identifiers.DesignatorAttributes,
+				Attributes:     map[string]string{identifiers.AttributeContainerName: "sidecar"},
+			},
+		},
+	}
+
+	tests := []struct {
+		name        string
+		failedPaths []string
+		wantExcept  bool
+	}{
+		{
+			name:        "ExternalObjects vector: finding on app — sidecar exception must NOT apply",
+			failedPaths: []string{"spec.containers[0].securityContext.privileged"},
+			wantExcept:  false,
+		},
+		{
+			name:        "ExternalObjects vector: finding on sidecar — exception must apply",
+			failedPaths: []string{"spec.containers[1].securityContext.privileged"},
+			wantExcept:  true,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			result := reporthandling.RuleResponse{
+				AlertObject: reporthandling.AlertObject{
+					ExternalObjects: vectorRaw,
+				},
+				AssistedRemediation: reporthandling.AssistedRemediation{
+					FailedPaths: tt.failedPaths,
+				},
+			}
+			results := []reporthandling.RuleResponse{result}
+			p.SetRuleResponsExceptions(results, []armotypes.PostureExceptionPolicy{exception}, "")
+			if tt.wantExcept {
+				assert.NotNil(t, results[0].Exception, "expected exception to be set")
+			} else {
+				assert.Nil(t, results[0].Exception, "expected exception NOT to be set")
+			}
+		})
+	}
+}
+
+func TestHasException_RegoResponseVector_ContainerNameFallbackBlocked(t *testing.T) {
+	p := NewProcessor()
+
+	// A RegoResponseVector whose base name is "base-subject".
+	// The related object has containers [app], none named "missing".
+	vector := objectsenvelopes.NewRegoResponseVectorObject(map[string]interface{}{
+		"kind": "RegoResponseVector",
+		"name": "base-subject",
+		"relatedObjects": []interface{}{
+			map[string]interface{}{
+				"apiVersion": "v1",
+				"kind":       "Pod",
+				"metadata":   map[string]interface{}{"name": "base-subject"},
+				"spec": map[string]interface{}{
+					"containers": []interface{}{
+						map[string]interface{}{"name": "app"},
+					},
+				},
+			},
+		},
+	})
+
+	designator := &identifiers.PortalDesignator{
+		DesignatorType: identifiers.DesignatorAttributes,
+		Attributes: map[string]string{
+			identifiers.AttributeName:          "base-subject",
+			identifiers.AttributeContainerName: "missing",
+		},
+	}
+
+	attrs := designator.DigestPortalDesignator()
+	// The base vector's name matches, but "missing" is not a container —
+	// hasException must return false, not bypass the container check.
+	result := p.hasException("", designator, vector, nil)
+	_ = attrs
+	assert.False(t, result, "containerName on a RegoResponseVector must not fall back to base-object name match")
 }
