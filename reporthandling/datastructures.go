@@ -14,6 +14,7 @@ type RuleLanguages string
 const (
 	RegoLanguage  RuleLanguages = "Rego"
 	RegoLanguage2 RuleLanguages = "rego"
+	CELLanguage   RuleLanguages = "CEL"
 )
 
 // RuleMatchObjects defines which objects this rule applied on

@@ -61,6 +61,17 @@ func TestPostureReportWithExternalResource(t *testing.T) {
 
 	assert.Equal(t, expectedID, report2.Resources[0].GetID())
 }
+func TestRuleLanguagesConstants(t *testing.T) {
+	assert.Equal(t, RuleLanguages("Rego"), RegoLanguage)
+	assert.Equal(t, RuleLanguages("rego"), RegoLanguage2)
+	assert.Equal(t, RuleLanguages("CEL"), CELLanguage)
+}
+
+func TestCELLanguageIsDistinct(t *testing.T) {
+	assert.NotEqual(t, CELLanguage, RegoLanguage)
+	assert.NotEqual(t, CELLanguage, RegoLanguage2)
+}
+
 func TestMockFrameworkA(t *testing.T) {
 	policy := MockFrameworkA()
 	bp, err := json.Marshal(policy)
