@@ -1410,6 +1410,67 @@ func TestSetRuleResponsExceptions_RegoResponseVector_ContainerNamePrecision(t *t
 	}
 }
 
+func TestSetRuleResponsExceptions_ExternalObjects_RegoResponseVector(t *testing.T) {
+	p := NewProcessor()
+
+	// Same scenario as the K8SApiObjects test but delivered via AlertObject.ExternalObjects
+	// (a single map[string]interface{}, not a list).
+	// The vector wraps a pod with containers [app (0), sidecar (1)].
+	// Exception targets "sidecar"; FailedPaths point at containers[0] = "app".
+	podObj := podObject([]string{"app", "sidecar"}, nil)
+	vectorRaw := map[string]interface{}{
+		"kind":           "RegoResponseVector",
+		"name":           "vec",
+		"relatedObjects": []interface{}{podObj},
+	}
+
+	exception := armotypes.PostureExceptionPolicy{
+		Resources: []identifiers.PortalDesignator{
+			{
+				DesignatorType: identifiers.DesignatorAttributes,
+				Attributes:     map[string]string{identifiers.AttributeContainerName: "sidecar"},
+			},
+		},
+	}
+
+	tests := []struct {
+		name        string
+		failedPaths []string
+		wantExcept  bool
+	}{
+		{
+			name:        "ExternalObjects vector: finding on app — sidecar exception must NOT apply",
+			failedPaths: []string{"spec.containers[0].securityContext.privileged"},
+			wantExcept:  false,
+		},
+		{
+			name:        "ExternalObjects vector: finding on sidecar — exception must apply",
+			failedPaths: []string{"spec.containers[1].securityContext.privileged"},
+			wantExcept:  true,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			result := reporthandling.RuleResponse{
+				AlertObject: reporthandling.AlertObject{
+					ExternalObjects: vectorRaw,
+				},
+				AssistedRemediation: reporthandling.AssistedRemediation{
+					FailedPaths: tt.failedPaths,
+				},
+			}
+			results := []reporthandling.RuleResponse{result}
+			p.SetRuleResponsExceptions(results, []armotypes.PostureExceptionPolicy{exception}, "")
+			if tt.wantExcept {
+				assert.NotNil(t, results[0].Exception, "expected exception to be set")
+			} else {
+				assert.Nil(t, results[0].Exception, "expected exception NOT to be set")
+			}
+		})
+	}
+}
+
 func TestHasException_RegoResponseVector_ContainerNameFallbackBlocked(t *testing.T) {
 	p := NewProcessor()
 
