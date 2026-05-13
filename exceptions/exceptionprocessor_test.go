@@ -1341,6 +1341,75 @@ func TestSetRuleResponsExceptions_ContainerNamePrecision(t *testing.T) {
 	}
 }
 
+func TestSetRuleResponsExceptions_RegoResponseVector_ContainerNamePrecision(t *testing.T) {
+	p := NewProcessor()
+
+	// A RegoResponseVector wrapping a pod that has containers [app (index 0), sidecar (index 1)].
+	// The exception targets "sidecar". The FailedPaths point to containers[0] = "app".
+	// The exception must NOT be applied because the failing container is "app", not "sidecar".
+	//
+	// Note: IsTypeRegoResponseVector requires top-level "kind", "name", and "relatedObjects"
+	// keys — not the nested metadata.name used by regular Kubernetes objects.
+	podObj := podObject([]string{"app", "sidecar"}, nil)
+	vector := objectsenvelopes.NewRegoResponseVectorObject(map[string]interface{}{
+		"kind":           "RegoResponseVector",
+		"name":           "vec",
+		"relatedObjects": []interface{}{podObj},
+	})
+	vectorRaw := vector.GetObject()
+
+	exception := armotypes.PostureExceptionPolicy{
+		Resources: []identifiers.PortalDesignator{
+			{
+				DesignatorType: identifiers.DesignatorAttributes,
+				Attributes:     map[string]string{identifiers.AttributeContainerName: "sidecar"},
+			},
+		},
+	}
+
+	tests := []struct {
+		name        string
+		failedPaths []string
+		wantExcept  bool
+	}{
+		{
+			name:        "vector finding on app (containers[0]) — sidecar exception must NOT apply",
+			failedPaths: []string{"spec.containers[0].securityContext.privileged"},
+			wantExcept:  false,
+		},
+		{
+			name:        "vector finding on sidecar (containers[1]) — sidecar exception must apply",
+			failedPaths: []string{"spec.containers[1].securityContext.privileged"},
+			wantExcept:  true,
+		},
+		{
+			name:        "no failed paths — falls back to full scan, sidecar found",
+			failedPaths: nil,
+			wantExcept:  true,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			result := reporthandling.RuleResponse{
+				AlertObject: reporthandling.AlertObject{
+					K8SApiObjects: []map[string]interface{}{vectorRaw},
+				},
+				AssistedRemediation: reporthandling.AssistedRemediation{
+					FailedPaths: tt.failedPaths,
+				},
+			}
+			results := []reporthandling.RuleResponse{result}
+			p.SetRuleResponsExceptions(results, []armotypes.PostureExceptionPolicy{exception}, "")
+			if tt.wantExcept {
+				assert.NotNil(t, results[0].Exception, "expected exception to be set")
+			} else {
+				assert.Nil(t, results[0].Exception, "expected exception NOT to be set")
+			}
+		})
+	}
+}
+
 func TestHasException_RegoResponseVector_ContainerNameFallbackBlocked(t *testing.T) {
 	p := NewProcessor()
 
@@ -1348,9 +1417,7 @@ func TestHasException_RegoResponseVector_ContainerNameFallbackBlocked(t *testing
 	// The related object has containers [app], none named "missing".
 	vector := objectsenvelopes.NewRegoResponseVectorObject(map[string]interface{}{
 		"kind": "RegoResponseVector",
-		"metadata": map[string]interface{}{
-			"name": "base-subject",
-		},
+		"name": "base-subject",
 		"relatedObjects": []interface{}{
 			map[string]interface{}{
 				"apiVersion": "v1",

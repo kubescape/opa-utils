@@ -297,9 +297,31 @@ func (p *Processor) iterateRegoResponseVector(workload workloadinterface.IMetada
 // FailedPaths contain no container indices (e.g. pod-level findings) the
 // returned slice is nil and compareContainerName falls back to checking all
 // containers in the workload.
+//
+// For RegoResponseVector objects the vector itself carries no containers; the
+// containers live in the related objects. We recurse into each related workload
+// so that container-index resolution still works for vector-based findings.
 func extractFailingContainerNames(paths []string, workload workloadinterface.IMetadata) []string {
 	if len(paths) == 0 {
 		return nil
+	}
+
+	if isTypeRegoResponseVector(workload) {
+		v := objectsenvelopes.NewRegoResponseVectorObject(workload.GetObject())
+		seen := make(map[string]struct{})
+		for _, r := range v.GetRelatedObjects() {
+			for _, name := range extractFailingContainerNames(paths, r) {
+				seen[name] = struct{}{}
+			}
+		}
+		if len(seen) == 0 {
+			return nil
+		}
+		names := make([]string, 0, len(seen))
+		for name := range seen {
+			names = append(names, name)
+		}
+		return names
 	}
 
 	wl := workloadinterface.NewWorkloadObj(workload.GetObject())
