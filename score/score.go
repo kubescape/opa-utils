@@ -144,12 +144,13 @@ func (su *ScoreUtil) GetScore(v map[string]interface{}) float32 {
 		score := defaultScore
 
 		for i := range related {
-			if !k8sinterface.IsTypeWorkload(related[i].GetObject()) {
+			obj := related[i].GetObject()
+			if !k8sinterface.IsTypeWorkload(obj) {
 				continue
 			}
 
-			wl := workloadinterface.NewWorkloadObj(v)
-			score = max32(score, su.processWorkload(wl, score, v))
+			wl := workloadinterface.NewWorkloadObj(obj)
+			score = max32(score, su.processWorkload(wl, defaultScore, obj))
 		}
 
 		return score
