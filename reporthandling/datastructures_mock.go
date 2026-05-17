@@ -260,6 +260,22 @@ func MockRegoPrivilegedPods() string {
 func MockExternalFacingService() string {
 	return "\n\tpackage armo_builtins\n\n\timport data.kubernetes.api.client as client\n\timport data.cautils as cautils\n\ndeny[msga] {\n\n\twl := input[_]\n\tcluster_resource := client.query_all(\n\t\t\"services\"\n\t)\n\n\tlabels := wl.metadata.labels\n\tfiltered_labels := json.remove(labels, [\"pod-template-hash\"])\n    \n#service := cluster_resource.body.items[i]\nservices := [svc | cluster_resource.body.items[i].metadata.namespace == wl.metadata.namespace; svc := cluster_resource.body.items[i]]\nservice := services[_]\nnp_or_lb := {\"NodePort\", \"LoadBalancer\"}\nnp_or_lb[service.spec.type]\ncautils.is_subobject(service.spec.selector,filtered_labels)\n\n    msga := {\n\t\t\"alertMessage\": sprintf(\"%v pod %v  expose external facing service: %v\",[wl.metadata.namespace, wl.metadata.name, service.metadata.name]),\n\t\t\"alertScore\": 2,\n\t\t\"packagename\": \"armo_builtins\",\n\t\t\"alertObject\": {\"srvc\":service}\n\t}\n}\n\t"
 }
+func MockCELRuleA() *PolicyRule {
+	return &PolicyRule{
+		PortalBase: *armotypes.MockPortalBase("aaaaaaaa-aaaa-aaaa-b39b-8665240080af", AMockControlName, nil),
+		Rule: `has(object.spec.containers) && object.spec.containers.all(c,
+	!has(c.securityContext) || !has(c.securityContext.privileged) || c.securityContext.privileged != true)`,
+		RuleLanguage: CELLanguage,
+		Match: []RuleMatchObjects{
+			{
+				APIVersions: []string{"v1"},
+				APIGroups:   []string{"*"},
+				Resources:   []string{"pods"},
+			},
+		},
+	}
+}
+
 func GetRuntimePods() string {
 	return `
     package armo_builtins

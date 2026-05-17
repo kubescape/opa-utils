@@ -73,6 +73,38 @@ func TestMockFrameworkA(t *testing.T) {
 
 }
 
+func TestRuleLanguagesConstants(t *testing.T) {
+	tests := []struct {
+		name     string
+		value    RuleLanguages
+		expected string
+	}{
+		{"RegoLanguage", RegoLanguage, "Rego"},
+		{"RegoLanguage2", RegoLanguage2, "rego"},
+		{"CELLanguage", CELLanguage, "CEL"},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if string(tt.value) != tt.expected {
+				t.Errorf("%s = %q, want %q", tt.name, tt.value, tt.expected)
+			}
+		})
+	}
+}
+
+func TestMockCELRuleA(t *testing.T) {
+	celRule := MockCELRuleA()
+	if celRule.RuleLanguage != CELLanguage {
+		t.Errorf("MockCELRuleA RuleLanguage = %q, want %q", celRule.RuleLanguage, CELLanguage)
+	}
+	if celRule.Rule == "" {
+		t.Error("MockCELRuleA Rule should not be empty")
+	}
+	if len(celRule.Match) != 1 {
+		t.Errorf("MockCELRuleA should have 1 Match entry, got %d", len(celRule.Match))
+	}
+}
+
 func TestMockPostureReportA(t *testing.T) {
 	policy := MockPostureReportA()
 	bp, err := json.Marshal(policy)
