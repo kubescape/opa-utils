@@ -37,6 +37,14 @@ type FrameworkSummary struct {
 	ComplianceScore float32             `json:"complianceScore"`
 }
 
+// VAPEnforcementStatus holds the enforcement state of a control via a
+// ValidatingAdmissionPolicy deployed in the cluster.
+type VAPEnforcementStatus struct {
+	PolicyName string   `json:"policyName"`
+	Bound      bool     `json:"bound"`
+	Actions    []string `json:"actions,omitempty"`
+}
+
 // ControlSummary summary of scanning from a single control perspective
 type ControlSummary struct {
 	StatusInfo        apis.StatusInfo          `json:"statusInfo,omitempty"`
@@ -52,6 +60,7 @@ type ControlSummary struct {
 	ComplianceScore   *float32                 `json:"complianceScore,omitempty"`
 	ScoreFactor       float32                  `json:"scoreFactor"`
 	Category          *reporthandling.Category `json:"category,omitempty"`
+	VAPEnforcement    *VAPEnforcementStatus    `json:"vapEnforcement,omitempty"`
 }
 
 type StatusCounters struct {
