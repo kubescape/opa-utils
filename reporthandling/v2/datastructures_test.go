@@ -108,6 +108,11 @@ func GetPostureReportMock() *PostureReport {
 				ControlsInputs:     "/path/to/ctrls",
 				VerboseMode:        true,
 			},
+			EncryptionMetadata: &EncryptionMetadata{
+				Version:      "v1",
+				Algorithm:    "AES256_GCM",
+				EncryptedDEK: "encrypted-dek-placeholder",
+			},
 		},
 	}
 }
@@ -149,4 +154,8 @@ func TestPostureReportGojayUnmarshal(t *testing.T) {
 	assert.Equal(t, original.Metadata.ScanMetadata.UseExceptions, postureReport.Metadata.ScanMetadata.UseExceptions)
 	assert.Equal(t, original.Metadata.ScanMetadata.ControlsInputs, postureReport.Metadata.ScanMetadata.ControlsInputs)
 	assert.Equal(t, original.Metadata.ScanMetadata.VerboseMode, postureReport.Metadata.ScanMetadata.VerboseMode)
+	assert.NotNil(t, postureReport.Metadata.EncryptionMetadata)
+	assert.Equal(t, original.Metadata.EncryptionMetadata.Version, postureReport.Metadata.EncryptionMetadata.Version)
+	assert.Equal(t, original.Metadata.EncryptionMetadata.Algorithm, postureReport.Metadata.EncryptionMetadata.Algorithm)
+	assert.Equal(t, original.Metadata.EncryptionMetadata.EncryptedDEK, postureReport.Metadata.EncryptionMetadata.EncryptedDEK)
 }

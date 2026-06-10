@@ -79,9 +79,16 @@ type ContextMetadata struct {
 }
 
 type Metadata struct {
-	ContextMetadata ContextMetadata `json:"targetMetadata,omitempty"`
-	ClusterMetadata ClusterMetadata `json:"clusterMetadata,omitempty"`
-	ScanMetadata    ScanMetadata    `json:"scanMetadata,omitempty"`
+	ContextMetadata    ContextMetadata     `json:"targetMetadata,omitempty"`
+	ClusterMetadata    ClusterMetadata     `json:"clusterMetadata,omitempty"`
+	ScanMetadata       ScanMetadata        `json:"scanMetadata,omitempty"`
+	EncryptionMetadata *EncryptionMetadata `json:"encryptionMetadata,omitempty"`
+}
+
+type EncryptionMetadata struct {
+	Version      string `json:"version,omitempty"`
+	Algorithm    string `json:"algorithm,omitempty"`
+	EncryptedDEK string `json:"encryptedDEK,omitempty"`
 }
 
 type ScanningTarget uint16
