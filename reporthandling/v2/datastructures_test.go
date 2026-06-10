@@ -159,3 +159,26 @@ func TestPostureReportGojayUnmarshal(t *testing.T) {
 	assert.Equal(t, original.Metadata.EncryptionMetadata.Algorithm, postureReport.Metadata.EncryptionMetadata.Algorithm)
 	assert.Equal(t, original.Metadata.EncryptionMetadata.EncryptedDEK, postureReport.Metadata.EncryptionMetadata.EncryptedDEK)
 }
+
+func TestPostureReportGojayUnmarshal_InvalidEncryptionMetadata(t *testing.T) {
+	payload := []byte(`{
+		"metadata": {
+			"encryptionMetadata": {
+				"version": "v1"
+			}
+		}
+	}`)
+
+	report := &PostureReport{}
+
+	err := gojay.NewDecoder(
+		bytes.NewReader(payload),
+	).Decode(report)
+
+	assert.NoError(t, err)
+
+	assert.Nil(
+		t,
+		report.Metadata.EncryptionMetadata,
+	)
+}
