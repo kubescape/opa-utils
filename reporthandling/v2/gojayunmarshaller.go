@@ -65,10 +65,17 @@ func (m *Metadata) UnmarshalJSONObject(dec *gojay.Decoder, key string) (err erro
 
 	case "targetMetadata":
 		err = dec.Object(&(m.ContextMetadata))
+
+	case "encryptionMetadata":
+		encryptionMetadata := &EncryptionMetadata{}
+
+		if err = dec.Object(encryptionMetadata); err == nil {
+			m.EncryptionMetadata = encryptionMetadata
+		}
+
 	}
 
 	return err
-
 }
 
 func (file *Metadata) NKeys() int {
@@ -178,5 +185,32 @@ func (m *ClusterMetadata) UnmarshalJSONObject(dec *gojay.Decoder, key string) (e
 }
 
 func (file *ClusterMetadata) NKeys() int {
+	return 0
+}
+
+// UnmarshalJSONObject unmarshals incoming JSON data into an EncryptionMetadata object
+func (e *EncryptionMetadata) UnmarshalJSONObject(
+	dec *gojay.Decoder,
+	key string,
+) (err error) {
+
+	switch key {
+	case "version":
+		err = dec.String(&(e.Version))
+
+	case "dekAlgorithm":
+		err = dec.String(&(e.DEKAlgorithm))
+
+	case "kekAlgorithm":
+		err = dec.String(&(e.KEKAlgorithm))
+
+	case "encryptedDEK":
+		err = dec.String(&(e.EncryptedDEK))
+	}
+
+	return err
+}
+
+func (e *EncryptionMetadata) NKeys() int {
 	return 0
 }
