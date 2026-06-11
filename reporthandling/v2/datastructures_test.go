@@ -110,7 +110,8 @@ func GetPostureReportMock() *PostureReport {
 			},
 			EncryptionMetadata: &EncryptionMetadata{
 				Version:      "v1",
-				Algorithm:    "AES256_GCM",
+				DEKAlgorithm: "AES256_GCM",
+				KEKAlgorithm: "AES256_GCM",
 				EncryptedDEK: "encrypted-dek-placeholder",
 			},
 		},
@@ -156,7 +157,8 @@ func TestPostureReportGojayUnmarshal(t *testing.T) {
 	assert.Equal(t, original.Metadata.ScanMetadata.VerboseMode, postureReport.Metadata.ScanMetadata.VerboseMode)
 	assert.NotNil(t, postureReport.Metadata.EncryptionMetadata)
 	assert.Equal(t, original.Metadata.EncryptionMetadata.Version, postureReport.Metadata.EncryptionMetadata.Version)
-	assert.Equal(t, original.Metadata.EncryptionMetadata.Algorithm, postureReport.Metadata.EncryptionMetadata.Algorithm)
+	assert.Equal(t, original.Metadata.EncryptionMetadata.DEKAlgorithm, postureReport.Metadata.EncryptionMetadata.DEKAlgorithm)
+	assert.Equal(t, original.Metadata.EncryptionMetadata.KEKAlgorithm, postureReport.Metadata.EncryptionMetadata.KEKAlgorithm)
 	assert.Equal(t, original.Metadata.EncryptionMetadata.EncryptedDEK, postureReport.Metadata.EncryptionMetadata.EncryptedDEK)
 }
 

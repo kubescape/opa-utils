@@ -87,7 +87,8 @@ type Metadata struct {
 
 type EncryptionMetadata struct {
 	Version      string `json:"version,omitempty"`
-	Algorithm    string `json:"algorithm,omitempty"`
+	DEKAlgorithm string `json:"dekAlgorithm,omitempty"`
+	KEKAlgorithm string `json:"kekAlgorithm,omitempty"`
 	EncryptedDEK string `json:"encryptedDEK,omitempty"`
 }
 
