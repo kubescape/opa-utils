@@ -70,12 +70,9 @@ func (m *Metadata) UnmarshalJSONObject(dec *gojay.Decoder, key string) (err erro
 		encryptionMetadata := &EncryptionMetadata{}
 
 		if err = dec.Object(encryptionMetadata); err == nil {
-			if encryptionMetadata.Version != "" &&
-				encryptionMetadata.DEKAlgorithm != "" &&
-				encryptionMetadata.KEKAlgorithm != "" {
-				m.EncryptionMetadata = encryptionMetadata
-			}
+			m.EncryptionMetadata = encryptionMetadata
 		}
+
 	}
 
 	return err
