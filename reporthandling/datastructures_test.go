@@ -84,3 +84,20 @@ func TestMockPostureReportA(t *testing.T) {
 	}
 
 }
+
+func TestRuleLanguagesConstants(t *testing.T) {
+	tests := []struct {
+		name     string
+		language RuleLanguages
+		expected string
+	}{
+		{"Rego (capitalized)", RegoLanguage, "Rego"},
+		{"rego (lowercase)", RegoLanguage2, "rego"},
+		{"CEL", CELLanguage, "CEL"},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			assert.Equal(t, tt.expected, string(tt.language))
+		})
+	}
+}
