@@ -12,6 +12,7 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/armosec/armoapi-go/armotypes"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
 /* unused for now
@@ -1507,4 +1508,123 @@ func TestHasException_RegoResponseVector_ContainerNameFallbackBlocked(t *testing
 	result := p.hasException("", designator, vector, nil)
 	_ = attrs
 	assert.False(t, result, "containerName on a RegoResponseVector must not fall back to base-object name match")
+}
+
+// postureObjectSelectorExceptionMock builds an exception scoped to namespace
+// "default" via a designator (so the designator axis always matches the test
+// workloads) and carries the given ObjectSelector as the additional label axis.
+func postureObjectSelectorExceptionMock(sel *armotypes.LabelSelector) *armotypes.PostureExceptionPolicy {
+	return &armotypes.PostureExceptionPolicy{
+		PortalBase: armotypes.PortalBase{Name: "postureObjectSelectorExceptionMock"},
+		PolicyType: "postureExceptionPolicy",
+		Actions:    []armotypes.PostureExceptionPolicyActions{armotypes.AlertOnly},
+		Resources: []identifiers.PortalDesignator{
+			{
+				DesignatorType: identifiers.DesignatorAttributes,
+				Attributes: map[string]string{
+					identifiers.AttributeNamespace: "default",
+				},
+			},
+		},
+		ObjectSelector:  sel,
+		PosturePolicies: []armotypes.PosturePolicy{{FrameworkName: "MIT.*"}},
+	}
+}
+
+// TestGetResourceExceptions_ObjectSelector pins the ObjectSelector axis added for
+// SecurityException spec.match.objectSelector. The selector is ANDed with the
+// designator (namespace) match, and supports the full label-selector grammar —
+// including the set-based operators that the regex-designator path cannot express.
+func TestGetResourceExceptions_ObjectSelector(t *testing.T) {
+	labeledObj, err := workloadinterface.NewBaseObjBytes([]byte(`{"apiVersion":"v1","kind":"Deployment","metadata":{"name":"web","namespace":"default","labels":{"app":"web","env":"prod"}}}`))
+	require.NoError(t, err)
+
+	noLabelsObj, err := workloadinterface.NewBaseObjBytes([]byte(`{"apiVersion":"v1","kind":"Deployment","metadata":{"name":"web","namespace":"default"}}`))
+	require.NoError(t, err)
+
+	p := NewProcessor()
+
+	testCases := []struct {
+		selector                *armotypes.LabelSelector
+		workloadObj             workloadinterface.IMetadata
+		desc                    string
+		expectedExceptionsCount int
+	}{
+		{
+			desc:                    "nil selector imposes no label constraint (designator decides)",
+			selector:                nil,
+			workloadObj:             labeledObj,
+			expectedExceptionsCount: 1,
+		},
+		{
+			// The empty-selector trap: empty must mean "no constraint", never
+			// promoted to labels.Everything() (which would also match noLabelsObj
+			// here) — but it must also not collapse to labels.Nothing().
+			desc:                    "empty selector imposes no label constraint (designator decides)",
+			selector:                &armotypes.LabelSelector{},
+			workloadObj:             labeledObj,
+			expectedExceptionsCount: 1,
+		},
+		{
+			desc:                    "matchLabels matches",
+			selector:                &armotypes.LabelSelector{MatchLabels: map[string]string{"app": "web"}},
+			workloadObj:             labeledObj,
+			expectedExceptionsCount: 1,
+		},
+		{
+			desc:                    "matchLabels does not match",
+			selector:                &armotypes.LabelSelector{MatchLabels: map[string]string{"app": "api"}},
+			workloadObj:             labeledObj,
+			expectedExceptionsCount: 0,
+		},
+		{
+			desc: "matchExpressions In matches",
+			selector: &armotypes.LabelSelector{MatchExpressions: []armotypes.LabelSelectorRequirement{
+				{Key: "env", Operator: metav1.LabelSelectorOpIn, Values: []string{"prod", "staging"}},
+			}},
+			workloadObj:             labeledObj,
+			expectedExceptionsCount: 1,
+		},
+		{
+			desc: "matchExpressions NotIn excludes",
+			selector: &armotypes.LabelSelector{MatchExpressions: []armotypes.LabelSelectorRequirement{
+				{Key: "env", Operator: metav1.LabelSelectorOpNotIn, Values: []string{"prod"}},
+			}},
+			workloadObj:             labeledObj,
+			expectedExceptionsCount: 0,
+		},
+		{
+			desc: "matchExpressions Exists matches",
+			selector: &armotypes.LabelSelector{MatchExpressions: []armotypes.LabelSelectorRequirement{
+				{Key: "app", Operator: metav1.LabelSelectorOpExists},
+			}},
+			workloadObj:             labeledObj,
+			expectedExceptionsCount: 1,
+		},
+		{
+			desc: "matchExpressions DoesNotExist excludes when key present",
+			selector: &armotypes.LabelSelector{MatchExpressions: []armotypes.LabelSelectorRequirement{
+				{Key: "app", Operator: metav1.LabelSelectorOpDoesNotExist},
+			}},
+			workloadObj:             labeledObj,
+			expectedExceptionsCount: 0,
+		},
+		{
+			desc:                    "non-empty selector against a workload with no labels matches nothing",
+			selector:                &armotypes.LabelSelector{MatchLabels: map[string]string{"app": "web"}},
+			workloadObj:             noLabelsObj,
+			expectedExceptionsCount: 0,
+		},
+	}
+
+	for _, test := range testCases {
+		test := test
+		t.Run(test.desc, func(t *testing.T) {
+			t.Parallel()
+
+			ex := postureObjectSelectorExceptionMock(test.selector)
+			res := p.GetResourceExceptions([]armotypes.PostureExceptionPolicy{*ex}, test.workloadObj, "test")
+			assert.Equal(t, test.expectedExceptionsCount, len(res))
+		})
+	}
 }

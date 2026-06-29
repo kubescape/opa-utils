@@ -12,6 +12,8 @@ import (
 	"github.com/kubescape/opa-utils/reporthandling"
 
 	"github.com/armosec/armoapi-go/armotypes"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/labels"
 )
 
 // rexContainerPath matches "containers[N]" and "initContainers[N]" in a
@@ -157,15 +159,47 @@ func (p *Processor) getResourceExceptions(ruleExceptions []armotypes.PostureExce
 	var postureExceptionPolicy []armotypes.PostureExceptionPolicy
 
 	for _, ruleException := range ruleExceptions {
-		for _, resourceToPin := range ruleException.Resources {
+		exception := ruleException
+		// objectSelector is an additional, policy-level workload-matching axis,
+		// ANDed with the per-designator Resources matching below: when present it
+		// must match the workload's labels for any designator match to count.
+		if !p.matchesObjectSelector(&exception, workload) {
+			continue
+		}
+		for _, resourceToPin := range exception.Resources {
 			resource := resourceToPin
 			if p.hasException(clusterName, &resource, workload, failingContainerNames) {
-				postureExceptionPolicy = append(postureExceptionPolicy, ruleException)
+				postureExceptionPolicy = append(postureExceptionPolicy, exception)
 			}
 		}
 	}
 
 	return postureExceptionPolicy
+}
+
+// matchesObjectSelector reports whether the exception's ObjectSelector matches the
+// workload's labels. A nil or empty selector imposes no label constraint and the
+// label axis is skipped (returns true).
+//
+// This is the deliberate inverse of metav1.LabelSelectorAsSelector, whose conversion
+// disagrees with the SecurityException intent: a nil selector there yields
+// labels.Nothing() and an empty selector yields labels.Everything() — the latter would
+// silently suppress findings on every workload. We therefore guard for both nil and
+// empty before converting. A malformed selector matches nothing (returns false) rather
+// than degrading into match-all.
+func (p *Processor) matchesObjectSelector(exceptionPolicy *armotypes.PostureExceptionPolicy, workload workloadinterface.IMetadata) bool {
+	sel := exceptionPolicy.ObjectSelector.ToMetaV1()
+	if sel == nil || (len(sel.MatchLabels) == 0 && len(sel.MatchExpressions) == 0) {
+		return true // no label constraint
+	}
+
+	selector, err := metav1.LabelSelectorAsSelector(sel)
+	if err != nil {
+		return false // malformed selector: do not match every workload
+	}
+
+	workloadLabels := workloadinterface.NewWorkloadObj(workload.GetObject()).GetLabels()
+	return selector.Matches(labels.Set(workloadLabels))
 }
 
 // RegexCompareControlID reports whether pattern case-insensitively matches target.
