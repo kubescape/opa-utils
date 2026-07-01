@@ -26,7 +26,7 @@ func TestAggregateResourcesBySubjects(t *testing.T) {
 
 	outputList, err := AggregateResourcesBySubjects(inputList)
 	if err != nil {
-		t.Errorf(err.Error())
+		t.Error(err)
 	}
 
 	assert.NotEqual(t, 1, len(outputList))
@@ -52,7 +52,7 @@ func TestAggregateResourcesBySubjects2(t *testing.T) {
 
 	outputList, err := AggregateResourcesBySubjects(inputList)
 	if err != nil {
-		t.Errorf(err.Error())
+		t.Error(err)
 	}
 
 	assert.Equal(t, 1, len(outputList))

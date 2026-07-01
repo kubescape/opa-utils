@@ -68,7 +68,7 @@ func TestSetGetObject(t *testing.T) {
 	}
 	respVector2 := NewRegoResponseVectorObject(nil)
 	if err != nil {
-		t.Errorf(err.Error())
+		t.Error(err)
 	}
 	respVector2.SetObject(m)
 	respVector2.SetRelatedObjects(relatedObjects)
@@ -88,7 +88,7 @@ func TestVectorObjGetters(t *testing.T) {
 
 	v, err := NewRegoResponseVectorObjectFromBytes([]byte(subjectSA))
 	if err != nil {
-		t.Errorf(err.Error())
+		t.Error(err)
 	}
 	if name := v.GetName(); name != "ca-controller-service-account" {
 		t.Errorf("error in GetName, got: '%s', should be 'ca-controller-service-account'", name)
@@ -105,7 +105,7 @@ func TestVectorObjGetters(t *testing.T) {
 
 	v2, err := NewRegoResponseVectorObjectFromBytes([]byte(subjectGroup))
 	if err != nil {
-		t.Errorf(err.Error())
+		t.Error(err)
 	}
 	if name := v2.GetName(); name != "system:masters" {
 		t.Errorf("error in GetName, got: '%s', should be 'system:masters'", name)

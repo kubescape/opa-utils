@@ -12,6 +12,8 @@ import (
 	"github.com/kubescape/opa-utils/reporthandling"
 
 	"github.com/armosec/armoapi-go/armotypes"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
+	"k8s.io/apimachinery/pkg/labels"
 )
 
 // rexContainerPath matches "containers[N]" and "initContainers[N]" in a
@@ -157,15 +159,57 @@ func (p *Processor) getResourceExceptions(ruleExceptions []armotypes.PostureExce
 	var postureExceptionPolicy []armotypes.PostureExceptionPolicy
 
 	for _, ruleException := range ruleExceptions {
+		// objectSelector is an additional, policy-level workload-matching axis. It is
+		// parsed once per exception here and threaded down into metadataHasException so
+		// it is evaluated against the *same* object as the designators — including each
+		// related object of a RegoResponseVector — and ANDed with them. A single object
+		// must satisfy both the designator and the selector for the exception to apply.
+		selector, ok := parseObjectSelector(&ruleException)
+		if !ok {
+			continue // malformed selector: the exception matches nothing
+		}
 		for _, resourceToPin := range ruleException.Resources {
 			resource := resourceToPin
-			if p.hasException(clusterName, &resource, workload, failingContainerNames) {
+			if p.hasException(clusterName, &resource, workload, failingContainerNames, selector) {
 				postureExceptionPolicy = append(postureExceptionPolicy, ruleException)
 			}
 		}
 	}
 
 	return postureExceptionPolicy
+}
+
+// parseObjectSelector converts an exception's ObjectSelector into a labels.Selector
+// for evaluation against a workload's labels. It returns:
+//
+//   - (nil, true)      when there is no label constraint — a nil OR a non-nil but
+//     empty selector. A nil result tells callers to skip the label axis entirely.
+//   - (selector, true) for a valid, non-empty constraint.
+//   - (nil, false)     for a malformed selector; the exception then matches nothing,
+//     never match-all.
+//
+// The nil/empty guard is deliberate, and the nil case is load-bearing:
+// metav1.LabelSelectorAsSelector(nil) yields labels.Nothing(), which would silently
+// disable every selector-less exception (the common case — cloud exceptions and
+// posture-only CRDs). An empty selector yields labels.Everything(); collapsing it to
+// the same "no constraint" nil is equivalent under the AND with the designators, and
+// keeps the intent explicit rather than relying on Everything() matching.
+//
+// A malformed selector is unreachable from a CRD (the apiserver/CEL validate the
+// LabelSelector shape) and unset on cloud exceptions, so it is treated as a defensive
+// match-nothing here rather than logged; the consumer that decodes the CRD is the
+// right layer to surface a bad selector, once per resource instead of once per workload.
+func parseObjectSelector(exceptionPolicy *armotypes.PostureExceptionPolicy) (labels.Selector, bool) {
+	sel := exceptionPolicy.ObjectSelector.ToMetaV1()
+	if sel == nil || (len(sel.MatchLabels) == 0 && len(sel.MatchExpressions) == 0) {
+		return nil, true // no label constraint
+	}
+
+	selector, err := metav1.LabelSelectorAsSelector(sel)
+	if err != nil {
+		return nil, false // malformed selector: do not degrade into match-all
+	}
+	return selector, true
 }
 
 // RegexCompareControlID reports whether pattern case-insensitively matches target.
@@ -201,7 +245,7 @@ func (p *Processor) matchesCluster(attributes identifiers.AttributesDesignators,
 	return p.compareCluster(cluster, clusterName)
 }
 
-func (p *Processor) hasException(clusterName string, designator *identifiers.PortalDesignator, workload workloadinterface.IMetadata, failingContainerNames []string) bool {
+func (p *Processor) hasException(clusterName string, designator *identifiers.PortalDesignator, workload workloadinterface.IMetadata, failingContainerNames []string, selector labels.Selector) bool {
 	attributes := p.getAttributes(designator)
 
 	if attributes.GetCluster() == "" && attributes.GetNamespace() == "" && attributes.GetKind() == "" && attributes.GetName() == "" && attributes.GetResourceID() == "" && attributes.GetPath() == "" && len(attributes.GetLabels()) == 0 {
@@ -213,7 +257,7 @@ func (p *Processor) hasException(clusterName string, designator *identifiers.Por
 	}
 
 	if isTypeRegoResponseVector(workload) {
-		if p.iterateRegoResponseVector(workload, attributes, failingContainerNames) {
+		if p.iterateRegoResponseVector(workload, attributes, failingContainerNames, selector) {
 			return true
 		}
 		// If containerName is in the designator, stop here: the base
@@ -223,13 +267,16 @@ func (p *Processor) hasException(clusterName string, designator *identifiers.Por
 		if _, ok := attributes.GetLabels()[identifiers.AttributeContainerName]; ok {
 			return false
 		}
-		// otherwise, continue to check the base object
+		// otherwise, continue to check the base object. A non-empty objectSelector
+		// will not match the label-less base envelope, so an exception whose selector
+		// matched only a related object (never the base) is correctly not applied here
+		// — consistent with the same-object AND enforced in metadataHasException.
 	}
-	return p.metadataHasException(workload, attributes, failingContainerNames)
+	return p.metadataHasException(workload, attributes, failingContainerNames, selector)
 
 }
 
-func (p *Processor) metadataHasException(workload workloadinterface.IMetadata, attributes identifiers.AttributesDesignators, failingContainerNames []string) bool {
+func (p *Processor) metadataHasException(workload workloadinterface.IMetadata, attributes identifiers.AttributesDesignators, failingContainerNames []string, selector labels.Selector) bool {
 
 	if attributes.GetNamespace() != "" && !p.compareNamespace(workload, attributes.GetNamespace()) {
 		return false // namespaces do not match
@@ -249,6 +296,18 @@ func (p *Processor) metadataHasException(workload workloadinterface.IMetadata, a
 
 	if attributes.GetPath() != "" && !p.comparePath(workload, attributes.GetPath()) {
 		return false // paths do not match
+	}
+
+	// objectSelector (when present) is ANDed with the designator and evaluated against
+	// this exact object's labels — so for a RegoResponseVector it is checked per related
+	// object, the same object the designator above is checked against. Unlike the regex
+	// label path below, the selector matches labels only (not annotations), per the
+	// SecurityException spec ("selects workloads by their labels").
+	if selector != nil {
+		objLabels := labels.Set(workloadinterface.NewWorkloadObj(workload.GetObject()).GetLabels())
+		if !selector.Matches(objLabels) {
+			return false // objectSelector does not match this object's labels
+		}
 	}
 
 	if isTypeWorkload(workload) {
@@ -281,10 +340,10 @@ func (p *Processor) metadataHasException(workload workloadinterface.IMetadata, a
 	return true
 }
 
-func (p *Processor) iterateRegoResponseVector(workload workloadinterface.IMetadata, attributes identifiers.AttributesDesignators, failingContainerNames []string) bool {
+func (p *Processor) iterateRegoResponseVector(workload workloadinterface.IMetadata, attributes identifiers.AttributesDesignators, failingContainerNames []string, selector labels.Selector) bool {
 	v := objectsenvelopes.NewRegoResponseVectorObject(workload.GetObject())
 	for _, r := range v.GetRelatedObjects() {
-		if p.metadataHasException(r, attributes, failingContainerNames) {
+		if p.metadataHasException(r, attributes, failingContainerNames, selector) {
 			return true
 		}
 	}

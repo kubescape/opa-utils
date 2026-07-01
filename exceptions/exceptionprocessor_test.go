@@ -12,6 +12,7 @@ import (
 	"github.com/stretchr/testify/require"
 
 	"github.com/armosec/armoapi-go/armotypes"
+	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 )
 
 /* unused for now
@@ -953,7 +954,7 @@ func TestHasException(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			assert.Equal(t, tt.expected, processor.hasException(tt.clusterName, tt.designator, tt.workload, nil))
+			assert.Equal(t, tt.expected, processor.hasException(tt.clusterName, tt.designator, tt.workload, nil, nil))
 		})
 	}
 }
@@ -1205,7 +1206,7 @@ func TestProcessor_iterateRegoResponseVector(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			assert.Equal(t, tt.expected, p.iterateRegoResponseVector(tt.workload, tt.designator.DigestPortalDesignator(), nil))
+			assert.Equal(t, tt.expected, p.iterateRegoResponseVector(tt.workload, tt.designator.DigestPortalDesignator(), nil, nil))
 		})
 	}
 }
@@ -1279,7 +1280,7 @@ func TestMetadataHasException_ContainerName(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			attrs := tt.designator.DigestPortalDesignator()
-			assert.Equal(t, tt.expected, p.metadataHasException(pod, attrs, nil))
+			assert.Equal(t, tt.expected, p.metadataHasException(pod, attrs, nil, nil))
 		})
 	}
 }
@@ -1504,7 +1505,337 @@ func TestHasException_RegoResponseVector_ContainerNameFallbackBlocked(t *testing
 	attrs := designator.DigestPortalDesignator()
 	// The base vector's name matches, but "missing" is not a container —
 	// hasException must return false, not bypass the container check.
-	result := p.hasException("", designator, vector, nil)
+	result := p.hasException("", designator, vector, nil, nil)
 	_ = attrs
 	assert.False(t, result, "containerName on a RegoResponseVector must not fall back to base-object name match")
+}
+
+// postureObjectSelectorExceptionMock builds an exception scoped by the given
+// designator attributes (so the designator axis is controllable) and carries the
+// given ObjectSelector as the additional label axis.
+func postureObjectSelectorExceptionMock(designatorAttrs map[string]string, sel *armotypes.LabelSelector) *armotypes.PostureExceptionPolicy {
+	return &armotypes.PostureExceptionPolicy{
+		PortalBase: armotypes.PortalBase{Name: "postureObjectSelectorExceptionMock"},
+		PolicyType: "postureExceptionPolicy",
+		Actions:    []armotypes.PostureExceptionPolicyActions{armotypes.AlertOnly},
+		Resources: []identifiers.PortalDesignator{
+			{
+				DesignatorType: identifiers.DesignatorAttributes,
+				Attributes:     designatorAttrs,
+			},
+		},
+		ObjectSelector:  sel,
+		PosturePolicies: []armotypes.PosturePolicy{{FrameworkName: "MIT.*"}},
+	}
+}
+
+// TestGetResourceExceptions_ObjectSelector pins the ObjectSelector axis added for
+// SecurityException spec.match.objectSelector. The selector is ANDed with the
+// designator (namespace) match, and supports the full label-selector grammar —
+// including the set-based operators that the regex-designator path cannot express.
+func TestGetResourceExceptions_ObjectSelector(t *testing.T) {
+	labeledObj, err := workloadinterface.NewBaseObjBytes([]byte(`{"apiVersion":"v1","kind":"Deployment","metadata":{"name":"web","namespace":"default","labels":{"app":"web","env":"prod"}}}`))
+	require.NoError(t, err)
+
+	noLabelsObj, err := workloadinterface.NewBaseObjBytes([]byte(`{"apiVersion":"v1","kind":"Deployment","metadata":{"name":"web","namespace":"default"}}`))
+	require.NoError(t, err)
+
+	p := NewProcessor()
+
+	testCases := []struct {
+		selector                *armotypes.LabelSelector
+		workloadObj             workloadinterface.IMetadata
+		desc                    string
+		expectedExceptionsCount int
+	}{
+		{
+			desc:                    "nil selector imposes no label constraint (designator decides)",
+			selector:                nil,
+			workloadObj:             labeledObj,
+			expectedExceptionsCount: 1,
+		},
+		{
+			// The empty-selector trap: empty must mean "no constraint", never
+			// promoted to labels.Everything() (which would also match noLabelsObj
+			// here) — but it must also not collapse to labels.Nothing().
+			desc:                    "empty selector imposes no label constraint (designator decides)",
+			selector:                &armotypes.LabelSelector{},
+			workloadObj:             labeledObj,
+			expectedExceptionsCount: 1,
+		},
+		{
+			desc:                    "matchLabels matches",
+			selector:                &armotypes.LabelSelector{MatchLabels: map[string]string{"app": "web"}},
+			workloadObj:             labeledObj,
+			expectedExceptionsCount: 1,
+		},
+		{
+			desc:                    "matchLabels does not match",
+			selector:                &armotypes.LabelSelector{MatchLabels: map[string]string{"app": "api"}},
+			workloadObj:             labeledObj,
+			expectedExceptionsCount: 0,
+		},
+		{
+			desc: "matchExpressions In matches",
+			selector: &armotypes.LabelSelector{MatchExpressions: []armotypes.LabelSelectorRequirement{
+				{Key: "env", Operator: metav1.LabelSelectorOpIn, Values: []string{"prod", "staging"}},
+			}},
+			workloadObj:             labeledObj,
+			expectedExceptionsCount: 1,
+		},
+		{
+			desc: "matchExpressions NotIn excludes",
+			selector: &armotypes.LabelSelector{MatchExpressions: []armotypes.LabelSelectorRequirement{
+				{Key: "env", Operator: metav1.LabelSelectorOpNotIn, Values: []string{"prod"}},
+			}},
+			workloadObj:             labeledObj,
+			expectedExceptionsCount: 0,
+		},
+		{
+			desc: "matchExpressions Exists matches",
+			selector: &armotypes.LabelSelector{MatchExpressions: []armotypes.LabelSelectorRequirement{
+				{Key: "app", Operator: metav1.LabelSelectorOpExists},
+			}},
+			workloadObj:             labeledObj,
+			expectedExceptionsCount: 1,
+		},
+		{
+			desc: "matchExpressions DoesNotExist excludes when key present",
+			selector: &armotypes.LabelSelector{MatchExpressions: []armotypes.LabelSelectorRequirement{
+				{Key: "app", Operator: metav1.LabelSelectorOpDoesNotExist},
+			}},
+			workloadObj:             labeledObj,
+			expectedExceptionsCount: 0,
+		},
+		{
+			desc:                    "non-empty selector against a workload with no labels matches nothing",
+			selector:                &armotypes.LabelSelector{MatchLabels: map[string]string{"app": "web"}},
+			workloadObj:             noLabelsObj,
+			expectedExceptionsCount: 0,
+		},
+		{
+			// A malformed selector (In with no values is invalid) must match nothing,
+			// not degrade into match-all even though the designator (namespace) matches.
+			desc: "malformed selector matches nothing",
+			selector: &armotypes.LabelSelector{MatchExpressions: []armotypes.LabelSelectorRequirement{
+				{Key: "env", Operator: metav1.LabelSelectorOpIn, Values: nil},
+			}},
+			workloadObj:             labeledObj,
+			expectedExceptionsCount: 0,
+		},
+	}
+
+	for _, test := range testCases {
+		test := test
+		t.Run(test.desc, func(t *testing.T) {
+			t.Parallel()
+
+			ex := postureObjectSelectorExceptionMock(map[string]string{identifiers.AttributeNamespace: "default"}, test.selector)
+			res := p.GetResourceExceptions([]armotypes.PostureExceptionPolicy{*ex}, test.workloadObj, "test")
+			assert.Equal(t, test.expectedExceptionsCount, len(res))
+		})
+	}
+}
+
+// TestGetResourceExceptions_ObjectSelector_RegoResponseVector pins that the
+// objectSelector is evaluated against the *related* workload of a RegoResponseVector
+// (the real object), not the label-less vector envelope, and that the selector and
+// designator must be satisfied by the *same* related object (no cross-object match).
+func TestGetResourceExceptions_ObjectSelector_RegoResponseVector(t *testing.T) {
+	p := NewProcessor()
+
+	// Vector whose single related object is a labeled Deployment in "default".
+	vectorMatching := objectsenvelopes.NewRegoResponseVectorObject(map[string]interface{}{
+		"kind": "RegoResponseVector",
+		"name": "web",
+		"relatedObjects": []interface{}{
+			map[string]interface{}{
+				"apiVersion": "apps/v1",
+				"kind":       "Deployment",
+				"metadata": map[string]interface{}{
+					"name":      "web",
+					"namespace": "default",
+					"labels":    map[string]interface{}{"app": "web", "env": "prod"},
+				},
+			},
+		},
+	})
+
+	// Same, but the related workload carries a non-matching label.
+	vectorNonMatching := objectsenvelopes.NewRegoResponseVectorObject(map[string]interface{}{
+		"kind": "RegoResponseVector",
+		"name": "web",
+		"relatedObjects": []interface{}{
+			map[string]interface{}{
+				"apiVersion": "apps/v1",
+				"kind":       "Deployment",
+				"metadata": map[string]interface{}{
+					"name":      "web",
+					"namespace": "default",
+					"labels":    map[string]interface{}{"app": "api"},
+				},
+			},
+		},
+	})
+
+	// Two related objects: the Deployment matches the (kind-scoped) designator but not
+	// the selector; the Service matches the selector but not the designator.
+	vectorCrossObject := objectsenvelopes.NewRegoResponseVectorObject(map[string]interface{}{
+		"kind": "RegoResponseVector",
+		"name": "web",
+		"relatedObjects": []interface{}{
+			map[string]interface{}{
+				"apiVersion": "apps/v1",
+				"kind":       "Deployment",
+				"metadata": map[string]interface{}{
+					"name":      "web",
+					"namespace": "default",
+					"labels":    map[string]interface{}{"app": "api"},
+				},
+			},
+			map[string]interface{}{
+				"apiVersion": "v1",
+				"kind":       "Service",
+				"metadata": map[string]interface{}{
+					"name":      "web",
+					"namespace": "default",
+					"labels":    map[string]interface{}{"app": "web"},
+				},
+			},
+		},
+	})
+
+	testCases := []struct {
+		workloadObj             workloadinterface.IMetadata
+		designatorAttrs         map[string]string
+		desc                    string
+		expectedExceptionsCount int
+	}{
+		{
+			desc:                    "selector matches the related workload of a vector",
+			designatorAttrs:         map[string]string{identifiers.AttributeNamespace: "default"},
+			workloadObj:             vectorMatching,
+			expectedExceptionsCount: 1,
+		},
+		{
+			desc:                    "selector does not match the related workload of a vector",
+			designatorAttrs:         map[string]string{identifiers.AttributeNamespace: "default"},
+			workloadObj:             vectorNonMatching,
+			expectedExceptionsCount: 0,
+		},
+		{
+			desc:                    "selector and designator satisfied by different related objects does not match",
+			designatorAttrs:         map[string]string{identifiers.AttributeNamespace: "default", identifiers.AttributeKind: "Deployment"},
+			workloadObj:             vectorCrossObject,
+			expectedExceptionsCount: 0,
+		},
+	}
+
+	for _, test := range testCases {
+		test := test
+		t.Run(test.desc, func(t *testing.T) {
+			t.Parallel()
+
+			ex := postureObjectSelectorExceptionMock(test.designatorAttrs, &armotypes.LabelSelector{MatchLabels: map[string]string{"app": "web"}})
+			res := p.GetResourceExceptions([]armotypes.PostureExceptionPolicy{*ex}, test.workloadObj, "test")
+			assert.Equal(t, test.expectedExceptionsCount, len(res))
+		})
+	}
+}
+
+// TestGetResourceExceptions_ObjectSelectorAndContainerName pins that objectSelector and a
+// containerName designator are ANDed: the exception applies only when the selector matches
+// the workload's labels AND the named container is one of the workload's containers. The
+// selector is evaluated (in metadataHasException) before the containerName check, so a
+// selector miss short-circuits regardless of the container match.
+func TestGetResourceExceptions_ObjectSelectorAndContainerName(t *testing.T) {
+	labeledPod, err := workloadinterface.NewBaseObjBytes([]byte(`{"apiVersion":"v1","kind":"Pod","metadata":{"name":"web","namespace":"default","labels":{"app":"web"}},"spec":{"containers":[{"name":"app"},{"name":"sidecar"}]}}`))
+	require.NoError(t, err)
+
+	p := NewProcessor()
+
+	testCases := []struct {
+		selector                *armotypes.LabelSelector
+		desc                    string
+		containerName           string
+		expectedExceptionsCount int
+	}{
+		{
+			desc:                    "selector matches and container matches",
+			selector:                &armotypes.LabelSelector{MatchLabels: map[string]string{"app": "web"}},
+			containerName:           "sidecar",
+			expectedExceptionsCount: 1,
+		},
+		{
+			desc:                    "selector matches but container does not",
+			selector:                &armotypes.LabelSelector{MatchLabels: map[string]string{"app": "web"}},
+			containerName:           "missing",
+			expectedExceptionsCount: 0,
+		},
+		{
+			desc:                    "container matches but selector does not",
+			selector:                &armotypes.LabelSelector{MatchLabels: map[string]string{"app": "api"}},
+			containerName:           "sidecar",
+			expectedExceptionsCount: 0,
+		},
+	}
+
+	for _, test := range testCases {
+		test := test
+		t.Run(test.desc, func(t *testing.T) {
+			t.Parallel()
+
+			ex := postureObjectSelectorExceptionMock(map[string]string{identifiers.AttributeContainerName: test.containerName}, test.selector)
+			res := p.GetResourceExceptions([]armotypes.PostureExceptionPolicy{*ex}, labeledPod, "test")
+			assert.Equal(t, test.expectedExceptionsCount, len(res))
+		})
+	}
+}
+
+// TestHasException_RegoResponseVector_BaseFallthroughWithSelector locks the interaction
+// between a non-empty objectSelector and the RegoResponseVector base-object fall-through.
+// When a designator matches only the base envelope (not any related object), a non-empty
+// selector must still fail-closed: the label-less envelope cannot satisfy it, and a selector
+// match on a related object must NOT cross-combine with a designator match on the base.
+func TestHasException_RegoResponseVector_BaseFallthroughWithSelector(t *testing.T) {
+	p := NewProcessor()
+
+	// Vector base name "vec"; the single related object is a Deployment named "web"
+	// carrying app=web, so it never matches the name=vec designator.
+	vector := objectsenvelopes.NewRegoResponseVectorObject(map[string]interface{}{
+		"kind": "RegoResponseVector",
+		"name": "vec",
+		"relatedObjects": []interface{}{
+			map[string]interface{}{
+				"apiVersion": "apps/v1",
+				"kind":       "Deployment",
+				"metadata": map[string]interface{}{
+					"name":      "web",
+					"namespace": "default",
+					"labels":    map[string]interface{}{"app": "web"},
+				},
+			},
+		},
+	})
+
+	designator := &identifiers.PortalDesignator{
+		DesignatorType: identifiers.DesignatorAttributes,
+		Attributes:     map[string]string{identifiers.AttributeName: "vec"}, // matches only the base envelope
+	}
+
+	// No selector: the designator matches the base envelope, so the exception applies.
+	noSelector, ok := parseObjectSelector(&armotypes.PostureExceptionPolicy{})
+	require.True(t, ok)
+	assert.True(t, p.hasException("", designator, vector, nil, noSelector),
+		"name matching the base envelope with no selector must apply")
+
+	// Non-empty selector matching the related object (app=web): the base envelope has no
+	// labels, so the selector cannot match there, and the related object does not match the
+	// name=vec designator — the selector and designator are never satisfied by one object.
+	selector, ok := parseObjectSelector(&armotypes.PostureExceptionPolicy{
+		ObjectSelector: &armotypes.LabelSelector{MatchLabels: map[string]string{"app": "web"}},
+	})
+	require.True(t, ok)
+	assert.False(t, p.hasException("", designator, vector, nil, selector),
+		"objectSelector must not cross-combine a related-object label match with a base-envelope designator match")
 }
