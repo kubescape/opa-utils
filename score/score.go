@@ -5,7 +5,6 @@ import (
 	"math"
 	"os"
 	"strings"
-	"sync"
 
 	k8sinterface "github.com/kubescape/k8s-interface/k8sinterface"
 	"github.com/kubescape/k8s-interface/workloadinterface"
@@ -45,25 +44,12 @@ type (
 	}
 )
 
-var (
-	postureScoreSingleton sync.Once
-	postureScore          *ScoreUtil
-)
-
 // NewScore build a new ScoreUtil computer.
 func NewScore(allResources map[string]workloadinterface.IMetadata) *ScoreUtil {
-	postureScoreSingleton.Do(func() {
-		// NOTE(fredbi): I don't really understand why we need this to be a singleton.
-		// IMHO we should avoid this kind of package-level stickiness.
-		//
-		// Anyway for now, I am just fixing the data race on the initialization for now.
-		postureScore = &ScoreUtil{
-			resources:   allResources,
-			isDebugMode: strings.EqualFold(os.Getenv("ARMO_DEBUG_MODE"), "true"),
-		}
-	})
-
-	return postureScore
+	return &ScoreUtil{
+		resources:   allResources,
+		isDebugMode: strings.EqualFold(os.Getenv("ARMO_DEBUG_MODE"), "true"),
+	}
 }
 
 // Calculate scores from a list of framework reports.

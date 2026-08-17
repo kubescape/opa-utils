@@ -1068,3 +1068,15 @@ func TestSetPostureReportComplianceScores(t *testing.T) {
 		})
 	})
 }
+
+func TestNewScoreReturnsIndependentInstances(t *testing.T) {
+	resourcesA := map[string]workloadinterface.IMetadata{"resource-a": nil}
+	resourcesB := map[string]workloadinterface.IMetadata{"resource-b": nil}
+
+	su1 := NewScore(resourcesA)
+	su2 := NewScore(resourcesB)
+
+	require.NotSame(t, su1, su2, "NewScore should not hand back a shared instance across calls")
+	assert.Equal(t, resourcesA, su1.resources)
+	assert.Equal(t, resourcesB, su2.resources)
+}
