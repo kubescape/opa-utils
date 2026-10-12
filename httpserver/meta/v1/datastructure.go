@@ -44,6 +44,9 @@ type PostScanRequest struct {
 	//
 	// Example: ["armo-system", "kube-system"]
 	ExcludedNamespaces []string `json:"excludedNamespaces,omitempty"`
+	// Controls to exclude from evaluation and compliance scoring in every selected framework.
+	// Same as `kubescape scan --exclude-controls`: control IDs or legacy CIS section numbers.
+	ExcludeControls []string `json:"excludeControls,omitempty"`
 	// Namespaces to include.
 	//
 	// Same as `kubescape scan --include-namespaces`.
