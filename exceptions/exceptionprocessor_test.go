@@ -311,6 +311,17 @@ func TestRegexCompare(t *testing.T) {
 	assert.True(t, c.compareCluster("bez-minikube-25-10", "bez-minikube-25-10"))
 	assert.False(t, c.compareCluster("minikube", "bez-minikube-25-10"))
 	assert.False(t, c.compareCluster("bla", "bez-minikube-25-10"))
+
+	// alternation is anchored as a whole
+	assert.True(t, c.compareCluster("prod|staging", "staging"))
+	assert.False(t, c.compareCluster("prod|staging", "prod-eu"))
+	assert.False(t, c.compareCluster("prod|staging", "pre-staging"))
+	assert.True(t, c.regexCompareI("NSA|MITRE", "mitre"))
+	assert.False(t, c.regexCompareI("NSA|MITRE", "nsa-custom"))
+
+	// a bare "*" keeps working as a match-all wildcard
+	assert.True(t, c.compareCluster("*", "bez-minikube-25-10"))
+	assert.True(t, c.regexCompareI("*", "C-0001"))
 }
 
 func TestHasException(t *testing.T) {
@@ -1737,6 +1748,94 @@ func TestGetResourceExceptions_ApiGroup(t *testing.T) {
 			assert.Equal(t, test.expectedExceptionsCount, len(res))
 		})
 	}
+}
+
+// TestGetResourceExceptions_RegexAlternation pins that a designator pattern with
+// alternation has to match the whole value. Anchoring "a|b" as "^a|b$" would accept
+// any value that starts with a or ends with b, so an exception written for two
+// namespaces or names would also silence findings on unrelated resources.
+func TestGetResourceExceptions_RegexAlternation(t *testing.T) {
+	p := NewProcessor()
+
+	workloadIn := func(name, namespace string) workloadinterface.IMetadata {
+		return workloadinterface.NewWorkloadObj(map[string]interface{}{
+			"apiVersion": "apps/v1",
+			"kind":       "Deployment",
+			"metadata":   map[string]interface{}{"name": name, "namespace": namespace},
+		})
+	}
+
+	testCases := []struct {
+		desc                    string
+		attributes              map[string]string
+		workloadObj             workloadinterface.IMetadata
+		expectedExceptionsCount int
+	}{
+		{
+			desc:                    "namespace alternation matches its first alternative",
+			attributes:              map[string]string{identifiers.AttributeNamespace: "kube-system|kube-public"},
+			workloadObj:             workloadIn("coredns", "kube-system"),
+			expectedExceptionsCount: 1,
+		},
+		{
+			desc:                    "namespace alternation matches its last alternative",
+			attributes:              map[string]string{identifiers.AttributeNamespace: "kube-system|kube-public"},
+			workloadObj:             workloadIn("coredns", "kube-public"),
+			expectedExceptionsCount: 1,
+		},
+		{
+			desc:                    "namespace alternation does not match a namespace that only starts with the first alternative",
+			attributes:              map[string]string{identifiers.AttributeNamespace: "kube-system|kube-public"},
+			workloadObj:             workloadIn("coredns", "kube-system-tenant"),
+			expectedExceptionsCount: 0,
+		},
+		{
+			desc:                    "namespace alternation does not match a namespace that only ends with the last alternative",
+			attributes:              map[string]string{identifiers.AttributeNamespace: "kube-system|kube-public"},
+			workloadObj:             workloadIn("coredns", "not-kube-public"),
+			expectedExceptionsCount: 0,
+		},
+		{
+			desc:                    "name alternation does not match a longer name",
+			attributes:              map[string]string{identifiers.AttributeName: "nginx|redis"},
+			workloadObj:             workloadIn("nginx-backdoor", "default"),
+			expectedExceptionsCount: 0,
+		},
+		{
+			desc:                    "name alternation matches an exact name",
+			attributes:              map[string]string{identifiers.AttributeName: "nginx|redis"},
+			workloadObj:             workloadIn("redis", "default"),
+			expectedExceptionsCount: 1,
+		},
+	}
+
+	for _, test := range testCases {
+		test := test
+		t.Run(test.desc, func(t *testing.T) {
+			t.Parallel()
+
+			ex := postureObjectSelectorExceptionMock(test.attributes, nil)
+			res := p.GetResourceExceptions([]armotypes.PostureExceptionPolicy{*ex}, test.workloadObj, "test")
+			assert.Equal(t, test.expectedExceptionsCount, len(res))
+		})
+	}
+}
+
+// TestListRuleExceptionsRegexAlternation pins whole-value matching for the
+// case-insensitive policy patterns (framework, control ID, rule name).
+func TestListRuleExceptionsRegexAlternation(t *testing.T) {
+	p := NewProcessor()
+	exception := armotypes.PostureExceptionPolicy{
+		PosturePolicies: []armotypes.PosturePolicy{{ControlID: "C-0001|C-0002"}},
+	}
+
+	assert.Len(t, p.ListRuleExceptions([]armotypes.PostureExceptionPolicy{exception}, "", "c-0001", ""), 1)
+	assert.Len(t, p.ListRuleExceptions([]armotypes.PostureExceptionPolicy{exception}, "", "C-0002", ""), 1)
+	assert.Empty(t, p.ListRuleExceptions([]armotypes.PostureExceptionPolicy{exception}, "", "C-00012", ""))
+	assert.Empty(t, p.ListRuleExceptions([]armotypes.PostureExceptionPolicy{exception}, "", "C-10002", ""))
+
+	assert.True(t, p.RegexCompareControlID("C-0001|C-0002", "C-0002"))
+	assert.False(t, p.RegexCompareControlID("C-0001|C-0002", "C-00015"))
 }
 
 // TestGetResourceExceptions_ObjectSelector_RegoResponseVector pins that the
