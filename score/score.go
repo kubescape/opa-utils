@@ -1,6 +1,7 @@
 package score
 
 import (
+	"errors"
 	"fmt"
 	"math"
 	"os"
@@ -258,7 +259,11 @@ func (su *ScoreUtil) allControlsInFrameworkIrrelevant(ctrls *reportsummary.Contr
 }
 
 // CalculatePostureReportV2 calculates controls by framework score.
+//
+// A framework that cannot be scored does not stop the others or the summary
+// score from being calculated. The returned error lists every such framework.
 func (su *ScoreUtil) CalculatePostureReportV2(report *v2.PostureReport) error {
+	var errs []error
 	for i := range report.SummaryDetails.Frameworks {
 		report.SummaryDetails.Frameworks[i].Score = 0
 		var wcsFwork float32
@@ -275,11 +280,12 @@ func (su *ScoreUtil) CalculatePostureReportV2(report *v2.PostureReport) error {
 			}
 
 			report.SummaryDetails.Frameworks[i].Score = 0
-
-			return fmt.Errorf(
-				"unable to calculate score for framework %s due to bad wcs score\n",
+			errs = append(errs, fmt.Errorf(
+				"unable to calculate score for framework %s due to bad wcs score",
 				report.SummaryDetails.Frameworks[i].GetName(),
-			)
+			))
+
+			continue
 		}
 
 		report.SummaryDetails.Frameworks[i].Score = (fwUnormalizedScore * 100) / wcsFwork
@@ -292,7 +298,7 @@ func (su *ScoreUtil) CalculatePostureReportV2(report *v2.PostureReport) error {
 		report.SummaryDetails.Score = (totalUnormalizedScore * 100) / totalWcsScore // populate final summarized score
 	}
 
-	return nil
+	return errors.Join(errs...)
 }
 
 func (su *ScoreUtil) ControlsSummariesScore(ctrls *reportsummary.ControlSummaries, frameworkName string) (totalUnormalizedScore float32, totalWcsScore float32) {
@@ -376,9 +382,9 @@ func (su *ScoreUtil) SetPostureReportComplianceScores(report *v2.PostureReport) 
 	// call CalculatePostureReportV2 to set frameworks.score and summaryDetails.score for backward compatibility
 	// afterwards we set complianceScore for frameworks, controls and summaryDetails
 	// TODO: remove CalculatePostureReportV2 call after we deprecate frameworks.score and summaryDetails.score
-	if err := su.CalculatePostureReportV2(report); err != nil {
-		return err
-	}
+	//
+	// A framework without a risk score still gets a compliance score, so the error is returned at the end.
+	err := su.CalculatePostureReportV2(report)
 	// set compliance score for each framework
 	for i := range report.SummaryDetails.Frameworks {
 		// set compliance score for framework and all controls in framework
@@ -392,7 +398,7 @@ func (su *ScoreUtil) SetPostureReportComplianceScores(report *v2.PostureReport) 
 		summaryScore = sumScore / float32(len(report.SummaryDetails.Controls))
 	}
 	report.SummaryDetails.ComplianceScore = summaryScore
-	return nil
+	return err
 }
 
 // ControlsSummariesComplianceScore sets the controls compliance score
