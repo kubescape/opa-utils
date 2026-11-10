@@ -75,5 +75,18 @@ func (rule *ResourceAssociatedRule) setExceptions(workload workloadinterface.IMe
 	}
 
 	ruleExceptions := processor.ListRuleExceptions(exceptionsPolicies, "", "", rule.GetName())
-	rule.Exception = processor.GetResourceExceptions(ruleExceptions, workload, clusterName)
+	rule.Exception = processor.GetResourceExceptionsForPaths(ruleExceptions, workload, clusterName, rule.listPaths())
+}
+
+// listPaths returns every path recorded for the rule, whichever kind it was reported as.
+func (rule *ResourceAssociatedRule) listPaths() []string {
+	paths := make([]string, 0, len(rule.Paths))
+	for _, p := range rule.Paths {
+		for _, path := range []string{p.FailedPath, p.DeletePath, p.ReviewPath, p.FixPath.Path} {
+			if path != "" {
+				paths = append(paths, path)
+			}
+		}
+	}
+	return paths
 }

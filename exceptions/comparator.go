@@ -1,6 +1,7 @@
 package exceptions
 
 import (
+	"encoding/json"
 	"regexp"
 	"strings"
 	"sync"
@@ -131,18 +132,19 @@ func (c *comparator) compareCluster(designatorCluster, clusterName string) bool 
 	return designatorCluster != "" && c.regexCompare(designatorCluster, clusterName)
 }
 
-// compareContainerName reports whether containerName matches any of the
-// failing containers. If failingNames is provided, only those containers are
-// checked; otherwise every container, init container and ephemeral container
-// in the workload is inspected (used by callers that have no FailedPaths context).
+// compareContainerName reports whether containerName covers the failing
+// containers. If failingNames is provided, every one of them must match: the
+// exception applies to the whole finding, so it must not hide a container it
+// does not name. Otherwise any container, init container or ephemeral container
+// in the workload may match (used by callers that have no path context).
 func (c *comparator) compareContainerName(workload workloadinterface.IMetadata, containerName string, failingNames []string) bool {
 	if len(failingNames) > 0 {
 		for _, name := range failingNames {
-			if c.regexCompare(containerName, name) {
-				return true
+			if !c.regexCompare(containerName, name) {
+				return false
 			}
 		}
-		return false
+		return true
 	}
 
 	wl := workloadinterface.NewWorkloadObj(workload.GetObject())
@@ -174,22 +176,28 @@ func (c *comparator) compareContainerName(workload workloadinterface.IMetadata, 
 
 // ephemeralContainerNames returns the names of a Pod's ephemeral containers, in
 // spec order. The workload interface has no getter for them, so they are read
-// from the object.
+// from the object. The list may be a typed slice rather than []interface{}
+// (e.g. []corev1.EphemeralContainer written back by a caller), so it is decoded
+// through JSON, as GetContainers does for regular containers.
 func ephemeralContainerNames(obj map[string]interface{}) []string {
 	raw, ok := workloadinterface.InspectMap(obj, "spec", "ephemeralContainers")
 	if !ok {
 		return nil
 	}
-	list, ok := raw.([]interface{})
-	if !ok {
+	data, err := json.Marshal(raw)
+	if err != nil {
+		return nil
+	}
+	var list []struct {
+		Name string `json:"name"`
+	}
+	if err := json.Unmarshal(data, &list); err != nil {
 		return nil
 	}
 
 	names := make([]string, 0, len(list))
-	for _, item := range list {
-		container, _ := item.(map[string]interface{})
-		name, _ := container["name"].(string)
-		names = append(names, name)
+	for _, container := range list {
+		names = append(names, container.Name)
 	}
 
 	return names
