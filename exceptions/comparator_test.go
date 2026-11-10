@@ -315,6 +315,12 @@ func TestComparator_compareContainerName(t *testing.T) {
 			containerName: "app",
 			expected:      false,
 		},
+		{
+			name:          "exact match on ephemeral container",
+			workload:      workloadinterface.NewWorkloadObj(podWithEphemeralContainers([]string{"app"}, []string{"debugger"})),
+			containerName: "debugger",
+			expected:      true,
+		},
 	}
 
 	for _, tt := range tests {
@@ -323,6 +329,22 @@ func TestComparator_compareContainerName(t *testing.T) {
 			assert.Equal(t, tt.expected, c.compareContainerName(tt.workload, tt.containerName, nil))
 		})
 	}
+}
+
+func podWithEphemeralContainers(containers, ephemeralContainers []string) map[string]interface{} {
+	obj := podObject(containers, nil)
+	ecs := make([]interface{}, len(ephemeralContainers))
+	for i, name := range ephemeralContainers {
+		ecs[i] = map[string]interface{}{"name": name}
+	}
+	obj["spec"].(map[string]interface{})["ephemeralContainers"] = ecs
+	return obj
+}
+
+func TestEphemeralContainerNames(t *testing.T) {
+	assert.Equal(t, []string{"debugger", "shell"}, ephemeralContainerNames(podWithEphemeralContainers([]string{"app"}, []string{"debugger", "shell"})))
+	assert.Empty(t, ephemeralContainerNames(podObject([]string{"app"}, nil)))
+	assert.Empty(t, ephemeralContainerNames(map[string]interface{}{"spec": map[string]interface{}{"ephemeralContainers": "bad"}}))
 }
 
 func TestComparator_compareContainerName_failingNamesFilter(t *testing.T) {

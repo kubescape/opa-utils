@@ -133,8 +133,8 @@ func (c *comparator) compareCluster(designatorCluster, clusterName string) bool 
 
 // compareContainerName reports whether containerName matches any of the
 // failing containers. If failingNames is provided, only those containers are
-// checked; otherwise every container and init-container in the workload is
-// inspected (used by callers that have no FailedPaths context).
+// checked; otherwise every container, init container and ephemeral container
+// in the workload is inspected (used by callers that have no FailedPaths context).
 func (c *comparator) compareContainerName(workload workloadinterface.IMetadata, containerName string, failingNames []string) bool {
 	if len(failingNames) > 0 {
 		for _, name := range failingNames {
@@ -163,7 +163,36 @@ func (c *comparator) compareContainerName(workload workloadinterface.IMetadata, 
 		}
 	}
 
+	for _, name := range ephemeralContainerNames(workload.GetObject()) {
+		if c.regexCompare(containerName, name) {
+			return true
+		}
+	}
+
 	return false
+}
+
+// ephemeralContainerNames returns the names of a Pod's ephemeral containers, in
+// spec order. The workload interface has no getter for them, so they are read
+// from the object.
+func ephemeralContainerNames(obj map[string]interface{}) []string {
+	raw, ok := workloadinterface.InspectMap(obj, "spec", "ephemeralContainers")
+	if !ok {
+		return nil
+	}
+	list, ok := raw.([]interface{})
+	if !ok {
+		return nil
+	}
+
+	names := make([]string, 0, len(list))
+	for _, item := range list {
+		container, _ := item.(map[string]interface{})
+		name, _ := container["name"].(string)
+		names = append(names, name)
+	}
+
+	return names
 }
 
 // regexpCompareI performs a case-insensitive regexp match
