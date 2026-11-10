@@ -17,9 +17,10 @@ import (
 	"k8s.io/apimachinery/pkg/labels"
 )
 
-// rexContainerPath matches "containers[N]" and "initContainers[N]" in a
-// FailedPath so we can resolve the container index to a name.
-var rexContainerPath = regexp.MustCompile(`(initC|c)ontainers\[(\d+)\]`)
+// rexContainerPath matches "containers[N]", "initContainers[N]" and
+// "ephemeralContainers[N]" in a FailedPath so we can resolve the container
+// index to a name.
+var rexContainerPath = regexp.MustCompile(`(initC|ephemeralC|c)ontainers\[(\d+)\]`)
 
 // Processor processes exceptions.
 type Processor struct {
@@ -471,8 +472,8 @@ func (p *Processor) iterateRegoResponseVector(workload workloadinterface.IMetada
 	return false
 }
 
-// extractFailingContainerNames parses paths like "spec.containers[0].…" or
-// "spec.template.spec.initContainers[1].…" to find which containers produced
+// extractFailingContainerNames parses paths like "spec.containers[0].…",
+// "spec.template.spec.initContainers[1].…" or "spec.ephemeralContainers[0].…" to find which containers produced
 // the finding, then returns their names from the workload spec. When the
 // FailedPaths contain no container indices (e.g. pod-level findings) the
 // returned slice is nil and compareContainerName falls back to checking all
@@ -507,7 +508,8 @@ func extractFailingContainerNames(paths []string, workload workloadinterface.IMe
 	wl := workloadinterface.NewWorkloadObj(workload.GetObject())
 	containers, _ := wl.GetContainers()
 	initContainers, _ := wl.GetInitContainers()
-	if len(containers)+len(initContainers) == 0 {
+	ephemeralContainers := ephemeralContainerNames(workload.GetObject())
+	if len(containers)+len(initContainers)+len(ephemeralContainers) == 0 {
 		return nil
 	}
 
@@ -518,11 +520,16 @@ func extractFailingContainerNames(paths []string, workload workloadinterface.IMe
 			if err != nil {
 				continue
 			}
-			if m[1] == "initC" {
+			switch m[1] {
+			case "initC":
 				if idx < len(initContainers) {
 					seen[initContainers[idx].Name] = struct{}{}
 				}
-			} else {
+			case "ephemeralC":
+				if idx < len(ephemeralContainers) {
+					seen[ephemeralContainers[idx]] = struct{}{}
+				}
+			default:
 				if idx < len(containers) {
 					seen[containers[idx].Name] = struct{}{}
 				}

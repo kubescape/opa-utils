@@ -1384,6 +1384,75 @@ func TestSetRuleResponsExceptions_ContainerNamePrecision(t *testing.T) {
 	}
 }
 
+// TestSetRuleResponsExceptions_EphemeralContainerPrecision pins that a finding on an
+// ephemeral container (spec.ephemeralContainers[N], reported by the regolibrary
+// container rules for Pods) is matched against that container's name, not against
+// every container in the Pod.
+func TestSetRuleResponsExceptions_EphemeralContainerPrecision(t *testing.T) {
+	p := NewProcessor()
+
+	podObj := podWithEphemeralContainers([]string{"app"}, []string{"debugger"})
+
+	tests := []struct {
+		name          string
+		containerName string
+		failedPaths   []string
+		wantExcept    bool
+	}{
+		{
+			name:          "finding on the ephemeral container, exception names it",
+			containerName: "debugger",
+			failedPaths:   []string{"spec.ephemeralContainers[0].securityContext.privileged"},
+			wantExcept:    true,
+		},
+		{
+			name:          "finding on the ephemeral container, exception names a regular container",
+			containerName: "app",
+			failedPaths:   []string{"spec.ephemeralContainers[0].securityContext.privileged"},
+			wantExcept:    false,
+		},
+		{
+			name:          "finding on the regular container, exception names the ephemeral container",
+			containerName: "debugger",
+			failedPaths:   []string{"spec.containers[0].securityContext.privileged"},
+			wantExcept:    false,
+		},
+		{
+			name:          "no failed paths, fallback scan finds the ephemeral container",
+			containerName: "debugger",
+			failedPaths:   nil,
+			wantExcept:    true,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			exception := armotypes.PostureExceptionPolicy{
+				Resources: []identifiers.PortalDesignator{
+					{
+						DesignatorType: identifiers.DesignatorAttributes,
+						Attributes:     map[string]string{identifiers.AttributeContainerName: tt.containerName},
+					},
+				},
+			}
+			results := []reporthandling.RuleResponse{{
+				AlertObject: reporthandling.AlertObject{
+					K8SApiObjects: []map[string]interface{}{podObj},
+				},
+				AssistedRemediation: reporthandling.AssistedRemediation{
+					FailedPaths: tt.failedPaths,
+				},
+			}}
+			p.SetRuleResponsExceptions(results, []armotypes.PostureExceptionPolicy{exception}, "")
+			if tt.wantExcept {
+				assert.NotNil(t, results[0].Exception, "expected exception to be set")
+			} else {
+				assert.Nil(t, results[0].Exception, "expected exception NOT to be set")
+			}
+		})
+	}
+}
+
 func TestSetRuleResponsExceptions_RegoResponseVector_ContainerNamePrecision(t *testing.T) {
 	p := NewProcessor()
 
