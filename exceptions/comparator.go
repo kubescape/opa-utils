@@ -210,14 +210,8 @@ func (c *comparator) regexCompareI(reg, name string) bool {
 		return rex.MatchString(name)
 	}
 
-	var rexBuilder strings.Builder // builds the regexp with minimal alloc
-	rexBuilder.Grow(len(reg) + 6)
-	_, _ = rexBuilder.Write([]byte("(?i)")) // builds a case-insensitive regexp: more efficient than calling ToLower on both operands
-	_, _ = rexBuilder.Write([]byte("^"))
-	_, _ = rexBuilder.WriteString(reg)
-	_, _ = rexBuilder.Write([]byte("$"))
-
-	r, err := regexp.Compile(rexBuilder.String())
+	// builds a case-insensitive regexp: more efficient than calling ToLower on both operands
+	r, err := compileAnchored("(?i)", reg)
 	if err != nil {
 		return false
 	}
@@ -227,7 +221,7 @@ func (c *comparator) regexCompareI(reg, name string) bool {
 	return r.MatchString(name)
 }
 
-// regexpCompareI performs a case-sensitive regexp match
+// regexCompare performs a case-sensitive regexp match
 func (c *comparator) regexCompare(reg, name string) bool {
 	var (
 		val interface{}
@@ -242,14 +236,7 @@ func (c *comparator) regexCompare(reg, name string) bool {
 		return rex.MatchString(name)
 	}
 
-	var rexBuilder strings.Builder // builds the regexp with minimal alloc
-	rexBuilder.Grow(len(reg) + 2)
-
-	_, _ = rexBuilder.Write([]byte("^"))
-	_, _ = rexBuilder.WriteString(reg)
-	_, _ = rexBuilder.Write([]byte("$"))
-
-	r, err := regexp.Compile(rexBuilder.String())
+	r, err := compileAnchored("", reg)
 	if err != nil {
 		return false
 	}
@@ -257,6 +244,29 @@ func (c *comparator) regexCompare(reg, name string) bool {
 	c.rexCache.Store(reg, r) // keep the compiled regexp in cache
 
 	return r.MatchString(name)
+}
+
+// compileAnchored compiles reg so that it has to match the whole value.
+//
+// The pattern is grouped before anchoring: "^a|b$" would match any value that
+// starts with a or ends with b, so an exception written for "kube-system|kube-public"
+// would also apply to "kube-system-tenant".
+//
+// A pattern that only compiles without the group, such as the "*" wildcard
+// (which "^*$" accepts for any value), keeps its previous meaning.
+func compileAnchored(flags, reg string) (*regexp.Regexp, error) {
+	var rexBuilder strings.Builder // builds the regexp with minimal alloc
+	rexBuilder.Grow(len(flags) + len(reg) + 6)
+	_, _ = rexBuilder.WriteString(flags)
+	_, _ = rexBuilder.WriteString("^(?:")
+	_, _ = rexBuilder.WriteString(reg)
+	_, _ = rexBuilder.WriteString(")$")
+
+	if r, err := regexp.Compile(rexBuilder.String()); err == nil {
+		return r, nil
+	}
+
+	return regexp.Compile(flags + "^" + reg + "$")
 }
 
 func isTypeWorkload(workload workloadinterface.IMetadata) bool {
