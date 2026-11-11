@@ -239,3 +239,97 @@ func TestSetExceptionsPreservesPolicyTupleCorrelation(t *testing.T) {
 	assert.Equal(t, "NSA", rule.Exception[0].PosturePolicies[0].FrameworkName)
 	assert.Len(t, exception.PosturePolicies, 2, "SetExceptions must not mutate the caller-owned exception")
 }
+
+// TestSetExceptionsContainerNamePrecision pins that a containerName exception applied
+// through Result.SetExceptions only covers the containers that produced the finding,
+// as resolved from the rule paths, and not any container that happens to be in the pod.
+func TestSetExceptionsContainerNamePrecision(t *testing.T) {
+	named := func(names ...string) []interface{} {
+		list := make([]interface{}, len(names))
+		for i, name := range names {
+			list[i] = map[string]interface{}{"name": name}
+		}
+		return list
+	}
+	pod := workloadinterface.NewWorkloadObj(map[string]interface{}{
+		"apiVersion": "v1",
+		"kind":       "Pod",
+		"metadata":   map[string]interface{}{"name": "web", "namespace": "default"},
+		"spec": map[string]interface{}{
+			"initContainers":      named("setup"),
+			"containers":          named("app", "sidecar"),
+			"ephemeralContainers": named("debugger"),
+		},
+	})
+
+	exception := func(containerName string, action armotypes.PostureExceptionPolicyActions) armotypes.PostureExceptionPolicy {
+		attributes := map[string]string{identifiers.AttributeKind: "Pod", identifiers.AttributeName: "web"}
+		if containerName != "" {
+			attributes[identifiers.AttributeContainerName] = containerName
+		}
+		return armotypes.PostureExceptionPolicy{
+			PortalBase:      armotypes.PortalBase{Name: "exception"},
+			Actions:         []armotypes.PostureExceptionPolicyActions{action},
+			Resources:       []identifiers.PortalDesignator{{DesignatorType: identifiers.DesignatorAttributes, Attributes: attributes}},
+			PosturePolicies: []armotypes.PosturePolicy{{ControlID: "C-0057"}},
+		}
+	}
+	deletePaths := func(paths ...string) []armotypes.PosturePaths {
+		out := make([]armotypes.PosturePaths, len(paths))
+		for i, path := range paths {
+			out[i] = armotypes.PosturePaths{DeletePath: path}
+		}
+		return out
+	}
+
+	const (
+		app      = "spec.containers[0].securityContext.privileged"
+		sidecar  = "spec.containers[1].securityContext.privileged"
+		setup    = "spec.initContainers[0].securityContext.privileged"
+		debugger = "spec.ephemeralContainers[0].securityContext.privileged"
+	)
+
+	tests := []struct {
+		name       string
+		paths      []armotypes.PosturePaths
+		exception  armotypes.PostureExceptionPolicy
+		wantStatus apis.ScanningStatus
+	}{
+		{"exception for another container does not hide the failure", deletePaths(app), exception("sidecar", armotypes.Disable), apis.StatusFailed},
+		{"exception for the failing container applies", deletePaths(app), exception("app", armotypes.Disable), apis.StatusPassed},
+		{"exception for an unknown container does not apply", deletePaths(app), exception("ghost", armotypes.Disable), apis.StatusFailed},
+		{"exception without containerName still covers the whole resource", deletePaths(app), exception("", armotypes.Disable), apis.StatusPassed},
+		{"exception covering one of two failing containers does not apply", deletePaths(app, sidecar), exception("sidecar", armotypes.Disable), apis.StatusFailed},
+		{"exception covering every failing container applies", deletePaths(app, sidecar), exception("app|sidecar", armotypes.Disable), apis.StatusPassed},
+		{"exception for a regular container does not hide an init container", deletePaths(setup), exception("app", armotypes.Disable), apis.StatusFailed},
+		{"exception for the failing init container applies", deletePaths(setup), exception("setup", armotypes.Disable), apis.StatusPassed},
+		{"exception for a regular container does not hide an ephemeral container", deletePaths(debugger), exception("app", armotypes.Disable), apis.StatusFailed},
+		{"exception for the failing ephemeral container applies", deletePaths(debugger), exception("debugger", armotypes.Disable), apis.StatusPassed},
+		{"failedPath is read", []armotypes.PosturePaths{{FailedPath: app}}, exception("sidecar", armotypes.Disable), apis.StatusFailed},
+		{"reviewPath is read", []armotypes.PosturePaths{{ReviewPath: app}}, exception("sidecar", armotypes.Disable), apis.StatusFailed},
+		{"fixPath is read", []armotypes.PosturePaths{{FixPath: armotypes.FixPath{Path: app, Value: "false"}}}, exception("sidecar", armotypes.Disable), apis.StatusFailed},
+		{"alertOnly on the failing container keeps the finding failing", deletePaths(app), exception("app", armotypes.AlertOnly), apis.StatusFailed},
+		{"finding without a container path keeps the workload-wide match", deletePaths("spec.hostNetwork"), exception("sidecar", armotypes.Disable), apis.StatusPassed},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			result := Result{
+				ResourceID: pod.GetID(),
+				AssociatedControls: []ResourceAssociatedControl{{
+					ControlID: "C-0057",
+					Status:    apis.StatusInfo{InnerStatus: apis.StatusFailed},
+					ResourceAssociatedRules: []ResourceAssociatedRule{{
+						Name:   "rule-privilege-escalation",
+						Status: apis.StatusFailed,
+						Paths:  tt.paths,
+					}},
+				}},
+			}
+
+			result.SetExceptions(pod, []armotypes.PostureExceptionPolicy{tt.exception}, "", map[string]reporthandling.Control{"C-0057": {}})
+
+			assert.Equal(t, tt.wantStatus, result.AssociatedControls[0].GetStatus(nil).Status())
+		})
+	}
+}

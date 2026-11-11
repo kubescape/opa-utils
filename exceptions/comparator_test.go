@@ -548,3 +548,25 @@ func TestComparator_compareApiGroup(t *testing.T) {
 		})
 	}
 }
+
+func TestComparator_compareContainerName_everyFailingNameMustMatch(t *testing.T) {
+	c := &comparator{}
+	wl := workloadinterface.NewWorkloadObj(podObject([]string{"app", "sidecar"}, nil))
+
+	assert.False(t, c.compareContainerName(wl, "sidecar", []string{"app", "sidecar"}))
+	assert.False(t, c.compareContainerName(wl, "app", []string{"app", "sidecar"}))
+	assert.True(t, c.compareContainerName(wl, "app|sidecar", []string{"app", "sidecar"}))
+	assert.True(t, c.compareContainerName(wl, ".*", []string{"app", "sidecar"}))
+}
+
+func TestEphemeralContainerNames_typedSlice(t *testing.T) {
+	// Callers may write the list back as a typed slice (Kubescape stores a
+	// []corev1.EphemeralContainer after stripping env data) instead of []interface{}.
+	type ephemeralContainer struct {
+		Name string `json:"name"`
+	}
+	obj := podObject([]string{"app"}, nil)
+	obj["spec"].(map[string]interface{})["ephemeralContainers"] = []ephemeralContainer{{Name: "debugger"}}
+
+	assert.Equal(t, []string{"debugger"}, ephemeralContainerNames(obj))
+}

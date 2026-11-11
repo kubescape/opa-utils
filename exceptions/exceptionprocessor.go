@@ -204,6 +204,14 @@ func (p *Processor) GetResourceExceptions(ruleExceptions []armotypes.PostureExce
 	return p.getResourceExceptions(ruleExceptions, workload, clusterName, nil)
 }
 
+// GetResourceExceptionsForPaths is GetResourceExceptions for a finding reported on
+// the given paths: a containerName exception only matches when it covers the
+// containers those paths point at. Paths without a container index keep the
+// workload-wide container check.
+func (p *Processor) GetResourceExceptionsForPaths(ruleExceptions []armotypes.PostureExceptionPolicy, workload workloadinterface.IMetadata, clusterName string, paths []string) []armotypes.PostureExceptionPolicy {
+	return p.getResourceExceptions(ruleExceptions, workload, clusterName, extractFailingContainerNames(paths, workload))
+}
+
 func (p *Processor) getResourceExceptions(ruleExceptions []armotypes.PostureExceptionPolicy, workload workloadinterface.IMetadata, clusterName string, failingContainerNames []string) []armotypes.PostureExceptionPolicy {
 	// no pre-allocation since most of the time it's empty or has only one element
 	var postureExceptionPolicy []armotypes.PostureExceptionPolicy
