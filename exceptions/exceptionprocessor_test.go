@@ -2451,3 +2451,73 @@ func TestHasException_ApiGroup_RegoResponseVector(t *testing.T) {
 		})
 	}
 }
+
+// TestGetResourceExceptions_LabelDesignatorOnNonWorkloads pins that a label in the
+// designator is a constraint on every object type. RegoResponseVector, host-sensor and
+// cloud-provider objects have no labels to compare, so a label-scoped exception must
+// not match them unless a related object of the vector carries the label.
+func TestGetResourceExceptions_LabelDesignatorOnNonWorkloads(t *testing.T) {
+	labelOnly := armotypes.PostureExceptionPolicy{
+		PortalBase: armotypes.PortalBase{Name: "nginx-only"},
+		Resources: []identifiers.PortalDesignator{{
+			DesignatorType: identifiers.DesignatorAttributes,
+			Attributes:     map[string]string{"app": "nginx"},
+		}},
+	}
+	nameOnly := armotypes.PostureExceptionPolicy{
+		PortalBase: armotypes.PortalBase{Name: "node-1"},
+		Resources: []identifiers.PortalDesignator{{
+			DesignatorType: identifiers.DesignatorAttributes,
+			Attributes:     map[string]string{"name": "node-1"},
+		}},
+	}
+
+	subject := func(bindingLabels map[string]interface{}) workloadinterface.IMetadata {
+		binding := map[string]interface{}{"name": "alice-admin"}
+		if bindingLabels != nil {
+			binding["labels"] = bindingLabels
+		}
+		return objectsenvelopes.NewRegoResponseVectorObject(map[string]interface{}{
+			"apiGroup": "rbac.authorization.k8s.io",
+			"kind":     "User",
+			"name":     "alice",
+			"relatedObjects": []interface{}{
+				map[string]interface{}{
+					"apiVersion": "rbac.authorization.k8s.io/v1",
+					"kind":       "ClusterRoleBinding",
+					"metadata":   binding,
+					"roleRef":    map[string]interface{}{"kind": "ClusterRole", "name": "cluster-admin"},
+				},
+				map[string]interface{}{
+					"apiVersion": "rbac.authorization.k8s.io/v1",
+					"kind":       "ClusterRole",
+					"metadata":   map[string]interface{}{"name": "cluster-admin"},
+				},
+			},
+		})
+	}
+	hostSensor := objectsenvelopes.NewObject(map[string]interface{}{
+		"apiVersion": "hostdata.kubescape.cloud/v1beta0",
+		"kind":       "KubeletInfo",
+		"metadata":   map[string]interface{}{"name": "node-1"},
+		"data":       map[string]interface{}{},
+	})
+
+	tests := []struct {
+		name     string
+		policy   armotypes.PostureExceptionPolicy
+		workload workloadinterface.IMetadata
+		expected int
+	}{
+		{"label-only exception does not match an RBAC subject without the label", labelOnly, subject(nil), 0},
+		{"label-only exception matches an RBAC subject whose binding has the label", labelOnly, subject(map[string]interface{}{"app": "nginx"}), 1},
+		{"label-only exception does not match a host-sensor object", labelOnly, hostSensor, 0},
+		{"name-only exception still matches a host-sensor object", nameOnly, hostSensor, 1},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			got := NewProcessor().GetResourceExceptions([]armotypes.PostureExceptionPolicy{tt.policy}, tt.workload, "")
+			assert.Len(t, got, tt.expected)
+		})
+	}
+}

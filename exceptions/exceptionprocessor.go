@@ -416,23 +416,29 @@ func (p *Processor) metadataHasException(workload workloadinterface.IMetadata, a
 		}
 	}
 
-	if isTypeWorkload(workload) {
-		allLabels := attributes.GetLabels()
-		containerName, hasContainerName := allLabels[identifiers.AttributeContainerName]
+	allLabels := attributes.GetLabels()
+	containerName, hasContainerName := allLabels[identifiers.AttributeContainerName]
 
-		// Build a label map with the attributes that are not Kubernetes labels stripped out,
-		// so they are not compared as such.
-		realLabels := stripNonLabelAttributes(allLabels)
+	// Build a label map with the attributes that are not Kubernetes labels stripped out,
+	// so they are not compared as such.
+	realLabels := stripNonLabelAttributes(allLabels)
 
-		if len(realLabels) > 0 {
-			if !p.compareLabels(workload, realLabels) && !p.compareAnnotations(workload, realLabels) {
-				return false // labels nor annotations do not match
-			}
+	if !isTypeWorkload(workload) {
+		// RegoResponseVector, host-sensor and cloud-provider objects have no labels,
+		// annotations or containers to compare, so a designator that constrains any of
+		// them cannot match. Skipping the comparison instead would widen a label-scoped
+		// exception to every such object.
+		return len(realLabels) == 0 && !hasContainerName
+	}
+
+	if len(realLabels) > 0 {
+		if !p.compareLabels(workload, realLabels) && !p.compareAnnotations(workload, realLabels) {
+			return false // labels nor annotations do not match
 		}
+	}
 
-		if hasContainerName && !p.compareContainerName(workload, containerName, failingContainerNames) {
-			return false // container name does not match
-		}
+	if hasContainerName && !p.compareContainerName(workload, containerName, failingContainerNames) {
+		return false // container name does not match
 	}
 
 	return true
