@@ -146,8 +146,22 @@ func (summaryDetails *SummaryDetails) ListResourcesIDs(l *helpersv1.AllLists) *h
 
 // AppendResourceResult appends the given resource result to the summary
 //
-// Updates any necessary info accordingly
+// Updates any necessary info accordingly. To append many results use
+// AppendResourceResults: each call here recounts every framework's resources.
 func (summaryDetails *SummaryDetails) AppendResourceResult(resourceResult *resourcesresults.Result) {
+	summaryDetails.AppendResourceResults(resourceResult)
+}
+
+// AppendResourceResults appends the given resource results to the summary.
+//
+// The summary ends up as if AppendResourceResult had been called for each
+// result, but each framework's resources are recounted once per call instead of
+// once per result, so appending n results is linear rather than quadratic.
+func (summaryDetails *SummaryDetails) AppendResourceResults(resourceResults ...*resourcesresults.Result) {
+	if len(resourceResults) == 0 {
+		return
+	}
+
 	frameworksByControl := make(map[string][]string, len(summaryDetails.Controls))
 	for i := range summaryDetails.Frameworks {
 		for controlID := range summaryDetails.Frameworks[i].Controls {
@@ -155,27 +169,32 @@ func (summaryDetails *SummaryDetails) AppendResourceResult(resourceResult *resou
 		}
 	}
 
-	// update full-summary counter
-	updateAggregateControlsSummaryCounters(resourceResult, summaryDetails.Controls, frameworksByControl)
+	for _, resourceResult := range resourceResults {
+		// update full-summary counter
+		updateAggregateControlsSummaryCounters(resourceResult, summaryDetails.Controls, frameworksByControl)
 
-	// update the summary’s severity counters
-	for _, resourceControl := range resourceResult.ListControls() {
-		filters := &helpersv1.Filters{FrameworkNames: frameworksByControl[resourceControl.GetID()]}
-		if resourceControl.GetStatus(filters).IsFailed() {
-			control := summaryDetails.Controls.GetControl(EControlCriteriaID, resourceControl.GetID())
-			severityScore := control.GetScoreFactor()
-			severity := apis.ControlSeverityToString(severityScore)
-			summaryDetails.ResourcesSeverityCounters.Increase(severity, 1)
+		// update the summary’s severity counters
+		for _, resourceControl := range resourceResult.ListControls() {
+			filters := &helpersv1.Filters{FrameworkNames: frameworksByControl[resourceControl.GetID()]}
+			if resourceControl.GetStatus(filters).IsFailed() {
+				control := summaryDetails.Controls.GetControl(EControlCriteriaID, resourceControl.GetID())
+				severityScore := control.GetScoreFactor()
+				severity := apis.ControlSeverityToString(severityScore)
+				summaryDetails.ResourcesSeverityCounters.Increase(severity, 1)
+			}
+		}
+
+		// update frameworks' controls counters
+		for i := range summaryDetails.Frameworks {
+			updateControlsSummaryCounters(resourceResult, summaryDetails.Frameworks[i].Controls, &helpersv1.Filters{FrameworkNames: []string{summaryDetails.Frameworks[i].GetName()}})
 		}
 	}
 
 	// update frameworks counters
+	l := helpersv1.GetAllListsFromPool()
+	defer helpersv1.PutAllListsToPool(l)
 	for i := range summaryDetails.Frameworks {
-		updateControlsSummaryCounters(resourceResult, summaryDetails.Frameworks[i].Controls, &helpersv1.Filters{FrameworkNames: []string{summaryDetails.Frameworks[i].GetName()}})
-
-		l := helpersv1.GetAllListsFromPool()
-		defer helpersv1.PutAllListsToPool(l)
-
+		l.Clear()
 		summaryDetails.Frameworks[i].StatusCounters.Set(summaryDetails.Frameworks[i].ListResourcesIDs(l))
 		summaryDetails.Frameworks[i].CalculateStatus()
 	}
