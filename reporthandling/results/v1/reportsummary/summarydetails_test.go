@@ -4,6 +4,8 @@ import (
 	_ "embed"
 	"encoding/json"
 	"fmt"
+	"maps"
+	"slices"
 	"testing"
 
 	"github.com/armosec/armoapi-go/armotypes"
@@ -13,6 +15,7 @@ import (
 	helpersv1 "github.com/kubescape/opa-utils/reporthandling/helpers/v1"
 	"github.com/kubescape/opa-utils/reporthandling/results/v1/resourcesresults"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 var mockResultsPassed = resourcesresults.MockResults()[0]
@@ -449,6 +452,92 @@ var initSummaryDetailsBytes []byte
 
 //go:embed testdata/resourcesResult.json
 var resourcesResultBytes []byte
+
+func loadSummaryDetails(tb testing.TB) *SummaryDetails {
+	summaryDetails := &SummaryDetails{}
+	require.NoError(tb, json.Unmarshal(summaryDetailsBytes, summaryDetails))
+	return summaryDetails
+}
+
+// loadResults returns the fixture results sorted by ID, since sub-statuses depend on append order.
+func loadResults(tb testing.TB) []*resourcesresults.Result {
+	byID := map[string]resourcesresults.Result{}
+	require.NoError(tb, json.Unmarshal(allResourcesResultsBytes, &byID))
+	results := make([]*resourcesresults.Result, 0, len(byID))
+	for _, id := range slices.Sorted(maps.Keys(byID)) {
+		r := byID[id]
+		results = append(results, &r)
+	}
+	return results
+}
+
+func TestSummaryDetails_AppendResourceResults_MatchesOneByOne(t *testing.T) {
+	results := loadResults(t)
+
+	oneByOne := loadSummaryDetails(t)
+	for _, r := range results {
+		oneByOne.AppendResourceResult(r)
+	}
+	batched := loadSummaryDetails(t)
+	batched.AppendResourceResults(results...)
+
+	assert.Equal(t, oneByOne, batched)
+	assert.NotZero(t, batched.Frameworks[0].StatusCounters.All())
+
+	empty := loadSummaryDetails(t)
+	empty.AppendResourceResults()
+	assert.Equal(t, loadSummaryDetails(t), empty)
+}
+
+// The frameworks share one pooled list, so a second, smaller framework must not count the first one's resources.
+func TestSummaryDetails_AppendResourceResults_FrameworkCounters(t *testing.T) {
+	summaryDetails := loadSummaryDetails(t)
+	second := loadSummaryDetails(t).Frameworks[0]
+	second.Name = "second"
+	keep := slices.Sorted(maps.Keys(second.Controls))[0]
+	maps.DeleteFunc(second.Controls, func(id string, _ ControlSummary) bool { return id != keep })
+	summaryDetails.Frameworks = append(summaryDetails.Frameworks, second)
+
+	summaryDetails.AppendResourceResults(loadResults(t)...)
+
+	for _, fw := range summaryDetails.Frameworks {
+		want := fw.StatusCounters
+		want.Set(fw.ListResourcesIDs(nil))
+		assert.Equal(t, want, fw.StatusCounters, fw.Name)
+	}
+	assert.NotEqual(t, summaryDetails.Frameworks[0].StatusCounters, summaryDetails.Frameworks[1].StatusCounters)
+}
+
+func BenchmarkSummaryDetails_AppendResourceResults(b *testing.B) {
+	base := loadResults(b)
+	for _, n := range []int{1000, 4000} {
+		results := make([]*resourcesresults.Result, n)
+		for i := range results {
+			r := *base[i%len(base)]
+			r.ResourceID = fmt.Sprintf("%s/%d", r.ResourceID, i)
+			results[i] = &r
+		}
+
+		b.Run(fmt.Sprintf("one-by-one/%d", n), func(b *testing.B) {
+			for range b.N {
+				b.StopTimer()
+				summaryDetails := loadSummaryDetails(b)
+				b.StartTimer()
+				for _, r := range results {
+					summaryDetails.AppendResourceResult(r)
+				}
+			}
+		})
+		b.Run(fmt.Sprintf("batch/%d", n), func(b *testing.B) {
+			for range b.N {
+				b.StopTimer()
+				summaryDetails := loadSummaryDetails(b)
+				b.StartTimer()
+				summaryDetails.AppendResourceResults(results...)
+			}
+		})
+	}
+}
 
 func TestSummaryDetails_AppendResourceResult(t *testing.T) {
 

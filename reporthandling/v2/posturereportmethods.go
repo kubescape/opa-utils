@@ -74,10 +74,11 @@ func (postureReport *PostureReport) ResourceResult(resourceID string) *resources
 
 // UpdateSummary get the result of a single resource. If resource not found will return nil
 func (postureReport *PostureReport) InitializeSummary() {
-
+	results := make([]*resourcesresults.Result, len(postureReport.Results))
 	for i := range postureReport.Results {
-		postureReport.AppendResourceResultToSummary(&postureReport.Results[i])
+		results[i] = &postureReport.Results[i]
 	}
+	postureReport.SummaryDetails.AppendResourceResults(results...)
 	postureReport.SummaryDetails.InitResourcesSummary(nil)
 }
 
