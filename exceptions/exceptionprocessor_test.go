@@ -164,6 +164,50 @@ func TestListRuleExceptionsPreservesGlobalPolicyRepresentations(t *testing.T) {
 	}
 }
 
+func TestListRuleExceptionsControlNameWithoutIDOrRuleMatchesNothing(t *testing.T) {
+	p := NewProcessor()
+	nameOnly := armotypes.PostureExceptionPolicy{
+		PosturePolicies: []armotypes.PosturePolicy{{ControlName: "HostPath mount"}},
+	}
+
+	// controlName is not used for matching, so a policy with nothing else
+	// must not apply to every control.
+	assert.Empty(t, p.ListRuleExceptions([]armotypes.PostureExceptionPolicy{nameOnly}, "", "C-0057", ""))
+	assert.Empty(t, p.ListRuleExceptions([]armotypes.PostureExceptionPolicy{nameOnly}, "NSA", "C-0048", "alert-rw-hostpath"))
+	assert.Empty(t, FilterExceptionsByFrameworks([]armotypes.PostureExceptionPolicy{nameOnly}, nil, "C-0057", ""))
+	assert.Empty(t, FilterExceptionsByFrameworks([]armotypes.PostureExceptionPolicy{nameOnly}, []string{"NSA"}, "", ""))
+
+	// A framework alone doesn't narrow it to one control either.
+	frameworkAndName := armotypes.PostureExceptionPolicy{
+		PosturePolicies: []armotypes.PosturePolicy{{FrameworkName: "NSA", ControlName: "HostPath mount"}},
+	}
+	assert.Empty(t, p.ListRuleExceptions([]armotypes.PostureExceptionPolicy{frameworkAndName}, "NSA", "C-0057", ""))
+	assert.Empty(t, FilterExceptionsByFrameworks([]armotypes.PostureExceptionPolicy{frameworkAndName}, []string{"NSA"}, "C-0057", ""))
+
+	// A ruleName still narrows it, and controlName is ignored as before.
+	ruleAndName := armotypes.PostureExceptionPolicy{
+		PosturePolicies: []armotypes.PosturePolicy{{FrameworkName: "NSA", ControlName: "HostPath mount", RuleName: "alert-rw-hostpath"}},
+	}
+	assert.Len(t, p.ListRuleExceptions([]armotypes.PostureExceptionPolicy{ruleAndName}, "NSA", "C-0048", "alert-rw-hostpath"), 1)
+	assert.Empty(t, p.ListRuleExceptions([]armotypes.PostureExceptionPolicy{ruleAndName}, "NSA", "C-0057", "rule-privilege-escalation"))
+
+	// Other policies of the same exception still match.
+	mixed := armotypes.PostureExceptionPolicy{
+		PosturePolicies: []armotypes.PosturePolicy{{ControlName: "HostPath mount"}, {ControlID: "C-0057"}},
+	}
+	matched := p.ListRuleExceptions([]armotypes.PostureExceptionPolicy{mixed}, "", "C-0057", "")
+	require.Len(t, matched, 1)
+	assert.Equal(t, []armotypes.PosturePolicy{{ControlID: "C-0057"}}, matched[0].PosturePolicies)
+	assert.Empty(t, p.ListRuleExceptions([]armotypes.PostureExceptionPolicy{mixed}, "", "C-0048", ""))
+
+	// With a controlID set, controlName is ignored as before.
+	nameAndID := armotypes.PostureExceptionPolicy{
+		PosturePolicies: []armotypes.PosturePolicy{{ControlName: "HostPath mount", ControlID: "C-0048"}},
+	}
+	assert.Len(t, p.ListRuleExceptions([]armotypes.PostureExceptionPolicy{nameAndID}, "", "C-0048", ""), 1)
+	assert.Empty(t, p.ListRuleExceptions([]armotypes.PostureExceptionPolicy{nameAndID}, "", "C-0057", ""))
+}
+
 func TestListRuleExceptionsRegex(t *testing.T) {
 	p := NewProcessor()
 	exceptionPolicy := emptyPostureExceptionPolicyAlertOnlyMock()
