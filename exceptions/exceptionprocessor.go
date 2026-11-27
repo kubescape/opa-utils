@@ -147,6 +147,12 @@ func (p *Processor) filterPostureExceptions(exceptionPolicies []armotypes.Postur
 }
 
 func (p *Processor) posturePolicyMatches(posturePolicy *armotypes.PosturePolicy, match posturePolicyMatch) bool {
+	// controlName is deprecated and not used for matching. Without a controlID
+	// or ruleName to narrow it, such a policy would match every control (or every
+	// control in its framework), so it matches nothing.
+	if posturePolicy.ControlName != "" && posturePolicy.ControlID == "" && posturePolicy.RuleName == "" {
+		return false
+	}
 	if match.matchFramework && posturePolicy.FrameworkName != "" {
 		frameworkMatches := false
 		for _, frameworkName := range match.frameworkNames {
